@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.pinhoquest.data.db.PinhoQuestDatabase
+import com.pinhoquest.data.db.migration.MIGRATION_1_2
 import com.pinhoquest.data.repository.RoomProfileRepository
 import com.pinhoquest.data.repository.RoomQuestRepository
 import com.pinhoquest.data.repository.RoomQuestSessionRepository
@@ -18,7 +19,9 @@ class AndroidDataGraph(context: Context) {
         appContext,
         PinhoQuestDatabase::class.java,
         "pinho-quest.db",
-    ).build()
+    )
+        .addMigrations(MIGRATION_1_2)
+        .build()
 
     val profileRepository = RoomProfileRepository(database.profileDao())
     val tagRepository = RoomTagRepository(database.tagDao())
