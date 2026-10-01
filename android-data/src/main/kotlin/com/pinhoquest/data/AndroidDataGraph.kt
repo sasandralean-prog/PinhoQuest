@@ -1,0 +1,33 @@
+package com.pinhoquest.data
+
+import android.content.Context
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.room.Room
+import com.pinhoquest.data.db.PinhoQuestDatabase
+import com.pinhoquest.data.repository.RoomProfileRepository
+import com.pinhoquest.data.repository.RoomQuestRepository
+import com.pinhoquest.data.repository.RoomQuestSessionRepository
+import com.pinhoquest.data.repository.RoomTagRepository
+import com.pinhoquest.data.settings.AppPreferencesStore
+
+class AndroidDataGraph(context: Context) {
+    private val appContext = context.applicationContext
+
+    private val database: PinhoQuestDatabase = Room.databaseBuilder(
+        appContext,
+        PinhoQuestDatabase::class.java,
+        "pinho-quest.db",
+    ).build()
+
+    val profileRepository = RoomProfileRepository(database.profileDao())
+    val tagRepository = RoomTagRepository(database.tagDao())
+    val questRepository = RoomQuestRepository(database.questDao())
+    val sessionRepository = RoomQuestSessionRepository(database.questSessionDao())
+
+    val preferencesStore = AppPreferencesStore(
+        PreferenceDataStoreFactory.create(
+            produceFile = { appContext.preferencesDataStoreFile("app") },
+        ),
+    )
+}
