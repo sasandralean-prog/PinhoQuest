@@ -75,6 +75,25 @@ class PinhoQuestDatabaseTest {
     }
 
     @Test
+    fun sessionRepositoryFindsCanonicalSessionByQuestId() = runBlocking {
+        val db = openDatabase()
+        val repository: com.pinhoquest.core.session.QuestSessionRepository =
+            RoomQuestSessionRepository(db.questSessionDao())
+        val session = QuestSession(
+            id = QuestSessionId("session-by-quest"),
+            questId = QuestId("quest-by-id"),
+            state = QuestState.ACCEPTED,
+            createdAtEpochMillis = 150L,
+            updatedAtEpochMillis = 150L,
+        )
+
+        repository.upsert(session)
+
+        assertEquals(session, repository.getByQuestId(session.questId))
+        db.close()
+    }
+
+    @Test
     fun activeSessionRestoresAfterDatabaseReopen() = runBlocking {
         var db = openDatabase()
         val session = QuestSession(

@@ -16,6 +16,13 @@ interface QuestSessionDao {
 
     @Query(
         "SELECT * FROM quest_sessions " +
+            "WHERE questId = :questId " +
+            "ORDER BY updatedAtEpochMillis DESC, sessionId DESC LIMIT 1",
+    )
+    suspend fun getByQuestId(questId: String): QuestSessionEntity?
+
+    @Query(
+        "SELECT * FROM quest_sessions " +
             "WHERE state = 'ACTIVE' " +
             "ORDER BY updatedAtEpochMillis DESC, sessionId DESC LIMIT 1",
     )

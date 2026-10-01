@@ -1,5 +1,6 @@
 package com.pinhoquest.data.repository
 
+import com.pinhoquest.core.session.QuestSessionRepository
 import com.pinhoquest.data.db.dao.QuestSessionDao
 import com.pinhoquest.data.db.entity.QuestSessionEntity
 import com.pinhoquest.domain.quest.QuestId
@@ -9,15 +10,18 @@ import com.pinhoquest.domain.quest.QuestState
 
 class RoomQuestSessionRepository(
     private val dao: QuestSessionDao,
-) {
-    suspend fun upsert(session: QuestSession) {
+) : QuestSessionRepository {
+    override suspend fun upsert(session: QuestSession) {
         dao.upsert(session.toEntity())
     }
 
-    suspend fun get(sessionId: QuestSessionId): QuestSession? =
+    override suspend fun get(sessionId: QuestSessionId): QuestSession? =
         dao.get(sessionId.value)?.toDomain()
 
-    suspend fun active(): QuestSession? =
+    override suspend fun getByQuestId(questId: QuestId): QuestSession? =
+        dao.getByQuestId(questId.value)?.toDomain()
+
+    override suspend fun active(): QuestSession? =
         dao.active()?.toDomain()
 
     private fun QuestSession.toEntity() = QuestSessionEntity(
