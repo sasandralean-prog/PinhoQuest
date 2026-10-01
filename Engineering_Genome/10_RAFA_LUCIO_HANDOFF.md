@@ -93,8 +93,8 @@ The conversational V1 design has been completed and consolidated into:
 
 `docs/superpowers/specs/2026-10-01-pinho-quest-v1-design.md`
 
-The next allowed step is **user review of the written spec**.
+The written V1 spec was explicitly approved on 2026-10-01.
 
-Only after explicit approval of that written spec should the implementation-planning phase begin.
+The implementation roadmap and five child plans are under `docs/superpowers/plans/`.
 
-No Android scaffolding, Room schema, inference dependency, web adapter or product code should be created before that gate.
+The next allowed step is **user review of those implementation plans and selection of an execution method**. Product implementation begins only after that gate.

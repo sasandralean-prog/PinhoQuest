@@ -10,7 +10,8 @@ The repository should be approached as a governed system, not as a pile of scree
 2. `architecture/PINHO_QUEST_V1_ARCHITECTURE.md`
 3. `Engineering_Genome/01_ENGINEERING_PHILOSOPHY.md`
 4. `Engineering_Genome/02_AUTHORITY_MAP.md`
-5. `Engineering_Genome/10_LUCIO_RAFA_HANDOFF.md`
+5. `Engineering_Genome/10_RAFA_LUCIO_HANDOFF.md`
+6. `docs/superpowers/plans/2026-10-01-pinho-quest-v1-roadmap.md`
 
 ## Product intent
 

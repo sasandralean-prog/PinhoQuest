@@ -6,11 +6,12 @@ A proposta é simples: sortear algo legal para fazer agora — programar, jogar,
 
 ## Estado atual
 
-O projeto está na fase de **design V1 escrito e aguardando revisão**. Ainda não há implementação autorizada.
+O **design V1 foi aprovado**. Os planos de implementação foram escritos e estão aguardando revisão/escolha do método de execução. Ainda não há implementação de produto iniciada.
 
 ## Leia primeiro
 
 - [Design V1 canônico](docs/superpowers/specs/2026-10-01-pinho-quest-v1-design.md)
+- [Roadmap de implementação V1](docs/superpowers/plans/2026-10-01-pinho-quest-v1-roadmap.md)
 - [Mapa de arquitetura](architecture/PINHO_QUEST_V1_ARCHITECTURE.md)
 - [Engineering Genome](Engineering_Genome/00_START_HERE.md)
 - [Mapa de autoridades](Engineering_Genome/02_AUTHORITY_MAP.md)
