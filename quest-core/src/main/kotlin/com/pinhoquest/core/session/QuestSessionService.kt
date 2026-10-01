@@ -9,6 +9,8 @@ import com.pinhoquest.domain.quest.QuestSession
 import com.pinhoquest.domain.quest.QuestSessionId
 import com.pinhoquest.domain.quest.QuestState
 import java.util.UUID
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 enum class RejectReason {
     NOT_FOR_ME,
@@ -42,6 +44,7 @@ class QuestSessionService(
         QuestSessionId(UUID.randomUUID().toString())
     },
 ) {
+    private val commandMutex = Mutex()
     suspend fun generate(request: QuestRequest): SessionCommandResult<Quest> {
         return when (
             val result = engine.generate(
@@ -57,66 +60,72 @@ class QuestSessionService(
         }
     }
 
-    suspend fun accept(questId: QuestId): SessionCommandResult<QuestSession> {
-        val quest = questRepository.get(questId)
-            ?: return SessionCommandResult.NotFound("quest", questId.value)
-        sessionRepository.getByQuestId(questId)?.let { existing ->
-            if (existing.state == QuestState.ACCEPTED || existing.state == QuestState.ACTIVE) {
-                return SessionCommandResult.Success(existing)
+    suspend fun accept(questId: QuestId): SessionCommandResult<QuestSession> =
+        commandMutex.withLock {
+            val quest = questRepository.get(questId)
+                ?: return@withLock SessionCommandResult.NotFound("quest", questId.value)
+            sessionRepository.getByQuestId(questId)?.let { existing ->
+                if (existing.state == QuestState.ACCEPTED || existing.state == QuestState.ACTIVE) {
+                    return@withLock SessionCommandResult.Success(existing)
+                }
             }
+            if (quest.state != QuestState.GENERATED) {
+                return@withLock SessionCommandResult.InvalidTransition(
+                    current = quest.state,
+                    requested = QuestState.ACCEPTED,
+                )
+            }
+
+            val now = nowEpochMillis()
+            val session = QuestSession(
+                id = sessionIdFactory.newId(),
+                questId = questId,
+                state = QuestState.ACCEPTED,
+                createdAtEpochMillis = now,
+                updatedAtEpochMillis = now,
+            )
+            questRepository.upsert(quest.copy(state = QuestState.ACCEPTED))
+            sessionRepository.upsert(session)
+            SessionCommandResult.Success(session)
         }
-        if (quest.state != QuestState.GENERATED) {
-            return SessionCommandResult.InvalidTransition(
-                current = quest.state,
-                requested = QuestState.ACCEPTED,
+
+    suspend fun start(sessionId: QuestSessionId): SessionCommandResult<QuestSession> =
+        commandMutex.withLock {
+            transition(
+                sessionId = sessionId,
+                target = QuestState.ACTIVE,
+                allowedFrom = setOf(QuestState.ACCEPTED),
             )
         }
 
-        val now = nowEpochMillis()
-        val session = QuestSession(
-            id = sessionIdFactory.newId(),
-            questId = questId,
-            state = QuestState.ACCEPTED,
-            createdAtEpochMillis = now,
-            updatedAtEpochMillis = now,
-        )
-        questRepository.upsert(quest.copy(state = QuestState.ACCEPTED))
-        sessionRepository.upsert(session)
-        return SessionCommandResult.Success(session)
-    }
-
-    suspend fun start(sessionId: QuestSessionId): SessionCommandResult<QuestSession> =
-        transition(
-            sessionId = sessionId,
-            target = QuestState.ACTIVE,
-            allowedFrom = setOf(QuestState.ACCEPTED),
-        )
-
     suspend fun abandon(sessionId: QuestSessionId): SessionCommandResult<QuestSession> =
-        transition(
-            sessionId = sessionId,
-            target = QuestState.ABANDONED,
-            allowedFrom = setOf(QuestState.ACCEPTED, QuestState.ACTIVE),
-        )
+        commandMutex.withLock {
+            transition(
+                sessionId = sessionId,
+                target = QuestState.ABANDONED,
+                allowedFrom = setOf(QuestState.ACCEPTED, QuestState.ACTIVE),
+            )
+        }
+
     suspend fun reject(
         questId: QuestId,
         reason: RejectReason? = null,
-    ): SessionCommandResult<Unit> {
+    ): SessionCommandResult<Unit> = commandMutex.withLock {
         @Suppress("UNUSED_VARIABLE")
         val explicitReason = reason
         val quest = questRepository.get(questId)
-            ?: return SessionCommandResult.NotFound("quest", questId.value)
+            ?: return@withLock SessionCommandResult.NotFound("quest", questId.value)
         if (quest.state == QuestState.REJECTED) {
-            return SessionCommandResult.Success(Unit)
+            return@withLock SessionCommandResult.Success(Unit)
         }
         if (quest.state != QuestState.GENERATED) {
-            return SessionCommandResult.InvalidTransition(
+            return@withLock SessionCommandResult.InvalidTransition(
                 current = quest.state,
                 requested = QuestState.REJECTED,
             )
         }
         questRepository.upsert(quest.copy(state = QuestState.REJECTED))
-        return SessionCommandResult.Success(Unit)
+        SessionCommandResult.Success(Unit)
     }
 
     private suspend fun transition(

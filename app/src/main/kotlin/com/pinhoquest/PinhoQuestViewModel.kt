@@ -13,7 +13,7 @@ import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.ui.copy.UserFacingCopy
 import com.pinhoquest.ui.navigation.MainTab
 import com.pinhoquest.ui.navigation.PinhoQuestUiState
-import com.pinhoquest.ui.tags.BuiltinTags
+import com.pinhoquest.core.tag.SystemTagCatalog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,14 +40,14 @@ class PinhoQuestViewModel(
                 return@launch
             }
             val profile = UserProfile(
-                id = graph.profileId,
+                id = graph.profileIdFactory.newId(),
                 gardenOwnerName = gardenName,
                 createdAtEpochMillis = System.currentTimeMillis(),
             )
             graph.profileRepository.upsert(profile)
-            BuiltinTags.all.forEach { tag ->
+            SystemTagCatalog.all.forEach { tag ->
                 graph.tagRepository.upsert(
-                    graph.profileId,
+                    profile.id,
                     tag.copy(enabled = tag.id.value in selectedTagIds),
                 )
             }
@@ -129,7 +129,8 @@ class PinhoQuestViewModel(
     fun setTagEnabled(tagId: TagId, enabled: Boolean) {
         viewModelScope.launch {
             val tag = _state.value.tags.firstOrNull { it.id == tagId } ?: return@launch
-            graph.tagRepository.upsert(graph.profileId, tag.copy(enabled = enabled))
+            val profile = graph.profileRepository.current() ?: return@launch
+            graph.tagRepository.upsert(profile.id, tag.copy(enabled = enabled))
             _state.update { state ->
                 state.copy(
                     tags = state.tags.map {
@@ -156,7 +157,7 @@ class PinhoQuestViewModel(
 
     private suspend fun loadCanonicalState() {
         val preferences = graph.preferencesStore.preferences.first()
-        val profile = graph.profileRepository.get(graph.profileId)
+        val profile = graph.profileRepository.current()
         if (profile == null) {
             _state.value = PinhoQuestUiState(
                 onboardingRequired = true,
@@ -166,7 +167,7 @@ class PinhoQuestViewModel(
             return
         }
 
-        val tags = graph.tagRepository.list(graph.profileId)
+        val tags = graph.tagRepository.list(profile.id)
         val activeSession = graph.sessionRepository.active()
         val activeQuest = activeSession?.let { graph.questRepository.get(it.questId) }
         _state.value = PinhoQuestUiState(

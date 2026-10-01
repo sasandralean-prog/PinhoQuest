@@ -75,6 +75,22 @@ class PinhoQuestDatabaseTest {
     }
 
     @Test
+    fun profileRepositoryLoadsCanonicalCurrentProfileWithoutKnownId() = runBlocking {
+        val db = openDatabase()
+        val profile = UserProfile(
+            id = ProfileId("generated-profile-id"),
+            gardenOwnerName = GardenOwnerName.create("Rafa").getOrThrow(),
+            createdAtEpochMillis = 100L,
+        )
+        val repository = RoomProfileRepository(db.profileDao())
+
+        repository.upsert(profile)
+
+        assertEquals(profile, repository.current())
+        db.close()
+    }
+
+    @Test
     fun sessionRepositoryFindsCanonicalSessionByQuestId() = runBlocking {
         val db = openDatabase()
         val repository: com.pinhoquest.core.session.QuestSessionRepository =

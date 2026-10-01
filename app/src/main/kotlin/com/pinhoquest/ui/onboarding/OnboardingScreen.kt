@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.profile.GardenOwnerName
-import com.pinhoquest.ui.tags.BuiltinTags
+import com.pinhoquest.core.tag.SystemTagCatalog
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -34,7 +34,8 @@ fun OnboardingScreen(
     var selected by remember { mutableStateOf(emptySet<String>()) }
     val trimmed = name.trim()
     val validName = GardenOwnerName.create(trimmed).isSuccess
-    val tooLong = trimmed.length > 20
+    val tooLong =
+        trimmed.codePointCount(0, trimmed.length) > GardenOwnerName.MAX_CHARACTERS
 
     Column(
         modifier = modifier
@@ -68,7 +69,7 @@ fun OnboardingScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            BuiltinTags.all.forEach { tag ->
+            SystemTagCatalog.all.forEach { tag ->
                 val isSelected = tag.id.value in selected
                 FilterChip(
                     selected = isSelected,

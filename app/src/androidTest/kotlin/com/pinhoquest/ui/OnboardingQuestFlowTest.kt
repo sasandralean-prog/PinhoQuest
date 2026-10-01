@@ -1,10 +1,12 @@
 package com.pinhoquest.ui
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
@@ -43,6 +45,20 @@ class OnboardingQuestFlowTest {
         composeRule.onNodeWithText("Criar meu jardim").assertIsEnabled().performClick()
 
         assertEquals("Rafa", completedName)
+    }
+
+    @Test
+    fun onboardingCountsUnicodeCodePointsConsistently() {
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(onComplete = { _, _ -> })
+            }
+        }
+
+        composeRule.onNodeWithText("Seu nome").performTextInput("🌷".repeat(20))
+
+        composeRule.onAllNodesWithText("Use até 20 caracteres.").assertCountEquals(0)
+        composeRule.onNodeWithText("Criar meu jardim").assertIsEnabled()
     }
 
     @Test

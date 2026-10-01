@@ -12,6 +12,9 @@ import com.pinhoquest.domain.quest.QuestRequest
 import com.pinhoquest.domain.quest.QuestSession
 import com.pinhoquest.domain.quest.QuestSessionId
 import com.pinhoquest.domain.quest.QuestState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -30,6 +33,33 @@ class QuestSessionServiceTest {
             contextProvider = QuestContextProvider { QuestContext() },
             nowEpochMillis = { now },
         )
+
+    @Test
+    fun concurrentAcceptsSerializeToOneCanonicalSession() = runTest {
+        val slowSessions = FakeQuestSessionRepository(delayQuestLookup = true)
+        var nextSessionId = 0
+        val concurrentService = QuestSessionService(
+            engine = QuestEngine(QuestPlanner(), ProceduralComposer(), QuestValidator()),
+            questRepository = questRepository,
+            sessionRepository = slowSessions,
+            contextProvider = QuestContextProvider { QuestContext() },
+            nowEpochMillis = { now },
+            sessionIdFactory = QuestSessionIdFactory {
+                nextSessionId += 1
+                QuestSessionId("session-" + nextSessionId)
+            },
+        )
+        val quest = success(concurrentService.generate(QuestRequest(QuestMode.NORMAL)))
+
+        val accepted = listOf(
+            async { concurrentService.accept(quest.id) },
+            async { concurrentService.accept(quest.id) },
+        ).awaitAll().map(::success)
+
+        assertEquals(1, slowSessions.maxConcurrentQuestLookups)
+        assertEquals(1, accepted.map { it.id }.distinct().size)
+        assertEquals(accepted.first(), slowSessions.getByQuestId(quest.id))
+    }
 
     @Test
     fun duplicateStartIsIdempotent() = runTest {
@@ -117,16 +147,31 @@ class QuestSessionServiceTest {
         override suspend fun get(questId: QuestId): Quest? = values[questId]
     }
 
-    private class FakeQuestSessionRepository : QuestSessionRepository {
+    private class FakeQuestSessionRepository(
+        private val delayQuestLookup: Boolean = false,
+    ) : QuestSessionRepository {
         private val values = linkedMapOf<QuestSessionId, QuestSession>()
+        private var activeQuestLookups = 0
+        var maxConcurrentQuestLookups: Int = 0
+            private set
         override suspend fun upsert(session: QuestSession) {
             values[session.id] = session
         }
 
         override suspend fun get(sessionId: QuestSessionId): QuestSession? = values[sessionId]
 
-        override suspend fun getByQuestId(questId: QuestId): QuestSession? =
-            values.values.firstOrNull { it.questId == questId }
+        override suspend fun getByQuestId(questId: QuestId): QuestSession? {
+            val snapshot = values.values.firstOrNull { it.questId == questId }
+            if (!delayQuestLookup) return snapshot
+            activeQuestLookups += 1
+            maxConcurrentQuestLookups = maxOf(maxConcurrentQuestLookups, activeQuestLookups)
+            try {
+                delay(1)
+            } finally {
+                activeQuestLookups -= 1
+            }
+            return snapshot
+        }
 
         override suspend fun active(): QuestSession? =
             values.values.firstOrNull { it.state == QuestState.ACTIVE }

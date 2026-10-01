@@ -1,11 +1,11 @@
-package com.pinhoquest.ui.tags
+package com.pinhoquest.core.tag
 
 import com.pinhoquest.domain.quest.QuestCategory
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.domain.tag.TagSource
 
-object BuiltinTags {
+object SystemTagCatalog {
     val all = listOf(
         system("coding", "Programação"),
         system("games", "Jogos"),

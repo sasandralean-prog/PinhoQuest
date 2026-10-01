@@ -20,11 +20,14 @@ class RoomProfileRepository(
     }
 
     suspend fun get(profileId: ProfileId): UserProfile? =
-        dao.get(profileId.value)?.let { entity ->
-            UserProfile(
-                id = ProfileId(entity.profileId),
-                gardenOwnerName = GardenOwnerName.create(entity.gardenOwnerName).getOrThrow(),
-                createdAtEpochMillis = entity.createdAtEpochMillis,
-            )
-        }
+        dao.get(profileId.value)?.toDomain()
+
+    suspend fun current(): UserProfile? =
+        dao.current()?.toDomain()
+
+    private fun ProfileEntity.toDomain() = UserProfile(
+        id = ProfileId(profileId),
+        gardenOwnerName = GardenOwnerName.create(gardenOwnerName).getOrThrow(),
+        createdAtEpochMillis = createdAtEpochMillis,
+    )
 }
