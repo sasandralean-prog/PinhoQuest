@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "goals": [
+    {
+      "id": "first-quest",
+      "title": "Primeiro passo",
+      "ruleType": "COMPLETION_COUNT",
+      "target": 1
+    },
+    {
+      "id": "three-quests",
+      "title": "Pegando o ritmo",
+      "ruleType": "COMPLETION_COUNT",
+      "target": 3
+    },
+    {
+      "id": "coding-quest",
+      "title": "Modo código",
+      "ruleType": "CATEGORY_COMPLETION",
+      "target": 1,
+      "category": "CODING"
+    },
+    {
+      "id": "gaming-quest",
+      "title": "Hora de jogar",
+      "ruleType": "CATEGORY_COMPLETION",
+      "target": 1,
+      "category": "GAMING"
+    },
+    {
+      "id": "challenge-quest",
+      "title": "Aceitei o desafio",
+      "ruleType": "DIFFICULTY_COMPLETION",
+      "target": 1,
+      "difficulty": "CHALLENGE"
+    },
+    {
+      "id": "two-bonuses",
+      "title": "Fui além",
+      "ruleType": "BONUS_OBJECTIVE_COUNT",
+      "target": 2
+    },
+    {
+      "id": "xp-100",
+      "title": "100 XP",
+      "ruleType": "LIFETIME_XP_MILESTONE",
+      "target": 100
+    },
+    {
+      "id": "xp-500",
+      "title": "500 XP",
+      "ruleType": "LIFETIME_XP_MILESTONE",
+      "target": 500
+    }
+  ]
+}

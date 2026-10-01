@@ -1,0 +1,447 @@
+{
+  "packId": "collection-i-primeiras-descobertas",
+  "version": 1,
+  "generatedAtEpochMillis": 1790812800000,
+  "collectionIndex": 1,
+  "scale": {
+    "version": 1,
+    "referenceMinPopulation": 1,
+    "referenceMaxPopulation": 10000,
+    "requiredCountingBasis": "MATURE_INDIVIDUALS",
+    "methodology": "Escala log10 absoluta de 1 a 10.000 indivíduos maduros; quatro faixas iguais. Estimativas sem valor pontual permanecem UNKNOWN."
+  },
+  "entries": [
+    {
+      "id": "camellia-granthamiana",
+      "commonName": "Grantham's Camellia",
+      "scientificName": "Camellia granthamiana",
+      "description": "Camélia arbórea nativa do sul da China e de Hong Kong.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 3000,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1420070400000,
+        "evidenceSourceUris": [
+          "https://doi.org/10.2305/IUCN.UK.2015-4.RLTS.T62053240A62053244.en"
+        ],
+        "confidence": "HIGH",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "didymocarpus-phuquocensis",
+      "commonName": "Didymocarpus phuquocensis",
+      "scientificName": "Didymocarpus phuquocensis",
+      "description": "Gesneriácea de ambientes úmidos e sombreados da ilha de Phu Quoc, Vietnã.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1577836800000,
+        "evidenceSourceUris": [
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC7486308/"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "sambucus-palmensis",
+      "commonName": "Sambucus palmensis",
+      "scientificName": "Sambucus palmensis",
+      "description": "Espécie endêmica das Ilhas Canárias com população global monitorada.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 340,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1767225600000,
+        "evidenceSourceUris": [
+          "https://staging-www.iucnredlist.org/es/species/61596/245042349/pdf"
+        ],
+        "confidence": "HIGH",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "caulokaempferia-arunachalensis",
+      "commonName": "Caulokaempferia arunachalensis",
+      "scientificName": "Caulokaempferia arunachalensis",
+      "description": "Gengibre silvestre endêmico de Arunachal Pradesh, Índia.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 160,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1483228800000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77297123-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "vesalea-coriacea",
+      "commonName": "Vesalea coriacea",
+      "scientificName": "Vesalea coriacea",
+      "description": "Arbusto mexicano conhecido de uma área muito restrita em San Luis Potosí.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 120,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1356998400000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77105363-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "dypsis-dracaenoides",
+      "commonName": "Dypsis dracaenoides",
+      "scientificName": "Dypsis dracaenoides",
+      "description": "Palmeira endêmica das florestas de Vondrozo, Madagascar.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 100,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1262304000000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77105549-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "ravenea-beentjei",
+      "commonName": "Ravenea beentjei",
+      "scientificName": "Ravenea beentjei",
+      "description": "Palmeira de áreas úmidas de Vondrozo, no sudeste de Madagascar.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 40,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1262304000000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77105557-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "dypsis-gronophyllum",
+      "commonName": "Dypsis gronophyllum",
+      "scientificName": "Dypsis gronophyllum",
+      "description": "Pequena palmeira de floresta úmida do sudeste de Madagascar.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 40,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1262304000000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77105551-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "ceropegia-graminea",
+      "commonName": "Ceropegia graminea",
+      "scientificName": "Ceropegia graminea",
+      "description": "Erva tuberosa endêmica da Tailândia, descrita em floresta sazonal seca.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 30,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1577836800000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77205195-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "phanera-laotica",
+      "commonName": "Phanera laotica",
+      "scientificName": "Phanera laotica",
+      "description": "Trepadeira lenhosa endêmica do Laos, conhecida da localidade-tipo.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 30,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1609459200000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77218370-1/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "keetia-susu",
+      "commonName": "Keetia susu",
+      "scientificName": "Keetia susu",
+      "description": "Arbusto ou pequena árvore de florestas e afloramentos da Guiné.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1451606400000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A60477041-2/general-information"
+        ],
+        "confidence": "MEDIUM",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "rorippa-valdes-bermejoi",
+      "commonName": "Rorippa valdes-bermejoi",
+      "scientificName": "Rorippa valdes-bermejoi",
+      "description": "Parente silvestre do agrião restrito ao Parque Nacional de Doñana, Espanha.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 13,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1640995200000,
+        "evidenceSourceUris": [
+          "https://staging-www.iucnredlist.org/fr/species/175300/117849461/pdf"
+        ],
+        "confidence": "HIGH",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "diospyros-atrata",
+      "commonName": "Diospyros atrata",
+      "scientificName": "Diospyros atrata",
+      "description": "Árvore de ébano ameaçada do Sri Lanka, alvo de levantamentos de conservação.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": 6,
+        "lowerBound": null,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1704067200000,
+        "evidenceSourceUris": [
+          "https://www.bgci.org/our-work/projects-and-case-studies/genetic-diversity-and-seed-germination-studies-on-endangered-diospyros-species-sri-lanka/"
+        ],
+        "confidence": "HIGH",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "dinizia-jueirana-facao",
+      "commonName": "Dinizia jueirana-facao",
+      "scientificName": "Dinizia jueirana-facao",
+      "description": "Grande árvore brasileira conhecida de pouquíssimas áreas no Espírito Santo.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 24,
+        "estimateDateEpochMillis": 1483228800000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A60475109-2/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "leptopus-fangdingianus",
+      "commonName": "Leptopus fangdingianus",
+      "scientificName": "Leptopus fangdingianus",
+      "description": "Arbusto de sub-bosque calcário restrito a Guangxi, China.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": 30,
+        "upperBound": 250,
+        "estimateDateEpochMillis": null,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77090299-1/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "oreocharis-rubrostriata",
+      "commonName": "Oreocharis rubrostriata",
+      "scientificName": "Oreocharis rubrostriata",
+      "description": "Gesneriácea rupícola conhecida de poucos vales no sul da China.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 299,
+        "estimateDateEpochMillis": 1514764800000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77160765-1/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "arisaema-ghaticum",
+      "commonName": "Arisaema ghaticum",
+      "scientificName": "Arisaema ghaticum",
+      "description": "Geófita tuberosa endêmica dos Gates Ocidentais da Índia.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 249,
+        "estimateDateEpochMillis": 1293840000000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77105254-1/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "agrostis-trachychlaena",
+      "commonName": "Agrostis trachychlaena",
+      "scientificName": "Agrostis trachychlaena",
+      "description": "Gramínea perene rara de ilhas do arquipélago de Tristão da Cunha.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 249,
+        "estimateDateEpochMillis": null,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A896863-1/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "elaeocarpus-hylobroma",
+      "commonName": "Elaeocarpus hylobroma",
+      "scientificName": "Elaeocarpus hylobroma",
+      "description": "Árvore de floresta montana restrita ao nordeste de Queensland, Austrália.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 999,
+        "estimateDateEpochMillis": 1325376000000,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A77121630-1/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "platymiscium-filipes",
+      "commonName": "Platymiscium filipes",
+      "scientificName": "Platymiscium filipes",
+      "description": "Árvore endêmica do Pará associada a florestas inundáveis.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 9999,
+        "estimateDateEpochMillis": null,
+        "evidenceSourceUris": [
+          "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A515225-1/general-information"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "othonna-cacalioides",
+      "commonName": "Othonna cacalioides",
+      "scientificName": "Othonna cacalioides",
+      "description": "Suculenta sul-africana de distribuição muito restrita.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": 5001,
+        "upperBound": null,
+        "estimateDateEpochMillis": 1609459200000,
+        "evidenceSourceUris": [
+          "https://nssl.sanbi.org.za/species/othonna-cacalioides"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "cyclopia-bolusii",
+      "commonName": "Cyclopia bolusii",
+      "scientificName": "Cyclopia bolusii",
+      "description": "Arbusto do fynbos sul-africano com subpopulações pequenas e dispersas.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 999,
+        "estimateDateEpochMillis": 1609459200000,
+        "evidenceSourceUris": [
+          "https://redlist.sanbi.org/species.php?species=439-5"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "euphorbia-obesa",
+      "commonName": "Euphorbia obesa",
+      "scientificName": "Euphorbia obesa",
+      "description": "Suculenta globosa endêmica da África do Sul e ameaçada por coleta.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": null,
+        "upperBound": 499,
+        "estimateDateEpochMillis": 1388534400000,
+        "evidenceSourceUris": [
+          "https://nssl.sanbi.org.za/species/euphorbia-obesa"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    },
+    {
+      "id": "conophytum-roodiae",
+      "commonName": "Conophytum roodiae",
+      "scientificName": "Conophytum roodiae",
+      "description": "Pequena suculenta do sul da África com população silvestre estimada em dezenas de milhares.",
+      "eligible": true,
+      "population": {
+        "estimatedIndividuals": null,
+        "lowerBound": 50000,
+        "upperBound": 75000,
+        "estimateDateEpochMillis": 1640995200000,
+        "evidenceSourceUris": [
+          "https://nssl.sanbi.org.za/species/conophytum-roodiae"
+        ],
+        "confidence": "LOW",
+        "countingBasis": "MATURE_INDIVIDUALS"
+      }
+    }
+  ]
+}
