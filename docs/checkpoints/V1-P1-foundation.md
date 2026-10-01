@@ -3,7 +3,7 @@
 **Status:** validated_bounded  
 **Date:** 2026-10-01  
 **Branch:** `feature/p1-foundation`  
-**Validated product baseline:** `913da451af36954961233e60337f8b964144ce57`
+**Validated product baseline:** `ebc4d02d99ae266c500b3db51377f35a9e91f0e3`
 
 ## Objective
 
@@ -34,10 +34,10 @@ Test inventory at the final gate:
 | Suite | Tests | Failures | Skipped |
 | --- | ---: | ---: | ---: |
 | `quest-domain` JVM | 7 | 0 | 0 |
-| `quest-core` JVM | 12 | 0 | 0 |
-| `app` connected | 5 | 0 | 0 |
-| `android-data` connected | 4 | 0 | 0 |
-| **Total** | **28** | **0** | **0** |
+| `quest-core` JVM | 16 | 0 | 0 |
+| `app` connected | 6 | 0 | 0 |
+| `android-data` connected | 5 | 0 | 0 |
+| **Total** | **34** | **0** | **0** |
 
 Lint: green for `app` and `android-data`.  
 Debug APK: built successfully.
@@ -45,7 +45,7 @@ Debug APK: built successfully.
 APK SHA-256:
 
 ```text
-76f6ce3c1eeed4abc4a0c37acc83a22aba983477cd909253b2678409728ea00b
+305f11f70ae13b8b8e124581b7867704fa9e440150028ad7754339316bc53f55
 ```
 
 ## Runtime device
@@ -110,6 +110,25 @@ Important RED observations captured during P1:
 3. Room/DataStore construction stays inside `android-data` via `AndroidDataGraph`; the app does not promote those implementation dependencies into its public architecture.
 4. NORMAL/GAME/RANDOM remain policies of the same engine. In P1, GAME has no researched candidate source yet and therefore returns a friendly unavailable result rather than silently becoming NORMAL.
 5. Large text uses scroll/adaptive content instead of clipping via fixed card heights.
+6. System tag definitions and tag→QuestCategory affinity mapping live in `quest-core`; UI renders the catalog but is not its authority.
+7. Garden profiles receive generated UUID identities persisted in Room; installations no longer share a hardcoded profile ID.
+
+## Native final-review hardening
+
+The final whole-branch Native review identified four Important issues and fixed each with a RED→GREEN regression:
+
+- concurrent `accept()` calls could race into different session identities; mutating session commands are now serialized and the concurrency test proves one canonical session;
+- system-tag affinity policy lived under `ui.tags`; it moved to `quest-core` as `SystemTagCatalog`;
+- onboarding's visual 20-character check counted UTF-16 code units while the domain counted Unicode code points; a 20-emoji regression now passes consistently;
+- `profileId = "local-profile"` would make unrelated gardens indistinguishable during future backup/restore; profile IDs are now generated UUIDs and the current profile is recovered canonically from Room.
+
+Post-review consolidated gate:
+
+```powershell
+.\gradlew.bat test lintDebug assembleDebug :android-data:connectedDebugAndroidTest :app:connectedDebugAndroidTest
+```
+
+Result: **BUILD SUCCESSFUL**, 34 tests, 0 failures, 0 skipped.
 
 ## Known bounded limitations
 
