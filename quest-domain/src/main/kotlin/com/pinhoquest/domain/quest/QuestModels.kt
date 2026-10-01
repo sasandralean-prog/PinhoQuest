@@ -2,6 +2,7 @@ package com.pinhoquest.domain.quest
 
 @JvmInline value class QuestId(val value: String)
 @JvmInline value class ObjectiveId(val value: String)
+@JvmInline value class QuestSessionId(val value: String)
 
 enum class QuestMode { NORMAL, GAME, RANDOM }
 enum class QuestState { GENERATED, ACCEPTED, ACTIVE, COMPLETED, ABANDONED, REJECTED }
@@ -53,4 +54,12 @@ data class Quest(
     val estimatedDuration: EstimatedDuration,
     val difficulty: QuestDifficulty,
     val state: QuestState = QuestState.GENERATED,
+)
+
+data class QuestSession(
+    val id: QuestSessionId,
+    val questId: QuestId,
+    val state: QuestState,
+    val createdAtEpochMillis: Long,
+    val updatedAtEpochMillis: Long,
 )
