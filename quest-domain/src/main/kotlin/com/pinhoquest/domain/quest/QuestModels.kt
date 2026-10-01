@@ -40,7 +40,7 @@ data class QuestDraft(
     val category: QuestCategory,
     val environment: QuestEnvironment,
     val estimatedDuration: EstimatedDuration,
-    val difficulty: QuestDifficulty,
+    val difficulty: QuestDifficulty?,
 )
 
 data class Quest(
