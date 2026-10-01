@@ -27,4 +27,14 @@ interface QuestSessionDao {
             "ORDER BY updatedAtEpochMillis DESC, sessionId DESC LIMIT 1",
     )
     suspend fun active(): QuestSessionEntity?
+
+    @Query(
+        "UPDATE quest_sessions SET state = :state, updatedAtEpochMillis = :updatedAtEpochMillis " +
+            "WHERE sessionId = :sessionId",
+    )
+    suspend fun updateState(
+        sessionId: String,
+        state: String,
+        updatedAtEpochMillis: Long,
+    ): Int
 }
