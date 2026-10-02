@@ -79,12 +79,12 @@
 - `InferenceAdmissionController.decide(snapshot, model): AdmissionDecision`
 - `AdmissionDecision = Admit | UseFallback(reason)`
 
-- [ ] **Step 1: Write tests** for low-memory, severe thermal state, missing model/runtime, concurrent inference, and healthy headroom.
-- [ ] **Step 2: Add review-focus test** proving healthy general workload cannot override low-memory rejection; no CPU-percent shortcut exists.
-- [ ] **Step 3: Run** tests. **Expected:** FAIL.
-- [ ] **Step 4: Implement** policy and Android resource snapshot using supported memory/thermal signals.
-- [ ] **Step 5: Run** tests. **Expected:** PASS.
-- [ ] **Step 6: Commit** `feat: add resource aware inference admission`.
+- [x] **Step 1: Write tests** for low-memory, severe thermal state, missing model/runtime, concurrent inference, and healthy headroom.
+- [x] **Step 2: Add review-focus test** proving healthy general workload cannot override low-memory rejection; no CPU-percent shortcut exists.
+- [x] **Step 3: Run** tests. **Expected:** FAIL.
+- [x] **Step 4: Implement** policy and Android resource snapshot using supported memory/thermal signals.
+- [x] **Step 5: Run** tests. **Expected:** PASS.
+- [x] **Step 6: Commit** `feat: add resource aware inference admission`.
 
 ### Task 4: Runtime/model benchmark gate
 
