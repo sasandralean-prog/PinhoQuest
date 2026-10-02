@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.tag.TagId
-import com.pinhoquest.ui.garden.GardenPlaceholderScreen
+import com.pinhoquest.ui.garden.GardenScreen
+import com.pinhoquest.ui.garden.GardenUiState
+import com.pinhoquest.ui.quests.QuestCompletionDialog
 import com.pinhoquest.ui.quests.QuestScreen
 import com.pinhoquest.ui.settings.SettingsScreen
 import com.pinhoquest.ui.tags.TagsScreen
@@ -27,7 +29,13 @@ fun PinhoQuestNav(
     onTabSelected: (MainTab) -> Unit,
     onGenerateQuest: (QuestMode) -> Unit,
     onStartQuest: () -> Unit,
+    onCompleteQuest: () -> Unit,
     onAbandonQuest: () -> Unit,
+    onFlowerSelected: (String) -> Unit,
+    onInvestigateFlower: (String) -> Unit,
+    onDismissFlower: () -> Unit,
+    onDismissCompletion: () -> Unit,
+    onOpenGardenFromCompletion: () -> Unit,
     onTagToggled: (TagId, Boolean) -> Unit,
     onThemeSelected: (ThemePreference) -> Unit,
     onFontScaleSelected: (Float) -> Unit,
@@ -67,13 +75,27 @@ fun PinhoQuestNav(
                     loading = state.loading,
                     onGenerateQuest = onGenerateQuest,
                     onStartQuest = onStartQuest,
+                    onCompleteQuest = onCompleteQuest,
                     onAbandonQuest = onAbandonQuest,
                 )
                 MainTab.TAGS -> TagsScreen(
                     tags = state.tags,
                     onTagToggled = onTagToggled,
                 )
-                MainTab.GARDEN -> GardenPlaceholderScreen(state.ownerName)
+                MainTab.GARDEN -> GardenScreen(
+                    state = state.garden ?: GardenUiState(
+                        ownerName = state.ownerName,
+                        lifetimeXp = 0,
+                        spendableXp = 0,
+                        level = 1,
+                        collectedCount = 0,
+                        totalCount = 0,
+                        flowers = emptyList(),
+                    ),
+                    onFlowerSelected = onFlowerSelected,
+                    onInvestigate = onInvestigateFlower,
+                    onDismissFlower = onDismissFlower,
+                )
                 MainTab.SETTINGS -> SettingsScreen(
                     ownerName = state.ownerName,
                     theme = state.theme,
@@ -83,6 +105,14 @@ fun PinhoQuestNav(
                 )
             }
         }
+    }
+
+    state.completionDialog?.let { completion ->
+        QuestCompletionDialog(
+            completion = completion,
+            onDismiss = onDismissCompletion,
+            onOpenGarden = onOpenGardenFromCompletion,
+        )
     }
 }
 

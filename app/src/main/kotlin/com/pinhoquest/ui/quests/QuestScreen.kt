@@ -28,6 +28,7 @@ fun QuestScreen(
     loading: Boolean,
     onGenerateQuest: (QuestMode) -> Unit,
     onStartQuest: () -> Unit,
+    onCompleteQuest: () -> Unit,
     onAbandonQuest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -44,6 +45,7 @@ fun QuestScreen(
         if (activeSession != null && currentQuest != null) {
             ActiveQuestCard(
                 quest = currentQuest,
+                onCompleteQuest = onCompleteQuest,
                 onAbandonQuest = onAbandonQuest,
             )
         } else if (currentQuest != null) {
@@ -126,6 +128,7 @@ private fun GeneratedQuestCard(
 @Composable
 private fun ActiveQuestCard(
     quest: Quest,
+    onCompleteQuest: () -> Unit,
     onAbandonQuest: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -142,6 +145,12 @@ private fun ActiveQuestCard(
                 "⏱ Estimativa: " + quest.estimatedDuration.minMinutes + "–" +
                     quest.estimatedDuration.maxMinutes + " min",
             )
+            Button(
+                onClick = onCompleteQuest,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("CONCLUIR QUEST")
+            }
             OutlinedButton(
                 onClick = onAbandonQuest,
                 modifier = Modifier.fillMaxWidth(),

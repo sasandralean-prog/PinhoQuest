@@ -4,6 +4,8 @@ import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.domain.quest.Quest
 import com.pinhoquest.domain.quest.QuestSession
 import com.pinhoquest.domain.tag.Tag
+import com.pinhoquest.ui.garden.GardenUiState
+import com.pinhoquest.ui.quests.QuestCompletionUi
 
 enum class MainTab {
     QUESTS,
@@ -13,12 +15,15 @@ enum class MainTab {
 }
 
 data class PinhoQuestUiState(
-    val onboardingRequired: Boolean = true,
+    val initializing: Boolean = true,
+    val onboardingRequired: Boolean = false,
     val ownerName: String = "",
     val selectedTab: MainTab = MainTab.QUESTS,
     val currentQuest: Quest? = null,
     val activeSession: QuestSession? = null,
     val tags: List<Tag> = emptyList(),
+    val garden: GardenUiState? = null,
+    val completionDialog: QuestCompletionUi? = null,
     val theme: ThemePreference = ThemePreference.SYSTEM,
     val fontScale: Float = 1.0f,
     val message: String? = null,
@@ -29,6 +34,7 @@ data class PinhoQuestUiState(
             ownerName: String,
             selectedTab: MainTab = MainTab.QUESTS,
         ) = PinhoQuestUiState(
+            initializing = false,
             onboardingRequired = false,
             ownerName = ownerName,
             selectedTab = selectedTab,

@@ -36,6 +36,10 @@ class FoundationActivityE2ETest {
     fun freshInstallOnboardsRunsQuestAbandonsAndRestoresProfile() {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
 
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText("Seu nome")
+                .fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithText("Seu nome").performTextInput("Rafa")
         composeRule.onNodeWithText("Programação").performScrollTo().performClick()
         composeRule.onNodeWithText("Criar meu jardim").performScrollTo().performClick()
@@ -66,6 +70,10 @@ class FoundationActivityE2ETest {
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
         composeRule.onAllNodesWithText("Seu nome").assertCountEquals(0)
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText("Oi, Rafa 🌱")
+                .fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithText("Oi, Rafa 🌱").assertIsDisplayed()
         composeRule.onNodeWithText("SORTEAR QUEST").assertIsDisplayed()
         scenario.close()

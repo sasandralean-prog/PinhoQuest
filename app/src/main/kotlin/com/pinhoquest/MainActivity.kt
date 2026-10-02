@@ -4,11 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,7 +48,14 @@ class MainActivity : ComponentActivity() {
                 MaterialTheme(
                     colorScheme = if (useDark) darkColorScheme() else lightColorScheme(),
                 ) {
-                    if (state.onboardingRequired) {
+                    if (state.initializing) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("Preparando seu jardim…")
+                        }
+                    } else if (state.onboardingRequired) {
                         OnboardingScreen(
                             onComplete = viewModel::completeOnboarding,
                         )
@@ -53,7 +65,13 @@ class MainActivity : ComponentActivity() {
                             onTabSelected = viewModel::selectTab,
                             onGenerateQuest = viewModel::generateQuest,
                             onStartQuest = viewModel::startCurrentQuest,
+                            onCompleteQuest = viewModel::completeCurrentQuest,
                             onAbandonQuest = viewModel::abandonCurrentQuest,
+                            onFlowerSelected = viewModel::selectFlower,
+                            onInvestigateFlower = viewModel::investigateFlower,
+                            onDismissFlower = viewModel::dismissFlower,
+                            onDismissCompletion = viewModel::dismissCompletion,
+                            onOpenGardenFromCompletion = viewModel::openGardenFromCompletion,
                             onTagToggled = viewModel::setTagEnabled,
                             onThemeSelected = viewModel::setTheme,
                             onFontScaleSelected = viewModel::setFontScale,
