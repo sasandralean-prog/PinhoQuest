@@ -13,60 +13,52 @@ class CompactPromptSerializer(
     }
 
     private fun buildJson(envelope: BoundedPromptEnvelope): String = buildString {
-        append("{\"v\":")
-        append(envelope.schemaVersion)
-        append(",\"task\":\"")
-        append(escape(envelope.task))
-        append("\",\"category\":\"")
+        append("categoria=")
         append(envelope.category.name)
-        append("\",\"environment\":\"")
+        append("\nambiente=")
         append(envelope.environment.name)
-        append("\",\"time\":\"")
+        append("\ntempo=")
         append(formatTime(envelope.minMinutes, envelope.maxMinutes))
-        append("\"" )
         if (envelope.difficulty != null) {
-            append(",\"difficulty\":\"")
+            append("\ndificuldade=")
             append(envelope.difficulty.name)
-            append("\"" )
         }
-        append(",\"tags\":[")
-        envelope.selectedTags.joinTo(this, ",") {
-            "\"${escape(it.label)}\""
-        }
-        append("]")
-        append(",\"research\":[")
-        envelope.researchHints.joinTo(this, ",") { serializeResearch(it) }
-        append("],\"output\":[")
-        QuestPromptContract.OUTPUT_FIELDS.joinTo(this, ",") { "\"$it\"" }
-        append("]}")
+        append("\ntags=")
+        append(envelope.selectedTags.joinToString(", ") { escape(it.label) }.ifEmpty { "-" })
+        append("\nfatos=")
+        append(envelope.researchHints.joinToString("; ") { serializeResearch(it) }.ifEmpty { "-" })
+        append("\nsaida=JSON: title, description, objectives(string[]), bonusObjectives(string[]), estimatedMinutes(int), estimatedDifficulty. ")
+        append("Objectives: 1-4 acoes concretas. Bonus: 0-2 acoes. Nao use nomes de campos como conteudo.")
     }
 
     private fun serializeResearch(hint: PromptResearchHint): String = when (hint) {
         is PromptResearchHint.Game -> buildString {
-            append("{\"k\":\"GAME\",\"name\":\"")
+            append("GAME(name=")
             append(escape(hint.canonicalName))
-            append("\"" )
             hint.platform?.let {
-                append(",\"platform\":\"")
+                append(", platform=")
                 append(escape(it))
-                append("\"" )
             }
             hint.genre?.let {
-                append(",\"genre\":\"")
+                append(", genre=")
                 append(escape(it))
-                append("\"" )
             }
-            append(",\"availability\":\"")
+            append(", availability=")
             append(hint.availability.name)
-            append("\"}")
+            append(")")
         }
         is PromptResearchHint.Flower -> buildString {
-            append("{\"k\":\"FLOWER\",\"name\":\"")
+            append("FLOWER(name=")
             append(escape(hint.canonicalName))
-            append("\"" )
-            hint.commonName?.let { append(",\"commonName\":\"" + escape(it) + "\"" ) }
-            hint.region?.let { append(",\"region\":\"" + escape(it) + "\"" ) }
-            append("}")
+            hint.commonName?.let {
+                append(", commonName=")
+                append(escape(it))
+            }
+            hint.region?.let {
+                append(", region=")
+                append(escape(it))
+            }
+            append(")")
         }
     }
     private fun formatTime(min: Int?, max: Int?): String =
@@ -82,7 +74,9 @@ class CompactPromptSerializer(
 
     private companion object {
         const val PREAMBLE =
-            "Crie uma quest usando somente os fatos fornecidos. Nao invente fatos, XP ou recompensas. " +
-                "Responda somente com JSON valido usando os campos pedidos."
+            "Crie uma quest concreta, curta e executavel. Nao invente fatos externos, XP ou recompensas. " +
+                "Use exatamente categoria, ambiente, dificuldade e tempo. Escreva conteudo natural; " +
+                "nunca use nomes de campos, metacomentarios ou instrucoes como conteudo da quest. " +
+                "A resposta deve ser somente JSON valido."
     }
 }

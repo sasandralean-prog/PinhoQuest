@@ -73,8 +73,9 @@ class PromptFactsAssemblerTest {
         val second = serializer.serialize(envelope)
 
         assertEquals(first, second)
-        assertTrue(first.contains("\"task\":\"QUEST_COMPOSE\""))
-        assertTrue(first.contains("\"output\":["))
+        assertTrue(first.contains("categoria=CREATIVE"))
+        assertTrue(first.contains("saida=JSON: title, description"))
+        assertTrue(first.contains("Objectives: 1-4"))
         assertFalse(first.contains("0.77"))
         assertFalse(first.contains("TagId"))
         assertFalse(first.contains("source"))

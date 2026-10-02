@@ -20,7 +20,7 @@ Implemented guarantees:
 - output fields are a fixed allowlist;
 - prompt size has a deterministic character budget.
 
-Default prompt limits are intentionally conservative and model-independent at the core boundary.
+The default prompt limits are intentionally conservative and model-independent at the core boundary.
 The character limit is a safety budget, not an assertion about tokenizer token count.
 
 ## P3-5B core
