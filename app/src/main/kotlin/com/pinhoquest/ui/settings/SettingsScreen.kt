@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.data.settings.ThemePreference
+import com.pinhoquest.ui.model.CreativeBrainCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -24,6 +25,7 @@ fun SettingsScreen(
     fontScale: Float,
     onThemeSelected: (ThemePreference) -> Unit,
     onFontScaleSelected: (Float) -> Unit,
+    onInstallCreativeBrain: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -66,8 +68,12 @@ fun SettingsScreen(
             }
         }
 
+        onInstallCreativeBrain?.let { install ->
+            CreativeBrainCard(onInstall = install)
+        }
+
         Text(
-            "As opções de backup, pesquisa e cérebro criativo chegam nas próximas fronteiras.",
+            "As opções de backup e pesquisa chegam nas próximas fronteiras.",
             style = MaterialTheme.typography.bodySmall,
         )
     }

@@ -1,11 +1,11 @@
 package com.pinhoquest.core.inference
 
 import com.pinhoquest.domain.model.ModelManifest
-import java.nio.file.Path
+import java.io.File
 
 data class InstalledModel(
     val manifest: ModelManifest,
-    val modelPath: Path,
+    val modelFile: File,
 )
 
 sealed interface ModelInstallResult {
@@ -24,6 +24,6 @@ enum class ModelInstallRejection {
 }
 
 interface ModelStorePort {
-    fun install(stagedFile: Path, manifest: ModelManifest): ModelInstallResult
+    fun install(stagedFile: File, manifest: ModelManifest): ModelInstallResult
     fun active(): InstalledModel?
 }

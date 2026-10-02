@@ -5,43 +5,40 @@ import com.pinhoquest.core.inference.ModelInstallRejection
 import com.pinhoquest.core.inference.ModelInstallResult
 import com.pinhoquest.core.inference.ModelStorePort
 import com.pinhoquest.domain.model.ModelManifest
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.security.MessageDigest
 
 class AndroidModelStore(
-    private val root: Path,
+    private val root: File,
 ) : ModelStorePort {
 
-    override fun install(stagedFile: Path, manifest: ModelManifest): ModelInstallResult {
-        if (!Files.exists(stagedFile)) return ModelInstallResult.Rejected(ModelInstallRejection.STAGED_FILE_MISSING)
-        if (Files.isDirectory(stagedFile)) return ModelInstallResult.Rejected(ModelInstallRejection.STAGED_FILE_IS_DIRECTORY)
-        if (stagedFile.fileName.toString().endsWith(".part")) return ModelInstallResult.Rejected(ModelInstallRejection.PARTIAL_FILE)
-
-        val size = runCatching { Files.size(stagedFile) }.getOrElse {
-            return ModelInstallResult.Rejected(ModelInstallRejection.SIZE_MISMATCH)
-        }
-        if (size != manifest.bytes) return ModelInstallResult.Rejected(ModelInstallRejection.SIZE_MISMATCH)
-
-        val hash = sha256(stagedFile) ?: return ModelInstallResult.Rejected(ModelInstallRejection.HASH_MISMATCH)
-        if (hash != manifest.sha256) return ModelInstallResult.Rejected(ModelInstallRejection.HASH_MISMATCH)
+    override fun install(stagedFile: File, manifest: ModelManifest): ModelInstallResult {
+        if (!stagedFile.exists()) return ModelInstallResult.Rejected(ModelInstallRejection.STAGED_FILE_MISSING)
+        if (stagedFile.isDirectory) return ModelInstallResult.Rejected(ModelInstallRejection.STAGED_FILE_IS_DIRECTORY)
+        if (stagedFile.name.endsWith(".part")) return ModelInstallResult.Rejected(ModelInstallRejection.PARTIAL_FILE)
+        if (stagedFile.length() != manifest.bytes) return ModelInstallResult.Rejected(ModelInstallRejection.SIZE_MISMATCH)
+        if (sha256(stagedFile) != manifest.sha256) return ModelInstallResult.Rejected(ModelInstallRejection.HASH_MISMATCH)
 
         return runCatching {
-            Files.createDirectories(root)
-            val modelRoot = root.resolve(safeSegment(manifest.modelId))
-            Files.createDirectories(modelRoot)
-            val finalDir = modelRoot.resolve(safeSegment(manifest.version))
-            val tempDir = modelRoot.resolve("." + safeSegment(manifest.version) + ".installing-" + System.nanoTime())
-            Files.createDirectories(tempDir)
-            Files.copy(stagedFile, tempDir.resolve("model"), StandardCopyOption.REPLACE_EXISTING)
-            writeManifest(tempDir.resolve("manifest.properties"), manifest)
-            Files.move(tempDir, finalDir, StandardCopyOption.ATOMIC_MOVE)
+            if (!root.exists() && !root.mkdirs()) error("cannot create model store")
+            val modelRoot = File(root, safeSegment(manifest.modelId))
+            if (!modelRoot.exists() && !modelRoot.mkdirs()) error("cannot create model directory")
+            val finalDir = File(modelRoot, safeSegment(manifest.version))
+            val tempDir = File(modelRoot, "." + safeSegment(manifest.version) + ".installing-" + System.nanoTime())
+            if (!tempDir.mkdirs()) error("cannot create staging directory")
+            stagedFile.copyTo(File(tempDir, "model"), overwrite = true)
+            writeManifest(File(tempDir, "manifest.properties"), manifest)
+            if (finalDir.exists()) finalDir.deleteRecursively()
+            if (!tempDir.renameTo(finalDir)) error("cannot promote model version")
 
-            val activeTmp = modelRoot.resolve(".active.tmp-" + System.nanoTime())
-            Files.write(activeTmp, manifest.version.toByteArray(Charsets.UTF_8))
-            Files.move(activeTmp, modelRoot.resolve(".active"), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-            InstalledModel(manifest, finalDir.resolve("model"))
+            val activeTmp = File(modelRoot, ".active.tmp-" + System.nanoTime())
+            activeTmp.writeText(manifest.version)
+            val activeFile = File(modelRoot, ".active")
+            if (activeFile.exists() && !activeFile.delete()) error("cannot replace active marker")
+            if (!activeTmp.renameTo(activeFile)) error("cannot promote active marker")
+            InstalledModel(manifest, File(finalDir, "model"))
         }.fold(
             onSuccess = { ModelInstallResult.Installed(it) },
             onFailure = { ModelInstallResult.Rejected(ModelInstallRejection.PROMOTION_FAILED) },
@@ -49,23 +46,18 @@ class AndroidModelStore(
     }
 
     override fun active(): InstalledModel? = runCatching {
-        if (!Files.isDirectory(root)) return@runCatching null
-        Files.list(root).use { models ->
-            val iterator = models.iterator()
-            while (iterator.hasNext()) {
-                val modelRoot = iterator.next()
-                if (!Files.isDirectory(modelRoot)) continue
-                val activeFile = modelRoot.resolve(".active")
-                if (!Files.isRegularFile(activeFile)) continue
-                val version = String(Files.readAllBytes(activeFile), Charsets.UTF_8).trim()
-                if (version.isBlank()) continue
-                val versionDir = modelRoot.resolve(version)
-                val modelFile = versionDir.resolve("model")
-                val manifestFile = versionDir.resolve("manifest.properties")
-                if (!Files.isRegularFile(modelFile) || !Files.isRegularFile(manifestFile)) continue
-                return@runCatching InstalledModel(readManifest(manifestFile), modelFile)
-            }
-            null
+        if (!root.isDirectory) return@runCatching null
+        root.listFiles()?.firstOrNull { modelRoot ->
+            if (!modelRoot.isDirectory) return@firstOrNull false
+            val activeFile = File(modelRoot, ".active")
+            if (!activeFile.isFile) return@firstOrNull false
+            val version = activeFile.readText().trim()
+            val versionDir = File(modelRoot, version)
+            File(versionDir, "model").isFile && File(versionDir, "manifest.properties").isFile
+        }?.let { modelRoot ->
+            val version = File(modelRoot, ".active").readText().trim()
+            val versionDir = File(modelRoot, version)
+            InstalledModel(readManifest(File(versionDir, "manifest.properties")), File(versionDir, "model"))
         }
     }.getOrNull()
 
@@ -74,9 +66,8 @@ class AndroidModelStore(
         return value
     }
 
-    private fun sha256(path: Path): String? = runCatching {
-        val digest = MessageDigest.getInstance("SHA-256")
-        Files.newInputStream(path).use { input ->
+    private fun sha256(file: File): String = MessageDigest.getInstance("SHA-256").let { digest ->
+        FileInputStream(file).use { input ->
             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
             while (true) {
                 val read = input.read(buffer)
@@ -85,27 +76,28 @@ class AndroidModelStore(
             }
         }
         digest.digest().joinToString("") { "%02x".format(it) }
-    }.getOrNull()
-
-    private fun writeManifest(path: Path, manifest: ModelManifest) {
-        Files.write(
-            path,
-            listOf(
-                "modelId=" + manifest.modelId,
-                "version=" + manifest.version,
-                "runtimeFormat=" + manifest.runtimeFormat,
-                "sha256=" + manifest.sha256,
-                "bytes=" + manifest.bytes,
-                "license=" + manifest.license,
-                "source=" + manifest.source,
-                "contextLimit=" + manifest.contextLimit,
-                "supportedBackends=" + manifest.supportedBackends.sorted().joinToString(","),
-            ).joinToString("\n").toByteArray(Charsets.UTF_8),
-        )
     }
 
-    private fun readManifest(path: Path): ModelManifest {
-        val values = Files.readAllLines(path).mapNotNull { line ->
+    private fun writeManifest(file: File, manifest: ModelManifest) {
+        FileOutputStream(file).use { output ->
+            output.write(
+                listOf(
+                    "modelId=" + manifest.modelId,
+                    "version=" + manifest.version,
+                    "runtimeFormat=" + manifest.runtimeFormat,
+                    "sha256=" + manifest.sha256,
+                    "bytes=" + manifest.bytes,
+                    "license=" + manifest.license,
+                    "source=" + manifest.source,
+                    "contextLimit=" + manifest.contextLimit,
+                    "supportedBackends=" + manifest.supportedBackends.sorted().joinToString(","),
+                ).joinToString("\n").plus("\n").toByteArray(),
+            )
+        }
+    }
+
+    private fun readManifest(file: File): ModelManifest {
+        val values = file.readLines().mapNotNull { line ->
             val separator = line.indexOf('=')
             if (separator <= 0) null else line.substring(0, separator) to line.substring(separator + 1)
         }.toMap()

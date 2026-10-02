@@ -42,11 +42,11 @@
 - `ModelStorePort.install(stagedFile, manifest): ModelInstallResult`
 - `ModelStorePort.active(): InstalledModel?`
 
-- [ ] **Step 1: Write tests** for correct hash/size, wrong hash, wrong size, interrupted `.part`, and atomic version promotion.
-- [ ] **Step 2: Run** model-store tests. **Expected:** FAIL.
-- [ ] **Step 3: Implement** private ModelStore with staged file, SHA-256/manifest validation, and atomic promotion.
-- [ ] **Step 4: Run** tests. **Expected:** PASS.
-- [ ] **Step 5: Commit** `feat: add validated local model store`.
+- [x] **Step 1: Write tests** for correct hash/size, wrong hash, wrong size, interrupted `.part`, and atomic version promotion.
+- [x] **Step 2: Run** model-store tests. **Expected:** FAIL.
+- [x] **Step 3: Implement** private ModelStore with staged file, SHA-256/manifest validation, and atomic promotion.
+- [x] **Step 4: Run** tests. **Expected:** PASS.
+- [x] **Step 5: Commit** `feat: add validated local model store`.
 
 ### Task 2: Download/install flow
 
@@ -60,11 +60,11 @@
 **Interfaces:**
 - Produces user-invoked `Baixar cérebro criativo`, resumable/retryable download, and verified installed state.
 
-- [ ] **Step 1: Write tests** for decline, successful install, interrupted retry, bad hash, and humanized validation-failure copy.
-- [ ] **Step 2: Run** tests. **Expected:** FAIL.
-- [ ] **Step 3: Implement** WorkManager-backed download/install; primary UI copy must not expose raw checksum/runtime errors.
-- [ ] **Step 4: Run** tests. **Expected:** PASS.
-- [ ] **Step 5: Commit** `feat: add local model download flow`.
+- [x] **Step 1: Write tests** for decline, successful install, interrupted retry, bad hash, and humanized validation-failure copy.
+- [x] **Step 2: Run** tests. **Expected:** FAIL.
+- [x] **Step 3: Implement** WorkManager-backed download/install; primary UI copy must not expose raw checksum/runtime errors.
+- [x] **Step 4: Run** tests. **Expected:** PASS.
+- [x] **Step 5: Commit** `feat: add local model download flow`.
 
 ### Task 3: Inference admission contracts
 

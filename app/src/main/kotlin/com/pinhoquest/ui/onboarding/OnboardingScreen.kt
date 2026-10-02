@@ -23,11 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.profile.GardenOwnerName
 import com.pinhoquest.core.tag.SystemTagCatalog
+import com.pinhoquest.ui.model.CreativeBrainCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OnboardingScreen(
     onComplete: (String, Set<String>) -> Unit,
+    onInstallCreativeBrain: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     var name by remember { mutableStateOf("") }
@@ -88,6 +90,9 @@ fun OnboardingScreen(
             "Você pode mudar isso depois. Nada aqui vira regra eterna.",
             style = MaterialTheme.typography.bodySmall,
         )
+        onInstallCreativeBrain?.let { install ->
+            CreativeBrainCard(onInstall = install)
+        }
         Button(
             onClick = { onComplete(trimmed, selected) },
             enabled = validName,
