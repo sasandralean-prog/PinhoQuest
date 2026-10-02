@@ -83,6 +83,24 @@ However, the model also showed weak fixture adherence in the observed successful
 
 Because the runtime lifecycle gate failed before 20 independent fixture executions completed, a formal validator-acceptable output rate and candidate selection were **not declared**.
 
+## Follow-up benchmark — 2026-10-02
+
+A second Qwen run used the bounded compact prompt together with LiteRT-LM structured ResponseFormat.json, maxOutputToken=192, disabled thinking, and a fresh Conversation per fixture on one Engine.
+
+- Fixtures attempted: 20
+- Runtime errors: 0
+- Strict contract acceptance: 17/20
+- Rejected as incomplete by the post-run contract probe: fixtures 8, 9, 12
+- Observed generation latency: 14.6 s to 42.6 s per fixture in the saved TSV evidence
+- Observed post-generation PSS: about 825-883 MiB
+- The previous FAILED_PRECONDITION lifecycle error was not reproduced in this constrained configuration.
+
+This changes the diagnosis: the failure is configuration-sensitive rather than a universal proof that every repeated Conversation on this Engine fails. However, the constrained Qwen outputs still contained prompt/instruction leakage, repeated or malformed objective content, and weak fixture adherence. Therefore 17/20 strict structural acceptance is not treated as a V1 quality gate pass.
+
+A second Apache-2.0 candidate, litert-community/SmolLM2-360M-Instruct, was fetched at the exact upstream size of 373719040 bytes with SHA-256 8e2834da211b439751af968ed650febdde5a8cb8d88bc6c1a3059f049caa5c2e. A five-fixture smoke was intentionally started before committing to a full 20-fixture run. Fixture 0 took 90170 ms and reached 1301849 KiB PSS, while the generated text was largely prompt-shaped rather than a clean quest draft. The candidate was stopped at that point because the first-fixture evidence already violated the intended lightweight/cost profile.
+
+No model/runtime combination is selected from this follow-up.
+
 ## Decision
 
 Do **not** select LiteRT-LM 0.17.1 + Qwen3-0.6B no-think as the V1 production runtime from this evidence.
