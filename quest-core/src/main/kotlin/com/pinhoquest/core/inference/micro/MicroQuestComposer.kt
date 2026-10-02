@@ -12,6 +12,7 @@ class MicroQuestComposer(
     private val inference: LocalInferencePort,
     private val promptSerializer: MicroQuestPromptSerializer = MicroQuestPromptSerializer(),
     private val sanitizer: FunctionGemmaResponseSanitizer = FunctionGemmaResponseSanitizer(),
+    private val toolCallExtractor: FunctionGemmaToolCallExtractor = FunctionGemmaToolCallExtractor(),
     private val renderer: MicroQuestRenderer = MicroQuestRenderer(),
     private val fallback: ComposerPort = ProceduralComposer(),
 ) : ComposerPort {
@@ -33,12 +34,28 @@ class MicroQuestComposer(
             GenerationRequest(prompt = prompt, maxOutputTokens = 128),
         )) {
             is InferenceOutcome.Success -> {
-                val draft = runCatching {
-                    renderer.render(sanitizer.extract(outcome.text), plan)
+                runCatching {
+                    renderer.render(toolCallExtractor.extract(outcome.text), plan)
+                }.map { draft ->
+                    RenderedMicroQuest(
+                        draft = draft,
+                        origin = MicroQuestOrigin.LOCAL_MODEL,
+                    )
                 }.getOrElse {
-                    fallback.compose(plan)
+                    runCatching {
+                        renderer.render(sanitizer.extract(outcome.text), plan)
+                    }.map { draft ->
+                        RenderedMicroQuest(
+                            draft = draft,
+                            origin = MicroQuestOrigin.LOCAL_MODEL,
+                        )
+                    }.getOrElse {
+                        RenderedMicroQuest(
+                            draft = fallback.compose(plan),
+                            origin = MicroQuestOrigin.PROCEDURAL_FALLBACK,
+                        )
+                    }
                 }
-                RenderedMicroQuest(draft = draft, origin = MicroQuestOrigin.LOCAL_MODEL)
             }
             else -> RenderedMicroQuest(
                 draft = fallback.compose(plan),

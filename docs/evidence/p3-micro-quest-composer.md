@@ -36,9 +36,26 @@ The attempted JSON `ResponseFormat` did not make FunctionGemma behave as a gener
 ## Decision
 Do not wire FunctionGemma into `PinhoQuestAppGraph` yet.
 Do not broaden the sanitizer into generic regex repair.
-The runtime/memory profile is promising, but the model contract must align with FunctionGemma's native function-calling semantics.
+The runtime/memory profile is promising, and the isolated harness now matches the official LiteRT-LM Kotlin tool declaration API.
+
+## Native function-call probe — 2026-10-02
+The harness defines exactly one pure text tool, `composeQuestText(title, description, objectives)`, using LiteRT-LM `ToolSet`, `@Tool`, `@ToolParam` and `tool(...)`.
+The conversation disables automatic tool execution so no external side effects can occur.
+Five fixtures completed with zero runtime exceptions.
+Observed generation latency: 1906–3431 ms per fixture.
+Observed generation PSS: 804363–815049 KiB.
+Observed response envelope: `<start_function_call>call:compose_quest_text{...}<end_function_call>`.
+In this model/runtime combination, `Message.toolCalls` was empty while the rendered/message representation contained the model-emitted function-call envelope.
+The envelope includes a tool name and argument object, but the 270M model reproduced function-declaration material inside the arguments in several fixtures instead of clean quest text.
+A second prompt iteration that removed explicit tool-name/schema wording did not improve adherence: the model instead emitted the training-aligned `add_task` function declaration.
+Therefore the native tool API is confirmed, but this checkpoint is not yet suitable for the required `compose_quest_text` contract.
+
+The strict `FunctionGemmaToolCallExtractor` is implemented in `quest-core` and only accepts the exact `compose_quest_text` envelope plus the three bounded text arguments. It is covered by positive and negative unit tests.
+`MicroQuestComposer` now tries this native extractor first and falls back safely; a failed local parse is explicitly marked `PROCEDURAL_FALLBACK`.
 
 ## Next gate
-Benchmark a native function-call contract with one explicit function such as `compose_quest_text(title, description, objectives)` and extract only its validated arguments.
-Use deterministic procedural examples as few-shot context.
-Only after native extraction succeeds consistently should the Android runtime adapter and QuestEngine path be considered for production integration.
+Do not add generic repair logic.
+Do not fine-tune yet.
+Evaluate a checkpoint/format that is actually trained or aligned for the `compose_quest_text` function contract, or add a very small deterministic translation layer around the model's supported tool vocabulary.
+Keep `QuestValidator` and `QuestGenerationPlan` as promotion authorities.
+Only after the model can consistently emit the bounded text payload should the Android runtime adapter and QuestEngine path be considered for production integration.
