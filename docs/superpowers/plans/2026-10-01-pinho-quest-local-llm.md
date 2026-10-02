@@ -105,22 +105,26 @@
 
 **Files:**
 - Create: `quest-core/src/main/kotlin/com/pinhoquest/core/inference/LocalInferencePort.kt`
-- Create: `quest-core/src/main/kotlin/com/pinhoquest/core/quest/LocalLlmComposer.kt`
-- Create: `app/src/main/kotlin/com/pinhoquest/inference/AndroidLocalInferenceRuntime.kt`
-- Create: `app/src/main/kotlin/com/pinhoquest/inference/QuestDraftCodec.kt`
-- Test: `quest-core/src/test/kotlin/com/pinhoquest/core/quest/LocalLlmComposerTest.kt`
-- Test: `app/src/androidTest/kotlin/com/pinhoquest/inference/QuestDraftCodecTest.kt`
+- Create: `quest-core/src/main/kotlin/com/pinhoquest/core/inference/QuestDraftCodec.kt`
+- Create: `quest-core/src/main/kotlin/com/pinhoquest/core/inference/prompt/QuestPromptModels.kt`
+- Create: `quest-core/src/main/kotlin/com/pinhoquest/core/inference/prompt/PromptFactsAssembler.kt`
+- Create: `quest-core/src/main/kotlin/com/pinhoquest/core/inference/prompt/CompactPromptSerializer.kt`
+- Deferred: `quest-core/src/main/kotlin/com/pinhoquest/core/quest/LocalLlmComposer.kt`
+- Deferred: `app/src/main/kotlin/com/pinhoquest/inference/AndroidLocalInferenceRuntime.kt`
+- Test: `quest-core/src/test/kotlin/com/pinhoquest/core/inference/QuestDraftCodecTest.kt`
+- Test: `quest-core/src/test/kotlin/com/pinhoquest/core/inference/prompt/PromptFactsAssemblerTest.kt`
 
 **Interfaces:**
 - `LocalInferencePort.generate(request: GenerationRequest): InferenceOutcome`
 - `LocalLlmComposer.compose(plan: QuestGenerationPlan): QuestDraft`
 - Structured output fields: `title`, `description`, `objectives`, `bonusObjectives`, `estimatedMinutes`, `estimatedDifficulty`.
 
-- [ ] **Step 1: Write tests** for valid structured output, missing field, extra prose around payload, malformed payload, and unsupported difficulty/time values.
-- [ ] **Step 2: Run** tests. **Expected:** FAIL.
-- [ ] **Step 3: Implement** adapter/codec using the selected runtime; invalid output must never map directly to a valid `Quest`.
-- [ ] **Step 4: Run** tests. **Expected:** PASS.
-- [ ] **Step 5: Commit** `feat: add local LLM quest composer`.
+- [x] **Step 1: Define and test** the deterministic prompt boundary: enabled tags are bounded/sanitized, research is represented only by allowlisted hint types, and no affinity/source/profile internals cross the boundary.
+- [x] **Step 2: Implement and test** stable compact serialization with a versioned schema and deterministic character budget.
+- [x] **Step 3: Implement and test** runtime-neutral `LocalInferencePort`, bounded `GenerationRequest`, and strict `QuestDraftCodec` that uses trusted plan metadata for category/environment.
+- [x] **Step 4: Run** core prompt/codec tests. **Expected:** PASS.
+- [ ] **Step 5: Integrate** the selected Android runtime adapter and `LocalLlmComposer` only after the P3-4 runtime/lifecycle benchmark gate passes.
+- [ ] **Step 6: Commit** the complete production composer after runtime selection and E2E validation.
 
 ### Task 6: Natural-language tag suggestion
 

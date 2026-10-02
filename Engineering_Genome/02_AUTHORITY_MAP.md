@@ -37,6 +37,15 @@ Authorities:
 
 Admission considers real current headroom and runtime state, not device-name hardcodes.
 
+Prompt boundary authority:
+`QuestGenerationPlan + approved facts -> PromptFactsAssembler -> BoundedPromptEnvelope -> CompactPromptSerializer -> LocalInferencePort`.
+
+- `PromptFactsAssembler`: deterministic allowlist/sanitization/bounding boundary; it discards affinity internals, persistence entities, raw research payloads and irrelevant profile/history data.
+- `BoundedPromptEnvelope`: versioned, bounded model-facing data contract.
+- `CompactPromptSerializer`: canonical deterministic prompt representation and character budget.
+- `QuestDraftCodec`: strict output boundary; category/environment remain trusted plan data, never model output.
+- Android runtime adapter remains gated by the runtime/lifecycle benchmark until P3-4 passes.
+
 ## Internet research
 
 ```text
