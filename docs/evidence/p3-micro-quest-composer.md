@@ -53,9 +53,20 @@ Therefore the native tool API is confirmed, but this checkpoint is not yet suita
 The strict `FunctionGemmaToolCallExtractor` is implemented in `quest-core` and only accepts the exact `compose_quest_text` envelope plus the three bounded text arguments. It is covered by positive and negative unit tests.
 `MicroQuestComposer` now tries this native extractor first and falls back safely; a failed local parse is explicitly marked `PROCEDURAL_FALLBACK`.
 
+## FunctionGemma trigger discovery — 2026-10-02
+The official Kotlin example uses `ConversationConfig(systemInstruction = Contents.of("You can do function call."), tools = ...)`. The official FunctionGemma formatting guide also documents a function-calling trigger/context and the six control tokens.
+Adding the system instruction changed the observed behavior materially: `Message.toolCalls` became populated for a custom `compose_quest_text` tool.
+With the original three-field tool (`title`, `description`, `objectives`), the checkpoint still returned only a `title` argument.
+A single-string `compose_quest_text(text)` experiment produced a real tool call but returned only one short action from the source, rather than the requested humanized multi-part quest.
+This establishes that the runtime/tool protocol is correct, while zero-shot semantic composition for this custom schema is insufficient.
+
+Google's FunctionGemma guidance explicitly notes that smaller models have limited intent capacity and that fine-tuning is the route for consistent non-standard tool schemas.
+
 ## Next gate
 Do not add generic repair logic.
-Do not fine-tune yet.
-Evaluate a checkpoint/format that is actually trained or aligned for the `compose_quest_text` function contract, or add a very small deterministic translation layer around the model's supported tool vocabulary.
-Keep `QuestValidator` and `QuestGenerationPlan` as promotion authorities.
-Only after the model can consistently emit the bounded text payload should the Android runtime adapter and QuestEngine path be considered for production integration.
+Do not promote partial tool output to a complete quest.
+Keep the deterministic generator as the authority for structure, facts, difficulty, time and objectives.
+Evaluate one of two bounded paths:
+1. a FunctionGemma checkpoint already aligned with the desired composition tool; or
+2. a tiny fine-tuning/distillation experiment using deterministic PinhoQuest examples to teach exactly one micro-composition contract.
+The production gate remains: valid bounded text + deterministic rendering + `QuestValidator`, with procedural fallback on any failure.
