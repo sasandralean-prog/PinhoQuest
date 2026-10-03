@@ -150,3 +150,32 @@ Tested bucket model P3 contract: FAIL.
 Production model integration: NOT APPROVED.
 
 The production app remains free of the experimental LiteRT-LM dependency until a model/runtime pair passes the P3 composition contract on-device.
+
+## Pilot120 merge gate - 2026-10-03
+
+The pilot120 LoRA checkpoint was successfully merged into a standalone Hugging Face checkpoint at:
+
+D:\\AI\\HuggingFacesLLM\\p3_sft_small\\pilot120\\merged
+
+The merged artifact contains the full model.safetensors (~1.07 GB) plus tokenizer/configuration files. The merge completed with exit code 0 using PEFT merge_and_unload() against the same local FunctionGemma 270M base used for training.
+
+A post-merge CPU generation check reproduced the learned compose_quest_text envelope on multiple validation cases, including complete title, description and objectives fields. This confirms that the merge operation did not visibly degrade the learned P3 contract before mobile conversion.
+
+## Mobile conversion gate - 2026-10-03
+
+The next required artifact is a .litertlm bundle generated from the merged pilot120 checkpoint. The documented Google AI Edge path is PyTorch -> TFLite -> LiteRT-LM bundle, with FunctionGemma model metadata and the model tokenizer/chat template preserved.
+
+The current Windows host cannot execute the required conversion toolchain as installed: ai-edge-torch 0.7.2 resolves through litert-torch versions that require litert-converter, for which no Windows wheel is available in the current package index. WSL is not installed on the host and Docker is not installed either.
+
+This is an environmental conversion blocker, not a model-quality failure. No production code was changed to work around it, and no unverified artifact was copied into the Android harness.
+
+### Gate status
+
+- Pilot120 training: PASS.
+- Pilot120 validation contract: PASS.
+- Pilot120 merged checkpoint: PASS.
+- LiteRT-LM conversion of pilot120: BLOCKED - conversion environment.
+- Pilot120 on-device contract: NOT YET TESTED.
+- Production model integration: NOT APPROVED.
+
+The next bounded action is to run the same conversion recipe in a Linux-capable environment, then bring only the resulting .litertlm artifact into the existing instrumented Android harness. The Android gate remains unchanged: native tool call + exact bounded composition contract + deterministic renderer/validator must all pass before production integration.
