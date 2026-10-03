@@ -1,6 +1,6 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-1 / CR-2 validated_bounded (quest-core scope)
+Status: CR-3 validated_bounded (source/build/bridge scope)
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
 Baseline: f17ae65
@@ -75,28 +75,28 @@ The experimental path is the target of CR.
 Training target:
 native FunctionGemma function call.
 
-Android adapter:
+Historical Android adapter:
 tools = emptyList().
 
 Result:
-the runtime does not expose compose_quest_text as a registered tool even though the model was trained around that protocol.
+the runtime did not expose compose_quest_text as a registered tool even though the model was trained around that protocol.
 
-Solution:
-CR-3 registers exactly one canonical tool and uses manual tool calling with Message.toolCalls.
+Correction completed in CR-3:
+the bridge registers exactly one canonical tool and uses manual tool calling with native Message.toolCalls.
 
 ### CR finding B — Structured JSON vs native function calling
 
-Current Android path:
+Historical Android path:
 ResponseFormat.json(textSchema()).
 
 Training path:
 native FunctionGemma call syntax.
 
 Result:
-the runtime asks for a different output protocol.
+the runtime asked for a different output protocol.
 
-Solution:
-CR-3 removes generic ResponseFormat.json from the FunctionGemma P3 path. Structured JSON remains a separate protocol if another model/path needs it.
+Correction completed in CR-3:
+generic ResponseFormat.json was removed from the FunctionGemma P3 transport path. Structured JSON remains a separate protocol outside this native path.
 
 ### CR finding C — Runtime prompt is not equivalent to training prompt
 
@@ -174,10 +174,11 @@ CR-2 sanitizes and bounds every model-facing tag/example/fact before serializati
 
 ### CR finding H — RAW crosses the core inference abstraction
 
-LocalInferencePort currently exposes raw String output.
+LocalInferencePort now exposes a typed native ToolCall outcome for the corrected path.
 
-Solution:
-CR-3/CR-4 introduce a typed native outcome at the adapter boundary. RAW, if unavoidable inside the runtime, is parsed there and cannot cross into renderer/UI/domain/persistence.
+CR-3 keeps the legacy Success(String) outcome temporarily so CR-4 can remove the second output protocol without conflating transport correction with output convergence.
+
+RAW, when unavoidable inside the runtime, is not used by the new native tool transport.
 
 ### CR finding I — Budget fragmentation
 
@@ -735,3 +736,51 @@ CR-1/CR-2 are committed and pushed as `266ee73` and promoted to `validated_bound
 CR-3 is the next implementation frontier: native LiteRT-LM tool registration, manual tool calling and typed `Message.toolCalls` transport.
 
 CR-4 remains responsible for removing the generic JSON compatibility path from the P3 runtime. The current sanitizer remains present only so CR-1/CR-2 do not silently broaden the scope into output-protocol convergence.
+
+## 17. CR-3 implementation record
+
+Status: validated_bounded for source/build/bridge scope.
+
+### Runtime transport
+
+Implemented:
+- `:litertlm-bridge` is the only project module that imports the LiteRT-LM API.
+- `P3LiteRtToolSet` registers exactly one native tool: `compose_quest_text`.
+- Tool description and parameter descriptions come from `MicroQuestToolContract`.
+- `automaticToolCalling=false` remains enabled so the adapter consumes the model's native tool-call message explicitly.
+- `LiteRtToolCallMapper` requires exactly one `Message.toolCalls` entry, the canonical tool name and the exact canonical argument set.
+- Unexpected names, zero/multiple calls and missing/extra arguments converge to `InferenceOutcome.InvalidOutput`.
+- `InferenceOutcome.ToolCall` is now available at the core boundary.
+- `AndroidLiteRtLmInferencePort` no longer imports LiteRT-LM and only delegates to the bridge.
+- `ResponseFormat.json(...)` and the P3 JSON schema were removed from the Android FunctionGemma transport path.
+
+### Toolchain boundary
+
+LiteRT-LM 0.17.1 is compiled with newer Kotlin metadata than the project's Kotlin 2.1.21 compiler. Rather than upgrading the whole application toolchain inside CR-3, the dependency is isolated:
+- bridge Java source compiles against LiteRT-LM with JDK 21 while emitting Java 17-compatible bytecode;
+- bridge compile-only dependency prevents the native API from becoming a Kotlin source dependency of the app;
+- app owns the LiteRT runtime dependency for APK packaging;
+- app `*CompileClasspath` configurations force the project Kotlin stdlib 2.1.21 so runtime-only Kotlin 2.4 metadata does not enter source compilation.
+
+This is a build compatibility boundary. It does not bypass the native FunctionGemma protocol and does not alter model behavior.
+
+### Tests and evidence
+
+Passed:
+- `:litertlm-bridge:test`
+- `:app:compileDebugKotlin`
+- `:app:testDebugUnitTest`
+- `:app:assembleDebug`
+
+APK evidence:
+- debug APK size: 60,983,037 bytes;
+- `lib/arm64-v8a/liblitertlm_jni.so` packaged;
+- `lib/x86_64/liblitertlm_jni.so` packaged.
+
+### Scope boundary
+
+CR-3 does not claim that the selected FunctionGemma artifact is semantically correct on-device through this new bridge. The earlier isolated native probe already established that LiteRT-LM can return native tool calls, but CR-7 owns the repeatable native matrix for this corrected implementation.
+
+CR-4 remains responsible for deleting the legacy `InferenceOutcome.Success(String)`/generic JSON compatibility path from P3 and proving RAW isolation end-to-end.
+
+Next frontier: CR-4 — RAW isolation and output convergence.

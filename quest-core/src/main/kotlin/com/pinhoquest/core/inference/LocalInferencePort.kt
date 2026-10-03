@@ -11,6 +11,16 @@ data class GenerationRequest(
 }
 
 sealed interface InferenceOutcome {
+    /**
+     * Structured native tool call returned by the model adapter.
+     *
+     * The raw model message must not cross the adapter boundary.
+     */
+    data class ToolCall(
+        val name: String,
+        val arguments: Map<String, Any?>,
+    ) : InferenceOutcome
+
     data class Success(val text: String) : InferenceOutcome
     data object ModelUnavailable : InferenceOutcome
     data object InsufficientResources : InferenceOutcome

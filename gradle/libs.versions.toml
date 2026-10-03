@@ -17,6 +17,7 @@ androidxJunit = "1.2.1"
 testRunner = "1.6.2"
 testOrchestrator = "1.5.1"
 espresso = "3.6.1"
+litertLm = "0.17.1"
 
 [libraries]
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -49,6 +50,7 @@ androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "a
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "testOrchestrator" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+litertlm-android = { module = "com.google.ai.edge.litertlm:litertlm-android", version.ref = "litertLm" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

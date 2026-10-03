@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-2 — Bounded Prompt/Input Governance (validated_bounded)
+CR frontier: CR-3 — Native Android Tool Transport (validated_bounded: build/bridge scope)
 Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
 
 ## 1. Current project state
@@ -43,11 +43,11 @@ The strongest diagnosis is contract/protocol divergence between training and run
 
 Four runtime/governance breaks are the main CR frontier:
 
-1. Tool registration mismatch:
-   AndroidLiteRtLmInferencePort currently uses tools=emptyList(), while FunctionGemma was trained for native tool calling.
+1. Tool registration mismatch (historical, corrected in CR-3):
+   the Android adapter previously used tools=emptyList(), while FunctionGemma was trained for native tool calling.
 
-2. Protocol mismatch:
-   the Android P3 adapter requests generic ResponseFormat.json(...) instead of using the native compose_quest_text tool protocol.
+2. Protocol mismatch (historical, corrected in CR-3):
+   the Android P3 adapter previously requested generic ResponseFormat.json(...) instead of using the native compose_quest_text tool protocol.
 
 3. Contract duplication:
    P3 has a three-field FunctionGemma contract while P3-5A/QuestDraftCodec also defines a six-field structured-output contract. The MicroQuestPromptSerializer is a third, plain-text representation.
@@ -62,7 +62,7 @@ Additional governance defects:
 - MicroQuestCompositionRequest bounds collection sizes but does not fully sanitize/bound individual tag/example contents.
 - MicroQuestComposer currently permits native FunctionGemma extraction and generic JSON sanitization as two output protocols.
 - The SFT dataset generator duplicated the function-declaration start marker.
-- Core inference still exposes raw String output instead of a typed native tool-call result.
+- Core inference now exposes a typed native ToolCall outcome, but the legacy raw String Success outcome remains until CR-4 removes the second output boundary.
 
 ## 4. Authority boundary to preserve
 
@@ -139,13 +139,14 @@ There must be one semantic tool contract. Kotlin tool registration, FunctionGemm
 
 CR-0 planning/documentation is complete.
 CR-1 canonical FunctionGemma tool contract is implemented and validated by quest-core tests.
-CR-2 bounded prompt/input governance is implemented and validated by quest-core tests; the combined CR-1/CR-2 checkpoint is committed and pushed.
+CR-2 bounded prompt/input governance is implemented and validated by quest-core tests.
+CR-3 native Android tool transport is implemented and validated_bounded for source/build/bridge packaging scope.
 
 No production FunctionGemma wiring is approved yet.
 No new SFT run is approved yet.
 No new large Android conversion/A-B is approved yet.
 
-CR-3 remains the next runtime transport frontier after the CR-1/CR-2 checkpoint is committed.
+CR-4 is now the next frontier: remove the legacy raw/generic output path and converge P3 on native ToolCall only.
 
 ## 8. Sprint map
 
@@ -281,7 +282,56 @@ Implemented in quest-core:
 
 Validation evidence:
 - `:quest-core:test` completed successfully after CR-1/CR-2 implementation.
-- No Android runtime wiring changed.
+- No production FunctionGemma wiring was enabled.
 - No model retraining or conversion experiment was started.
 
 Checkpoint state: `validated_bounded` for the quest-core scope. Android transport, native Message.toolCalls and production wiring remain outside this gate.
+
+## 13. CR-3 implementation checkpoint
+
+### Native Android tool transport
+
+Implemented:
+- Added :litertlm-bridge as the sole source module that imports the LiteRT-LM API.
+- Registered exactly one native P3 tool: compose_quest_text.
+- Tool metadata is derived from MicroQuestToolContract; no second semantic schema was introduced.
+- automaticToolCalling=false is preserved.
+- The runtime reads native Message.toolCalls instead of rendering model text and reparsing generic JSON.
+- Exactly one tool call is required; unexpected tool names, missing arguments, extra arguments and zero/multiple calls become InferenceOutcome.InvalidOutput.
+- A new InferenceOutcome.ToolCall crosses the adapter boundary as typed data.
+- AndroidLiteRtLmInferencePort now depends on the bridge and no longer imports LiteRT-LM directly.
+- Generic ResponseFormat.json(...) was removed from the P3 Android transport path.
+
+### Toolchain isolation
+
+LiteRT-LM 0.17.1 carries newer Kotlin metadata than the PinhoQuest Kotlin 2.1.21 toolchain. The solution does not upgrade the project globally.
+
+Instead:
+- the bridge compiles against LiteRT-LM as Java source;
+- the bridge uses JDK 21 for compilation while its emitted Java bytecode remains Java 17 compatible;
+- the app receives LiteRT-LM at runtime;
+- app *CompileClasspath configurations are pinned to the project's Kotlin stdlib 2.1.21, preventing the LiteRT runtime's Kotlin metadata from entering Kotlin source compilation.
+
+This is a build-boundary compatibility rule, not an application/runtime bypass.
+
+### Validation evidence
+
+- :litertlm-bridge:test — BUILD SUCCESSFUL.
+- :app:compileDebugKotlin — BUILD SUCCESSFUL.
+- :app:testDebugUnitTest — BUILD SUCCESSFUL.
+- :app:assembleDebug — BUILD SUCCESSFUL.
+- Debug APK size: 60,983,037 bytes.
+- APK inspection confirms lib/arm64-v8a/liblitertlm_jni.so and lib/x86_64/liblitertlm_jni.so are packaged.
+
+### Gate status
+
+CR-3 status: validated_bounded for source, bridge tests, Kotlin classpath isolation and APK packaging.
+
+Not yet claimed:
+- semantic success of the selected FunctionGemma artifact through this new production bridge;
+- native device matrix/hardening evidence;
+- removal of the legacy raw/generic output path.
+
+Those belong to CR-7 and CR-4 respectively.
+
+Next frontier: CR-4 — RAW isolation and output-protocol convergence.

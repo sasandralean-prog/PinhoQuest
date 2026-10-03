@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(project(":litertlm-bridge"))
+    runtimeOnly(libs.litertlm.android)
 
     androidTestImplementation(libs.androidx.work.testing)
 
@@ -64,4 +66,12 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestUtil(libs.androidx.test.orchestrator)
+}
+
+configurations.matching { it.name.endsWith("CompileClasspath") }.configureEach {
+    resolutionStrategy.force(
+        "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.21",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21",
+    )
 }

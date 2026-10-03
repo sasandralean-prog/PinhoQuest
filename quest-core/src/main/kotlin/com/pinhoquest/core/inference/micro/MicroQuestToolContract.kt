@@ -11,6 +11,9 @@ object MicroQuestToolContract {
     const val NAME = "compose_quest_text"
     const val VERSION = "V1"
     const val DESCRIPTION = "Escreve o texto final de uma quest humana curta."
+    const val TITLE_DESCRIPTION = "Titulo natural da quest."
+    const val DESCRIPTION_DESCRIPTION = "Descricao natural e convidativa da quest."
+    const val OBJECTIVES_DESCRIPTION = "Acoes concretas da quest, em ordem."
 
     const val TITLE = "title"
     const val DESCRIPTION_FIELD = "description"
@@ -37,7 +40,7 @@ object MicroQuestToolContract {
     val ARGUMENTS: List<Argument> = listOf(
         Argument(
             name = TITLE,
-            description = "Titulo natural da quest.",
+            description = TITLE_DESCRIPTION,
             type = ArgumentType.STRING,
             required = true,
             minLength = MIN_TITLE_LENGTH,
@@ -45,7 +48,7 @@ object MicroQuestToolContract {
         ),
         Argument(
             name = DESCRIPTION_FIELD,
-            description = "Descricao natural e convidativa da quest.",
+            description = DESCRIPTION_DESCRIPTION,
             type = ArgumentType.STRING,
             required = true,
             minLength = MIN_DESCRIPTION_LENGTH,
@@ -53,7 +56,7 @@ object MicroQuestToolContract {
         ),
         Argument(
             name = OBJECTIVES,
-            description = "Acoes concretas da quest, em ordem.",
+            description = OBJECTIVES_DESCRIPTION,
             type = ArgumentType.STRING_LIST,
             required = true,
             minItems = MIN_OBJECTIVES,

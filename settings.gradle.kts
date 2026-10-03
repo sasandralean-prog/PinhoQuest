@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "PinhoQuest"
-include(":quest-domain", ":quest-core", ":android-data", ":app")
+include(":quest-domain", ":quest-core", ":android-data", ":litertlm-bridge", ":app")
