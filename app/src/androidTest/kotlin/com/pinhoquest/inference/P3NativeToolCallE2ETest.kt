@@ -26,6 +26,7 @@ class P3NativeToolCallE2ETest {
         )
 
         try {
+            val startedAtNanos = System.nanoTime()
             val outcome = runtime.generate(
                 GenerationRequest(
                     prompt = """
@@ -40,9 +41,10 @@ class P3NativeToolCallE2ETest {
                     """.trimIndent(),
                 ),
             )
+            val elapsedMs = (System.nanoTime() - startedAtNanos) / 1_000_000
 
             assertTrue(
-                "expected native tool call, got $outcome; telemetry=$telemetry",
+                "expected native tool call, got $outcome; elapsedMs=$elapsedMs; telemetry=$telemetry",
                 outcome is InferenceOutcome.ToolCall,
             )
             val call = outcome as InferenceOutcome.ToolCall

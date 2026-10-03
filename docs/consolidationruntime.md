@@ -964,3 +964,42 @@ The quantized pilot120 LiteRT-LM artifact (453495680 bytes) was copied to `emula
 The larger no-PTQ pilot120 artifact (1751747420 bytes) is not rerun in this checkpoint because prior evidence already records emulator LOW_MEMORY. The non-P3 FunctionGemma mobile-actions artifact is not considered a comparator because the runtime classifies it as `ModelUnavailable` in this harness.
 
 CR-7 therefore remains `implemented_unvalidated`, and CR-8 remains experimental/unvalidated. No production dependency or AppGraph wiring is approved.
+
+
+## 22. CR-7 semantic quality and latency diagnosis — 2026-10-03
+
+The device probe was extended only for diagnosis and then returned to a production-clean bridge. The decisive observation is that the pilot120 model is not failing because one native argument is missing: its Message.toolCalls list is empty.
+
+Instead, the model emits a textual pseudo-call beginning with <start_function_call> inside Message.contents. One captured output contained call:compose_quest_text with arg0/arg1/arg2, malformed extra fields and an unexpected call:pause. This proves that the current quantized artifact has learned a textual function-call representation that does not match the LiteRT-LM native ToolSet boundary.
+
+### Real quest-generation latency sample
+
+Three real prompts were executed through the same Android runtime with the quantized pilot120 artifact:
+
+| sample | elapsed | native calls | outcome |
+|---|---:|---:|---|
+| 1 | 7.45 s | 0 | InvalidOutput |
+| 2 | 4.06 s | 0 | InvalidOutput |
+| 3 | 4.27 s | 0 | InvalidOutput |
+
+The first run is treated as a colder runtime/model-init observation. The later ~4.1–4.3 s values are the more useful warm-generation signal. These are real end-to-end instrumentation measurements, not synthetic benchmark timings.
+
+### Quest quality/tone
+
+The observed semantics are currently below the PinhoQuest product bar. Captured text included “Jogue de outro jeito” and “Pequeno computador”, followed by malformed objective-like content. The model did not reliably produce the three intended creative fields, and the requested casual, friendly, playful and low-friction tone was not preserved consistently.
+
+This is therefore both a protocol-adherence problem and a product-quality problem. A parser added after the model would hide the former and would not reliably solve the latter.
+
+### Gemma comparison
+
+The previously tested FunctionGemma mobile-actions G5 artifact was classified ModelUnavailable. The G6 artifact was also classified ModelUnavailable on this same runtime/device path, in about 2.1 s. Neither is a valid A/B comparison for quest quality or generation latency here.
+
+### Fine-tuning direction
+
+The evidence now makes a small corrective SFT/adapter experiment on pilot120 a reasonable candidate. The experiment should target the exact serving representation expected by the selected LiteRT-LM export/runtime path and reinforce the canonical P3 semantic fields and friendly quest tone. It should not introduce a production text parser or a case-specific output repair.
+
+Gemma should remain a secondary candidate until a Gemma artifact is produced that actually initializes under the target runtime. P4/P5 remain untouched while CR-7 is bounded.
+
+### Gate
+
+CR-7 remains implemented_unvalidated. The runtime is executable and the latency is promising enough to justify product-oriented experimentation, but native semantic adherence is not proven and current quest quality is not acceptable. CR-8 remains experimental/unvalidated.

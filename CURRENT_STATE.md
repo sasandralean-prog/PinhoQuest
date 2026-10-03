@@ -455,3 +455,30 @@ Runtime gate: the quantized pilot120 artifact `D:\AI\HuggingFacesLLM\p3_sft_smal
 A/B note: the no-PTQ pilot120 artifact is 1751747420 bytes and remains excluded from this rerun because existing evidence records emulator LOW_MEMORY. No semantic conclusion is drawn from that artifact here. A non-P3 FunctionGemma mobile-actions artifact was also tested only as a control and classified `ModelUnavailable`, so it is not a valid P3 comparator.
 
 Gate: CR-7 remains `implemented_unvalidated`; CR-8 remains `implemented_unvalidated`/experimental. No production integration is approved. The next bounded frontier is to diagnose the quantized pilot120 native payload (especially missing/incorrect required arguments) or produce a mobile-converted checkpoint whose native `Message.toolCalls` matches the canonical P3 contract.
+
+
+## 22. CR-7 semantic/runtime diagnosis — 2026-10-03
+
+The native probe was extended temporarily with test-only diagnostics and then restored to the production-clean bridge. The key finding is stronger than the earlier “missing objectives” hypothesis:
+
+- Quantized pilot120 initialized and executed through the real Android path, but Message.toolCalls contained zero native calls.
+- The model instead emitted a textual pseudo-function-call beginning with <start_function_call> inside Message.contents.
+- A captured sample contained call:compose_quest_text, but used positional-looking arg0/arg1/arg2, malformed extra fields, and even an unexpected call:pause. This is not the canonical native tool protocol and must not be repaired by a production parser.
+- Three real quest prompts were exercised on-device with the pilot120 artifact. Elapsed generation times were approximately 7.45 s, 4.06 s and 4.27 s. The first run is treated as a colder run; the later ~4.1–4.3 s results are the more useful warm-runtime latency signal. All three returned InvalidOutput with observedToolCalls=0.
+- Semantic quality is currently below the PinhoQuest bar. Captured output included phrases such as “Jogue de outro jeito” and “Pequeno computador”, plus malformed objective-like text. It did not reliably preserve the requested friendly, playful, low-friction quest tone or the three canonical semantic fields.
+
+Gemma comparison:
+- functiongemma-270m-ft-mobile-actions_Google_Tensor_G5.litertlm was previously classified ModelUnavailable in this harness.
+- functiongemma-270m-ft-mobile-actions_Google_Tensor_G6.litertlm was also classified ModelUnavailable in this harness, with about 2.1 s until classification. Therefore neither artifact is a valid semantic/latency comparator for P3 on this device/runtime.
+
+Fine-tuning assessment:
+- A targeted fine-tuning pass is now a plausible next experiment, but only after deciding the desired serving format. The pilot120 evidence suggests the learned completion format is drifting toward a textual FunctionGemma-style function-call representation instead of the LiteRT-LM native tool boundary.
+- The preferred correction is not to add a text parser. A small governed SFT/adapter experiment should instead teach the exact native-call-compatible representation expected by the selected runtime/export path, while preserving MicroQuestToolContract as the sole semantic authority.
+- If the existing pilot120 checkpoint is the cheapest viable base, it is the first candidate for a small corrective SFT. Gemma becomes a candidate only if a Gemma artifact that actually initializes under the target LiteRT runtime is produced.
+
+Gate decision:
+CR-7 remains implemented_unvalidated. The runtime path is proven executable, but native semantic adherence and quest quality are not. CR-8 remains experimental and should not be promoted yet. P4/P5 remain outside this blocker and unchanged.
+
+Production bridge state after diagnosis:
+- Temporary raw-output diagnostics were removed from LiteRtLmRuntime and LiteRtToolCallMapper.
+- The temporary three-sample quality probe was removed; its measurements are recorded here as evidence rather than as a permanent benchmark harness.
