@@ -108,16 +108,45 @@ The current Android `AndroidLiteRtLmInferencePort` requests `ResponseFormat.json
 
 The isolated Android harness built successfully with LiteRT-LM 0.17.1, Java 21 and Kotlin 2.4.0, and the debug APK installed successfully on the connected `emulator-5554`.
 
-The harness process remained alive after launch without emitting the expected `P3Lifecycle` benchmark lines or producing the benchmark result file. The only observable runtime artifact was an approximately 272 MB XNNPACK cache for `todolist-functiongemma_q8_ekv1024.litertlm`. Repeated launches reproduced the same behavior; there was no crash stack in the filtered `logcat` capture.
+The first instrumented probe established the complete runtime lifecycle for `todolist-functiongemma_q8_ekv1024.litertlm`:
 
-This is a runtime-execution evidence gap, not a contract failure. The result does not justify wiring the same dependency into the production app or claiming pilot120 on-device approval.
+- Engine construction: approximately 44 ms.
+- `engine.initialize()`: approximately 5.6 s; process PSS rose from about 41 MB to about 792 MB.
+- Conversation creation: approximately 4.3 s; PSS remained around 788 MB.
+- `sendMessage()`: approximately 2.8 s; peak PSS was about 800 MB.
+- The probe completed and wrote `p3-lifecycle.tsv`.
+- The response contained a real native `compose_quest_text` tool call.
+
+The previous apparent silence was therefore an observability problem in the harness, not a LiteRT-LM execution failure. The harness now has explicit lifecycle checkpoints around engine construction, initialization, conversation creation and first generation.
+
+### Runtime compatibility versus model suitability
+
+The Android runtime is now proven capable of executing a FunctionGemma-style tool call. However, the tested `todolist-functiongemma_q8_ekv1024.litertlm` model is not P3-contract compliant.
+
+Observed native tool call shape was effectively:
+
+`compose_quest_text(text="Caminhe por dez minutos")`
+
+rather than the required bounded composition contract:
+
+`compose_quest_text(title, description, objectives)`
+
+Therefore:
+
+- Android runtime execution: **ESTABLISHED**.
+- Native tool-call transport: **ESTABLISHED**.
+- P3 composition contract on this model: **NOT SATISFIED**.
+- Production model integration: **NOT APPROVED**.
+
+The pilot120 SFT checkpoint remains a candidate model artifact, but it is not yet an Android LiteRT-LM artifact. The next model-selection step is to determine whether pilot120 can be exported/converted into the same mobile runtime while preserving the learned tool contract, or whether another small FunctionGemma checkpoint is a better mobile starting point.
 
 ## Current gate
 
 `quest-core` targeted P3 pipeline gate: PASS.
 `quest-core` full test suite: PASS.
 Android experimental build/install: PASS.
-Android FunctionGemma execution evidence: NOT ESTABLISHED.
+Android FunctionGemma execution: PASS.
+Tested bucket model P3 contract: FAIL.
 Production model integration: NOT APPROVED.
 
-Next frontier: isolate the LiteRT-LM Android runtime execution boundary (model artifact, initialization and first generation) in the experimental harness before considering any production adapter change. Keep the production app free of the incompatible LiteRT-LM dependency until that evidence exists.
+The production app remains free of the experimental LiteRT-LM dependency until a model/runtime pair passes the P3 composition contract on-device.
