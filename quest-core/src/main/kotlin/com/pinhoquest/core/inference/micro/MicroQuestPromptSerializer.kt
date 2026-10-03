@@ -4,6 +4,7 @@ class MicroQuestPromptSerializer(
     private val maxCharacters: Int = 1200,
 ) {
     fun serialize(request: MicroQuestCompositionRequest): String {
+        val envelope = request.prompt.envelope
         val prompt = buildString {
             append("Escreva apenas o texto de uma quest. ")
             append("Nao invente fatos, XP, recompensa ou regras. ")
@@ -16,20 +17,21 @@ class MicroQuestPromptSerializer(
 
             append("TAREFA=compose_quest_text\n")
             append("CATEGORIA=")
-            append(request.plan.selectedCategory.name)
+            append(envelope.category.name)
             append("\nAMBIENTE=")
-            append(request.plan.selectedEnvironment.name)
+            append(envelope.environment.name)
             append("\nDIFICULDADE=")
-            append(request.plan.filters.desiredDifficulty?.name ?: "EASY")
+            append(envelope.difficulty?.name ?: "EASY")
             append("\nTEMPO=")
-            append(formatTime(request))
+            append(formatTime(envelope.minMinutes, envelope.maxMinutes))
             append("\nTAGS=")
-            append(request.tags.joinToString(", ").ifEmpty { "-" })
+            append(envelope.selectedTags.joinToString(", ") { it.label }.ifEmpty { "-" })
             append("\n\nEXEMPLOS_APROVADOS:\n")
-            if (request.examples.isEmpty()) {
+
+            if (request.prompt.examples.isEmpty()) {
                 append("- nenhum")
             } else {
-                request.examples.forEachIndexed { index, example ->
+                request.prompt.examples.forEachIndexed { index, example ->
                     append(index + 1)
                     append(". ")
                     append(example.title)
@@ -40,8 +42,35 @@ class MicroQuestPromptSerializer(
                     append("\n")
                 }
             }
-            append("\nRETORNO=chame a funcao compose_quest_text com title, description e objectives.")
-            append("\ntitle: 1-80 chars; description: 12-220 chars; objectives: 1-4 textos de 1-120 chars.")
+
+            append("\nRETORNO=chame a funcao ")
+            append(MicroQuestToolContract.NAME)
+            append(" com ")
+            append(MicroQuestToolContract.REQUIRED_ARGUMENTS.joinToString(", "))
+            append(".")
+            append("\n")
+            append(MicroQuestToolContract.TITLE)
+            append(": ")
+            append(MicroQuestToolContract.MIN_TITLE_LENGTH)
+            append("-")
+            append(MicroQuestToolContract.MAX_TITLE_LENGTH)
+            append(" chars; ")
+            append(MicroQuestToolContract.DESCRIPTION_FIELD)
+            append(": ")
+            append(MicroQuestToolContract.MIN_DESCRIPTION_LENGTH)
+            append("-")
+            append(MicroQuestToolContract.MAX_DESCRIPTION_LENGTH)
+            append(" chars; ")
+            append(MicroQuestToolContract.OBJECTIVES)
+            append(": ")
+            append(MicroQuestToolContract.MIN_OBJECTIVES)
+            append("-")
+            append(MicroQuestToolContract.MAX_OBJECTIVES)
+            append(" textos de ")
+            append(MicroQuestToolContract.MIN_OBJECTIVE_LENGTH)
+            append("-")
+            append(MicroQuestToolContract.MAX_OBJECTIVE_LENGTH)
+            append(" chars.")
         }.trim()
 
         require(prompt.length <= maxCharacters) {
@@ -50,14 +79,11 @@ class MicroQuestPromptSerializer(
         return prompt
     }
 
-    private fun formatTime(request: MicroQuestCompositionRequest): String {
-        val min = request.plan.filters.minMinutes
-        val max = request.plan.filters.maxMinutes
-        return when {
+    private fun formatTime(min: Int?, max: Int?): String =
+        when {
             min != null && max != null -> "$min-$max"
             min != null -> "$min+"
             max != null -> "0-$max"
             else -> "ANY"
         }
-    }
 }

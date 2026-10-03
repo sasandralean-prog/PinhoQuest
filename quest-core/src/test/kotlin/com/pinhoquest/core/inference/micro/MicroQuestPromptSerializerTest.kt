@@ -10,13 +10,21 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MicroQuestPromptSerializerTest {
+    private val factsAssembler = MicroQuestPromptFactsAssembler()
+
     @Test
-    fun keepsExamplesAndTrustedFieldsButNoGovernedRewards() {
+    fun keepsApprovedExamplesAndTrustedFieldsButNoGovernedRewards() {
         val request = MicroQuestCompositionRequest(
-            plan = plan(),
-            tags = listOf("natureza", "observacao"),
-            examples = listOf(
-                QuestTextExample("Perto daqui", "Observe um detalhe novo.", listOf("Encontre um detalhe")),
+            prompt = factsAssembler.assemble(
+                plan = plan(),
+                tags = listOf("natureza", "observacao"),
+                examples = listOf(
+                    QuestTextExample(
+                        "Perto daqui",
+                        "Observe um detalhe novo.",
+                        listOf("Encontre um detalhe"),
+                    ),
+                ),
             ),
         )
 
@@ -32,7 +40,13 @@ class MicroQuestPromptSerializerTest {
 
     @Test
     fun serializationIsDeterministic() {
-        val request = MicroQuestCompositionRequest(plan(), tags = listOf("b", "a"))
+        val request = MicroQuestCompositionRequest(
+            prompt = factsAssembler.assemble(
+                plan = plan(),
+                tags = listOf("b", "a"),
+                examples = emptyList(),
+            ),
+        )
         val serializer = MicroQuestPromptSerializer()
         assertEquals(serializer.serialize(request), serializer.serialize(request))
     }

@@ -8,10 +8,6 @@ import kotlinx.serialization.json.JsonPrimitive
 class FunctionGemmaToolCallExtractor(
     private val json: Json = Json { ignoreUnknownKeys = false },
 ) {
-    companion object {
-        const val TOOL_NAME = "compose_quest_text"
-    }
-
     fun extract(raw: String): MicroQuestText {
         require(raw.isNotBlank()) { "empty function-call response" }
         val marker = "<start_function_call>"
@@ -21,19 +17,19 @@ class FunctionGemmaToolCallExtractor(
         val end = raw.indexOf(endMarker, start + marker.length)
         require(end >= 0) { "function-call end marker not found" }
         val body = raw.substring(start + marker.length, end).trim()
-        val prefix = "call:$TOOL_NAME"
+        val prefix = "call:" + MicroQuestToolContract.NAME
         require(body.startsWith(prefix)) { "unexpected function name" }
         val arguments = parseObject(body.substring(prefix.length).trim())
-        require(arguments.keys == setOf("title", "description", "objectives")) {
+        require(arguments.keys == MicroQuestToolContract.REQUIRED_ARGUMENTS.toSet()) {
             "unexpected function arguments"
         }
         val title = stringField(arguments, "title")
         val description = stringField(arguments, "description")
         val objectives = stringArrayField(arguments, "objectives")
-        require(title.length <= MicroQuestContract.MAX_TITLE)
-        require(description.length in 12..MicroQuestContract.MAX_DESCRIPTION)
-        require(objectives.size in 1..MicroQuestContract.MAX_OBJECTIVES)
-        require(objectives.all { it.length <= MicroQuestContract.MAX_OBJECTIVE })
+        require(title.length in MicroQuestToolContract.MIN_TITLE_LENGTH..MicroQuestToolContract.MAX_TITLE_LENGTH)
+        require(description.length in MicroQuestToolContract.MIN_DESCRIPTION_LENGTH..MicroQuestToolContract.MAX_DESCRIPTION_LENGTH)
+        require(objectives.size in MicroQuestToolContract.MIN_OBJECTIVES..MicroQuestToolContract.MAX_OBJECTIVES)
+        require(objectives.all { it.length in MicroQuestToolContract.MIN_OBJECTIVE_LENGTH..MicroQuestToolContract.MAX_OBJECTIVE_LENGTH })
         return MicroQuestText(title, description, objectives)
     }
 

@@ -21,10 +21,10 @@ class FunctionGemmaResponseSanitizer(
         val title = stringField(objectNode, "title")
         val description = stringField(objectNode, "description")
         val objectives = arrayField(objectNode, "objectives")
-        require(title.length <= MicroQuestContract.MAX_TITLE)
-        require(description.length in 12..MicroQuestContract.MAX_DESCRIPTION)
-        require(objectives.isNotEmpty() && objectives.size <= MicroQuestContract.MAX_OBJECTIVES)
-        require(objectives.all { it.length <= MicroQuestContract.MAX_OBJECTIVE })
+        require(title.length <= MicroQuestToolContract.MAX_TITLE_LENGTH)
+        require(description.length in MicroQuestToolContract.MIN_DESCRIPTION_LENGTH..MicroQuestToolContract.MAX_DESCRIPTION_LENGTH)
+        require(objectives.size in MicroQuestToolContract.MIN_OBJECTIVES..MicroQuestToolContract.MAX_OBJECTIVES)
+        require(objectives.all { it.length in MicroQuestToolContract.MIN_OBJECTIVE_LENGTH..MicroQuestToolContract.MAX_OBJECTIVE_LENGTH })
         return MicroQuestText(title, description, objectives)
     }
 

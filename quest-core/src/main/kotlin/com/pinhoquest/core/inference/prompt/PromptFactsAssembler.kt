@@ -24,10 +24,30 @@ class PromptFactsAssembler(
         )
     }
 
+    fun assembleTagLabels(
+        plan: QuestGenerationPlan,
+        tagLabels: List<String>,
+        researchHints: List<PromptResearchHint> = emptyList(),
+    ): BoundedPromptEnvelope {
+        return BoundedPromptEnvelope(
+            schemaVersion = QuestPromptContract.SCHEMA_VERSION,
+            task = QuestPromptContract.TASK,
+            category = plan.selectedCategory,
+            environment = plan.selectedEnvironment,
+            minMinutes = plan.filters.minMinutes,
+            maxMinutes = plan.filters.maxMinutes,
+            difficulty = plan.filters.desiredDifficulty,
+            selectedTags = selectTagLabels(tagLabels),
+            researchHints = selectResearchHints(researchHints),
+        )
+    }
+
     private fun selectTags(tags: List<Tag>): List<PromptTag> =
-        tags.asSequence()
-            .filter { it.enabled }
-            .map { sanitize(it.label) }
+        selectTagLabels(tags.asSequence().filter { it.enabled }.map { it.label }.toList())
+
+    private fun selectTagLabels(labels: List<String>): List<PromptTag> =
+        labels.asSequence()
+            .map(::sanitize)
             .filter { it.isNotEmpty() }
             .distinctBy { it.lowercase() }
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, { it }))

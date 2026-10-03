@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-0 — Runtime Contract Consolidation Planning
+CR frontier: CR-2 — Bounded Prompt/Input Governance (implemented, awaiting commit gate)
 Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
 
 ## 1. Current project state
@@ -137,13 +137,15 @@ There must be one semantic tool contract. Kotlin tool registration, FunctionGemm
 
 ## 7. Current CR frontier
 
-CR-0 is documentation and planning only.
+CR-0 planning/documentation is complete.
+CR-1 canonical FunctionGemma tool contract is implemented and validated by quest-core tests.
+CR-2 bounded prompt/input governance is implemented and validated by quest-core tests; the combined CR-1/CR-2 change is awaiting the commit/push gate.
 
 No production FunctionGemma wiring is approved yet.
 No new SFT run is approved yet.
 No new large Android conversion/A-B is approved yet.
 
-CR-0 exit requires the consolidation plan, current-state record, sprint boundaries, gates, and no-go rules to be committed and pushed.
+CR-3 remains the next runtime transport frontier after the CR-1/CR-2 checkpoint is committed.
 
 ## 8. Sprint map
 
@@ -254,3 +256,32 @@ CR-0 records the working hypothesis:
 P3 training and runtime currently speak different contracts, while mobile conversion is a secondary independent variable.
 
 The first correction must therefore be architectural contract convergence, not additional training or larger inference budgets.
+
+## 12. CR-1 / CR-2 implementation checkpoint
+
+### CR-1 — canonical tool contract
+
+Implemented in quest-core:
+- `MicroQuestToolContract` is the single semantic source for `compose_quest_text`.
+- Canonical arguments are exactly `title`, `description`, and `objectives`.
+- Canonical bounds are title 1..80, description 12..220, objectives 1..4, each objective 1..120.
+- The FunctionGemma extractor and legacy sanitizer now reference the canonical contract instead of independent bounds.
+- Characterization tests explicitly prove the three-field tool does not own category, environment, duration, difficulty, bonus objectives, XP or rewards.
+- The six-field `QuestPromptContract` remains a separate structured-draft protocol and is not silently reused as the P3 FunctionGemma tool schema.
+
+### CR-2 — bounded prompt/input governance
+
+Implemented in quest-core:
+- `PromptFactsAssembler.assembleTagLabels()` reuses the existing deterministic tag sanitization/bounding path for P3 labels.
+- `MicroQuestPromptFactsAssembler` is the P3 model-facing input boundary.
+- `BoundedMicroQuestPrompt` is the only request payload accepted by `MicroQuestPromptSerializer`.
+- Tags are control-character sanitized, whitespace normalized, deduplicated, sorted and capped at the existing prompt limit.
+- Examples are control-character sanitized, whitespace normalized, field-bounded, objective-bounded and capped at three approved examples.
+- Serializer tests prove control characters and oversized collections do not cross into the serialized model prompt.
+
+Validation evidence:
+- `:quest-core:test` completed successfully after CR-1/CR-2 implementation.
+- No Android runtime wiring changed.
+- No model retraining or conversion experiment was started.
+
+Checkpoint state: `implemented_unvalidated` until the branch commit/push gate is completed; after that, CR-1 and CR-2 can be promoted to `validated_bounded` for the quest-core scope.

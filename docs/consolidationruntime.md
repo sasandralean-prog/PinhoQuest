@@ -1,6 +1,6 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-0 planning
+Status: CR-1 / CR-2 implementation checkpoint (quest-core validated, commit/push gate pending)
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
 Baseline: f17ae65
@@ -266,7 +266,7 @@ It owns:
 Canonical arguments:
 
 title: String, 1..80
-description: String, 1..220
+description: String, 12..220
 objectives: List<String>, 1..4, each 1..120
 
 The exact Kotlin/API representation may differ by adapter, but semantic values must not diverge.
@@ -669,3 +669,69 @@ CR-0 is complete only when:
 - CR-1 is explicitly the next frontier.
 
 CR-0 is intentionally a planning checkpoint, not a runtime validation checkpoint.
+
+
+## 16. CR-1 / CR-2 implementation record
+
+### CR-1 — canonical FunctionGemma tool contract
+
+Status: implemented; quest-core validation passed.
+
+Implemented artifacts:
+- `quest-core/.../micro/MicroQuestToolContract.kt`
+- `MicroQuestToolCallExtractor` now consumes canonical name, required arguments and bounds.
+- `FunctionGemmaResponseSanitizer` references the same canonical bounds as a compatibility path; it is still scheduled for removal from the P3 runtime in CR-4.
+- `MicroQuestToolContractTest` characterizes the exact three-field protocol and its ownership boundary.
+
+Canonical contract:
+- tool: `compose_quest_text`
+- `title`: String, 1..80
+- `description`: String, 12..220
+- `objectives`: List<String>, 1..4, each 1..120
+
+The contract test explicitly verifies that category, environment, duration, difficulty, bonus objectives, XP and rewards are not tool arguments.
+
+The six-field `QuestPromptContract` remains a separate structured-draft protocol. It is not silently promoted to the FunctionGemma P3 schema.
+
+### CR-2 — bounded prompt/input governance
+
+Status: implemented; quest-core validation passed.
+
+Implemented artifacts:
+- `PromptFactsAssembler.assembleTagLabels()` reuses the existing deterministic sanitization/bounding rules for P3 tag labels.
+- `MicroQuestPromptFactsAssembler` is the P3 input-governance boundary.
+- `BoundedMicroQuestPrompt` carries only the bounded envelope and sanitized approved examples.
+- `MicroQuestCompositionRequest` no longer stores raw tags/examples; it accepts only the bounded prompt object.
+- `MicroQuestPromptSerializer` serializes only bounded facts and approved examples.
+
+Governance now proves:
+- control characters are normalized before serialization;
+- tags are deduplicated, sorted and capped;
+- examples are normalized, field-bounded and capped at three;
+- example objectives are capped at four and each objective is bounded;
+- the serializer never receives the original raw collections.
+
+The P3 path still does not consume raw research/web payloads. If research facts are introduced later, they must enter through the typed `PromptResearchHint` allowlist and the existing `PromptFactsAssembler` path.
+
+### Validation gate
+
+Command:
+`gradlew :quest-core:test --no-daemon --console=plain`
+
+Result:
+`BUILD SUCCESSFUL`
+
+Scope:
+- quest-core only;
+- no Android runtime transport changes;
+- no model retraining;
+- no model conversion;
+- no production FunctionGemma wiring.
+
+### Remaining boundary
+
+CR-1/CR-2 are ready for the branch commit/push checkpoint.
+
+CR-3 is the next implementation frontier: native LiteRT-LM tool registration, manual tool calling and typed `Message.toolCalls` transport.
+
+CR-4 remains responsible for removing the generic JSON compatibility path from the P3 runtime. The current sanitizer remains present only so CR-1/CR-2 do not silently broaden the scope into output-protocol convergence.
