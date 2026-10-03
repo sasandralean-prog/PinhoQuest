@@ -9,7 +9,7 @@ class InferenceBudgetTest {
     fun p3BudgetCentralizesPreviouslyScatteredLimits() {
         assertEquals(1200, InferenceBudget.P3.maxPromptCharacters)
         assertEquals(1280, InferenceBudget.P3.maxContextTokens)
-        assertEquals(128, InferenceBudget.P3.maxOutputTokens)
+        assertEquals(256, InferenceBudget.P3.maxOutputTokens)
         assertEquals(1, InferenceBudget.P3.maxToolCalls)
     }
 
@@ -47,7 +47,7 @@ class InferenceBudgetTest {
         val sameValues = InferenceBudget(
             maxPromptCharacters = 1200,
             maxContextTokens = 1280,
-            maxOutputTokens = 128,
+            maxOutputTokens = 256,
             maxToolCalls = 1,
         )
 

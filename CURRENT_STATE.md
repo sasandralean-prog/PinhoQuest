@@ -482,3 +482,41 @@ CR-7 remains implemented_unvalidated. The runtime path is proven executable, but
 Production bridge state after diagnosis:
 - Temporary raw-output diagnostics were removed from LiteRtLmRuntime and LiteRtToolCallMapper.
 - The temporary three-sample quality probe was removed; its measurements are recorded here as evidence rather than as a permanent benchmark harness.
+
+## 23. CR-7.1 — corrective SFT and native-call diagnosis — 2026-10-03
+
+CR-7.1 produced a corrective SFT pilot from the pilot120 adapter/checkpoint rather than introducing a parser or production-side output repair.
+
+### SFT
+- Clean corrective dataset created under D:\AI\HuggingFacesLLM\p3_sft_small\cr71 with 84 training examples and 12 validation examples covering organization, music, games, creativity, curiosity, pause, drawing and photos.
+- Every target contains exactly one <start_function_call>, the canonical compose_quest_text name, all three semantic fields (title, description, objectives) and <end_function_call>; no <start_function_response> is present in the target dataset.
+- A short pilot reached checkpoint cr71\checkpoint_step10. Local generation from that checkpoint with a 256-token allowance produced one complete canonical call (CALLS=1, END=1) containing title, description and objectives. The same checkpoint at 128 tokens was truncated before <end_function_call>, proving the old P3 output budget was too small.
+- A further 12-step continuation was rejected as a candidate: it began repeating tool calls and response markers. It was retained only as experimental evidence; checkpoint_step10 is the better SFT candidate.
+
+### Runtime contract correction
+- InferenceBudget.P3.maxOutputTokens was raised from 128 to 256 and the corresponding unit expectation was updated.
+- This is a bounded semantic change: the model needs enough output budget to serialize the three required arguments and close the native call. It is not a case-specific output repair.
+
+### Root cause of missing native ToolCall
+The decisive diagnosis is export metadata, not the mapper:
+- The pilot120 .litertlm was exported with llm_model_type.generic_model.
+- The known FunctionGemma G5 artifact declares llm_model_type.function_gemma and uses FunctionGemma stop-token metadata.
+- With the generic pilot120 bundle, Android telemetry reported observedToolCalls=0 even when the model generated textual <start_function_call> content.
+- A diagnostic hybrid bundle using FunctionGemma metadata over the pilot graph changed telemetry to observedToolCalls=1. It then failed later with INVALID_NATIVE_TOOL_CALL / native cleanup corruption because the graph and metadata sections were mixed; this hybrid is diagnostic-only and must not be shipped.
+
+Therefore the production correction is: re-export the CR-7.1 checkpoint through the proper FunctionGemma/LiteRT-LM export path, including function_gemma model-type metadata and matching graph/metadata sections. Do not patch metadata into an unrelated .litertlm bundle.
+
+### Android / latency evidence
+- The old generic pilot120 path: warm real-generation signal ~4.1–4.3 s, but no native tool call.
+- Hybrid FunctionGemma-metadata diagnostic: native ToolCall channel was observed (observedToolCalls=1), but the intentionally invalid mixed bundle later crashed in native Engine.close with Scudo corruption. This is not a product latency result.
+- The local SFT checkpoint is therefore semantically promising, but the final on-device latency/quest-quality gate remains pending a valid re-export.
+
+### Export environment blocker
+The official litert-torch/AI Edge export path could not be installed in the current Windows environment because the required ai-edge-tensorflow/litert-converter wheel is unavailable for this environment. WSL on this machine was also non-responsive. No fake/manual binary patch is being promoted as an alternative.
+
+### Gate
+- CR-7.1 SFT: implemented_bounded as an experimental training artifact; checkpoint_step10 is the preferred candidate.
+- Native runtime correction: identified and bounded, but final valid FunctionGemma export is still required.
+- CR-7 overall: remains implemented_unvalidated.
+- CR-8: remains experimental/unvalidated.
+- P4/P5: unchanged.

@@ -1003,3 +1003,15 @@ Gemma should remain a secondary candidate until a Gemma artifact is produced tha
 ### Gate
 
 CR-7 remains implemented_unvalidated. The runtime is executable and the latency is promising enough to justify product-oriented experimentation, but native semantic adherence is not proven and current quest quality is not acceptable. CR-8 remains experimental/unvalidated.
+
+## 23. CR-7.1 corrective SFT and native ToolCall diagnosis — 2026-10-03
+
+The corrective SFT pilot used clean P3 targets with exactly one compose_quest_text call, title/description/objectives, and no function-response marker. The preferred checkpoint is cr71/checkpoint_step10. A local 256-token generation from that checkpoint produced CALLS=1 and END=1 with all three canonical semantic fields. A later 12-step continuation was rejected because it began repeating calls and response markers.
+
+The P3 runtime output budget was increased from 128 to 256 tokens. The old 128-token limit demonstrably truncated the SFT checkpoint before end_function_call.
+
+The missing native ToolCall root cause was identified at the export layer: pilot120 was packaged as generic_model, while FunctionGemma uses function_gemma metadata and matching stop-token/graph metadata. The generic bundle could generate textual function-call syntax but produced observedToolCalls=0. A diagnostic hybrid bundle using FunctionGemma metadata produced observedToolCalls=1, proving the native channel can recognize the format; the hybrid was intentionally invalid because it mixed metadata/sections from G5 with the pilot graph and subsequently crashed in native Engine.close, so it is not a valid artifact.
+
+Production correction: export the CR-7.1 checkpoint through the proper FunctionGemma/LiteRT-LM export path. Do not patch metadata into an unrelated bundle and do not add a production text parser.
+
+The final valid Android quest-generation gate remains pending because the official AI Edge export toolchain could not be installed in the current Windows environment and WSL was non-responsive. P4/P5 remain unchanged.

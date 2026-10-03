@@ -22,12 +22,12 @@ data class InferenceBudget(
     companion object {
         /**
          * P3 budget is intentionally the already-observed bounded configuration:
-         * prompt 1200 chars, context 1280 tokens, output 128 tokens, one tool call.
+         * prompt 1200 chars, context 1280 tokens, output 256 tokens, one tool call.
          */
         val P3: InferenceBudget = InferenceBudget(
             maxPromptCharacters = 1200,
             maxContextTokens = 1280,
-            maxOutputTokens = 128,
+            maxOutputTokens = 256,
             maxToolCalls = 1,
         )
     }
