@@ -60,3 +60,10 @@ The canonical V1 design is:
 `docs/superpowers/specs/2026-10-01-pinho-quest-v1-design.md`
 
 Supporting documentation summarizes it; supporting docs must be changed together when architecture changes materially.
+
+## Runtime consolidation frontier
+
+Operational project state: CURRENT_STATE.md
+P3 runtime consolidation plan: docs/consolidationruntime.md
+
+The CR sprint family (CR-0 onward) governs the convergence of the local FunctionGemma runtime. Read the consolidation plan before modifying P3 inference contracts.
