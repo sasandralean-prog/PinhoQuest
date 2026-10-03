@@ -70,3 +70,38 @@ Evaluate one of two bounded paths:
 1. a FunctionGemma checkpoint already aligned with the desired composition tool; or
 2. a tiny fine-tuning/distillation experiment using deterministic PinhoQuest examples to teach exactly one micro-composition contract.
 The production gate remains: valid bounded text + deterministic rendering + `QuestValidator`, with procedural fallback on any failure.
+
+
+## P3 SFT pilot120 — 2026-10-02
+
+Artifact: `D:\AI\HuggingFacesLLM\p3_sft_small\pilot120\work\checkpoint`.
+
+The isolated CPU LoRA experiment completed 60/60 training steps with exit code 0 and checkpoints at steps 10, 20, 30, 40, 50 and 60 plus the final checkpoint. The base model remained the local FunctionGemma 270M checkpoint.
+
+Validation evidence:
+- 30/30 validation cases emitted exactly one `compose_quest_text` call.
+- 30/30 contained the complete `title`, `description` and `objectives` contract.
+- 12/12 independent unseen cases emitted exactly one complete call.
+- 11/12 unseen cases matched both approved fact and objective strings exactly; the remaining case preserved the approved meaning with a wording variation.
+- The same 12 unseen cases evaluated against the bucket zero-shot ONNX model produced 0/12 complete calls; outputs were malformed, empty, unrelated or repeated function-like text.
+
+This is evidence that the small SFT experiment materially improved adherence to the P3 composition contract. It is not, by itself, production approval.
+
+## Pipeline gate — 2026-10-02
+
+Added `MicroQuestComposerPipelineGateTest` covering the canonical convergence boundary:
+`model output -> strict extractor/sanitizer -> MicroQuestRenderer -> QuestValidator`.
+
+Four scenarios pass:
+1. valid native FunctionGemma call -> `LOCAL_MODEL` -> `QuestValidator.Valid`;
+2. valid JSON model output -> bounded sanitizer -> `LOCAL_MODEL` -> `QuestValidator.Valid`;
+3. malformed model output -> `PROCEDURAL_FALLBACK` -> `QuestValidator.Valid`;
+4. inference failure -> `PROCEDURAL_FALLBACK` -> `QuestValidator.Valid`.
+
+The full `:quest-core:test` suite also passes.
+
+## Adapter boundary observation
+
+The current Android `AndroidLiteRtLmInferencePort` requests `ResponseFormat.json(...)` and serializes the rendered response string; it does not currently expose the native tool-call path used by the isolated FunctionGemma probe. Therefore the pipeline gate proves the core convergence contract and both accepted response representations, but it does not yet prove an on-device Android run using the pilot120 weights.
+
+No production model integration is approved at this checkpoint.
