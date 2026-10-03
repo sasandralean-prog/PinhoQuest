@@ -104,4 +104,20 @@ The full `:quest-core:test` suite also passes.
 
 The current Android `AndroidLiteRtLmInferencePort` requests `ResponseFormat.json(...)` and serializes the rendered response string; it does not currently expose the native tool-call path used by the isolated FunctionGemma probe. Therefore the pipeline gate proves the core convergence contract and both accepted response representations, but it does not yet prove an on-device Android run using the pilot120 weights.
 
-No production model integration is approved at this checkpoint.
+## P3 Android runtime probe — 2026-10-02
+
+The isolated Android harness built successfully with LiteRT-LM 0.17.1, Java 21 and Kotlin 2.4.0, and the debug APK installed successfully on the connected `emulator-5554`.
+
+The harness process remained alive after launch without emitting the expected `P3Lifecycle` benchmark lines or producing the benchmark result file. The only observable runtime artifact was an approximately 272 MB XNNPACK cache for `todolist-functiongemma_q8_ekv1024.litertlm`. Repeated launches reproduced the same behavior; there was no crash stack in the filtered `logcat` capture.
+
+This is a runtime-execution evidence gap, not a contract failure. The result does not justify wiring the same dependency into the production app or claiming pilot120 on-device approval.
+
+## Current gate
+
+`quest-core` targeted P3 pipeline gate: PASS.
+`quest-core` full test suite: PASS.
+Android experimental build/install: PASS.
+Android FunctionGemma execution evidence: NOT ESTABLISHED.
+Production model integration: NOT APPROVED.
+
+Next frontier: isolate the LiteRT-LM Android runtime execution boundary (model artifact, initialization and first generation) in the experimental harness before considering any production adapter change. Keep the production app free of the incompatible LiteRT-LM dependency until that evidence exists.
