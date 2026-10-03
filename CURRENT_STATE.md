@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-5 — Canonical Inference Budget (CR-4 validated_bounded)
+CR frontier: CR-6 — Training/runtime contract regeneration (CR-4/CR-5 validated_bounded)
 Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
 
 ## 1. Current project state
@@ -397,3 +397,30 @@ Static review found no remaining P3 source definitions matching the previously s
 Gate status: validated_bounded for canonical budget enforcement and build integration. Runtime token-usage semantics remain bounded by the documented API limitation above.
 
 Next frontier: CR-6 — training/runtime contract regeneration.
+
+## 16. CR-6 implementation checkpoint
+
+### Training/runtime contract regeneration
+
+Implemented:
+- Added the committed training generator at `tools/p3_training/generate_dataset.py`.
+- The generator reads `MicroQuestToolContract.kt` as the semantic authority instead of re-declaring the P3 tool name, required arguments, types and descriptions in Python.
+- The FunctionGemma declaration is assembled from that parsed contract and emits exactly one declaration-start marker.
+- The SFT completion is bounded at `<end_function_call>`; the old synthetic `<start_function_response>` tail is rejected by validation rather than being taught as part of the model completion.
+- Existing dataset coverage is preserved: 6 categories × 5 environments × 3 difficulties × 4 language slices = 360 rows, shuffled with the historical seed 42 and split 80/20.
+
+### Validation evidence
+
+Passed:
+- 6/6 Python contract/regeneration tests.
+- Generated dataset: 360 rows, 288 train, 72 validation.
+- Generated dataset contains exactly one `compose_quest_text` call per completion.
+- Generated dataset contains zero duplicated `<start_function_declaration>` markers.
+- Generated dataset contains zero `<start_function_response>` completion tails.
+- All generated completions end at `<end_function_call>`.
+
+The implementation deliberately does not start another SFT run. CR-6 proves regeneration shape and contract equivalence; CR-7 owns native hardening validation.
+
+Gate status: validated_bounded for training-data generation, declaration uniqueness and stop-boundary dataset shape.
+
+Next frontier: CR-7 — native hardening validation.

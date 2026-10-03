@@ -1,6 +1,6 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-5 implemented; CR-4 validated_bounded; CR-5 validated_bounded for budget/build scope
+Status: CR-6 implemented; CR-4/CR-5 validated_bounded; CR-6 validated_bounded for training/runtime contract regeneration
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
 Baseline: f17ae65
@@ -881,3 +881,57 @@ Not claimed:
 - conversion/resource A/B, which remains CR-8.
 
 Next frontier: CR-6 — training/runtime contract regeneration.
+
+## 20. CR-6 implementation record
+
+Status: validated_bounded for training/runtime contract regeneration.
+
+### Canonical training authority
+
+CR-6 adds `tools/p3_training/generate_dataset.py`. The generator reads the existing Kotlin `MicroQuestToolContract` instead of introducing a second semantic tool schema. The Python layer derives:
+- tool name and version;
+- tool description;
+- argument names;
+- required arguments;
+- argument descriptions;
+- argument types.
+
+The generated FunctionGemma declaration is therefore a representation of the canonical Kotlin contract, matching the architecture rule that training data and runtime declarations are derived views of one semantic contract.
+
+### Declaration-marker correction
+
+The historical generator manually added `<start_function_declaration>` and then concatenated a declaration string that already began with the same marker. CR-6 removes that duplication by making the declaration builder own only the declaration body/end marker while the template owns the single start marker.
+
+The validator rejects any generated prompt that contains the declaration-start marker more than once.
+
+### Completion/stop boundary
+
+Generated completions now end exactly at `<end_function_call>`. The previous synthetic `<start_function_response>` tail is rejected by the generator validator. This keeps the SFT completion aligned with the native tool-call boundary rather than teaching a tool-response continuation into the model completion.
+
+### Coverage preservation
+
+The historical fixture matrix is preserved exactly at 360 rows:
+- 6 categories;
+- 5 environments;
+- 3 difficulties;
+- 4 language slices.
+
+The split remains 288 training / 72 validation with seed 42.
+
+### Gate evidence
+
+Passed:
+- 6/6 `tools/p3_training/test_generate_dataset.py` tests;
+- generated 360-row dataset;
+- zero duplicated declaration-start markers;
+- zero response-tail completions;
+- 360/360 completions end at `<end_function_call>`;
+- 360/360 rows use exactly `compose_quest_text` as the tool.
+
+CR-6 does not start another SFT run and does not claim native semantic success. CR-7 owns the native hardening matrix; CR-8 owns conversion/quantization A/B.
+
+### CR-6 gate decision
+
+validated_bounded for dataset generation, canonical declaration derivation, declaration uniqueness, completion shape and preserved fixture coverage.
+
+Next frontier: CR-7 — native hardening validation.
