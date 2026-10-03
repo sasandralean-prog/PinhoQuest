@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-6 — Training/runtime contract regeneration (CR-4/CR-5 validated_bounded)
+CR frontier: CR-7 — Native hardening validation (implemented_unvalidated; blocked on JDK 21 runtime/toolchain availability)
 Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
 
 ## 1. Current project state
@@ -424,3 +424,22 @@ The implementation deliberately does not start another SFT run. CR-6 proves rege
 Gate status: validated_bounded for training-data generation, declaration uniqueness and stop-boundary dataset shape.
 
 Next frontier: CR-7 — native hardening validation.
+
+## 21. CR-7 hardening checkpoint
+
+Status: implemented_unvalidated; blocked on local toolchain availability.
+
+Implemented in this checkpoint:
+- Expanded `LiteRtToolCallMapperTest` into an explicit native-protocol matrix covering zero, one and multiple calls; unexpected tool name; missing, extra and null argument maps.
+- Preserved the one-call and exact-argument invariants from `MicroQuestToolContract`.
+- Added/kept the bridge Java toolchain boundary configured to use a Java 21 compiler while emitting Java 17 bytecode, matching the LiteRT-LM 0.17.1 API artifact.
+
+Validation:
+- `:quest-core:test` — BUILD SUCCESSFUL.
+- `:litertlm-bridge:test` is currently blocked because the local machine has only JDK 17 installed, while `litertlm-android:0.17.1` contains Java class version 65 (Java 21). The attempted build therefore fails before the new native matrix can execute.
+- No model inference run was started under the broken compile boundary.
+
+Gate decision:
+CR-7 remains `implemented_unvalidated`, not `validated_bounded`. The blocker is environmental/toolchain, not a semantic model conclusion.
+
+CR-8 is intentionally not started: conversion/quantization A/B must reuse a validated native adapter/tool protocol first.
