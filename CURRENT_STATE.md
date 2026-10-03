@@ -443,3 +443,15 @@ Gate decision:
 CR-7 remains `implemented_unvalidated`, not `validated_bounded`. The blocker is environmental/toolchain, not a semantic model conclusion.
 
 CR-8 is intentionally not started: conversion/quantization A/B must reuse a validated native adapter/tool protocol first.
+
+## CR-7 / CR-8 native Android evidence — 2026-10-03
+
+CR-7 native probe is implemented at `app/src/androidTest/kotlin/com/pinhoquest/inference/P3NativeToolCallE2ETest.kt`. It invokes the real `AndroidLiteRtLmInferencePort`/`LiteRtLmRuntime`/`P3LiteRtToolSet` path and requires exactly one `compose_quest_text` call with the canonical `title`, `description` and `objectives` arguments.
+
+Environment gate: Microsoft OpenJDK 21 installed; bridge/core/app unit tests and debug APK/test APK build successfully. APKs install on `emulator-5554` (x86_64/API 33).
+
+Runtime gate: the quantized pilot120 artifact `D:\AI\HuggingFacesLLM\p3_sft_small\pilot120\litert_export\model.litertlm` (453495680 bytes) initialized and executed on-device. The process reached approximately 815 MiB PSS and 313% CPU during generation. The probe completed in approximately 14.7 s but returned `InferenceOutcome.InvalidOutput`, so the native runtime transport works while the model/contract gate fails.
+
+A/B note: the no-PTQ pilot120 artifact is 1751747420 bytes and remains excluded from this rerun because existing evidence records emulator LOW_MEMORY. No semantic conclusion is drawn from that artifact here. A non-P3 FunctionGemma mobile-actions artifact was also tested only as a control and classified `ModelUnavailable`, so it is not a valid P3 comparator.
+
+Gate: CR-7 remains `implemented_unvalidated`; CR-8 remains `implemented_unvalidated`/experimental. No production integration is approved. The next bounded frontier is to diagnose the quantized pilot120 native payload (especially missing/incorrect required arguments) or produce a mobile-converted checkpoint whose native `Message.toolCalls` matches the canonical P3 contract.

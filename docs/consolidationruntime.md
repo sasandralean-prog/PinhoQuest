@@ -954,3 +954,13 @@ Gate decision:
 CR-7 remains `implemented_unvalidated`, not `validated_bounded`. The blocker is environmental/toolchain, not evidence of model failure.
 
 CR-8 is intentionally not started: conversion/quantization A/B must reuse a validated native adapter/tool protocol first.
+
+## CR-7 / CR-8 native Android evidence — 2026-10-03
+
+The native Android probe now exercises the actual `LiteRtLmRuntime` + `P3LiteRtToolSet` path with the canonical `compose_quest_text` contract. The environment was corrected to Microsoft OpenJDK 21, and the bridge/core/app unit-test and APK build gates pass.
+
+The quantized pilot120 LiteRT-LM artifact (453495680 bytes) was copied to `emulator-5554` and executed through instrumentation. The model initialized and generated on CPU (~815 MiB PSS, ~313% CPU), proving runtime execution. The governed mapper nevertheless returned `InvalidOutput`, so the native transport is working but the quantized artifact does not currently satisfy the exact three-field P3 contract on-device.
+
+The larger no-PTQ pilot120 artifact (1751747420 bytes) is not rerun in this checkpoint because prior evidence already records emulator LOW_MEMORY. The non-P3 FunctionGemma mobile-actions artifact is not considered a comparator because the runtime classifies it as `ModelUnavailable` in this harness.
+
+CR-7 therefore remains `implemented_unvalidated`, and CR-8 remains experimental/unvalidated. No production dependency or AppGraph wiring is approved.
