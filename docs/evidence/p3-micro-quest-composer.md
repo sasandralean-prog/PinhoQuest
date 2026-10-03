@@ -179,3 +179,18 @@ This is an environmental conversion blocker, not a model-quality failure. No pro
 - Production model integration: NOT APPROVED.
 
 The next bounded action is to run the same conversion recipe in a Linux-capable environment, then bring only the resulting .litertlm artifact into the existing instrumented Android harness. The Android gate remains unchanged: native tool call + exact bounded composition contract + deterministic renderer/validator must all pass before production integration.
+
+## Android deployment repeatability gate - 2026-10-03
+
+The experimental benchmark APK was rebuilt successfully and installed on the available Android emulator emulator-5554.
+
+Two clean executions of the instrumented P3Lifecycle probe completed without runtime exception or process crash using the existing todolist-functiongemma_q8_ekv1024.litertlm artifact.
+
+Run 1 observed approximately: engine initialization 3.57 s, conversation creation 0.74 s, sendMessage 1.23 s, peak PSS 843234 KiB.
+Run 2 observed approximately: engine initialization 1.30 s, conversation creation 0.53 s, sendMessage 1.21 s, peak PSS 848620 KiB.
+
+Both runs produced a real compose_quest_text tool call. The decoded arguments were effectively {text="Caminhe por dez minutos"} rather than the required three-field bounded composition contract (title, description, objectives).
+
+This repeatability gate establishes that the Android deployment and LiteRT-LM execution path are reproducible on the available emulator, while the current runtime artifact remains unsuitable for the P3 composition contract.
+
+The test did not deploy the pilot120 weights because pilot120 still lacks a converted .litertlm artifact. No production PinhoQuest code or production model dependency was changed.
