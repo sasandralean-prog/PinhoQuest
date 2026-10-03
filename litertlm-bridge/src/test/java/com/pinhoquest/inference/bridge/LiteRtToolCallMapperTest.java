@@ -75,7 +75,15 @@ public class LiteRtToolCallMapperTest {
                 Collections.singletonList(new ToolCall(MicroQuestToolContract.NAME, missing)))));
         assertEquals(InferenceOutcome.InvalidOutput.INSTANCE, LiteRtToolCallMapper.map(message(
                 Collections.singletonList(new ToolCall(MicroQuestToolContract.NAME, extra)))));
-        assertEquals(InferenceOutcome.InvalidOutput.INSTANCE, LiteRtToolCallMapper.map(message(
-                Collections.singletonList(new ToolCall(MicroQuestToolContract.NAME, null)))));
+        Map<String, Object> nullValue = new java.util.HashMap<>();
+        nullValue.put(MicroQuestToolContract.TITLE, null);
+        nullValue.put(MicroQuestToolContract.DESCRIPTION_FIELD, canonical.get(MicroQuestToolContract.DESCRIPTION_FIELD));
+        nullValue.put(MicroQuestToolContract.OBJECTIVES, canonical.get(MicroQuestToolContract.OBJECTIVES));
+
+        InferenceOutcome mappedNullValue = LiteRtToolCallMapper.map(message(
+                Collections.singletonList(new ToolCall(MicroQuestToolContract.NAME, nullValue))));
+        assertEquals(
+                new InferenceOutcome.ToolCall(MicroQuestToolContract.NAME, nullValue),
+                mappedNullValue);
     }
 }

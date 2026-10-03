@@ -31,6 +31,20 @@ class MicroQuestToolCallDecoderTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
+    fun rejectsNullTitle() {
+        decoder.decode(
+            InferenceOutcome.ToolCall(
+                MicroQuestToolContract.NAME,
+                mapOf(
+                    MicroQuestToolContract.TITLE to null,
+                    MicroQuestToolContract.DESCRIPTION_FIELD to "Descricao valida para a quest.",
+                    MicroQuestToolContract.OBJECTIVES to listOf("Fazer"),
+                ),
+            ),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun rejectsNonStringTitle() {
         decoder.decode(
             InferenceOutcome.ToolCall(

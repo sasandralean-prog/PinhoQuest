@@ -1,6 +1,6 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-7 implemented_unvalidated (blocked on local JDK 21 availability); CR-4/CR-5/CR-6 validated_bounded
+Status: CR-7 implemented_unvalidated (native matrix compiled but semantic device gate remains blocked by missing canonical native prompt/probe); CR-4/CR-5/CR-6 validated_bounded
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
 Baseline: f17ae65

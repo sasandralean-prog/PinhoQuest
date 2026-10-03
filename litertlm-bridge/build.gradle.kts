@@ -17,7 +17,6 @@ android {
     }
 
     tasks.withType<JavaCompile>().configureEach {
-        options.release = 17
         javaCompiler.set(
             javaToolchains.compilerFor {
                 languageVersion.set(JavaLanguageVersion.of(21))

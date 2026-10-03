@@ -427,7 +427,7 @@ Next frontier: CR-7 — native hardening validation.
 
 ## 21. CR-7 hardening checkpoint
 
-Status: implemented_unvalidated; blocked on local toolchain availability.
+Status: implemented_unvalidated; native bridge build/test is available with JDK 21, but semantic device validation remains blocked because the current core serializer does not yet share the canonical FunctionGemma chat-template declaration with the CR-6 generator and no native probe exists in this worktree.
 
 Implemented in this checkpoint:
 - Expanded `LiteRtToolCallMapperTest` into an explicit native-protocol matrix covering zero, one and multiple calls; unexpected tool name; missing, extra and null argument maps.
