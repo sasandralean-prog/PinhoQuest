@@ -194,3 +194,54 @@ Both runs produced a real compose_quest_text tool call. The decoded arguments we
 This repeatability gate establishes that the Android deployment and LiteRT-LM execution path are reproducible on the available emulator, while the current runtime artifact remains unsuitable for the P3 composition contract.
 
 The test did not deploy the pilot120 weights because pilot120 still lacks a converted .litertlm artifact. No production PinhoQuest code or production model dependency was changed.
+
+## Contract hardening and Gemma configuration - 2026-10-03
+
+A reusable CPU contract harness was created outside the production tree at:
+D:\AI\HuggingFacesLLM\p3_sft_small\p3_contract_harness.py
+
+The harness measures single tool-call count, tool name, required fields and approved fact/objective preservation against held-out JSONL cases. Production inference remains untouched.
+
+### Contract hardening SFT
+
+A targeted hardening dataset was generated with 64 cases: 48 train and 16 validation. The cases vary category, environment, difficulty, noise and objective count while keeping deterministic facts authoritative.
+
+The hardening LoRA continued from pilot120 with rank 16, alpha 32, dropout 0.05 and the existing q/k/v/o/gate/up/down projection targets. Training used one epoch, batch size 2, CPU and learning rate 1e-4. All 24 steps completed successfully.
+
+On the 16 held-out hardening cases, the checkpoint produced 16/16 single compose_quest_text envelopes and 16/16 responses containing the required fields. Raw inspection showed that the first tool call contained complete title, description and objectives, but the model could continue with a function-response/second-call style tail. This is treated as a protocol-tail observation, not as permission to repair malformed output.
+
+### Stop-boundary SFT
+
+A second bounded SFT stage continued from the hardening checkpoint. Training completions ended at <end_function_call> instead of teaching a synthetic <start_function_response> continuation. Dataset size remained 48 train / 16 validation. Training used one epoch, batch size 2, CPU and learning rate 5e-5. All 24 steps completed successfully.
+
+A four-case smoke evaluation confirmed 4/4 single tool calls and 4/4 required-field presence. Raw inspection still showed model-generated continuation after the first <end_function_call>, so the stop-boundary stage is experimental and not a production gate pass. The decisive next test is the native Android Message.toolCalls payload.
+
+### Gemma / LiteRT-LM configuration
+
+Experimental configuration: D:\AI\HuggingFacesLLM\p3_sft_small\contract_hardening\gemma_p3_contract_config.json
+
+Key values: FunctionGemma 270M; LiteRT-LM 0.17.1; automaticToolCalling=false; compose_quest_text(title, description, objectives) only; response-format support enabled in the harness; thinking disabled; sampler top-k 40, temperature 0.8, top-p 0.2, seed 42.
+
+Model-owned fields remain only title, description and objectives. Category, environment, difficulty, duration, XP/rewards and governed metadata remain deterministic.
+
+### Mobile conversion boundary
+
+The merged pilot120 checkpoint converted to a no-PTQ LiteRT-LM artifact, but the ~1.75 GB bundle caused the available emulator to terminate the benchmark process with LOW_MEMORY before inference. This A/B is therefore inconclusive for semantic fidelity.
+
+The quantized pilot120 Android run remains the relevant mobile A/B artifact: native FunctionGemma tool execution worked, but objectives were omitted for the dataset-shaped prompt. Production integration remains blocked.
+
+### Current P3 gate
+
+- Core pipeline gate: PASS.
+- Full quest-core suite: PASS.
+- Android LiteRT-LM runtime lifecycle: ESTABLISHED.
+- Android native tool transport: ESTABLISHED.
+- Pilot120 CPU SFT contract: PASS before mobile conversion.
+- Quantized pilot120 Android P3 contract: FAIL (objective omission observed).
+- No-PTQ Android A/B: BLOCKED by emulator LOW_MEMORY; no semantic conclusion drawn.
+- Contract hardening SFT: COMPLETE, experimental.
+- Stop-boundary SFT: COMPLETE, experimental.
+- Native Android Message.toolCalls validation of the hardening checkpoint: PENDING.
+- Production FunctionGemma integration: NOT APPROVED.
+
+No production PinhoQuest dependency or AppGraph wiring was changed by these experiments.
