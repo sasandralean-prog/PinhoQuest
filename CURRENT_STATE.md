@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-3 — Native Android Tool Transport (validated_bounded: build/bridge scope)
+CR frontier: CR-5 — Canonical Inference Budget (CR-4 validated_bounded)
 Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
 
 ## 1. Current project state
@@ -334,4 +334,26 @@ Not yet claimed:
 
 Those belong to CR-7 and CR-4 respectively.
 
-Next frontier: CR-4 — RAW isolation and output-protocol convergence.
+Next frontier: CR-5 — Canonical inference budget governance.
+## 14. CR-4 implementation checkpoint
+
+### RAW isolation and output convergence
+
+Implemented:
+- Removed InferenceOutcome.Success(String) from the core inference contract.
+- Removed the generic JSON response sanitizer from the P3 runtime and its tests.
+- Removed the raw function-call text extractor from the P3 runtime and its tests.
+- Added MicroQuestToolCallDecoder, which accepts only typed InferenceOutcome.ToolCall data and enforces MicroQuestToolContract types and bounds.
+- MicroQuestComposer accepts only native ToolCall as a model-success path.
+- Invalid native calls and non-tool inference outcomes converge directly to ProceduralComposer.
+- MicroQuestRenderer receives MicroQuestText, never raw model text.
+
+Validation evidence:
+- :quest-core:test — BUILD SUCCESSFUL.
+- Static source search found no runtime/test references to InferenceOutcome.Success, FunctionGemmaResponseSanitizer or FunctionGemmaToolCallExtractor outside documentation/evidence.
+
+Gate status: validated_bounded for the P3 core output boundary.
+
+Remaining validation belongs to CR-7+ only: native device hardening, model artifact evidence and production integration.
+
+Next frontier: CR-5 — canonical inference budget governance.

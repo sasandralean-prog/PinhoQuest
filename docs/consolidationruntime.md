@@ -784,3 +784,54 @@ CR-3 does not claim that the selected FunctionGemma artifact is semantically cor
 CR-4 remains responsible for deleting the legacy `InferenceOutcome.Success(String)`/generic JSON compatibility path from P3 and proving RAW isolation end-to-end.
 
 Next frontier: CR-4 — RAW isolation and output convergence.
+## 18. CR-4 implementation record
+
+Status: validated_bounded for P3 core output convergence.
+
+### Output convergence
+
+CR-4 removed the second output protocol from P3.
+
+Before:
+- native FunctionGemma call extraction;
+- generic JSON sanitization;
+- procedural fallback.
+
+After:
+- native LiteRT-LM Message.toolCalls;
+- exact canonical tool name and argument set;
+- typed MicroQuestToolCallDecoder;
+- MicroQuestText;
+- MicroQuestRenderer;
+- QuestValidator;
+- governed procedural fallback on invalid or non-tool outcomes.
+
+### RAW isolation
+
+InferenceOutcome.Success(String) was removed. The core inference boundary no longer carries raw model text.
+
+The P3 composer no longer depends on a text parser or JSON sanitizer. The renderer receives only MicroQuestText produced by the native tool-call decoder.
+
+The legacy raw parser/sanitizer sources and tests were removed so the second protocol cannot be silently revived through an unused compatibility class.
+
+### Validation gate
+
+Passed:
+gradlew :quest-core:test --no-daemon --console=plain
+
+The test suite covers valid native convergence, invalid native arguments to procedural fallback, non-tool outcomes to fallback, typed argument rejection, objective count and description bounds, and unexpected tool-name rejection.
+
+Static source verification found no runtime/test references to the removed raw output path.
+
+### CR-4 gate decision
+
+validated_bounded for the P3 core output boundary.
+
+Not yet claimed:
+- native Android semantic hardening of the corrected end-to-end path;
+- model artifact correctness;
+- production integration.
+
+Those remain owned by CR-7 through CR-9.
+
+Next frontier: CR-5 — canonical inference budget governance.

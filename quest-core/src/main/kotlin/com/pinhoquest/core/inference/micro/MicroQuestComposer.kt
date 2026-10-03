@@ -12,8 +12,7 @@ class MicroQuestComposer(
     private val inference: LocalInferencePort,
     private val promptFactsAssembler: MicroQuestPromptFactsAssembler = MicroQuestPromptFactsAssembler(),
     private val promptSerializer: MicroQuestPromptSerializer = MicroQuestPromptSerializer(),
-    private val sanitizer: FunctionGemmaResponseSanitizer = FunctionGemmaResponseSanitizer(),
-    private val toolCallExtractor: FunctionGemmaToolCallExtractor = FunctionGemmaToolCallExtractor(),
+    private val toolCallDecoder: MicroQuestToolCallDecoder = MicroQuestToolCallDecoder(),
     private val renderer: MicroQuestRenderer = MicroQuestRenderer(),
     private val fallback: ComposerPort = ProceduralComposer(),
 ) : ComposerPort {
@@ -32,33 +31,26 @@ class MicroQuestComposer(
         )
         val request = MicroQuestCompositionRequest(prompt = boundedPrompt)
         val prompt = promptSerializer.serialize(request)
+
         return when (val outcome = inference.generate(
             GenerationRequest(prompt = prompt, maxOutputTokens = 128),
         )) {
-            is InferenceOutcome.Success -> {
-                runCatching {
-                    renderer.render(toolCallExtractor.extract(outcome.text), plan)
-                }.map { draft ->
-                    RenderedMicroQuest(
-                        draft = draft,
-                        origin = MicroQuestOrigin.LOCAL_MODEL,
-                    )
-                }.getOrElse {
-                    runCatching {
-                        renderer.render(sanitizer.extract(outcome.text), plan)
-                    }.map { draft ->
+            is InferenceOutcome.ToolCall -> {
+                runCatching { toolCallDecoder.decode(outcome) }
+                    .map { text ->
                         RenderedMicroQuest(
-                            draft = draft,
+                            draft = renderer.render(text, plan),
                             origin = MicroQuestOrigin.LOCAL_MODEL,
                         )
-                    }.getOrElse {
+                    }
+                    .getOrElse {
                         RenderedMicroQuest(
                             draft = fallback.compose(plan),
                             origin = MicroQuestOrigin.PROCEDURAL_FALLBACK,
                         )
                     }
-                }
             }
+
             else -> RenderedMicroQuest(
                 draft = fallback.compose(plan),
                 origin = MicroQuestOrigin.PROCEDURAL_FALLBACK,
