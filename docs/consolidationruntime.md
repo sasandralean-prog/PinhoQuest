@@ -1,6 +1,6 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-3 validated_bounded (source/build/bridge scope)
+Status: CR-5 implemented; CR-4 validated_bounded; CR-5 validated_bounded for budget/build scope
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
 Baseline: f17ae65
@@ -835,3 +835,49 @@ Not yet claimed:
 Those remain owned by CR-7 through CR-9.
 
 Next frontier: CR-5 — canonical inference budget governance.
+
+## 19. CR-5 implementation record
+
+Status: validated_bounded for canonical budget enforcement and build integration.
+
+### Canonical policy
+
+CR-5 centralizes the P3 budget in InferenceBudget. The current P3 policy preserves previously observed bounded values instead of increasing capacity:
+
+- maxPromptCharacters = 1200
+- maxContextTokens = 1280
+- maxOutputTokens = 128
+- maxToolCalls = 1
+
+GenerationRequest now carries this budget, and prompt admission is rejected before the LocalInferencePort is invoked when the prompt exceeds the configured character ceiling.
+
+MicroQuestPromptSerializer, MicroQuestComposer and the Android LiteRT-LM bridge consume the same budget object. The bridge configures EngineConfig from maxContextTokens and sendMessage from maxOutputTokens. It also requires request.budget to equal the runtime budget, preventing silent lower-layer expansion or substitution.
+
+### Telemetry boundary
+
+CR-5 adds a typed InferenceTelemetry event and injectable InferenceTelemetrySink. The runtime records requested limits, observed native tool-call count, stop reason and Conversation.getTokenCount() before/after values. The token delta is explicitly named an observed conversation-token delta; it is not mislabeled as exact output-token usage.
+
+LiteRT-LM 0.17.1 Message does not expose a direct output-token usage field, so CR-5 does not invent one. Exact output-token accounting remains a later native-hardening question if the API permits it.
+
+Telemetry is raw-free: prompt contents, model message contents and tool argument payloads are not stored in the telemetry event.
+
+### Gate evidence
+
+Passed:
+- :quest-core:test
+- :litertlm-bridge:test
+- :app:testDebugUnitTest
+- :app:compileDebugKotlin
+
+Static source review found no P3 runtime definition matching the formerly scattered 1200, 128 and 1280 limits outside InferenceBudget.
+
+### CR-5 gate decision
+
+validated_bounded for budget policy, pre-inference admission, bridge enforcement, telemetry shape and build integration.
+
+Not claimed:
+- exact output-token consumption, because the installed LiteRT-LM API does not expose it directly;
+- semantic model success, which remains CR-7;
+- conversion/resource A/B, which remains CR-8.
+
+Next frontier: CR-6 — training/runtime contract regeneration.

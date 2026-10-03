@@ -2,12 +2,17 @@ package com.pinhoquest.core.inference
 
 data class GenerationRequest(
     val prompt: String,
-    val maxOutputTokens: Int,
+    val budget: InferenceBudget = InferenceBudget.P3,
 ) {
     init {
         require(prompt.isNotBlank()) { "prompt must not be blank" }
-        require(maxOutputTokens > 0) { "maxOutputTokens must be positive" }
+        require(prompt.length <= budget.maxPromptCharacters) {
+            "prompt exceeds inference budget"
+        }
     }
+
+    val maxOutputTokens: Int
+        get() = budget.maxOutputTokens
 }
 
 sealed interface InferenceOutcome {

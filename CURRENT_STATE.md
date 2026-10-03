@@ -357,3 +357,43 @@ Gate status: validated_bounded for the P3 core output boundary.
 Remaining validation belongs to CR-7+ only: native device hardening, model artifact evidence and production integration.
 
 Next frontier: CR-5 — canonical inference budget governance.
+
+## 15. CR-5 implementation checkpoint
+
+### Canonical inference budget
+
+Implemented:
+- Added InferenceBudget as the single P3 inference policy.
+- P3 values are centralized at 1200 prompt characters, 1280 context tokens, 128 output tokens and exactly 1 tool call.
+- GenerationRequest now carries the whole budget instead of an independent output-token value.
+- GenerationRequest rejects prompts above the budget before the inference port is called.
+- MicroQuestPromptSerializer enforces the same budget object rather than a disconnected character constant.
+- AndroidLiteRtLmInferencePort passes the canonical budget into the LiteRT-LM bridge.
+- LiteRtLmRuntime configures EngineConfig and sendMessage from that same budget.
+- The bridge rejects a request whose budget does not exactly match its configured runtime budget; a lower layer cannot silently expand or replace the policy.
+
+### Telemetry
+
+Implemented:
+- Added InferenceTelemetry and InferenceTelemetrySink.
+- The bridge records requested prompt/context/output/tool-call ceilings.
+- LiteRT-LM Conversation.getTokenCount() is sampled before and after the request, giving an observed conversation-token delta without pretending it is a direct output-token counter.
+- Observed native tool-call count and explicit stop reason are recorded.
+- No raw prompt/model payload is included in telemetry.
+
+Important limitation:
+LiteRT-LM 0.17.1 Message does not expose a direct output-token usage field. CR-5 therefore does not fabricate one. Exact output-token consumption remains a CR-7/native instrumentation question if a future API exposes it.
+
+### Validation evidence
+
+Passed:
+- :quest-core:test
+- :litertlm-bridge:test
+- :app:testDebugUnitTest
+- :app:compileDebugKotlin
+
+Static review found no remaining P3 source definitions matching the previously scattered 1200-character, 128-output-token or 1280-engine-token literals outside the canonical budget.
+
+Gate status: validated_bounded for canonical budget enforcement and build integration. Runtime token-usage semantics remain bounded by the documented API limitation above.
+
+Next frontier: CR-6 — training/runtime contract regeneration.

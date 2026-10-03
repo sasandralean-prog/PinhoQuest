@@ -1,7 +1,9 @@
 package com.pinhoquest.core.inference.micro
 
+import com.pinhoquest.core.inference.InferenceBudget
+
 class MicroQuestPromptSerializer(
-    private val maxCharacters: Int = 1200,
+    private val budget: InferenceBudget = InferenceBudget.P3,
 ) {
     fun serialize(request: MicroQuestCompositionRequest): String {
         val envelope = request.prompt.envelope
@@ -47,8 +49,7 @@ class MicroQuestPromptSerializer(
             append(MicroQuestToolContract.NAME)
             append(" com ")
             append(MicroQuestToolContract.REQUIRED_ARGUMENTS.joinToString(", "))
-            append(".")
-            append("\n")
+            append(".\n")
             append(MicroQuestToolContract.TITLE)
             append(": ")
             append(MicroQuestToolContract.MIN_TITLE_LENGTH)
@@ -73,8 +74,8 @@ class MicroQuestPromptSerializer(
             append(" chars.")
         }.trim()
 
-        require(prompt.length <= maxCharacters) {
-            "micro prompt exceeds deterministic character budget"
+        require(prompt.length <= budget.maxPromptCharacters) {
+            "micro prompt exceeds inference budget"
         }
         return prompt
     }

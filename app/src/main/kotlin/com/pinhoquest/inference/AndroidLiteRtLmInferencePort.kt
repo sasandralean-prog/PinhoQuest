@@ -1,7 +1,9 @@
 package com.pinhoquest.inference
 
 import com.pinhoquest.core.inference.GenerationRequest
+import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.InferenceOutcome
+import com.pinhoquest.core.inference.InferenceTelemetrySink
 import com.pinhoquest.core.inference.LocalInferencePort
 import com.pinhoquest.inference.bridge.LiteRtLmRuntime
 import kotlinx.coroutines.Dispatchers
@@ -16,9 +18,10 @@ import kotlinx.coroutines.withContext
 class AndroidLiteRtLmInferencePort(
     modelPath: String,
     cacheDir: String,
-    maxNumTokens: Int = 1280,
+    private val budget: InferenceBudget = InferenceBudget.P3,
+    telemetrySink: InferenceTelemetrySink = InferenceTelemetrySink { },
 ) : LocalInferencePort, AutoCloseable {
-    private val runtime = LiteRtLmRuntime(modelPath, cacheDir, maxNumTokens)
+    private val runtime = LiteRtLmRuntime(modelPath, cacheDir, budget, telemetrySink)
 
     override suspend fun generate(request: GenerationRequest): InferenceOutcome =
         withContext(Dispatchers.Default) {

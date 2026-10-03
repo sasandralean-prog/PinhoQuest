@@ -1,6 +1,7 @@
 package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.GenerationRequest
+import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.InferenceOutcome
 import com.pinhoquest.core.inference.LocalInferencePort
 import com.pinhoquest.core.quest.QuestContext
@@ -83,7 +84,8 @@ class MicroQuestComposerPipelineGateTest {
         MicroQuestComposer(inference).composeWithDetails(plan)
 
         assertTrue(received!!.prompt.isNotBlank())
-        assertEquals(128, received!!.maxOutputTokens)
+        assertEquals(InferenceBudget.P3, received!!.budget)
+        assertEquals(InferenceBudget.P3.maxOutputTokens, received!!.maxOutputTokens)
     }
 
     private fun canonicalArguments(): Map<String, Any?> = mapOf(

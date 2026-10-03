@@ -1,6 +1,7 @@
 package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.GenerationRequest
+import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.InferenceOutcome
 import com.pinhoquest.core.inference.LocalInferencePort
 import com.pinhoquest.core.quest.ComposerPort
@@ -10,8 +11,9 @@ import com.pinhoquest.domain.quest.QuestDraft
 
 class MicroQuestComposer(
     private val inference: LocalInferencePort,
+    private val budget: InferenceBudget = InferenceBudget.P3,
     private val promptFactsAssembler: MicroQuestPromptFactsAssembler = MicroQuestPromptFactsAssembler(),
-    private val promptSerializer: MicroQuestPromptSerializer = MicroQuestPromptSerializer(),
+    private val promptSerializer: MicroQuestPromptSerializer = MicroQuestPromptSerializer(budget),
     private val toolCallDecoder: MicroQuestToolCallDecoder = MicroQuestToolCallDecoder(),
     private val renderer: MicroQuestRenderer = MicroQuestRenderer(),
     private val fallback: ComposerPort = ProceduralComposer(),
@@ -33,7 +35,7 @@ class MicroQuestComposer(
         val prompt = promptSerializer.serialize(request)
 
         return when (val outcome = inference.generate(
-            GenerationRequest(prompt = prompt, maxOutputTokens = 128),
+            GenerationRequest(prompt = prompt, budget = budget),
         )) {
             is InferenceOutcome.ToolCall -> {
                 runCatching { toolCallDecoder.decode(outcome) }
