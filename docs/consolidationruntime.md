@@ -1,6 +1,6 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-1 / CR-2 implementation checkpoint (quest-core validated, commit/push gate pending)
+Status: CR-1 / CR-2 validated_bounded (quest-core scope)
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
 Baseline: f17ae65
@@ -730,7 +730,7 @@ Scope:
 
 ### Remaining boundary
 
-CR-1/CR-2 are ready for the branch commit/push checkpoint.
+CR-1/CR-2 are committed and pushed as `266ee73` and promoted to `validated_bounded` for the quest-core scope.
 
 CR-3 is the next implementation frontier: native LiteRT-LM tool registration, manual tool calling and typed `Message.toolCalls` transport.
 

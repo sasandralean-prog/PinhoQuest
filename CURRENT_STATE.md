@@ -2,7 +2,7 @@
 
 Date: 2026-10-03
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-2 — Bounded Prompt/Input Governance (implemented, awaiting commit gate)
+CR frontier: CR-2 — Bounded Prompt/Input Governance (validated_bounded)
 Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
 
 ## 1. Current project state
@@ -139,7 +139,7 @@ There must be one semantic tool contract. Kotlin tool registration, FunctionGemm
 
 CR-0 planning/documentation is complete.
 CR-1 canonical FunctionGemma tool contract is implemented and validated by quest-core tests.
-CR-2 bounded prompt/input governance is implemented and validated by quest-core tests; the combined CR-1/CR-2 change is awaiting the commit/push gate.
+CR-2 bounded prompt/input governance is implemented and validated by quest-core tests; the combined CR-1/CR-2 checkpoint is committed and pushed.
 
 No production FunctionGemma wiring is approved yet.
 No new SFT run is approved yet.
@@ -284,4 +284,4 @@ Validation evidence:
 - No Android runtime wiring changed.
 - No model retraining or conversion experiment was started.
 
-Checkpoint state: `implemented_unvalidated` until the branch commit/push gate is completed; after that, CR-1 and CR-2 can be promoted to `validated_bounded` for the quest-core scope.
+Checkpoint state: `validated_bounded` for the quest-core scope. Android transport, native Message.toolCalls and production wiring remain outside this gate.
