@@ -998,3 +998,23 @@ Pesquisa real, provenance, catálogo, estados semânticos, online/offline e base
 
 ### P5 — TERMINAR
 Backup, restore, configurações, acessibilidade, erros humanos, E2E e fechamento da V1.
+### P6 — GOSTAR
+Visual, UX, microinterações, identidade, distribuição e doações opcionais.
+
+### P7 — LEMBRAR
+Living Garden, flores reais, provenance, pixel art determinística, raridade, descoberta e coleção.
+
+---
+
+# 44. Fórmula final
+
+> **P4 dá conhecimento ao PinhoQuest.**  
+> **P5 dá confiabilidade ao PinhoQuest.**  
+> **P6 dá personalidade ao PinhoQuest.**  
+> **P7 dá memória ao PinhoQuest.**
+
+E a sequência maior permanece:
+
+> **P5 termina o aplicativo.**  
+> **P6 faz ele ficar gostoso.**  
+> **P7 faz ele ficar memorável.**
