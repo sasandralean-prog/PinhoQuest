@@ -1015,3 +1015,26 @@ The missing native ToolCall root cause was identified at the export layer: pilot
 Production correction: export the CR-7.1 checkpoint through the proper FunctionGemma/LiteRT-LM export path. Do not patch metadata into an unrelated bundle and do not add a production text parser.
 
 The final valid Android quest-generation gate remains pending because the official AI Edge export toolchain could not be installed in the current Windows environment and WSL was non-responsive. P4/P5 remain unchanged.
+
+
+## 24. CR-7.2 — Linux FunctionGemma re-export resolves Pilot120 native transport — 2026-10-04
+
+The CR-7.1 Pilot120 checkpoint `merged_step10` was re-exported in the existing WSL2 `DebianRepair` litetune environment with the explicit base identity `google/functiongemma-270m-it`.
+
+The export pipeline applied the FunctionGemma family requirements:
+
+- `--litert_lm_model_type_override=function_gemma`;
+- `--jinja_chat_template_override=.../litetune/templates/functiongemma.jinja`;
+- `--externalize_embedder`.
+
+The resulting `dynamic_wi8_afp32` artifact is 456,643,888 bytes with SHA-256 `8cdb37d1debde293ca1975f036be6b948db05b32bda6b1235fdd789cbb78036e` and was exported in 214.784 s.
+
+The final unpacked metadata contains `llm_model_type { function_gemma {} }` and the FunctionGemma chat template. The artifact was transferred to Android and its size/hash were rechecked before inference.
+
+The native Android probe then passed with exactly one `compose_quest_text` `Message.toolCalls` result, exact canonical argument names `title`, `description` and `objectives`, `objectives` represented as a List, and telemetry `observedToolCalls=1` / `stopReason=NATIVE_TOOL_CALL`. The warm inference measurement was 9,943 ms on the existing emulator path.
+
+This proves the previous Pilot120 `generic_model` packaging was not an argument for weakening the P3 semantic contract. The serving artifact was the wrong runtime type/protocol package. The correct correction is export-path convergence, not output parsing or contract relaxation.
+
+The successful probe uses a transport-focused prompt and therefore does not establish production quest-writing quality. The next gate is a canonical bounded P3 prompt/semantic-quality benchmark using this valid FunctionGemma-exported Pilot120 artifact.
+
+No production AppGraph wiring is approved by this checkpoint.

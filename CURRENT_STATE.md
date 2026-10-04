@@ -520,3 +520,48 @@ The official litert-torch/AI Edge export path could not be installed in the curr
 - CR-7 overall: remains implemented_unvalidated.
 - CR-8: remains experimental/unvalidated.
 - P4/P5: unchanged.
+
+
+## 24. CR-7.2 — Linux FunctionGemma re-export and native Pilot120 validation — 2026-10-04
+
+Status: `validated_bounded` for native transport; product semantic-quality gate remains open.
+
+The CR-7.1 Pilot120 `merged_step10` checkpoint was re-exported through the existing Linux/Wsl2 `litetune` environment with the base identity `google/functiongemma-270m-it`. The exporter applied the FunctionGemma family rules instead of allowing the local `gemma3_text` config to fall through to `generic_model`:
+
+- `--litert_lm_model_type_override=function_gemma`
+- `--jinja_chat_template_override=.../litetune/templates/functiongemma.jinja`
+- `--externalize_embedder`
+
+Recipe: `dynamic_wi8_afp32`.
+
+Export evidence:
+- duration: 214.784 s;
+- artifact: `D:\AI\HuggingFacesLLM\p3_sft_small\cr71\litetune_functiongemma_dynamic\dynamic_wi8_afp32\model.litertlm`;
+- size: 456,643,888 bytes;
+- SHA-256: `8cdb37d1debde293ca1975f036be6b948db05b32bda6b1235fdd789cbb78036e`;
+- return code: 0.
+
+The final unpacked bundle contains `llm_model_type { function_gemma {} }`, the FunctionGemma chat template, and `prefer_activation_type=fp32` on prefill/decode. The artifact was copied to the Android application sandbox and verified with the same size and SHA-256 before inference.
+
+Native Android evidence:
+- `P3NativeToolCallE2ETest.realModelReturnsExactlyOneCanonicalToolCall` passed;
+- observed native tool calls: 1;
+- stop reason: `NATIVE_TOOL_CALL`;
+- observed conversation-token delta: 272;
+- warm inference elapsed: 9,943 ms;
+- exact tool name: `compose_quest_text`;
+- exact argument set: `title`, `description`, `objectives`;
+- `objectives` arrived as a typed `List`.
+
+This establishes that the prior `generic_model` export was a real export-layer/runtime metadata problem. The native transport can now carry the Pilot120 checkpoint through `Message.toolCalls` without a production text parser or contract weakening.
+
+Important limit: the current E2E prompt is a transport-focused probe, not the canonical production P3 prompt. Its generated objective echoed the instruction to call the tool, so product wording quality, relevance, tone and diversity are still not validated.
+
+Decision:
+- Pilot120 is promoted to the preferred P3 candidate for further validation.
+- `MicroQuestToolContract` remains unchanged.
+- No generic-text parser or case-specific repair is allowed.
+- No production AppGraph wiring is approved yet.
+- Next gate: canonical bounded P3 prompt E2E/quality benchmark on this valid FunctionGemma-exported Pilot120 artifact.
+
+Evidence: `docs/evidence/p3-pilot120-functiongemma-reexport-2026-10-04.md`.

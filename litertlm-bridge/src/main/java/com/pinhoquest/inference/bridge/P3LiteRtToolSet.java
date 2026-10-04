@@ -1,22 +1,48 @@
 package com.pinhoquest.inference.bridge;
 
-import com.google.ai.edge.litertlm.Tool;
-import com.google.ai.edge.litertlm.ToolParam;
-import com.google.ai.edge.litertlm.ToolSet;
+import com.google.ai.edge.litertlm.OpenApiTool;
 import com.pinhoquest.core.inference.micro.MicroQuestToolContract;
 
-public final class P3LiteRtToolSet implements ToolSet {
-    @Tool(description = MicroQuestToolContract.DESCRIPTION)
-    public java.util.Map<String, Object> composeQuestText(
-            @ToolParam(description = MicroQuestToolContract.TITLE_DESCRIPTION)
-            String title,
-            @ToolParam(description = MicroQuestToolContract.DESCRIPTION_DESCRIPTION)
-            String description,
-            @ToolParam(description = MicroQuestToolContract.OBJECTIVES_DESCRIPTION)
-            java.util.List<String> objectives) {
-        return java.util.Map.of(
-                MicroQuestToolContract.TITLE, title,
-                MicroQuestToolContract.DESCRIPTION_FIELD, description,
-                MicroQuestToolContract.OBJECTIVES, objectives);
+public final class P3LiteRtToolSet implements OpenApiTool {
+    private static final String DESCRIPTION = MicroQuestToolContract.DESCRIPTION;
+    private static final String SCHEMA = String.format(java.util.Locale.ROOT, """
+            {
+              "name": "%s",
+              "description": "%s",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "%s": {"type": "string", "description": "%s"},
+                  "%s": {"type": "string", "description": "%s"},
+                  "%s": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "%s"
+                  }
+                },
+                "required": ["%s", "%s", "%s"]
+              }
+            }
+            """,
+            MicroQuestToolContract.NAME,
+            DESCRIPTION,
+            MicroQuestToolContract.TITLE,
+            MicroQuestToolContract.TITLE_DESCRIPTION,
+            MicroQuestToolContract.DESCRIPTION_FIELD,
+            MicroQuestToolContract.DESCRIPTION_DESCRIPTION,
+            MicroQuestToolContract.OBJECTIVES,
+            MicroQuestToolContract.OBJECTIVES_DESCRIPTION,
+            MicroQuestToolContract.TITLE,
+            MicroQuestToolContract.DESCRIPTION_FIELD,
+            MicroQuestToolContract.OBJECTIVES);
+
+    @Override
+    public String getToolDescriptionJsonString() {
+        return SCHEMA;
+    }
+
+    @Override
+    public String execute(String paramsJsonString) {
+        return paramsJsonString;
     }
 }

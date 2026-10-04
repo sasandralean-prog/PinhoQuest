@@ -1,37 +1,21 @@
 package com.pinhoquest.inference.bridge;
 
-import com.google.ai.edge.litertlm.Tool;
-import com.google.ai.edge.litertlm.ToolParam;
 import com.pinhoquest.core.inference.micro.MicroQuestToolContract;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class P3LiteRtToolSetTest {
     @Test
-    public void declarationUsesCanonicalContractMetadata() throws Exception {
-        Method method = P3LiteRtToolSet.class.getDeclaredMethod(
-                "composeQuestText", String.class, String.class, List.class);
-
-        Tool tool = method.getAnnotation(Tool.class);
-        assertNotNull(tool);
-        assertEquals(MicroQuestToolContract.DESCRIPTION, tool.description());
-
-        Annotation[][] annotations = method.getParameterAnnotations();
-        assertEquals(3, annotations.length);
-        assertEquals(
-                MicroQuestToolContract.TITLE_DESCRIPTION,
-                ((ToolParam) annotations[0][0]).description());
-        assertEquals(
-                MicroQuestToolContract.DESCRIPTION_DESCRIPTION,
-                ((ToolParam) annotations[1][0]).description());
-        assertEquals(
-                MicroQuestToolContract.OBJECTIVES_DESCRIPTION,
-                ((ToolParam) annotations[2][0]).description());
+    public void schemaUsesCanonicalContractMetadata() {
+        String schema = new P3LiteRtToolSet().getToolDescriptionJsonString();
+        assertTrue(schema.contains("\"name\": \"" + MicroQuestToolContract.NAME + "\""));
+        assertTrue(schema.contains("\"parameters\""));
+        assertTrue(schema.contains("\"" + MicroQuestToolContract.TITLE + "\""));
+        assertTrue(schema.contains("\"" + MicroQuestToolContract.DESCRIPTION_FIELD + "\""));
+        assertTrue(schema.contains("\"" + MicroQuestToolContract.OBJECTIVES + "\""));
+        assertTrue(schema.contains("\"required\""));
+        assertEquals("{\"title\":\"x\"}", new P3LiteRtToolSet().execute("{\"title\":\"x\"}"));
     }
 }

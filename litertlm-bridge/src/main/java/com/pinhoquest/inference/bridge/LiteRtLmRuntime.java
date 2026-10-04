@@ -6,6 +6,7 @@ import com.google.ai.edge.litertlm.ConversationConfig;
 import com.google.ai.edge.litertlm.Engine;
 import com.google.ai.edge.litertlm.EngineConfig;
 import com.google.ai.edge.litertlm.Message;
+import com.google.ai.edge.litertlm.NativeLibraryLoader;
 import com.google.ai.edge.litertlm.SamplerConfig;
 import com.google.ai.edge.litertlm.ThinkingConfig;
 import com.google.ai.edge.litertlm.ToolKt;
@@ -126,6 +127,7 @@ public final class LiteRtLmRuntime implements AutoCloseable {
         if (!initialized) {
             synchronized (this) {
                 if (!initialized) {
+                    NativeLibraryLoader.INSTANCE.load();
                     engine.initialize();
                     initialized = true;
                 }
