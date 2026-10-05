@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.pinhoquest.data.db.PinhoQuestDatabase
+import com.pinhoquest.data.backup.RoomBackupSnapshotBuilder
+import com.pinhoquest.data.backup.RoomRestoreService
 import com.pinhoquest.data.bootstrap.ProgressionBootstrapper
 import com.pinhoquest.data.completion.RoomQuestCompletionStore
 import com.pinhoquest.data.db.migration.MIGRATION_1_2
@@ -45,4 +47,6 @@ class AndroidDataGraph(context: Context) {
             produceFile = { appContext.preferencesDataStoreFile("app") },
         ),
     )
+    val backupSnapshotBuilder = RoomBackupSnapshotBuilder(database, preferencesStore)
+    val restoreService = RoomRestoreService(database, preferencesStore)
 }

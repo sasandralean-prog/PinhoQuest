@@ -1331,3 +1331,41 @@ The gate is closed against the current product phase boundary: P4 establishes go
 > Pressing GAME consumes a fresh governed catalog. It never performs research implicitly.
 
 **Gate: PASS / P4 CLOSED.**
+
+## 30. P5.1-P5.3 Foundation — implemented and validated — 2026-10-05
+
+P5 is active. The first foundation slice now establishes a single governed backup/restore boundary without creating a second persistence authority.
+
+### P5.1 — Backup contract
+
+- `BackupManifest` defines format, Room schema, profile identity, dataset revision, app version, catalog versions and integrity hash.
+- `BackupSnapshot` is the serializable state envelope for Room-backed product state plus the existing DataStore appearance preferences.
+- `BackupCodec` owns ZIP (`manifest.json` + `snapshot.json`) encoding, SHA-256 integrity and invalid/corrupt/truncated input handling.
+- `AppPreferencesStore.write()` is the canonical preference restore path.
+
+### P5.2 — Snapshot/export foundation
+
+- `BackupDao` reads the complete current Room entity set and provides bulk restore/clear operations.
+- `RoomBackupSnapshotBuilder` builds a snapshot from Room as the authority and refuses ambiguous multi-profile state instead of silently dropping data.
+- Snapshot creation is deterministic with respect to persisted state; transient runtime/rendered text is not used as an identity source.
+
+### P5.3 — Restore/validation foundation
+
+- `RestorePlanner` validates format/schema, profile identity, preferences, uniqueness and cross-entity references before mutation.
+- `RoomRestoreService` accepts only validated backup state, restores Room transactionally, restores DataStore preferences, and rejects invalid input without touching current state.
+- The P5.3 Android test proves successful replacement of Room + preferences and proves invalid backup preservation of the current state.
+
+### Validation evidence
+
+- `:quest-core:test` PASS, including `BackupCodecTest` and `RestorePlannerTest`.
+- `:android-data:testDebugUnitTest` PASS.
+- `:android-data:compileDebugKotlin` PASS.
+- `:android-data:compileDebugAndroidTestKotlin` PASS.
+- `:android-data:connectedDebugAndroidTest` PASS: 19 tests on Pixel_4_API_33 / Android 13.
+- P4 Android-test/schema alignment was repaired separately before this P5 slice: game catalog cycle identity and migration schema/index parity now match the current Room model.
+
+### Boundary status
+
+P5.1-P5.3 foundation is validated. SAF destination UX/export action, user-facing settings surface, accessibility/error presentation and full V1 E2E closure remain in the later P5 checkpoints.
+
+> **Room remains the authority. Backup is a snapshot. Restore is a validated transaction boundary.**

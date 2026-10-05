@@ -40,6 +40,14 @@ class AppPreferencesStore(
         dataStore.edit { it[FONT_SCALE_KEY] = fontScale }
     }
 
+    suspend fun write(preferences: AppPreferences) {
+        require(preferences.fontScale > 0f) { "Font scale must be positive" }
+        dataStore.edit {
+            it[THEME_KEY] = preferences.theme.name
+            it[FONT_SCALE_KEY] = preferences.fontScale
+        }
+    }
+
     private companion object {
         val THEME_KEY = stringPreferencesKey("theme")
         val FONT_SCALE_KEY = floatPreferencesKey("font_scale")

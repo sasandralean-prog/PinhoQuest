@@ -2,6 +2,7 @@ package com.pinhoquest.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.pinhoquest.data.db.dao.BackupDao
 import com.pinhoquest.data.db.dao.GardenDao
 import com.pinhoquest.data.db.dao.ProfileDao
 import com.pinhoquest.data.db.dao.ProgressionDao
@@ -61,6 +62,7 @@ import com.pinhoquest.data.db.entity.XpTransactionEntity
     exportSchema = true,
 )
 abstract class PinhoQuestDatabase : RoomDatabase() {
+    abstract fun backupDao(): BackupDao
     abstract fun profileDao(): ProfileDao
     abstract fun tagDao(): TagDao
     abstract fun questDao(): QuestDao
