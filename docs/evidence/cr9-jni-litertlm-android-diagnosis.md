@@ -238,4 +238,56 @@ No LiteRT-LM version change.
 No arbitrary System.loadLibrary.
 No semantic fallback or parser bypass.
 
-CR-9 is now technically resolved at the identified Android model-storage/runtime boundary. The remaining work is to commit the storage-contract correction and update the Gate status. P5 may resume separately according to the planned workflow.
+CR-9 is technically resolved at the identified Android model-storage/runtime boundary, but the production-model E2E gate is not closed.
+
+## Production Model E2E evidence — 2026-10-05
+
+After the filename correction, the canonical model was staged and installed through the productive `AndroidModelStore` contract. The active device state was verified as:
+
+- `files/models/cr74_semantic_isolation/1/model.litertlm`
+- SHA-256 `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`
+- size `284,692,656` bytes
+- `runtimeFormat=litertlm`
+- `.active` points to version `1`.
+
+A fresh debug APK was then exercised through `CR9ProductionModelE2ETest` with `clearPackageData=false`, so the active external model remained available.
+
+Observed sequence:
+
+1. PinhoQuest started under Android instrumentation.
+2. MainActivity launched normally.
+3. LiteRT-LM emitted the expected first `nativeCheckLoaded()` probe message; this was followed by successful native environment creation.
+4. LiteRT/XNNPACK initialized the incoming `model.litertlm` and created the XNNPACK cache.
+5. The productive generation path reached `LiteRtLmRuntime.ensureInitialized()` -> `LiteRtLmRuntime.generate()` -> `AndroidLiteRtLmInferencePort.generate()`.
+6. The app then terminated with `Fatal signal 6 (SIGABRT)` in thread `DefaultDispatch`.
+7. Tombstone frames point into `liblitertlm_jni.so`; frame #24 is `Java_com_google_ai_edge_litertlm_LiteRtLmJni_nativeCreateEngine+2620`, called from `com.google.ai.edge.litertlm.Engine.initialize()`.
+8. The instrumentation result was `shortMsg=Process crashed`.
+
+This is the first fresh evidence of an actual native-engine crash in the productive path. It is materially different from the historical PSS assertion failure and from the earlier `nativeCheckLoaded()` probe message.
+
+### Current Gate decision
+
+- **CR-9:** `TECHNICALLY_RESOLVED / E2E_BLOCKED_NATIVE_ABORT`.
+  The filename/storage defect is fixed and independently reproduced, but the production AppGraph cannot yet be certified because the current engine initialization/generation path aborts in `liblitertlm_jni.so`.
+- **P5.5:** `IMPLEMENTED / GATE_BLOCKED_BY_CR9`.
+  Human-facing work remains implemented; final application/instrumentation closure is correctly blocked by the same runtime failure.
+
+### What the evidence rules out
+
+The fresh run confirms that the remaining blocker is not simply:
+
+- missing `.litertlm` filename;
+- missing JNI library in the APK;
+- missing exported `nativeCheckLoaded` symbol;
+- inability to locate the canonical model;
+- inability to initialize the LiteRT environment at all.
+
+The remaining boundary is now the native engine creation/configuration path used by the productive `Engine.initialize()` call.
+
+### Next bounded investigation
+
+Do not change the model, Kotlin version, or add application-level JNI loading as a reaction to this crash.
+
+The next experiment should capture the native abort with a minimal direct harness using the exact same APK, exact same `model.litertlm`, and the smallest possible `Engine.initialize()` configuration, then compare that with the previously passing native ToolCall harness. The comparison must identify which Engine/Conversation configuration difference crosses the crash boundary before any code correction is accepted.
+
+The shared Gate therefore remains open: **storage correction PASS; productive native engine E2E BLOCKED**.

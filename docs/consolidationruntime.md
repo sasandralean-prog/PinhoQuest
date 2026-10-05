@@ -1188,10 +1188,47 @@ This is a storage-contract correction. It is not a runtime fallback, parser repa
 
 ### Gate
 
-CR-9: PASS / technically resolved.
+CR-9: technically resolved, production E2E validation pending.
 
 The earlier JNI/classloader diagnosis is superseded by this filename/format-detection finding. The loader's initial nativeCheckLoaded No implementation found message is an expected first-load probe and was not the terminal failure.
 
-P5.5/P5.6 remain paused by workflow choice until the user explicitly resumes P5; no P5 bypass was used.
+### 35. P3-CR-9 / P5.5 — Production Model E2E Gate — 2026-10-05
+
+This checkpoint deliberately couples the evidence collection for CR-9 and P5.5 while preserving separate gate criteria.
+
+#### Build and artifact preconditions
+
+- `:android-data:testDebugUnitTest` — PASS.
+- `:quest-core:test` — PASS.
+- `:app:compileDebugKotlin` — PASS.
+- `:app:assembleDebug` — PASS.
+- `:app:assembleDebugAndroidTest` — PASS.
+- Connected device: `emulator-5554`.
+- Canonical CR-7.4 model SHA-256 remains `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`.
+- The installed model is an external artifact, not packaged inside the APK. Its canonical runtime filename is `model.litertlm`.
+
+#### Productive E2E attempt
+
+The debug APK was installed successfully. That installation cleared the emulator application data, including the previously installed external model. The subsequent direct instrumentation attempt therefore could not re-run the productive model path because the model bytes are not present on the development machine or repository.
+
+A direct runner invocation also exposed a test-runner failure mode (`Process crashed` / no FATAL native crash evidence in the captured crash buffer), but this is not accepted as semantic model evidence.
+
+A complete productive quest-generation result was therefore **not observed in this checkpoint**.
+
+#### Gate decision
+
+- **CR-9:** `technically_resolved / E2E_PENDING` — the causal filename/storage defect is corrected and the debug/build boundary is green, but the new production APK has not yet been proven to execute the canonical external `.litertlm` through the full AppGraph after reinstall.
+- **P5.5:** `implemented / gate_pending` — the human-facing accessibility/error work remains valid, but its final application/instrumentation gate depends on the same production runtime evidence.
+- **P5.6:** remains waiting on this shared runtime gate.
+
+#### Required closure evidence
+
+The next execution must install the canonical CR-7.4 `.litertlm` artifact through the normal model-store contract, then execute the productive AppGraph quest flow and capture evidence that:
+
+`model.litertlm -> LiteRT-LM -> Message.toolCalls -> MicroQuestToolCallDecoder -> MicroQuestText -> QuestValidator -> Quest`.
+
+The proof must also distinguish `LOCAL_MODEL` from `PROCEDURAL_FALLBACK`, and must not use PSS/memory alone as evidence of semantic success. Multiple quest generations are preferred over a single lucky sample.
+
+> **Shared evidence, separate gates: CR-9 closes the runtime path; P5.5 closes the human-facing validation once that runtime path is proven.**
 
 Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.

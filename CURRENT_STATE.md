@@ -629,7 +629,7 @@ P3 is now **STANDBY / NON-BLOCKING FOR P4**.
 | CR-6 | PASS | training/runtime contract regeneration |
 | CR-7 | PASS | semantic hardening / canonical artifact validation |
 | CR-8 | PASS | Android resource/latency benchmark for canonical artifact |
-| CR-9 | PASS | productive Android LiteRT-LM integration restored by preserving the .litertlm model filename |
+| CR-9 | TECHNICALLY RESOLVED / E2E PENDING | productive Android LiteRT-LM storage contract corrected; production post-install E2E still requires the canonical external model artifact |
 
 ## CR-7 / CR-8 canonical evidence
 
@@ -1507,10 +1507,47 @@ This is a storage-contract correction. It is not a runtime fallback, parser repa
 
 ### Gate
 
-CR-9: PASS / technically resolved.
+CR-9: technically resolved, production E2E validation pending.
 
 The earlier JNI/classloader diagnosis is superseded by this filename/format-detection finding. The loader's initial nativeCheckLoaded No implementation found message is an expected first-load probe and was not the terminal failure.
 
-P5.5/P5.6 remain paused by workflow choice until the user explicitly resumes P5; no P5 bypass was used.
+### 35. P3-CR-9 / P5.5 — Production Model E2E Gate — 2026-10-05
+
+This checkpoint deliberately couples the evidence collection for CR-9 and P5.5 while preserving separate gate criteria.
+
+#### Build and artifact preconditions
+
+- `:android-data:testDebugUnitTest` — PASS.
+- `:quest-core:test` — PASS.
+- `:app:compileDebugKotlin` — PASS.
+- `:app:assembleDebug` — PASS.
+- `:app:assembleDebugAndroidTest` — PASS.
+- Connected device: `emulator-5554`.
+- Canonical CR-7.4 model SHA-256 remains `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`.
+- The installed model is an external artifact, not packaged inside the APK. Its canonical runtime filename is `model.litertlm`.
+
+#### Productive E2E attempt
+
+The debug APK was installed successfully. The canonical CR-7.4 model was then staged and verified by size/SHA and promoted into the canonical `AndroidModelStore`, producing the active `.../1/model.litertlm` path.
+
+The fresh productive instrumentation run with `clearPackageData=false` launched `MainActivity`, initialized the LiteRT environment, initialized the incoming `.litertlm` model and created the XNNPACK cache. During the first productive generation, the app terminated with `Fatal signal 6 (SIGABRT)` in `liblitertlm_jni.so`; the tombstone resolves through `LiteRtLmJni_nativeCreateEngine` -> `Engine.initialize()` -> `LiteRtLmRuntime.ensureInitialized()` -> `LiteRtLmRuntime.generate()` -> `AndroidLiteRtLmInferencePort.generate()`.
+
+The instrumentation result was `shortMsg=Process crashed`. Therefore a complete quest-generation/tool-call result was **not observed**, and the Gate remains blocked by the native engine abort.
+
+#### Gate decision
+
+- **CR-9:** `TECHNICALLY_RESOLVED / E2E_BLOCKED_NATIVE_ABORT` — the causal filename/storage defect is corrected and the debug/build boundary is green, but the fresh production APK aborts with SIGABRT inside `liblitertlm_jni.so` during `Engine.initialize()`.
+- **P5.5:** `IMPLEMENTED / GATE_BLOCKED_BY_CR9` — the human-facing accessibility/error work remains valid, but its final application/instrumentation gate depends on the same production runtime evidence.
+- **P5.6:** remains waiting on this shared runtime gate.
+
+#### Required closure evidence
+
+The next execution must install the canonical CR-7.4 `.litertlm` artifact through the normal model-store contract, then execute the productive AppGraph quest flow and capture evidence that:
+
+`model.litertlm -> LiteRT-LM -> Message.toolCalls -> MicroQuestToolCallDecoder -> MicroQuestText -> QuestValidator -> Quest`.
+
+The proof must also distinguish `LOCAL_MODEL` from `PROCEDURAL_FALLBACK`, and must not use PSS/memory alone as evidence of semantic success. Multiple quest generations are preferred over a single lucky sample.
+
+> **Shared evidence, separate gates: CR-9 closes the runtime path; P5.5 closes the human-facing validation once that runtime path is proven.**
 
 Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.
