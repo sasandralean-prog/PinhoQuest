@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pinhoquest.core.research.GameAvailability
 import com.pinhoquest.core.research.GameCatalogSnapshot
+import com.pinhoquest.core.research.GameCandidateCycleId
 import com.pinhoquest.core.research.GameDiscovery
 import com.pinhoquest.core.research.ResearchProvenance
 import com.pinhoquest.data.db.PinhoQuestDatabase
@@ -44,7 +45,7 @@ class RoomGameDiscoveryCatalogStoreTest {
             availability = GameAvailability.UNKNOWN,
             provenance = setOf(ResearchProvenance("https://example.test", 100L)),
         )
-        val snapshot = GameCatalogSnapshot(100L, 1_100L, listOf(item))
+        val snapshot = GameCatalogSnapshot(100L, 1_100L, listOf(item), GameCandidateCycleId("cycle-test"))
 
         store.write(snapshot)
         val restored = store.read()
@@ -56,7 +57,7 @@ class RoomGameDiscoveryCatalogStoreTest {
     @Test
     fun emptySuccessfulSnapshotIsPersistedAsSemanticNoNewOptions() = runBlocking {
         val store = RoomGameDiscoveryCatalogStore(database)
-        store.write(GameCatalogSnapshot(100L, 1_100L, emptyList()))
+        store.write(GameCatalogSnapshot(100L, 1_100L, emptyList(), GameCandidateCycleId("cycle-empty")))
 
         val restored = store.read()
 
