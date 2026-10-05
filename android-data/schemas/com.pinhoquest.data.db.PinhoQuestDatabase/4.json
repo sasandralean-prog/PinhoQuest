@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "7895b59ca01f64c3390d5fd2ec186b53",
+    "identityHash": "bc1fbe64ef212838017f8e926b9289df",
     "entities": [
       {
         "tableName": "profiles",
@@ -1217,12 +1217,32 @@
           "columnNames": [
             "usageId"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_game_quest_usages_cycleId",
+            "unique": false,
+            "columnNames": [
+              "cycleId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_game_quest_usages_cycleId` ON `${TABLE_NAME}` (`cycleId`)"
+          },
+          {
+            "name": "index_game_quest_usages_gameIdentityKey",
+            "unique": false,
+            "columnNames": [
+              "gameIdentityKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_game_quest_usages_gameIdentityKey` ON `${TABLE_NAME}` (`gameIdentityKey`)"
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7895b59ca01f64c3390d5fd2ec186b53')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc1fbe64ef212838017f8e926b9289df')"
     ]
   }
 }
