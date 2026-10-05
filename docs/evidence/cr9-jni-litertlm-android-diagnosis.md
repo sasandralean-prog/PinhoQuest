@@ -172,3 +172,70 @@ The evidence now supports keeping Kotlin 2.1.21 and LiteRT-LM 0.17.1, with the a
 A model swap is not indicated. A global Kotlin upgrade is not indicated. A LiteRT-LM version change is not indicated by the current evidence.
 
 The remaining CR-9 work should focus on production inference-path observability and the admission/resource gate, not on JNI symbol discovery or model/Kotlin compatibility.
+
+
+## Decisive CR-9 finding — LiteRT-LM filename contract — 2026-10-05
+
+The causal failure is now identified and reproduced as a controlled A/B.
+
+### Reproduction
+
+The canonical CR-7.4 artifact is identical in both tests:
+
+- SHA-256: e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb
+- Size: 284,692,656 bytes
+- LiteRT-LM runtime: 0.17.1
+- Same productive APK / same Android runtime / same x86_64 emulator
+
+Only the filesystem filename changed:
+
+1. /data/user/0/com.pinhoquest/files/models/cr74_semantic_isolation/1/model
+   - Engine.initialize() failed with:
+     LiteRtLmJniException: Failed to create engine: INVALID_ARGUMENT: Unsupported or unknown file format.
+   - elapsed inference attempt was approximately 15–20 ms.
+
+2. /data/user/0/com.pinhoquest/files/models/cr74_semantic_isolation/1/model.litertlm
+   - the exact same bytes initialized successfully;
+   - P3NativeToolCallE2ETest passed with OK (1 test);
+   - elapsed test time was approximately 39.7 s;
+   - the native ToolCall contract was accepted.
+
+This isolates the failure to the LiteRT-LM model filename/format-detection boundary, not JNI symbol availability, ABI, model bytes, Kotlin metadata, or model semantics.
+
+### Root cause
+
+AndroidModelStore previously persisted every installed model under the extensionless filename model. The LiteRT-LM runtime accepts the canonical .litertlm artifact when its .litertlm filename is preserved, but rejects the same bytes under the extensionless path as an unsupported/unknown file format.
+
+The previous CR-9 JNI interpretation is therefore superseded. NativeLibraryLoader.nativeCheckLoaded() was only the loader's initial already-loaded probe and was not the terminal failure.
+
+### Corrective implementation
+
+AndroidModelStore now:
+
+- persists LiteRT-LM models as model.litertlm;
+- derives the filename from manifest.runtimeFormat;
+- migrates an existing legacy model file to model.litertlm before returning the active model;
+- keeps the migration as a storage-contract migration, not an inference fallback or parser bypass.
+
+Tests now cover canonical filename persistence and legacy filename migration.
+
+### Validation
+
+- :android-data:testDebugUnitTest PASS.
+- :quest-core:test PASS.
+- :app:compileDebugKotlin PASS.
+- :app:assembleDebug PASS.
+- :app:assembleDebugAndroidTest PASS.
+- Productive CR9ProductionModelE2ETest PASS (OK (1 test)) after the filename correction.
+- Direct canonical native ToolCall test with .litertlm path PASS.
+- The exact extensionless-vs-.litertlm A/B provides the causal proof.
+
+### Version decision
+
+No model swap.
+No global Kotlin upgrade.
+No LiteRT-LM version change.
+No arbitrary System.loadLibrary.
+No semantic fallback or parser bypass.
+
+CR-9 is now technically resolved at the identified Android model-storage/runtime boundary. The remaining work is to commit the storage-contract correction and update the Gate status. P5 may resume separately according to the planned workflow.

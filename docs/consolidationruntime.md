@@ -1151,3 +1151,47 @@ CR-9 therefore remains open. The next proof must observe the actual production i
 Current evidence supports keeping Kotlin 2.1.21, LiteRT-LM 0.17.1 and the canonical CR-7.4 model. No model swap or global Kotlin upgrade is justified. No LiteRT-LM version change is currently indicated.
 
 Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.
+
+
+## 34. CR-9 decisive resolution — LiteRT-LM filename contract — 2026-10-05
+
+The CR-9 causal failure is now isolated and corrected.
+
+### Decisive A/B
+
+The exact same canonical CR-7.4 bytes were exercised through the same productive APK, LiteRT-LM 0.17.1 and x86_64 Android runtime.
+
+- Path ending in /model: Engine.initialize() returned INVALID_ARGUMENT: Unsupported or unknown file format.
+- Path ending in /model.litertlm: the exact same SHA-256 e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb initialized and produced the canonical native ToolCall; P3NativeToolCallE2ETest passed.
+
+This rules out missing JNI symbol, ABI mismatch, model-byte corruption, Kotlin metadata, model semantics and arbitrary classloader failure as the primary cause.
+
+### Root cause
+
+AndroidModelStore stored LiteRT-LM artifacts under the extensionless filename model. LiteRT-LM 0.17.1 format detection requires the .litertlm filename in this serving path.
+
+### Correction
+
+AndroidModelStore now stores LiteRT-LM artifacts as model.litertlm and derives the filename from manifest.runtimeFormat. Existing legacy model files are migrated to model.litertlm before active() returns the model.
+
+This is a storage-contract correction. It is not a runtime fallback, parser repair or device-specific bypass.
+
+### Validation
+
+- :android-data:testDebugUnitTest PASS.
+- :quest-core:test PASS.
+- :app:compileDebugKotlin PASS.
+- :app:assembleDebug PASS.
+- :app:assembleDebugAndroidTest PASS.
+- Direct native ToolCall test with model.litertlm PASS.
+- Productive CR9ProductionModelE2ETest PASS (OK, 1 test).
+
+### Gate
+
+CR-9: PASS / technically resolved.
+
+The earlier JNI/classloader diagnosis is superseded by this filename/format-detection finding. The loader's initial nativeCheckLoaded No implementation found message is an expected first-load probe and was not the terminal failure.
+
+P5.5/P5.6 remain paused by workflow choice until the user explicitly resumes P5; no P5 bypass was used.
+
+Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.

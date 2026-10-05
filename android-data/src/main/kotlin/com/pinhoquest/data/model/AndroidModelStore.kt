@@ -13,6 +13,12 @@ import java.security.MessageDigest
 class AndroidModelStore(
     private val root: File,
 ) : ModelStorePort {
+    private companion object {
+        const val LITERTLM_RUNTIME_FORMAT = "litertlm"
+        const val LITERTLM_MODEL_FILE_NAME = "model.litertlm"
+        const val LEGACY_MODEL_FILE_NAME = "model"
+    }
+
 
     override fun install(stagedFile: File, manifest: ModelManifest): ModelInstallResult {
         if (!stagedFile.exists()) return ModelInstallResult.Rejected(ModelInstallRejection.STAGED_FILE_MISSING)
@@ -28,7 +34,7 @@ class AndroidModelStore(
             val finalDir = File(modelRoot, safeSegment(manifest.version))
             val tempDir = File(modelRoot, "." + safeSegment(manifest.version) + ".installing-" + System.nanoTime())
             if (!tempDir.mkdirs()) error("cannot create staging directory")
-            stagedFile.copyTo(File(tempDir, "model"), overwrite = true)
+            stagedFile.copyTo(File(tempDir, modelFileName(manifest.runtimeFormat)), overwrite = true)
             writeManifest(File(tempDir, "manifest.properties"), manifest)
             if (finalDir.exists()) finalDir.deleteRecursively()
             if (!tempDir.renameTo(finalDir)) error("cannot promote model version")
@@ -38,7 +44,7 @@ class AndroidModelStore(
             val activeFile = File(modelRoot, ".active")
             if (activeFile.exists() && !activeFile.delete()) error("cannot replace active marker")
             if (!activeTmp.renameTo(activeFile)) error("cannot promote active marker")
-            InstalledModel(manifest, File(finalDir, "model"))
+            InstalledModel(manifest, File(finalDir, modelFileName(manifest.runtimeFormat)))
         }.fold(
             onSuccess = { ModelInstallResult.Installed(it) },
             onFailure = { ModelInstallResult.Rejected(ModelInstallRejection.PROMOTION_FAILED) },
@@ -53,13 +59,36 @@ class AndroidModelStore(
             if (!activeFile.isFile) return@firstOrNull false
             val version = activeFile.readText().trim()
             val versionDir = File(modelRoot, version)
-            File(versionDir, "model").isFile && File(versionDir, "manifest.properties").isFile
+            val manifestFile = File(versionDir, "manifest.properties")
+            if (!manifestFile.isFile) return@firstOrNull false
+            val manifest = readManifest(manifestFile)
+            migrateLegacyModelFile(versionDir, manifest)
+            File(versionDir, modelFileName(manifest.runtimeFormat)).isFile
         }?.let { modelRoot ->
             val version = File(modelRoot, ".active").readText().trim()
             val versionDir = File(modelRoot, version)
-            InstalledModel(readManifest(File(versionDir, "manifest.properties")), File(versionDir, "model"))
+            val manifest = readManifest(File(versionDir, "manifest.properties"))
+            val modelFile = File(versionDir, modelFileName(manifest.runtimeFormat))
+            InstalledModel(manifest, modelFile)
         }
     }.getOrNull()
+
+    private fun migrateLegacyModelFile(versionDir: File, manifest: ModelManifest) {
+        if (!manifest.runtimeFormat.equals(LITERTLM_RUNTIME_FORMAT, ignoreCase = true)) return
+        val expected = File(versionDir, LITERTLM_MODEL_FILE_NAME)
+        if (expected.isFile) return
+        val legacy = File(versionDir, LEGACY_MODEL_FILE_NAME)
+        if (legacy.isFile && !legacy.renameTo(expected)) {
+            error("cannot migrate legacy LiteRT-LM model filename")
+        }
+    }
+
+    private fun modelFileName(runtimeFormat: String): String =
+        if (runtimeFormat.equals(LITERTLM_RUNTIME_FORMAT, ignoreCase = true)) {
+            LITERTLM_MODEL_FILE_NAME
+        } else {
+            LEGACY_MODEL_FILE_NAME
+        }
 
     private fun safeSegment(value: String): String {
         require(value.matches(Regex("[A-Za-z0-9._-]+"))) { "invalid model store path segment" }

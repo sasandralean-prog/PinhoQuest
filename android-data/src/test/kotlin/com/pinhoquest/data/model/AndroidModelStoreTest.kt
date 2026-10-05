@@ -25,6 +25,27 @@ class AndroidModelStoreTest {
         val active = requireNotNull(store.active())
         assertEquals(manifest, active.manifest)
         assertEquals("model-v1", active.modelFile.readText())
+        assertEquals("model.litertlm", active.modelFile.name)
+        assertTrue(File(temporaryFolder.root, "store/creative-model/1/model.litertlm").isFile)
+    }
+
+    @Test fun legacyLitertLmFilenameIsMigratedBeforeActivation() {
+        val root = temporaryFolder.newFolder("store")
+        val store = AndroidModelStore(root)
+        val payload = "model-v1".toByteArray()
+        val staged = temporaryFolder.newFile("model.bin").also { it.writeBytes(payload) }
+        val manifest = manifestFor(payload, "1")
+        assertTrue(store.install(staged, manifest) is ModelInstallResult.Installed)
+
+        val versionDir = File(root, "creative-model/1")
+        val canonical = File(versionDir, "model.litertlm")
+        val legacy = File(versionDir, "model")
+        assertTrue(canonical.renameTo(legacy))
+
+        val active = requireNotNull(store.active())
+        assertEquals("model.litertlm", active.modelFile.name)
+        assertEquals("model-v1", active.modelFile.readText())
+        assertTrue(!legacy.exists())
     }
 
     @Test fun installRejectsWrongHashWithoutChangingExistingActiveVersion() {
@@ -66,8 +87,9 @@ class AndroidModelStoreTest {
         val active = requireNotNull(store.active())
         assertEquals("2", active.manifest.version)
         assertEquals("model-v2", active.modelFile.readText())
-        assertTrue(File(root, "creative-model/1/model").isFile)
-        assertTrue(File(root, "creative-model/2/model").isFile)
+        assertEquals("model.litertlm", active.modelFile.name)
+        assertTrue(File(root, "creative-model/1/model.litertlm").isFile)
+        assertTrue(File(root, "creative-model/2/model.litertlm").isFile)
     }
 
     private fun manifestFor(payload: ByteArray, version: String) = ModelManifest(
