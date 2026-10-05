@@ -1,9 +1,9 @@
 # Pinho Quest — CURRENT STATE
 
-Date: 2026-10-04
+Date: 2026-10-05
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-7.3 — P3 semantic-quality gate (native transport validated_bounded; product semantic quality remains blocked)
-Baseline: 4565b4e — fix(p3): validate Pilot120 FunctionGemma re-export
+CR frontier: CR-9 — productive Android JNI/LiteRT-LM integration diagnosis
+Baseline: bdf4956 — feat(p5): harden settings and accessible user feedback
 
 ## 1. Current project state
 
@@ -1397,3 +1397,74 @@ P5.4/P5.5 advanced the application-facing layer without changing Room as domain 
 - Full app UI/instrumentation accessibility tests therefore remain pending until the compile boundary is resolved. No runtime bypass, parser fallback or device-specific workaround was introduced.
 
 > **P5.4/P5.5 improves the application's human-facing boundary; it does not weaken the runtime gates.**
+
+## 32. P5 pause and CR-9 JNI/LiteRT-LM investigation — 2026-10-05
+
+P5 is intentionally paused while the productive LiteRT-LM Android integration is investigated. P5.5 is PAUSED and P5.6 is WAITING/PAUSED. No P5 work is being used to bypass CR-9.
+
+### P5 state
+
+- P5.1-P5.4 foundation/application work remains implemented and validated at its existing scope.
+- P5.5 remains implemented at the human-facing layer, but final app UI/instrumentation validation is paused behind the LiteRT-LM/app compile boundary.
+- P5.6 and the P5 Gate are waiting for CR-9 to close.
+
+### CR-9 investigation facts
+
+- LiteRT-LM dependency is 0.17.1.
+- Resolved AAR contains arm64-v8a and x86_64 liblitertlm_jni.so.
+- The arm64-v8a library exports Java_com_google_ai_edge_litertlm_NativeLibraryLoader_nativeCheckLoaded.
+- The productive APK also contains the expected JNI libraries.
+- The app compile classpath currently resolves kotlin-reflect 2.4.0 through LiteRT-LM 0.17.1 while the project compiler is Kotlin 2.1.21.
+- Therefore the Kotlin metadata mismatch is a dependency/toolchain boundary problem, not evidence that the .litertlm model is incompatible with Kotlin.
+- CR-8 already proved the canonical CR-7.4 model can execute through the validated native LiteRT-LM path with 5/5 native ToolCalls.
+
+### Current hypotheses
+
+1. The app should probably not expose LiteRT-LM's Kotlin dependency graph on its Kotlin CompileClasspath merely to package the native runtime; a controlled implementation-to-runtimeOnly experiment is the next build-boundary test.
+2. The productive JNI failure still requires complete loader/classloader/linker evidence. Presence of the .so and exported symbol rules out a simple missing-file/missing-symbol diagnosis.
+3. nativeCheckLoaded may be an initial probe failure caught by LiteRT-LM's own loader rather than the final causal failure; the complete load sequence must be captured before changing code.
+
+### Investigation document
+
+Detailed evidence and the controlled experiment plan are recorded at docs/evidence/cr9-jni-litertlm-android-diagnosis.md.
+
+### Refactor policy
+
+No model change, global Kotlin upgrade, arbitrary System.loadLibrary call, semantic fallback, parser bypass or device-specific workaround is approved at this checkpoint. Any dependency/version refactor must follow measured evidence from the compile boundary and native loader sequence.
+
+> CR-9 is the current engineering frontier. P5 waits for the runtime boundary; it does not weaken it.
+
+
+## 33. CR-9 investigation checkpoint — dependency boundary and JNI loader — 2026-10-05
+
+The controlled dependency-boundary experiment produced the first strong correction candidate.
+
+### Build boundary result
+
+The app direct LiteRT-LM dependency was changed from implementation to runtimeOnly while litertlm-bridge retained compileOnly(litertlm-android).
+
+Evidence:
+- kotlin-reflect 2.4.0 disappeared from app debugCompileClasspath.
+- :app:compileDebugKotlin PASS.
+- :app:assembleDebug PASS.
+- APK still contains arm64-v8a and x86_64 liblitertlm_jni.so.
+
+### JNI loader result
+
+A temporary instrumentation probe executed LiteRT-LM NativeLibraryLoader.load() inside the productive APK and PASSed.
+
+The log still contains the initial nativeCheckLoaded No implementation found message. This is expected from LiteRT-LM's already-loaded probe: its loader catches that UnsatisfiedLinkError and then attempts System.loadLibrary("litertlm_jni"). The dedicated loader probe succeeding means that message is not, by itself, a JNI failure.
+
+This materially narrows CR-9: there is no current evidence that LiteRT-LM 0.17.1 lacks the JNI symbol or cannot load its native library in the productive APK.
+
+### What remains open
+
+The productive UI E2E with the canonical model progressed through the UI but failed the historical native-memory assertion at approximately 130–134 MB PSS. This does not prove native inference failure because admission/resource governance may prevent full model residency or converge to procedural generation.
+
+CR-9 therefore remains open. The next proof must observe the actual production inference outcome and native ToolCall, not only loader initialization.
+
+### Version decision
+
+Current evidence supports keeping Kotlin 2.1.21, LiteRT-LM 0.17.1 and the canonical CR-7.4 model. No model swap or global Kotlin upgrade is justified. No LiteRT-LM version change is currently indicated.
+
+Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.

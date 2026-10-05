@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.clearAndSetSemantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.tag.TagId

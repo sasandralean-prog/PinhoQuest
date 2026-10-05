@@ -1,9 +1,9 @@
 # Consolidation Runtime — Pinho Quest
 
-Status: CR-7 implemented_unvalidated (native matrix compiled but semantic device gate remains blocked by missing canonical native prompt/probe); CR-4/CR-5/CR-6 validated_bounded
-Date: 2026-10-03
+Status: CR-7 validated_bounded for native transport/export; CR-7.3 semantic-quality gate remains open; CR-4/CR-5/CR-6 validated_bounded
+Date: 2026-10-04
 Branch: feature/cr-0-runtime-consolidation
-Baseline: f17ae65
+Baseline: 4565b4e
 Scope: P3 FunctionGemma runtime, contracts, prompt boundary, budgets and validation
 
 ## 0. Purpose
@@ -955,7 +955,7 @@ CR-7 remains `implemented_unvalidated`, not `validated_bounded`. The blocker is 
 
 CR-8 is intentionally not started: conversion/quantization A/B must reuse a validated native adapter/tool protocol first.
 
-## CR-7 / CR-8 native Android evidence � 2026-10-03
+## CR-7 / CR-8 native Android evidence � 2026-10-03
 
 The native Android probe now exercises the actual `LiteRtLmRuntime` + `P3LiteRtToolSet` path with the canonical `compose_quest_text` contract. The environment was corrected to Microsoft OpenJDK 21, and the bridge/core/app unit-test and APK build gates pass.
 
@@ -1038,3 +1038,116 @@ This proves the previous Pilot120 `generic_model` packaging was not an argument 
 The successful probe uses a transport-focused prompt and therefore does not establish production quest-writing quality. The next gate is a canonical bounded P3 prompt/semantic-quality benchmark using this valid FunctionGemma-exported Pilot120 artifact.
 
 No production AppGraph wiring is approved by this checkpoint.
+
+
+## 25. CR-7.3 — P3 semantic-quality benchmark — 2026-10-04
+
+CR-7.2 resolved the native transport/export boundary. The next bounded gate is product semantic quality.
+
+### Native gate result
+
+The valid FunctionGemma `dynamic_wi8_afp32` artifact at `D:\AI\HuggingFacesLLM\p3_sft_small\cr71\litetune_artifacts\dynamic_wi8_afp32\model.litertlm` was copied to `emulator-5554` and exercised through the real Android runtime. The tested artifact SHA-256 is `b4006c215963c17735c0a6d5bcb5587c9fc581ef77aac930548395255c15d56d`. A separate same-size export exists under `litetune_functiongemma_dynamic` with SHA `8cdb37d1...`; it was not used for this benchmark. `P3NativeToolCallE2ETest.realModelReturnsExactlyOneCanonicalToolCall` passed with zero failures.
+
+Measured native probe testcase time was 16.996 s and suite time was 20.747 s. Telemetry reported `observedToolCalls=1` and `stopReason=NATIVE_TOOL_CALL`. The canonical mapper accepted exactly `title`, `description` and `objectives`.
+
+This closes the previous `generic_model`/native-channel blocker. The correct fix was export-path convergence; no text parser or contract relaxation was introduced.
+
+### Semantic battery result
+
+The temporary `P3Pilot120SemanticE2ETest` executed 12 real quest prompts against the same exported artifact:
+
+- 12/12 cases completed at the instrumentation level;
+- 11/12 returned native `ToolCall` and decoded to `MicroQuestText`;
+- 1/12 returned `TechnicalFailure`;
+- latency range: 5.581–26.830 s;
+- mean: approximately 7.86 s;
+- median: approximately 5.85 s;
+- mean excluding the first cold case: approximately 6.14 s.
+
+The battery is evidence collection, not yet a semantic promotion gate.
+
+### Product-quality findings
+
+The model is not yet at the PinhoQuest quality bar. Observed failures include:
+
+- repeated generic title `Jogue de outro jeito` across unrelated categories;
+- training-example leakage such as `Exemplo aprovado | ...`;
+- instruction-like generated text such as `Escreve o texto final de uma quest humana curta.`;
+- objectives that sometimes duplicate the description or fall back to generic completion text;
+- one technical failure on a valid native runtime path;
+- occasional English title drift (`Detail Hunt`) in Portuguese requests.
+
+These failures are semantic/training-boundary problems, not native ToolCall transport problems. Adding a post-hoc generic parser would mask the distinction and is therefore not an approved correction.
+
+### Gate
+
+CR-7 native transport/export: `validated_bounded`.
+
+CR-7.3 semantic quality: `implemented_bounded` / open. The artifact has a usable warm latency signal, but semantic consistency and quest quality are insufficient for production. The next correction should focus on the model-facing prompt/training data and semantic evaluation criteria while preserving `MicroQuestToolContract` as the sole authority.
+
+The temporary benchmark remains uncommitted until its semantic assertions are hardened. No production AppGraph wiring is approved; P4/P5 remain unchanged.
+
+
+## CR-9 — JNI / LiteRT-LM Android integration investigation — 2026-10-05
+
+P5 is intentionally paused while the productive LiteRT-LM Android integration is investigated. P5.5 is PAUSED and P5.6 is WAITING/PAUSED. No P5 work is being used to bypass CR-9.
+
+### Evidence collected
+
+- LiteRT-LM dependency: 0.17.1.
+- Resolved AAR: 20,493,837 bytes; contains arm64-v8a and x86_64 liblitertlm_jni.so.
+- arm64-v8a liblitertlm_jni.so exports Java_com_google_ai_edge_litertlm_NativeLibraryLoader_nativeCheckLoaded.
+- Productive APK contains the expected JNI libraries.
+- App CompileClasspath resolves kotlin-reflect 2.4.0 through LiteRT-LM 0.17.1 while project Kotlin is 2.1.21.
+- CR-8 already proved the canonical CR-7.4 model executes through the validated native path with 5/5 native ToolCalls.
+
+### Interpretation
+
+The Kotlin metadata mismatch is a dependency/toolchain boundary problem, not a model compatibility problem. A .litertlm artifact does not carry Kotlin compiler metadata.
+
+The JNI failure is not yet explained by a missing file or missing exported symbol. The next causal boundary is the Android classloader/native linker/loading sequence. LiteRT-LM's own NativeLibraryLoader first probes nativeCheckLoaded, catches UnsatisfiedLinkError, then attempts System.loadLibrary and resource extraction. Therefore the observed nativeCheckLoaded message must not be treated as the final causal failure until the complete loader sequence is captured.
+
+### Controlled refactor candidate
+
+The app does not compile against LiteRT-LM APIs directly; litertlm-bridge already uses compileOnly(litertlm-android). A controlled experiment will evaluate implementation -> runtimeOnly at the app boundary so LiteRT-LM is packaged for runtime without polluting the app Kotlin CompileClasspath. This is not yet accepted as the final solution.
+
+Detailed evidence, hypotheses, and the decision tree are recorded in docs/evidence/cr9-jni-litertlm-android-diagnosis.md.
+
+### Prohibited shortcuts
+
+No model swap, global Kotlin upgrade, arbitrary System.loadLibrary, semantic fallback, parser bypass or device-specific JNI workaround is approved before the controlled evidence is complete.
+
+
+## 33. CR-9 investigation checkpoint — dependency boundary and JNI loader — 2026-10-05
+
+The controlled dependency-boundary experiment produced the first strong correction candidate.
+
+### Build boundary result
+
+The app direct LiteRT-LM dependency was changed from implementation to runtimeOnly while litertlm-bridge retained compileOnly(litertlm-android).
+
+Evidence:
+- kotlin-reflect 2.4.0 disappeared from app debugCompileClasspath.
+- :app:compileDebugKotlin PASS.
+- :app:assembleDebug PASS.
+- APK still contains arm64-v8a and x86_64 liblitertlm_jni.so.
+
+### JNI loader result
+
+A temporary instrumentation probe executed LiteRT-LM NativeLibraryLoader.load() inside the productive APK and PASSed.
+
+The log still contains the initial nativeCheckLoaded No implementation found message. This is expected from LiteRT-LM's already-loaded probe: its loader catches that UnsatisfiedLinkError and then attempts System.loadLibrary("litertlm_jni"). The dedicated loader probe succeeding means that message is not, by itself, a JNI failure.
+
+This materially narrows CR-9: there is no current evidence that LiteRT-LM 0.17.1 lacks the JNI symbol or cannot load its native library in the productive APK.
+
+### What remains open
+
+The productive UI E2E with the canonical model progressed through the UI but failed the historical native-memory assertion at approximately 130–134 MB PSS. This does not prove native inference failure because admission/resource governance may prevent full model residency or converge to procedural generation.
+
+CR-9 therefore remains open. The next proof must observe the actual production inference outcome and native ToolCall, not only loader initialization.
+
+### Version decision
+
+Current evidence supports keeping Kotlin 2.1.21, LiteRT-LM 0.17.1 and the canonical CR-7.4 model. No model swap or global Kotlin upgrade is justified. No LiteRT-LM version change is currently indicated.
+
+Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.

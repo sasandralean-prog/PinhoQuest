@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(project(":litertlm-bridge"))
+    // The production app does not compile against LiteRT-LM APIs, but it must package
+    // the JNI runtime as an application dependency so NativeLibraryLoader can load it.
     runtimeOnly(libs.litertlm.android)
 
     androidTestImplementation(libs.androidx.work.testing)
