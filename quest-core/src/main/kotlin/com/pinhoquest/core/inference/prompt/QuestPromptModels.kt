@@ -25,6 +25,7 @@ sealed interface PromptResearchHint {
         val platform: String?,
         val genre: String?,
         val availability: PromptAvailability,
+        val focus: String? = null,
     ) : PromptResearchHint {
         override val kind: PromptResearchKind = PromptResearchKind.GAME
     }
@@ -54,6 +55,7 @@ data class BoundedPromptEnvelope(
         require(task.isNotBlank()) { "task must not be blank" }
     }
 }
+
 data class PromptContractLimits(
     val maxTags: Int = 6,
     val maxTagCharacters: Int = 32,

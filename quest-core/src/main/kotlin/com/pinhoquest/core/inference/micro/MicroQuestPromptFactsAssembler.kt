@@ -2,7 +2,10 @@ package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.prompt.BoundedPromptEnvelope
 import com.pinhoquest.core.inference.prompt.PromptFactsAssembler
+import com.pinhoquest.core.inference.prompt.PromptResearchHint
+import com.pinhoquest.core.inference.prompt.PromptAvailability
 import com.pinhoquest.core.quest.QuestGenerationPlan
+import com.pinhoquest.domain.quest.QuestMode
 
 /**
  * P3 input boundary.
@@ -24,7 +27,26 @@ class MicroQuestPromptFactsAssembler(
         tags: List<String>,
         examples: List<QuestTextExample>,
     ): BoundedMicroQuestPrompt {
-        val envelope = factsAssembler.assembleTagLabels(plan, tagLabels = tags)
+        val researchHints = plan.gameCandidate
+            ?.takeIf { plan.mode == QuestMode.GAME }
+            ?.let { seed ->
+                listOf(
+                    PromptResearchHint.Game(
+                        canonicalName = seed.title,
+                        platform = seed.platforms.firstOrNull(),
+                        genre = seed.genres.firstOrNull(),
+                        availability = PromptAvailability.UNKNOWN,
+                        focus = seed.variant?.objectivePattern,
+                    ),
+                )
+            }
+            .orEmpty()
+
+        val envelope = factsAssembler.assembleTagLabels(
+            plan = plan,
+            tagLabels = tags,
+            researchHints = researchHints,
+        )
         val approvedExamples = examples
             .asSequence()
             .mapNotNull(::sanitizeExample)
@@ -61,6 +83,7 @@ class MicroQuestPromptFactsAssembler(
             .replace(Regex("\\s+"), " ")
             .take(maxLength)
 }
+
 data class BoundedMicroQuestPrompt(
     val envelope: BoundedPromptEnvelope,
     val examples: List<QuestTextExample>,

@@ -1,9 +1,9 @@
 # Pinho Quest — CURRENT STATE
 
-Date: 2026-10-03
+Date: 2026-10-04
 Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-7 — Native hardening validation (implemented_unvalidated; blocked on JDK 21 runtime/toolchain availability)
-Baseline: f17ae65 — docs(p3): diagnose toolcalling contract boundary
+CR frontier: CR-7.3 — P3 semantic-quality gate (native transport validated_bounded; product semantic quality remains blocked)
+Baseline: 4565b4e — fix(p3): validate Pilot120 FunctionGemma re-export
 
 ## 1. Current project state
 
@@ -444,7 +444,7 @@ CR-7 remains `implemented_unvalidated`, not `validated_bounded`. The blocker is 
 
 CR-8 is intentionally not started: conversion/quantization A/B must reuse a validated native adapter/tool protocol first.
 
-## CR-7 / CR-8 native Android evidence � 2026-10-03
+## CR-7 / CR-8 native Android evidence � 2026-10-03
 
 CR-7 native probe is implemented at `app/src/androidTest/kotlin/com/pinhoquest/inference/P3NativeToolCallE2ETest.kt`. It invokes the real `AndroidLiteRtLmInferencePort`/`LiteRtLmRuntime`/`P3LiteRtToolSet` path and requires exactly one `compose_quest_text` call with the canonical `title`, `description` and `objectives` arguments.
 
@@ -565,3 +565,769 @@ Decision:
 - Next gate: canonical bounded P3 prompt E2E/quality benchmark on this valid FunctionGemma-exported Pilot120 artifact.
 
 Evidence: `docs/evidence/p3-pilot120-functiongemma-reexport-2026-10-04.md`.
+
+
+## 25. CR-7.3 — P3 semantic-quality benchmark — 2026-10-04
+
+Status: `validated_bounded` for native FunctionGemma/LiteRT-LM transport; semantic-quality gate remains open and production wiring is not approved.
+
+The valid CR-7.2 `dynamic_wi8_afp32` FunctionGemma artifact at `D:\AI\HuggingFacesLLM\p3_sft_small\cr71\litetune_artifacts\dynamic_wi8_afp32\model.litertlm` was copied to `emulator-5554` and exercised through the real `AndroidLiteRtLmInferencePort` / `LiteRtLmRuntime` / `P3LiteRtToolSet` path. The tested artifact SHA-256 is `b4006c215963c17735c0a6d5bcb5587c9fc581ef77aac930548395255c15d56d`. A separate same-size export exists under `litetune_functiongemma_dynamic` with SHA `8cdb37d1...`; it is not the artifact used for this benchmark.
+
+### Native transport gate
+- `P3NativeToolCallE2ETest.realModelReturnsExactlyOneCanonicalToolCall` passed: 1 test, 0 failures.
+- Testcase time: 16.996 s; suite time: 20.747 s.
+- Telemetry from the successful run: `observedToolCalls=1`, `stopReason=NATIVE_TOOL_CALL`.
+- The mapper accepted exactly the canonical `title`, `description`, `objectives` argument set; no parser relaxation was introduced.
+
+### Semantic battery
+The temporary diagnostic battery `P3Pilot120SemanticE2ETest` exercised 12 real quest-generation cases on the same emulator/model path.
+
+Observed results:
+- 12/12 cases completed through the test harness;
+- 11/12 produced a native `ToolCall` and decoded to `MicroQuestText`;
+- 1/12 returned `TechnicalFailure` (learning case);
+- measured latencies ranged from 5.581 s to 26.830 s;
+- mean latency: approximately 7.86 s;
+- median latency: approximately 5.85 s;
+- excluding the cold first case, mean latency was approximately 6.14 s.
+
+### Semantic-quality failures observed
+The benchmark is intentionally not a promotion gate yet. It exposed real product-quality defects:
+- repeated generic title `Jogue de outro jeito` across unrelated categories;
+- title/description leakage from training examples, including `Exemplo aprovado | ...`;
+- generated text that resembles a training instruction rather than a quest (`Escreve o texto final de uma quest humana curta.`);
+- objectives that sometimes duplicate the description or include a generic terminal sentence only;
+- one technical failure despite a valid native serving path;
+- evidence of English title drift (`Detail Hunt`) in a Portuguese request;
+- no evidence that a generic post-hoc text parser would solve these issues without hiding model-quality failures.
+
+### Gate decision
+CR-7 native transport/export is now `validated_bounded`.
+
+CR-7.3 semantic quality remains `implemented_bounded`/open. The current artifact is fast enough to justify continued product-oriented tuning, but it is not yet good enough for production quest generation. The next correction should target the training/prompt data boundary and semantic consistency, not the native mapper or ToolCall transport.
+
+The benchmark file remains uncommitted until its assertions are hardened into a deliberate semantic gate. No production AppGraph wiring is approved. P4/P5 remain unchanged.
+
+---
+
+# 23. Canonical P3 / P4 frontier — 2026-10-04
+
+> **This section supersedes older frontier summaries above when they conflict with the current CR record.**
+
+## P3 status
+
+P3 is now **STANDBY / NON-BLOCKING FOR P4**.
+
+| CR | Status | Decision |
+|---|---|---|
+| CR-0 | PASS | planning/documentation baseline |
+| CR-1 | PASS | canonical FunctionGemma tool contract |
+| CR-2 | PASS | bounded prompt/input governance |
+| CR-3 | PASS | native Android tool transport / bridge boundary |
+| CR-4 | PASS | RAW isolation and output convergence |
+| CR-5 | PASS | canonical inference budget and telemetry boundary |
+| CR-6 | PASS | training/runtime contract regeneration |
+| CR-7 | PASS | semantic hardening / canonical artifact validation |
+| CR-8 | PASS | Android resource/latency benchmark for canonical artifact |
+| CR-9 | PAUSED / BLOCKED | productive UI E2E blocked by native LiteRT-LM JNI loading |
+
+## CR-7 / CR-8 canonical evidence
+
+The canonical CR-7.4 artifact is `D:\AI\HuggingFacesLLM\p3_sft_small\cr74_semantic_isolation\export_litert_canonical\model.litertlm`.
+
+SHA-256: `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`.
+
+Size: `284,692,656 bytes`.
+
+Native Android validation established 5/5 successful generations with 5/5 `compose_quest_text` ToolCalls and no semantic/runtime errors in the validated native harness. CR-8 measured 5 generations with 2.55 s average wall time, 2.32–2.88 s range, approximately 956 MB average PSS and 959 MB maximum PSS, with no errors in that benchmark.
+
+These results establish the model artifact and canonical native inference path as validated evidence. They do not imply that the current productive APK path is healthy.
+
+## CR-9 — paused and blocked
+
+### What is blocked
+
+CR-9 is the production integration / productive UI E2E gate. The app can still operate through the deterministic `ProceduralComposer`; no additional fallback is being introduced and no model-specific bypass is being accepted.
+
+### Why it is paused
+
+The productive APK reaches the LiteRT-LM runtime but fails before native inference because the JNI implementation for `NativeLibraryLoader.nativeCheckLoaded()` cannot be resolved in the productive Android runtime.
+
+Observed evidence:
+- canonical `.litertlm` artifact is present;
+- APK contains `lib/arm64-v8a/liblitertlm_jni.so` and `lib/x86_64/liblitertlm_jni.so`;
+- LiteRT-LM dependency is 0.17.1;
+- production graph points at the canonical model/composer path;
+- existing native P3 instrumentation harness and productive APK differ in runtime behavior;
+- productive E2E therefore stops at native runtime loading rather than at quest semantics.
+
+### Why this is a BLOCK, not a model failure
+
+CR-8 already supplied evidence that the canonical artifact can execute and generate native `compose_quest_text` calls in the validated native harness. The productive failure occurs at the Java/Kotlin ↔ LiteRT-LM ↔ JNI boundary before a valid tool call can be observed.
+
+The next CR-9 investigation should compare side by side:
+1. exact LiteRT-LM Java/Kotlin classes;
+2. resolved AAR/dependency versions;
+3. JNI `.so` contents and naming;
+4. Android classloader/native-loader behavior;
+5. ABI and packaging/extraction behavior;
+6. differences between the CR-8/native harness and productive APK.
+
+Do not solve this with another semantic fallback, parser repair, device-specific bypass or arbitrary `System.loadLibrary` workaround before the loader contract is understood.
+
+### Resume condition
+
+CR-9 can resume only when the productive APK can initialize LiteRT-LM and produce the canonical native ToolCall through the same governed boundary already validated in CR-7/CR-8. Then the full user-visible quest flow can be re-run.
+
+P3 remains available for later resumption, but it does not block P4.
+
+## P4 — OPEN
+
+P4 is now the active frontier. Its purpose is Web Research and content/catalog enrichment, with online/offline semantic states, provenance, normalization, deduplication and persistent catalogs as defined in `Engineering_Genome/Planejamento.md`.
+
+P4 must not wait for CR-9. The deterministic quest path remains the operational authority while P3 is in standby.
+
+## Design consolidation
+
+The internal UI design authority is now `docs/design/UI_DESIGN_CONTRACT.md`.
+
+It consolidates the visual language, button hierarchy, navigation, screen hierarchy, loading/empty/error states, typography/density rules, pixel-art boundary, accessibility expectations and phase boundaries for P4–P7.
+
+The design contract is intentionally semantic rather than pixel-final: P4 can implement functionality without creating screen-specific visual patterns, while P6 remains the phase for detailed visual polish and microinteractions.
+
+## 24. P4.1 — governed research boundary and normalized game catalog core — 2026-10-04
+
+P4 has started with a bounded, non-UI checkpoint focused on the semantic boundary that must exist before real web adapters and persistence are introduced.
+
+### Implemented
+
+- Added `ResearchOutcome<T>` with the canonical semantic states required by P4:
+  - `Success`
+  - `Unavailable`
+  - `RateLimited`
+  - `InvalidResponse`
+  - `UnsupportedSource`
+  - `TechnicalFailure`
+- Added `ResearchProvenance` requiring a non-empty source URI and research timestamp.
+- Added `GameResearchPort` as the core boundary for future web adapters; the core does not depend on a concrete provider.
+- Added normalized `GameDiscovery` with canonical identity, platform/genre sets, availability and provenance.
+- Added `GameDiscoveryCatalog` with deterministic identity normalization and provenance-preserving deduplication.
+- Added unit coverage for semantic failure distinction, duplicate normalization/merge and the empty-catalog semantic state.
+
+### Architectural decision
+
+P4 does not start by wiring a provider directly into the UI. The research result is first represented as a governed semantic outcome, then normalized into domain-ready discoveries, then merged into a catalog. This preserves the P4 boundary:
+
+```
+external source
+    ↓
+adapter
+    ↓
+ResearchOutcome
+    ↓
+GameDiscovery normalization
+    ↓
+deduplication + provenance merge
+    ↓
+catalog
+```
+
+The web source remains an external dependency and never becomes a second authority for persistent state.
+
+### Validation status
+
+- `git diff --check`: PASS (only existing LF/CRLF warnings).
+- Targeted Gradle test was started twice but the Gradle process remained blocked without producing test execution output; it was terminated rather than declaring a false PASS.
+- Therefore P4.1 is `implemented_unvalidated` pending a successful test execution.
+
+### Next bounded P4 step
+
+Implement the first concrete research adapter behind `GameResearchPort`, with provider response normalization and semantic mapping to the six P4 states, before adding Room persistence or UI wiring. The adapter must be testable without requiring the real network in unit tests.
+
+CR-9 remains PAUSED / BLOCKED and is not modified by P4.1.
+
+
+## 25. P4.2 — concrete web research adapter — 2026-10-04
+
+P4 progressed from the semantic research boundary into its first concrete provider adapter.
+
+### Implemented
+
+- Added ResearchHttpTransport so network I/O is replaceable in tests.
+- Added UrlConnectionResearchHttpTransport using the Android/JDK standard HTTP stack; no new third-party networking dependency was introduced.
+- Added WikipediaGameResearchAdapter behind the existing GameResearchPort.
+- The adapter queries the public Wikipedia REST summary endpoint for a candidate and accepts the result as a game discovery only when the returned evidence explicitly contains "video game"/"video games".
+- HTTP and parsing failures map to the governed P4 states:
+  - 404 → Unavailable
+  - 429 → RateLimited
+  - other 4xx → UnsupportedSource
+  - 5xx → TechnicalFailure
+  - malformed/insufficient JSON → InvalidResponse
+  - transport exception → TechnicalFailure
+  - non-game page → Unavailable
+- Successful discoveries preserve source URL and research timestamp through ResearchProvenance.
+- The adapter deliberately leaves platform, genre and availability as unknown/empty when this source does not provide authoritative structured values. It does not invent facts to fill the schema.
+- Added unit tests for successful normalization/provenance, non-game rejection and semantic HTTP/JSON failure mapping.
+
+### Architectural boundary
+
+The current P4 research path is now:
+
+GameResearchPort
+       ↑
+WikipediaGameResearchAdapter
+       ↓
+ResearchHttpTransport
+       ↓
+external source
+       ↓
+ResearchOutcome
+       ↓
+GameDiscovery
+       ↓
+GameDiscoveryCatalog
+
+The concrete provider remains outside quest-core; core depends only on the port and semantic models.
+
+### Validation status
+
+- git diff --check: PASS (only pre-existing LF/CRLF warnings).
+- Targeted :android-data:testDebugUnitTest --tests com.pinhoquest.data.research.WikipediaGameResearchAdapterTest was attempted.
+- Gradle repeatedly remained blocked during daemon/build startup without reaching test execution output. The process was terminated rather than declaring a false PASS.
+- Therefore P4.2 remains implemented_unvalidated.
+
+### Deliberate limitation
+
+This checkpoint does not yet claim that Wikipedia is the final content authority for the game's catalog. It is the first real adapter proving the provider boundary and semantic failure mapping. Structured platform/genre/availability enrichment should be added through an appropriate source/adapter rather than inferred from prose.
+
+### Next bounded P4 step
+
+Close P4.2's validation if Gradle becomes runnable. Then introduce the catalog-facing orchestration layer that can combine provider results and preserve provenance/deduplication, before wiring Room or UI.
+
+CR-9 remains PAUSED / BLOCKED and untouched.
+
+
+## 26. P4.2 / P4.3 validation checkpoint — 2026-10-04
+
+### P4.2 status update
+
+The concrete Wikipedia game research adapter is now validated.
+
+Additional build correction:
+- android-data now applies the Kotlin serialization plugin required by its @Serializable provider-response DTOs.
+- No project-wide Kotlin/runtime version change was introduced.
+
+Validation evidence:
+- :android-data:testDebugUnitTest --tests com.pinhoquest.data.research.WikipediaGameResearchAdapterTest — BUILD SUCCESSFUL.
+- 3/3 adapter tests passed:
+  - successful video-game summary → governed GameDiscovery + provenance;
+  - non-game page → Unavailable;
+  - HTTP/JSON failure semantics remain distinct.
+- The earlier test failures were caused by the test fixture JSON being escaped inside a Kotlin raw string; the fixture was corrected and the adapter then passed.
+
+P4.2 gate: validated_bounded.
+
+### P4.3 — research orchestration
+
+Implemented in quest-core:
+- GameResearchProvider gives each provider an explicit stable id without putting provider identity into GameDiscovery.
+- GameResearchCoordinator executes configured providers for the same query.
+- Every provider outcome is preserved in GameResearchProviderResult.
+- Successful items are merged through the canonical GameDiscoveryCatalog.
+- Duplicate discoveries therefore converge through the existing identity normalization/provenance merge path.
+- Provider failures are not silently converted into catalog emptiness; the run keeps the original semantic outcome for each provider.
+- No Room persistence or UI wiring was introduced in this checkpoint.
+
+Architecture:
+
+GameResearchCoordinator
+        |
+        +--> provider A -> ResearchOutcome
+        +--> provider B -> ResearchOutcome
+        +--> provider N -> ResearchOutcome
+                         |
+                         v
+                  GameDiscoveryCatalog
+                         |
+                         v
+                    GameResearchRun
+
+Validation evidence:
+- :quest-core:test --tests com.pinhoquest.core.research.GameDiscoveryCatalogTest --tests com.pinhoquest.core.research.GameResearchCoordinatorTest — BUILD SUCCESSFUL.
+- Coordinator tests prove successful results are usable while rate-limited providers remain explicitly recorded, and duplicate evidence is deduplicated with provenance retained.
+- Catalog tests now also prove conflicting FREE vs FREE_TO_PLAY evidence remains UNKNOWN instead of selecting one source arbitrarily.
+
+P4.3 gate: validated_bounded.
+
+### Current P4 frontier
+
+P4 currently has:
+1. governed semantic research states;
+2. provenance;
+3. normalized game discoveries;
+4. canonical deduplication;
+5. concrete web adapter;
+6. multi-provider orchestration.
+
+Still outside this checkpoint:
+- persistent research/catalog storage;
+- cache/refresh policy;
+- online/offline UI state;
+- real provider composition in AndroidDataGraph;
+- broader structured source enrichment for platform/genre/availability;
+- flower research/catalog pack acquisition.
+
+Next bounded step: define the persistent/catalog snapshot contract and refresh policy only after deciding which research facts must survive offline use. Do not make Room the first authority for raw provider responses; persist normalized, provenance-bearing catalog state.
+
+CR-9 remains PAUSED / BLOCKED and untouched.
+
+## 27. P4.4 — persistent normalized game catalog + cache policy — 2026-10-04
+
+### Scope
+
+P4 now crosses the persistence boundary for the normalized game catalog.
+
+Implemented:
+- GameCatalogCachePolicy defines an explicit TTL/freshness rule.
+- GameCatalogSnapshot carries researchedAt + expiresAt together with the normalized catalog.
+- GameDiscoveryCatalogStore is the core persistence boundary.
+- RoomGameDiscoveryCatalogStore persists normalized discoveries and provenance, not raw provider responses.
+- Room schema advanced from version 2 to version 3.
+- MIGRATION_2_3 creates game_catalog_snapshots and game_discoveries.
+- AndroidDataGraph exposes the catalog store and registers the migration.
+- Successful empty snapshots are persisted as a valid semantic no-new-options state.
+- Provider failures are not written by the store; the existing coordinator keeps provider outcomes separate from successful catalog data.
+
+### Persistence contract
+
+The stored game catalog contains only normalized facts:
+- canonical identity/name;
+- platforms;
+- genres;
+- availability;
+- provenance source URI + research timestamp;
+- snapshot research timestamp;
+- explicit snapshot expiry.
+
+Raw HTTP/JSON provider payloads are not persisted.
+
+### Cache semantics
+
+Current policy is explicit rather than implicit:
+- fresh when now - researchedAt <= maxAge;
+- stale after the TTL;
+- expiry is stored with the snapshot;
+- an empty successful snapshot remains distinguishable from a missing snapshot.
+
+The policy is intentionally not hardcoded into the provider adapter. A later application-level refresh coordinator can decide whether to reuse, refresh, or preserve stale data according to this contract.
+
+### Validation evidence
+
+Passed:
+- :quest-core:test :android-data:testDebugUnitTest :android-data:compileDebugKotlin — BUILD SUCCESSFUL.
+- Migration2To3Test — 2/2 instrumentation tests PASS on Pixel_4_API_33 (Android 13).
+- RoomGameDiscoveryCatalogStoreTest — 2/2 instrumentation tests PASS on Pixel_4_API_33 (Android 13).
+- Room schema generation/copy completed successfully.
+- Database migration and actual Room round-trip were exercised on the Android emulator.
+
+### Gate
+
+P4.4 status: validated_bounded.
+
+### Still outside P4.4
+
+Not yet wired:
+- automatic online/offline refresh orchestration;
+- stale-while-revalidate behavior;
+- UI exposure of online/offline states;
+- persistent provider-specific refresh metadata;
+- flower research persistence/catalog acquisition.
+
+Next bounded checkpoint: introduce the application-level refresh decision boundary that combines cache freshness + current research outcomes without allowing a failed provider to erase a previously valid catalog.
+
+CR-9 remains PAUSED / BLOCKED and untouched.
+## 28. P4.5 — dynamic adaptive game catalog cache boundary — 2026-10-04
+
+### Scope
+
+P4.5 refines the previous fixed-TTL cache into a dynamic, deterministic policy. Cache lifetime is derived from research signals instead of one immutable max-age value.
+
+### Implemented
+
+- GameCatalogCacheSignals captures provider success ratio and normalized catalog coverage.
+- GameCatalogCachePolicy derives an effective freshness window bounded by configured minimum/maximum ages.
+- Stronger successful research with broader usable catalog coverage receives a longer freshness window; weaker/partial research receives a shorter window.
+- Cache decisions distinguish NoCache, NoUsableCache, UseFresh, RefreshRequired and ServeStale.
+- Offline stale data remains usable instead of being discarded.
+- A failed online refresh is represented as a refresh decision and does not erase the existing snapshot; persistence remains responsible only for successful normalized snapshots.
+- No provider-specific hardcode or device-specific workaround was introduced.
+
+### Architectural rule
+
+> Cache lifetime is adaptive configuration, not a fixed case-specific constant.
+
+The policy is deterministic for identical signals, bounded by explicit minimum/maximum configuration, and independent from any concrete web provider.
+
+### Validation
+
+Added focused unit coverage for adaptive freshness, offline stale preservation, online refresh decisions, missing-cache versus empty-catalog semantics, deterministic output, and refresh-failure preservation.
+
+CR-9 remains PAUSED / BLOCKED and untouched.
+
+### Next bounded P4 step
+
+Wire the decision boundary into an application-level refresh coordinator that reads the persisted snapshot, executes research only when the policy requires it, writes only successful normalized snapshots, and preserves stale data across provider failures/rate limits.
+
+### P4.5 validation result
+
+Targeted validation completed after one test-fixture correction:
+- :quest-core:test --tests com.pinhoquest.core.research.GameCatalogCachePolicyTest --tests com.pinhoquest.core.research.GameResearchCoordinatorTest — BUILD SUCCESSFUL.
+- 8 tests completed successfully.
+- git diff --check — PASS; only existing LF/CRLF warnings were reported.
+
+P4.5 status: validated_bounded.
+
+## 29. P4.6 — bounded game candidate rotation + usage-aware cache — 2026-10-04
+
+### Scope
+
+P4.6 adds a second cache-rotation axis beyond age: quest usage. The game catalog is intentionally bounded to a small candidate pool instead of becoming a long-lived game database.
+
+### Implemented
+
+- Default game candidate capacity is **20**.
+- Research snapshots are bounded to the policy capacity before persistence.
+- Candidate selection excludes identities already marked as used by the caller.
+- Candidate ordering is deterministic: newest research evidence first, then canonical identity.
+- Usage pressure participates in dynamic cache freshness: as the proportion of already-used candidates increases, the adaptive freshness window becomes shorter.
+- When fewer than 20 unused candidates remain, the policy requests a usage-driven refresh.
+- Existing provenance remains attached to normalized research facts.
+- The persistent research store remains an evidence/catalog store; it does not invent game-usage facts.
+
+### Important boundary
+
+The current quest domain does **not yet carry a canonical game identity on GAME quests**. Therefore P4.6 deliberately does not guess that a game was used by parsing quest title/description or by inspecting unrelated completion text.
+
+The policy already accepts an explicit `usedIdentityKeys` set. The next integration step is to connect that set to the canonical game-quest usage history once the game identity is present in the quest domain/completion boundary.
+
+This preserves the architectural rule:
+
+> A game is considered used only when the system has an explicit canonical game identity for that quest.
+
+### Validation
+
+Targeted tests:
+- adaptive freshness with provider/catalog/usage signals;
+- used-game exclusion;
+- hard capacity of 20 candidates;
+- fewer-than-20-unused refresh pressure;
+- deterministic candidate order;
+- stale/fresh cache decisions;
+- missing-cache versus empty-catalog semantics;
+- bounded GameResearchRun.snapshot().
+
+`:quest-core:test --tests GameCatalogCachePolicyTest --tests GameResearchCoordinatorTest` — **BUILD SUCCESSFUL**.
+
+CR-9 remains PAUSED / BLOCKED.
+
+
+## 30. P4.7 — disposable game usage cycle + semantic UsageId — 2026-10-05
+
+### Scope
+
+P4.7 formalizes game reuse without turning usage memory into permanent game identity.
+
+### Implemented
+
+- Added permanent `GameIdentityKey` as the canonical game identity boundary.
+- Added `GameCandidateCycleId` to identify a bounded candidate-pool generation.
+- Added `GameQuestVariant` with structured semantic axes (`activity`, category, environment, objective pattern).
+- Added `GameQuestUsageId`, a deterministic SHA-256 digest derived from a versioned canonical contract containing cycle, canonical game identity, and structured semantic variant.
+- Raw quest title/description text is not used as the usage identity.
+- Added `GameQuestUsage` and `GameQuestUsageStore` boundaries for disposable usage memory.
+- `GameCatalogSnapshot` now carries its `cycleId`.
+- Room schema advanced from v3 to v4 with `cycleId` on catalog snapshots and a bounded `game_quest_usages` table plus indexes.
+- `RoomGameDiscoveryCatalogStore` now persists/reads cycle metadata and implements usage recording, lookup by cycle, and cycle cleanup.
+- Usage remains independent from research provenance: clearing a usage cycle does not erase the permanent game discovery/provenance record.
+- Existing 20-candidate capacity remains unchanged.
+- Cache freshness authority was corrected: the persisted `GameCatalogSnapshot.expiresAtEpochMillis` is now the authority for deciding freshness; adaptive signals are used when calculating the expiry of a newly created snapshot.
+
+### Lifecycle rule
+
+`GameIdentity` survives cache rotation. `GameQuestUsageId` does not represent the game and may disappear with its candidate cycle.
+
+A game used in cycle A can therefore return in cycle B. Different structured semantic quest variants also receive different usage IDs within the same cycle.
+
+Because the current quest domain still does not carry a canonical game identity, P4.7 does not silently attach usage to generic `Quest` objects or infer identity from rendered text.
+
+### Validation
+
+- `:quest-core:test` — **BUILD SUCCESSFUL**.
+- `GameQuestUsageTest` covers deterministic SHA-256 IDs, semantic-variant differentiation, cycle differentiation, normalization, and structured semantic axes.
+- `:android-data:testDebugUnitTest :android-data:compileDebugKotlin` — **BUILD SUCCESSFUL**.
+- Room KSP successfully generated schema v4 including `game_catalog_snapshots.cycleId` and `game_quest_usages`.
+- `git diff --check` produced no whitespace errors; only the repository's existing LF/CRLF normalization warnings were reported.
+- No commit or push performed.
+- CR-9 remains **PAUSED / BLOCKED** and was not modified by this checkpoint.
+
+### Next bounded P4 step
+
+Connect `GameCandidateCycleId` and `GameQuestUsageStore` to the application-level game-quest generation boundary only after a canonical game identity contract exists there. The integration must record usage from structured game identity + semantic variant, never from UI text.
+
+P4.7 status: **validated_bounded**.
+
+
+## 31. P4.8 — canonical GAME quest identity boundary — 2026-10-05
+
+### Scope
+
+P4.8 connects the disposable candidate-cycle/usage model to the GAME quest planning boundary without putting research metadata or cache state into the generic `Quest` domain model.
+
+### Implemented
+
+- Added `GameQuestContext` as the canonical application/core boundary carrying a researched `GameDiscovery` plus its `GameCandidateCycleId`.
+- Added `GameQuestCandidateSelector`, which selects only from the current bounded snapshot and excludes explicit usage identities for the same cycle.
+- Selection returns the canonical `GameIdentityKey` together with the candidate cycle; no identity is inferred from rendered quest text.
+- Added `GameQuestSeed` as the bridge into the existing quest planner. It carries `gameIdentity` and `cycleId` while preserving the generic `Quest` model unchanged.
+- `GameQuestSeed.from(GameQuestContext)` is the single conversion boundary from research/catalog state into GAME quest planning state.
+- Usage IDs remain derived from structured semantic quest variants rather than title/description text.
+- Same game can re-enter through a new candidate cycle; exhaustion of a cycle yields no candidate instead of silently reusing a game.
+
+### Validation
+
+- `GameQuestCandidateSelectorTest` covers canonical identity propagation, same-cycle exclusion, exhausted-cycle behavior, usage-refresh pressure, and reintroduction in a new cycle.
+- `GameQuestSeedTest` covers canonical identity/cycle propagation into quest planning.
+- Full `:quest-core:test` — **BUILD SUCCESSFUL**.
+- `:android-data:testDebugUnitTest :android-data:compileDebugKotlin` — **BUILD SUCCESSFUL**.
+- No generic `Quest`/`QuestDraft` field was added for research/cache metadata.
+- No inference fallback or CR-9 behavior was changed.
+- No commit or push performed.
+
+### Architectural rule
+
+> Research identifies the game; the candidate cycle governs temporary availability; the GAME quest seed carries identity into planning; the generic quest remains unaware of cache mechanics.
+
+P4.8 status: **validated_bounded**.
+
+## 32. P4.9 — GAME candidate generation boundary — 2026-10-05
+
+### Scope
+
+P4.9 introduces the first application/core coordinator boundary for researched GAME candidates without inventing a game query source or contaminating the generic `Quest` domain with research/cache metadata.
+
+### Implemented
+
+- Added `GameQuestGenerationCoordinator`.
+- `selectCandidate()` reads the persisted `GameCatalogSnapshot`, resolves usage for that exact `cycleId`, and delegates candidate selection to the canonical `GameQuestCandidateSelector`.
+- The selected candidate crosses the research boundary as both `GameQuestContext` and `GameQuestSeed`.
+- Exhausted candidate cycles remain explicit through `GameQuestCandidateResult.CycleExhausted`; the coordinator does not silently reuse a used game.
+- `recordUsage()` accepts only a structured `GameQuestContext` + `GameQuestVariant` + timestamp and persists `GameQuestUsage` through `GameQuestUsageStore`.
+- Usage identity remains derived from canonical game identity + candidate cycle + structured semantic variant; rendered quest title/description/objective text is not accepted as an input to the usage boundary.
+- The accidental experimental `candidateContext` back-reference was removed from `GameQuestSeed`; the seed remains a one-way bridge into planning.
+- No new fallback path was introduced and CR-9/JNI was not modified.
+
+### Important boundary decision
+
+The current product flow has a GAME button but no canonical game-query/input contract in the UI or request model. P4.9 therefore stops at the reusable application/core coordinator boundary instead of inventing a query such as a random hardcoded game. Research/refresh wiring into a user-triggered GAME request remains a separate bounded step.
+
+Likewise, P4.9 does not fabricate `GameQuestVariant` from rendered quest text. The caller must provide the structured semantic variant before usage can be recorded.
+
+### Validation
+
+- `./gradlew.bat :quest-core:test :android-data:testDebugUnitTest :android-data:compileDebugKotlin --no-daemon` — **BUILD SUCCESSFUL**.
+- `GameQuestGenerationCoordinatorTest` validates canonical candidate propagation, same-cycle usage exclusion, and structured usage recording.
+- Existing P4 research/candidate tests remain green through the full core/data validation command.
+- `git diff --check` — **PASS** earlier in this working tree; only existing LF/CRLF normalization warnings.
+- No commit or push performed.
+- CR-9 remains **PAUSED / BLOCKED** and was not modified.
+
+P4.9 status: **validated_bounded**.
+
+## 33. P4.10 — GAME research/query orchestration boundary — 2026-10-05
+
+### Implemented
+
+- Added canonical `GameResearchRequest(query, platform?)` as the explicit input contract for a user-triggered GAME research request.
+- Added `GameResearchOrchestrator` to own cache decision, online/offline behavior, research execution, candidate-cycle creation, snapshot persistence, and stale preservation.
+- Fresh cache is served without invoking research.
+- Stale online cache requests refresh; a successful refresh creates a new `GameCandidateCycleId` and replaces the catalog through the existing store boundary.
+- Refresh with no usable research result preserves the existing snapshot and returns `ServedStaleAfterRefreshFailure`.
+- Offline with an existing catalog preserves the stale catalog; offline without a catalog produces `NoUsableCatalog`.
+- Empty/invalid GAME query is rejected at the canonical request boundary.
+- No provider-specific query is invented; the orchestrator receives the explicit query from its caller and passes it unchanged to `GameResearchCoordinator`.
+- No raw provider payload is persisted.
+- No fallback generation path was introduced and CR-9/JNI remains untouched.
+
+### Validation
+
+- `./gradlew.bat :quest-core:test :android-data:testDebugUnitTest :android-data:compileDebugKotlin --no-daemon` — **BUILD SUCCESSFUL in 19s**.
+- 23 actionable tasks: 9 executed, 14 up-to-date.
+- New `GameResearchOrchestratorTest` covers fresh-cache short circuit, successful stale refresh/new cycle, failed refresh preserving the existing snapshot, offline/no-cache behavior, and invalid query rejection.
+- Existing P4 research/cache/candidate tests remained green.
+- `git diff --check` — **PASS**; only known LF/CRLF normalization warnings were emitted.
+- No commit or push performed.
+
+P4.10 status: **validated_bounded**.
+
+### Next bounded P4 step
+
+Connect `GameResearchRequest` to the real application GAME action and then hand the resulting `GameCatalogSnapshot` to `GameQuestGenerationCoordinator`. This is the remaining application wiring boundary; it must preserve the explicit query contract, cache decisions, cycle semantics, stale preservation, and structured usage boundary without inferring intent from rendered quest text.
+
+
+## 27. P4.11 — application GAME boundary — 2026-10-05
+
+### Repository/UI asset synchronization
+
+The official UI review assets were synchronized from origin/main commit 3323dcb (Imagens oficiais da UI) into the local worktree at:
+
+docs/ScreenTemplatesOficial/
+
+Synchronized files:
+- Config.jpg
+- Config2.jpg
+- Home.jpg
+- Home2.jpg
+- Inicio.jpg
+- JardimArte.jpg
+- JardimColection.jpg
+- JardimVazio.jpg
+- NomeInicio.jpg
+- Null
+- Perfil.jpg
+- Perfil2.jpg
+- PinhoQuestIcon.jpg
+- TagsInicio.jpg
+
+The files are present locally and staged by the synchronization operation. No commit or push was performed.
+
+### Implemented
+
+Added GameQuestApplicationCoordinator as the application-facing GAME boundary.
+
+Responsibilities:
+- accepts an explicit GameResearchRequest;
+- delegates cache/online/research semantics to GameResearchOrchestrator;
+- delegates candidate identity/cycle/usage semantics to GameQuestGenerationCoordinator;
+- exposes Selected, CycleExhausted, and NoUsableCatalog;
+- does not derive research intent from rendered quest text;
+- does not invent a query or introduce a fallback catalog.
+
+Added GameQuestApplicationCoordinatorTest covering:
+- fresh catalog -> canonical candidate selection;
+- failed online refresh -> stale catalog preserved and still selectable;
+- no catalog/offline -> NoUsableCatalog.
+
+### Validation
+
+- targeted P4.11 tests: PASS;
+- full :quest-core:test: PASS;
+- :android-data:testDebugUnitTest: PASS;
+- :android-data:compileDebugKotlin: PASS;
+- git diff --check: PASS (only existing LF/CRLF normalization warnings).
+
+### Boundary deliberately left open
+
+The existing UI GAME action (QuestMode.GAME) currently carries no canonical user/query input. Therefore P4.11 does not invent a query such as a hardcoded game name or generic search term.
+
+The remaining application wiring boundary is:
+
+UI GAME action -> canonical GameResearchRequest -> GameQuestApplicationCoordinator -> QuestContext/GameEngine
+
+This requires a product-level query/source contract before the action can safely be wired end-to-end. The research provider, cache, cycle, identity and usage contracts remain intact.
+
+CR-9 remains PAUSED / BLOCKED and untouched.
+
+
+## 28. P4.11 — fechamento do GAME action — 2026-10-05
+
+### Product contract closed
+
+The GAME button is now explicitly defined as a cache-consumption action, not a research action.
+
+Canonical behavior:
+
+UI GAME action -> QuestSessionService.generate(QuestMode.GAME) -> GameQuestGenerationCoordinator.selectFreshRandomCandidate() -> QuestEngine
+
+The button does not call GameResearchOrchestrator and does not perform network research.
+
+### Candidate selection
+
+- reads only the persisted GameCatalogSnapshot;
+- requires the snapshot to be fresh according to its persisted expiresAtEpochMillis;
+- consumes the bounded candidate pool of up to 20 games;
+- excludes games already used in the same candidate cycle;
+- randomly selects one remaining game;
+- rejects a stale cache instead of silently researching or falling back.
+
+### Quest semantic variation
+
+The selected game receives a structured random GameQuestVariant before composition.
+The variant contains a semantic activity and objective pattern and is carried through GameQuestSeed into the bounded model prompt.
+
+The model therefore receives the canonical game name plus bounded game facts and a randomized semantic focus, allowing title/description/objectives to vary while remaining coherent with the selected game.
+
+Rendered quest text is never used to determine identity or usage.
+
+### Usage lifecycle
+
+After a successful quest composition, the structured variant is recorded through GameQuestGenerationCoordinator.recordUsage().
+Failed generation does not consume the game candidate.
+
+### Validation
+
+- :quest-core:test: PASS after adding fresh-cache, stale-cache, semantic-variant, and prompt-boundary coverage.
+- :android-data:testDebugUnitTest: previously PASS and unchanged by this boundary.
+- :android-data:compileDebugKotlin: previously PASS and unchanged by this boundary.
+- :app:compileDebugKotlin: source path reached but the build remains blocked by the existing Kotlin metadata mismatch in cached kotlin-reflect:2.4.0 / LiteRT-LM 0.17.1 versus project compiler metadata 2.1.0. This is unrelated to the GAME contract and was not altered as a workaround.
+- CR-9/JNI remains untouched.
+
+### P4 status
+
+The requested P4 application GAME gap is now closed. Research remains an independent catalog-refresh concern; pressing GAME never triggers it.
+
+## 29. P4 Gate — CLOSED — 2026-10-05
+
+### Gate decision
+
+**P4 is CLOSED for the agreed P4 Web Research / Game Catalog scope.**
+
+The gate is closed against the current product phase boundary: P4 establishes governed discovery, normalized game catalog behavior, provenance, persistence, semantic online/offline states, freshness and GAME consumption. Flower discovery/artwork expansion remains a P7 concern and is not required to advance P5 under the current roadmap.
+
+### Gate evidence
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| Research boundary | PASS | GameResearchPort + governed ResearchOutcome states |
+| Provider adapter | PASS | Wikipedia adapter with semantic response/error mapping |
+| Normalization / deduplication | PASS | canonical GameDiscovery identity and catalog merge |
+| Provenance / timestamp | PASS | persisted discovery provenance and research timestamps |
+| Persistent catalog | PASS | Room snapshot/discovery storage, migrations 2→3→4 |
+| Freshness | PASS | persisted expiresAtEpochMillis is canonical |
+| Online refresh | PASS | GameResearchOrchestrator refreshes stale catalogs |
+| Offline semantics | PASS | valid stale catalog is preserved; no destructive fallback |
+| Empty catalog semantics | PASS | empty successful snapshot is distinguishable from no catalog |
+| Candidate pool | PASS | bounded to up to 20 candidates |
+| Game identity / usage | PASS | permanent GameIdentityKey + disposable semantic usage IDs |
+| GAME selection | PASS | fresh-cache-only random candidate selection |
+| GAME action boundary | PASS | GAME never triggers network research |
+| Semantic variation | PASS | structured GameQuestVariant reaches bounded prompt facts |
+| Usage lifecycle | PASS | usage recorded only after successful generation |
+| Rendered-text isolation | PASS | rendered quest text never determines identity/usage |
+| Validation | PASS | :quest-core:test, :android-data:testDebugUnitTest, :android-data:compileDebugKotlin successful |
+| Visual authority | PASS | canonical visual contract and ScreenTemplatesOficial synchronized |
+
+### Explicit non-blockers
+
+- P3/CR-9 LiteRT-LM JNI remains PAUSED/BLOCKED and is not part of the P4 gate.
+- :app:compileDebugKotlin remains affected by the previously documented Kotlin metadata mismatch in the cached LiteRT-LM dependency chain; no workaround was introduced for P4.
+- P5 is the next active engineering frontier.
+- P6 remains the detailed visual refinement phase.
+- P7 remains the flower/garden expansion phase.
+
+### Closure invariant
+
+> **P4 discovers and governs content; P5 finishes the application.**
+>
+> Pressing GAME consumes a fresh governed catalog. It never performs research implicitly.
+
+**Gate: PASS / P4 CLOSED.**

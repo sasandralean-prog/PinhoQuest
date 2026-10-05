@@ -7,6 +7,7 @@ import com.pinhoquest.data.db.dao.ProfileDao
 import com.pinhoquest.data.db.dao.ProgressionDao
 import com.pinhoquest.data.db.dao.QuestDao
 import com.pinhoquest.data.db.dao.QuestSessionDao
+import com.pinhoquest.data.db.dao.ResearchCatalogDao
 import com.pinhoquest.data.db.dao.TagDao
 import com.pinhoquest.data.db.entity.CatalogEntryEntity
 import com.pinhoquest.data.db.entity.CatalogPackEntity
@@ -15,6 +16,9 @@ import com.pinhoquest.data.db.entity.DatasetMetadataEntity
 import com.pinhoquest.data.db.entity.FlowerAcquisitionEntity
 import com.pinhoquest.data.db.entity.FlowerDefinitionEntity
 import com.pinhoquest.data.db.entity.FlowerDiscoveryEntity
+import com.pinhoquest.data.db.entity.GameCatalogSnapshotEntity
+import com.pinhoquest.data.db.entity.GameDiscoveryEntity
+import com.pinhoquest.data.db.entity.GameQuestUsageEntity
 import com.pinhoquest.data.db.entity.GoalDefinitionEntity
 import com.pinhoquest.data.db.entity.GoalProgressApplicationEntity
 import com.pinhoquest.data.db.entity.GoalProgressEntity
@@ -49,8 +53,11 @@ import com.pinhoquest.data.db.entity.XpTransactionEntity
         FlowerDiscoveryEntity::class,
         FlowerAcquisitionEntity::class,
         RewardOpportunityEntity::class,
+        GameCatalogSnapshotEntity::class,
+        GameDiscoveryEntity::class,
+        GameQuestUsageEntity::class,
     ],
-    version = 2,
+    version = 4,
     exportSchema = true,
 )
 abstract class PinhoQuestDatabase : RoomDatabase() {
@@ -59,5 +66,6 @@ abstract class PinhoQuestDatabase : RoomDatabase() {
     abstract fun questDao(): QuestDao
     abstract fun questSessionDao(): QuestSessionDao
     abstract fun progressionDao(): ProgressionDao
+    abstract fun researchCatalogDao(): ResearchCatalogDao
     abstract fun gardenDao(): GardenDao
 }

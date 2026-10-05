@@ -6,11 +6,6 @@ import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.quest.QuestRequest
 import com.pinhoquest.domain.quest.QuestSessionFilters
 
-data class GameQuestSeed(
-    val title: String,
-    val environment: QuestEnvironment,
-)
-
 data class QuestContext(
     val categoryAffinities: Map<QuestCategory, Double> = emptyMap(),
     val recentCategories: List<QuestCategory> = emptyList(),

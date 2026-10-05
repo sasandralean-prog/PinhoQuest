@@ -2,8 +2,11 @@ package com.pinhoquest.core.session
 
 import com.pinhoquest.core.quest.QuestEngine
 import com.pinhoquest.core.quest.QuestGenerationResult
+import com.pinhoquest.core.research.GameQuestCandidateResult
+import com.pinhoquest.core.research.GameQuestGenerationCoordinator
 import com.pinhoquest.domain.quest.Quest
 import com.pinhoquest.domain.quest.QuestId
+import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.quest.QuestRequest
 import com.pinhoquest.domain.quest.QuestSession
 import com.pinhoquest.domain.quest.QuestSessionId
@@ -39,26 +42,73 @@ class QuestSessionService(
     private val questRepository: QuestRepository,
     private val sessionRepository: QuestSessionRepository,
     private val contextProvider: QuestContextProvider,
+    private val gameQuestGenerationCoordinator: GameQuestGenerationCoordinator? = null,
     private val nowEpochMillis: () -> Long = System::currentTimeMillis,
     private val sessionIdFactory: QuestSessionIdFactory = QuestSessionIdFactory {
         QuestSessionId(UUID.randomUUID().toString())
     },
 ) {
     private val commandMutex = Mutex()
+
     suspend fun generate(request: QuestRequest): SessionCommandResult<Quest> {
+        var selectedGameContext = if (request.mode == QuestMode.GAME) {
+            when (val selection = gameQuestGenerationCoordinator?.selectFreshRandomCandidate()) {
+                null -> return SessionCommandResult.GenerationFailed(
+                    QuestGenerationResult.Unavailable(
+                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_NOT_CONFIGURED,
+                    ),
+                )
+
+                is GameQuestCandidateResult.Selected -> selection.context
+                is GameQuestCandidateResult.NoCatalog ->
+                    return generationUnavailable(
+                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_UNAVAILABLE,
+                    )
+                is GameQuestCandidateResult.StaleCatalog ->
+                    return generationUnavailable(
+                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_NOT_FRESH,
+                    )
+                is GameQuestCandidateResult.CycleExhausted ->
+                    return generationUnavailable(
+                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,
+                    )
+            }
+        } else {
+            null
+        }
+
+        val baseContext = contextProvider.contextFor(request)
+        val context = selectedGameContext?.let { base ->
+            baseContext.copy(
+                gameCandidate = com.pinhoquest.core.quest.GameQuestSeed.from(base),
+            )
+        } ?: baseContext
+
         return when (
             val result = engine.generate(
                 request = request,
-                context = contextProvider.contextFor(request),
+                context = context,
             )
         ) {
             is QuestGenerationResult.Success -> {
                 questRepository.upsert(result.quest)
+                selectedGameContext?.variant?.let { variant ->
+                    gameQuestGenerationCoordinator?.recordUsage(
+                        context = selectedGameContext,
+                        variant = variant,
+                        usedAtEpochMillis = nowEpochMillis(),
+                    )
+                }
                 SessionCommandResult.Success(result.quest)
             }
             else -> SessionCommandResult.GenerationFailed(result)
         }
     }
+
+    private fun generationUnavailable(
+        reason: com.pinhoquest.core.quest.GenerationUnavailableReason,
+    ): SessionCommandResult<Quest> =
+        SessionCommandResult.GenerationFailed(QuestGenerationResult.Unavailable(reason))
 
     suspend fun accept(questId: QuestId): SessionCommandResult<QuestSession> =
         commandMutex.withLock {

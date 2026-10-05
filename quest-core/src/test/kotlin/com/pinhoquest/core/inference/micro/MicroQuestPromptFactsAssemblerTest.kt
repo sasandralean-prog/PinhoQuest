@@ -1,6 +1,10 @@
 package com.pinhoquest.core.inference.micro
 
+import com.pinhoquest.core.quest.GameQuestSeed
 import com.pinhoquest.core.quest.QuestGenerationPlan
+import com.pinhoquest.core.research.GameIdentityKey
+import com.pinhoquest.core.research.GameQuestActivity
+import com.pinhoquest.core.research.GameQuestVariant
 import com.pinhoquest.domain.quest.QuestCategory
 import com.pinhoquest.domain.quest.QuestEnvironment
 import com.pinhoquest.domain.quest.QuestMode
@@ -70,6 +74,45 @@ class MicroQuestPromptFactsAssemblerTest {
                 it.length <= MicroQuestToolContract.MAX_OBJECTIVE_LENGTH
             }
         })
+    }
+
+    @Test
+    fun gamePlanCarriesCanonicalGameAndRandomSemanticFocusToModelBoundary() {
+        val seed = GameQuestSeed(
+            gameIdentity = GameIdentityKey("minecraft"),
+            title = "Minecraft",
+            environment = QuestEnvironment.ANDROID,
+            cycleId = "cycle-1",
+            variant = GameQuestVariant(
+                activity = GameQuestActivity.DISCOVERY,
+                category = QuestCategory.GAMING,
+                environment = QuestEnvironment.ANDROID,
+                objectivePattern = "sandbox: descobrir uma mecânica diferente",
+            ),
+            genres = listOf("Sandbox"),
+            platforms = listOf("Android"),
+        )
+
+        val facts = assembler.assemble(
+            plan().copy(
+                mode = QuestMode.GAME,
+                selectedCategory = QuestCategory.GAMING,
+                selectedEnvironment = QuestEnvironment.ANDROID,
+                gameCandidate = seed,
+            ),
+            tags = emptyList(),
+            examples = emptyList(),
+        )
+
+        val serialized = MicroQuestPromptSerializer().serialize(
+            MicroQuestCompositionRequest(prompt = facts),
+        )
+
+        assertEquals("Minecraft", facts.envelope.researchHints.single().let {
+            (it as com.pinhoquest.core.inference.prompt.PromptResearchHint.Game).canonicalName
+        })
+        assertTrue(serialized.contains("GAME(name=Minecraft"))
+        assertTrue(serialized.contains("foco=sandbox: descobrir uma mecânica diferente"))
     }
 
     @Test

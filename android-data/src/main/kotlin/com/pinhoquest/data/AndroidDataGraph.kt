@@ -8,7 +8,10 @@ import com.pinhoquest.data.db.PinhoQuestDatabase
 import com.pinhoquest.data.bootstrap.ProgressionBootstrapper
 import com.pinhoquest.data.completion.RoomQuestCompletionStore
 import com.pinhoquest.data.db.migration.MIGRATION_1_2
+import com.pinhoquest.data.db.migration.MIGRATION_2_3
+import com.pinhoquest.data.db.migration.MIGRATION_3_4
 import com.pinhoquest.data.garden.RoomFlowerInvestigationStore
+import com.pinhoquest.data.research.RoomGameDiscoveryCatalogStore
 import com.pinhoquest.data.garden.RoomGardenRepository
 import com.pinhoquest.data.repository.RoomProfileRepository
 import com.pinhoquest.data.repository.RoomQuestRepository
@@ -24,7 +27,7 @@ class AndroidDataGraph(context: Context) {
         PinhoQuestDatabase::class.java,
         "pinho-quest.db",
     )
-        .addMigrations(MIGRATION_1_2)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
         .build()
 
     val profileRepository = RoomProfileRepository(database.profileDao())
@@ -34,6 +37,7 @@ class AndroidDataGraph(context: Context) {
     val bootstrapper = ProgressionBootstrapper(database)
     val gardenRepository = RoomGardenRepository(database)
     val investigationStore = RoomFlowerInvestigationStore(database)
+    val gameDiscoveryCatalogStore = RoomGameDiscoveryCatalogStore(database)
     val completionStore = RoomQuestCompletionStore(database)
 
     val preferencesStore = AppPreferencesStore(

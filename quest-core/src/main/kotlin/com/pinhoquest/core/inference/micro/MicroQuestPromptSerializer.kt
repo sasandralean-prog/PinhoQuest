@@ -1,6 +1,7 @@
 package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.InferenceBudget
+import com.pinhoquest.core.inference.prompt.PromptResearchHint
 
 class MicroQuestPromptSerializer(
     private val budget: InferenceBudget = InferenceBudget.P3,
@@ -28,6 +29,8 @@ class MicroQuestPromptSerializer(
             append(formatTime(envelope.minMinutes, envelope.maxMinutes))
             append("\nTAGS=")
             append(envelope.selectedTags.joinToString(", ") { it.label }.ifEmpty { "-" })
+            append("\nFATOS_APROVADOS=")
+            append(envelope.researchHints.joinToString("; ") { serializeHint(it) }.ifEmpty { "-" })
             append("\n\nEXEMPLOS_APROVADOS:\n")
 
             if (request.prompt.examples.isEmpty()) {
@@ -78,6 +81,40 @@ class MicroQuestPromptSerializer(
             "micro prompt exceeds inference budget"
         }
         return prompt
+    }
+
+    private fun serializeHint(hint: PromptResearchHint): String = when (hint) {
+        is PromptResearchHint.Game -> buildString {
+            append("GAME(name=")
+            append(hint.canonicalName)
+            hint.platform?.let {
+                append(", platform=")
+                append(it)
+            }
+            hint.genre?.let {
+                append(", genre=")
+                append(it)
+            }
+            hint.focus?.let {
+                append(", foco=")
+                append(it)
+            }
+            append(")")
+        }
+
+        is PromptResearchHint.Flower -> buildString {
+            append("FLOWER(name=")
+            append(hint.canonicalName)
+            hint.commonName?.let {
+                append(", commonName=")
+                append(it)
+            }
+            hint.region?.let {
+                append(", region=")
+                append(it)
+            }
+            append(")")
+        }
     }
 
     private fun formatTime(min: Int?, max: Int?): String =

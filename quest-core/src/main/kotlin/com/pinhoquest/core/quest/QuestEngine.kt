@@ -6,6 +6,9 @@ import com.pinhoquest.domain.quest.QuestRequest
 
 enum class GenerationUnavailableReason {
     GAME_CANDIDATE_REQUIRED,
+    GAME_CATALOG_NOT_CONFIGURED,
+    GAME_CATALOG_UNAVAILABLE,
+    GAME_CATALOG_NOT_FRESH,
 }
 
 sealed interface QuestGenerationResult {
