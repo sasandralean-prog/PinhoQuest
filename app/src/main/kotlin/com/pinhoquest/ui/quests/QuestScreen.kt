@@ -11,10 +11,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.quest.Quest
 import com.pinhoquest.domain.quest.QuestMode
@@ -60,6 +63,14 @@ fun QuestScreen(
                 enabled = !loading,
                 modifier = Modifier.fillMaxWidth(),
             ) {
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .semantics { contentDescription = "Preparando sua quest" },
+                        strokeWidth = 2.dp,
+                    )
+                }
                 Text(if (loading) "Pensando em alguma coisa legal…" else "SORTEAR QUEST")
             }
             Row(

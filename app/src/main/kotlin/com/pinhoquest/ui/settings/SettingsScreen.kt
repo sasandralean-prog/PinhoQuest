@@ -57,6 +57,12 @@ fun SettingsScreen(
             }
         }
 
+        Text("Aparência", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Escolha o tema e um tamanho de texto confortável para você.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
         Text("Tamanho do texto", style = MaterialTheme.typography.titleMedium)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(0.9f to "Menor", 1.0f to "Médio", 1.15f to "Maior").forEach { pair ->
@@ -73,7 +79,7 @@ fun SettingsScreen(
         }
 
         Text(
-            "As opções de backup e pesquisa chegam nas próximas fronteiras.",
+            "Suas escolhas ficam salvas neste aparelho.",
             style = MaterialTheme.typography.bodySmall,
         )
     }

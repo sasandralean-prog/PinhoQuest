@@ -1369,3 +1369,31 @@ P5 is active. The first foundation slice now establishes a single governed backu
 P5.1-P5.3 foundation is validated. SAF destination UX/export action, user-facing settings surface, accessibility/error presentation and full V1 E2E closure remain in the later P5 checkpoints.
 
 > **Room remains the authority. Backup is a snapshot. Restore is a validated transaction boundary.**
+## 31. P5.4-P5.5 Settings and UX Reliability — 2026-10-05
+
+P5.4/P5.5 advanced the application-facing layer without changing Room as domain authority or inventing a second settings store.
+
+### P5.4 — Settings / preferences
+
+- Theme remains canonical through AppPreferencesStore: System / Light / Dark.
+- Font scale remains canonical through AppPreferencesStore and is applied through Compose Density.
+- Preference writes reject non-positive font scales.
+- Settings copy now explains appearance choices and persistence without exposing implementation details or future-work promises.
+- Added persistence/validation tests for theme and font-scale preferences.
+
+### P5.5 — Accessibility and humanized errors
+
+- Bottom-navigation emoji decoration no longer contributes duplicate screen-reader semantics; destination labels remain the spoken navigation authority.
+- Quest generation loading state now exposes an explicit spoken progress description.
+- Existing main screens use scrollable layouts and no fixed-height text containers were found in the current UI tree.
+- Added semantic backup/restore copy mappings that preserve warm, truthful language and explicitly reassure that local progress remains safe when validation fails.
+- Added V1 user-facing copy audit at docs/evidence/v1-copy-audit.md.
+
+### Validation
+
+- `:android-data:testDebugUnitTest` PASS.
+- `:quest-core:test` PASS.
+- `:app:compileDebugKotlin` remains BLOCKED by the pre-existing LiteRT-LM 0.17.1 Kotlin metadata mismatch: dependency metadata 2.4.0, project compiler metadata 2.1.0. Forcing kotlin-reflect 2.1.21 does not resolve it; that experimental change was reverted.
+- Full app UI/instrumentation accessibility tests therefore remain pending until the compile boundary is resolved. No runtime bypass, parser fallback or device-specific workaround was introduced.
+
+> **P5.4/P5.5 improves the application's human-facing boundary; it does not weaken the runtime gates.**
