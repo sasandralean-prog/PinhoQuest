@@ -81,7 +81,7 @@ class CR9ProductionModelE2ETest {
             }
             composeRule.onNodeWithText("SORTEAR QUEST").performClick()
 
-            composeRule.waitUntil(timeoutMillis = 15_000) {
+            composeRule.waitUntil(timeoutMillis = 30_000) {
                 composeRule.onAllNodesWithText("COMEÇAR QUEST")
                     .fetchSemanticsNodes().isNotEmpty()
             }

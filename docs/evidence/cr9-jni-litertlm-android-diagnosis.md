@@ -265,29 +265,82 @@ Observed sequence:
 
 This is the first fresh evidence of an actual native-engine crash in the productive path. It is materially different from the historical PSS assertion failure and from the earlier `nativeCheckLoaded()` probe message.
 
-### Current Gate decision
+### CR-9.1 — Deep native abort diagnosis — 2026-10-05
 
-- **CR-9:** `TECHNICALLY_RESOLVED / E2E_BLOCKED_NATIVE_ABORT`.
-  The filename/storage defect is fixed and independently reproduced, but the production AppGraph cannot yet be certified because the current engine initialization/generation path aborts in `liblitertlm_jni.so`.
-- **P5.5:** `IMPLEMENTED / GATE_BLOCKED_BY_CR9`.
-  Human-facing work remains implemented; final application/instrumentation closure is correctly blocked by the same runtime failure.
+### Causal finding
 
-### What the evidence rules out
+The `SIGABRT` observed in the first production-model run was **not caused by the model filename, JNI loading, Engine configuration, or the `.litertlm` artifact itself**. The immediate native failure was storage exhaustion while LiteRT/XNNPACK was building its weight cache.
 
-The fresh run confirms that the remaining blocker is not simply:
+The decisive log sequence was:
 
-- missing `.litertlm` filename;
-- missing JNI library in the APK;
-- missing exported `nativeCheckLoaded` symbol;
-- inability to locate the canonical model;
-- inability to initialize the LiteRT environment at all.
+1. `Flatbuffer model initialized directly from incoming litert model.`
+2. XNNPACK created the CPU delegate and began writing the weight cache under `cache/litertlm/`.
+3. The emulator had only approximately **114–118 MB free** on `/data`.
+4. XNNPACK emitted:
+   - `XNNPack weight cache: cannot append buffer to cache file`
+   - `Inserting data in the cache failed.`
+5. Immediately afterwards the process received `Fatal signal 6 (SIGABRT)` in `DefaultDispatch`.
+6. The tombstone entered `liblitertlm_jni.so` through `Java_com_google_ai_edge_litertlm_LiteRtLmJni_nativeCreateEngine`.
+7. The emulator also reported `tombstoned: failed to create temporary tombstone ... No space left on device`.
 
-The remaining boundary is now the native engine creation/configuration path used by the productive `Engine.initialize()` call.
+The native stack therefore identified the **location of the abort**, but the preceding XNNPACK cache error identifies the **causal trigger**.
 
-### Next bounded investigation
+### Controlled reproduction / falsification
 
-Do not change the model, Kotlin version, or add application-level JNI loading as a reaction to this crash.
+The active canonical model remained intact:
 
-The next experiment should capture the native abort with a minimal direct harness using the exact same APK, exact same `model.litertlm`, and the smallest possible `Engine.initialize()` configuration, then compare that with the previously passing native ToolCall harness. The comparison must identify which Engine/Conversation configuration difference crosses the crash boundary before any code correction is accepted.
+- path: `files/models/cr74_semantic_isolation/1/model.litertlm`
+- SHA-256: `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`
+- size: `284,692,656` bytes.
 
-The shared Gate therefore remains open: **storage correction PASS; productive native engine E2E BLOCKED**.
+The emulator had accidentally accumulated duplicate copies of the 285 MB model during the Gate setup. The active model was retained while the staged/local duplicates were removed and Android cache trimming was run.
+
+Storage changed from approximately **114 MB free / 99% used** to approximately **1.1 GB free / 85% used**.
+
+The exact same debug APK, exact same active model and exact same LiteRT-LM bridge were then exercised again.
+
+### Result after storage recovery
+
+The isolated native production transport test:
+
+`P3NativeToolCallE2ETest#realModelReturnsExactlyOneCanonicalToolCall`
+
+completed with:
+
+`1 tests, 0 failed, 0 ignored`
+
+No `SIGABRT` occurred. The run reached the XNNPACK-delegated model and completed the native tool-call contract. This is the strongest A/B evidence currently available:
+
+`low storage -> XNNPACK cache append failure -> SIGABRT`
+
+versus
+
+`~1.1 GB free -> same model/bridge -> native ToolCall PASS`.
+
+### Production UI path status
+
+The production UI test subsequently ran without the previous native abort, but its current instrumentation assertion timed out while waiting for `COMEÇAR QUEST`. The timeout observed in that run was **15 seconds**, i.e. the pre-existing test artifact was still being executed before the timeout-only test update was rebuilt.
+
+The isolated native test took roughly 16 seconds end-to-end from test start to completion, so a 15-second UI wait is not a valid latency gate for this model. The diagnostic test was therefore not accepted as a production semantic failure.
+
+A test-only timeout extension to 30 seconds was rebuilt into the instrumentation APK and re-run. The productive `CR9ProductionModelE2ETest#productiveUiGeneratesWithCanonicalCr74Model` completed with `1 tests, 0 failed, 0 ignored` and no native abort. The full production path therefore crossed the UI generation boundary successfully after storage recovery.
+
+### CR-9.1 decision
+
+**CR-9.1 = DIAGNOSIS PASS / CAUSE IDENTIFIED.**
+
+The native abort is explained by emulator storage exhaustion during XNNPACK weight-cache construction. No production runtime workaround is warranted from this finding.
+
+### CR-9 closure
+
+CR-9 is now **E2E PASS** on the controlled debug/emulator run.
+
+Observed productive chain:
+
+`model.litertlm -> Engine.initialize -> Conversation -> native ToolCall -> MicroQuestToolCallDecoder -> MicroQuestText -> QuestValidator -> Quest`
+
+The final production UI test completed with `1 tests, 0 failed, 0 ignored` after the emulator was given sufficient storage and the test timeout was raised to 30 seconds to accommodate the observed model initialization/generation latency.
+
+Operational precondition: this 285 MB model plus XNNPACK cache requires substantial free emulator storage; **~1 GB free is the minimum diagnostic baseline used for this Gate, with more headroom preferred**. This is an environment precondition, not a production inference workaround.
+
+P5.5 is now unblocked from the CR-9 dependency.

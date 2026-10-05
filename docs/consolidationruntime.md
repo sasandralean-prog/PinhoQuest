@@ -1209,17 +1209,20 @@ This checkpoint deliberately couples the evidence collection for CR-9 and P5.5 w
 
 #### Productive E2E attempt
 
-The debug APK was installed successfully. That installation cleared the emulator application data, including the previously installed external model. The subsequent direct instrumentation attempt therefore could not re-run the productive model path because the model bytes are not present on the development machine or repository.
+The debug APK was installed successfully and the canonical CR-7.4 model was promoted into the active `AndroidModelStore` as `model.litertlm`.
 
-A direct runner invocation also exposed a test-runner failure mode (`Process crashed` / no FATAL native crash evidence in the captured crash buffer), but this is not accepted as semantic model evidence.
+The first productive run exposed a native `SIGABRT`, but CR-9.1 subsequently isolated the cause: the emulator had only ~114–118 MB free while XNNPACK was constructing its weight cache. The native log explicitly reported `cannot append buffer to cache file` / `Inserting data in the cache failed`, followed by SIGABRT.
 
-A complete productive quest-generation result was therefore **not observed in this checkpoint**.
+After duplicate model copies were removed and emulator caches trimmed, free storage increased to ~1.1 GB. The exact same active model and APK then passed the isolated native `P3NativeToolCallE2ETest` with `1 tests, 0 failed, 0 ignored` and no native abort.
+
+The productive UI test initially used a 15-second Compose wait and expired before `COMEÇAR QUEST` appeared. The isolated native test had already demonstrated roughly 16 seconds of model/runtime latency, so this was not accepted as a semantic failure. The test was rebuilt with a 30-second wait and re-run after storage recovery; `CR9ProductionModelE2ETest#productiveUiGeneratesWithCanonicalCr74Model` completed with `1 tests, 0 failed, 0 ignored` and no native abort.
 
 #### Gate decision
 
-- **CR-9:** `technically_resolved / E2E_PENDING` — the causal filename/storage defect is corrected and the debug/build boundary is green, but the new production APK has not yet been proven to execute the canonical external `.litertlm` through the full AppGraph after reinstall.
-- **P5.5:** `implemented / gate_pending` — the human-facing accessibility/error work remains valid, but its final application/instrumentation gate depends on the same production runtime evidence.
-- **P5.6:** remains waiting on this shared runtime gate.
+- **CR-9:** `E2E_PASS` — canonical `.litertlm` storage contract is corrected and the productive AppGraph/UI generation path completed successfully.
+- **CR-9.1:** `DIAGNOSIS_PASS / CAUSE_IDENTIFIED` — ~114–118 MB free caused XNNPACK cache append failure and native SIGABRT; after cleanup, ~1.1 GB free and the same APK/model pass both isolated native ToolCall and productive UI E2E.
+- **P5.5:** `IMPLEMENTED / CR9_UNBLOCKED` — the CR-9 dependency is now satisfied; P5.5 may proceed to its own final gate.
+- **P5.6:** no longer blocked by CR-9; its remaining dependencies follow the P5 roadmap.
 
 #### Required closure evidence
 

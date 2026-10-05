@@ -1530,15 +1530,16 @@ This checkpoint deliberately couples the evidence collection for CR-9 and P5.5 w
 
 The debug APK was installed successfully. The canonical CR-7.4 model was then staged and verified by size/SHA and promoted into the canonical `AndroidModelStore`, producing the active `.../1/model.litertlm` path.
 
-The fresh productive instrumentation run with `clearPackageData=false` launched `MainActivity`, initialized the LiteRT environment, initialized the incoming `.litertlm` model and created the XNNPACK cache. During the first productive generation, the app terminated with `Fatal signal 6 (SIGABRT)` in `liblitertlm_jni.so`; the tombstone resolves through `LiteRtLmJni_nativeCreateEngine` -> `Engine.initialize()` -> `LiteRtLmRuntime.ensureInitialized()` -> `LiteRtLmRuntime.generate()` -> `AndroidLiteRtLmInferencePort.generate()`.
+The first fresh productive instrumentation run with `clearPackageData=false` launched `MainActivity`, initialized the LiteRT environment, initialized the incoming `.litertlm` model and began building the XNNPACK weight cache. The emulator then had only ~114–118 MB free; XNNPACK reported `cannot append buffer to cache file` / `Inserting data in the cache failed`, followed by `Fatal signal 6 (SIGABRT)` in `liblitertlm_jni.so`. The tombstone entered through `LiteRtLmJni_nativeCreateEngine` -> `Engine.initialize()`.
 
-The instrumentation result was `shortMsg=Process crashed`. Therefore a complete quest-generation/tool-call result was **not observed**, and the Gate remains blocked by the native engine abort.
+After removing duplicate model copies and trimming emulator caches, storage increased to ~1.1 GB free. The exact same active model and bridge then passed `P3NativeToolCallE2ETest` with `1 tests, 0 failed, 0 ignored`. The productive `CR9ProductionModelE2ETest#productiveUiGeneratesWithCanonicalCr74Model` was then rebuilt with a 30-second generation wait and completed with `1 tests, 0 failed, 0 ignored` and no native abort. The full AppGraph/UI path therefore passed after storage recovery.
 
 #### Gate decision
 
-- **CR-9:** `TECHNICALLY_RESOLVED / E2E_BLOCKED_NATIVE_ABORT` — the causal filename/storage defect is corrected and the debug/build boundary is green, but the fresh production APK aborts with SIGABRT inside `liblitertlm_jni.so` during `Engine.initialize()`.
-- **P5.5:** `IMPLEMENTED / GATE_BLOCKED_BY_CR9` — the human-facing accessibility/error work remains valid, but its final application/instrumentation gate depends on the same production runtime evidence.
-- **P5.6:** remains waiting on this shared runtime gate.
+- **CR-9:** `E2E_PASS` — canonical `.litertlm` storage contract is corrected and the productive AppGraph/UI generation path completed successfully.
+- **CR-9.1:** `DIAGNOSIS_PASS / CAUSE_IDENTIFIED` — the earlier SIGABRT was caused by emulator storage exhaustion during XNNPACK weight-cache construction (`cannot append buffer to cache file`). With ~1.1 GB free, the same APK/model passes both isolated native ToolCall and productive UI E2E.
+- **P5.5:** `IMPLEMENTED / CR9_UNBLOCKED` — the CR-9 dependency is now satisfied; P5.5 may proceed to its own final gate.
+- **P5.6:** no longer blocked by CR-9; its remaining dependencies follow the P5 roadmap.
 
 #### Required closure evidence
 
