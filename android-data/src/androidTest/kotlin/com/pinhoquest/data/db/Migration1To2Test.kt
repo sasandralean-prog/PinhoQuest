@@ -9,6 +9,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pinhoquest.data.db.entity.FlowerAcquisitionEntity
 import com.pinhoquest.data.db.entity.RewardOpportunityEntity
 import com.pinhoquest.data.db.migration.MIGRATION_1_2
+import com.pinhoquest.data.db.migration.MIGRATION_2_3
+import com.pinhoquest.data.db.migration.MIGRATION_3_4
 import com.pinhoquest.data.repository.RoomProfileRepository
 import com.pinhoquest.data.repository.RoomQuestRepository
 import com.pinhoquest.data.repository.RoomQuestSessionRepository
@@ -44,7 +46,7 @@ class Migration1To2Test {
         createVersion1Fixture()
 
         val db = Room.databaseBuilder(context, PinhoQuestDatabase::class.java, dbName)
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
 
         val profile = RoomProfileRepository(db.profileDao()).get(ProfileId("profile-1"))

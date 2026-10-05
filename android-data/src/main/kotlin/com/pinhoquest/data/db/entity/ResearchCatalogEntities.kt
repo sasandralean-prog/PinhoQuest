@@ -1,6 +1,7 @@
 package com.pinhoquest.data.db.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "game_catalog_snapshots")
@@ -21,7 +22,10 @@ data class GameDiscoveryEntity(
     val provenanceJson: String,
 )
 
-@Entity(tableName = "game_quest_usages")
+@Entity(
+    tableName = "game_quest_usages",
+    indices = [Index("cycleId"), Index("gameIdentityKey")],
+)
 data class GameQuestUsageEntity(
     @PrimaryKey val usageId: String,
     val cycleId: String,
