@@ -11,6 +11,7 @@ enum class MainTab {
     QUESTS,
     TAGS,
     GARDEN,
+    PROFILE,
     SETTINGS,
 }
 

@@ -1,17 +1,15 @@
 package com.pinhoquest.ui
 
 import android.content.Context
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextInput
 import com.pinhoquest.MainActivity
 import java.io.File
 import org.junit.Assert.assertTrue
@@ -32,52 +30,46 @@ class FoundationActivityE2ETest {
         context.deleteDatabase("pinho-quest.db")
         File(context.filesDir, "datastore/app.preferences_pb").delete()
     }
+
     @Test
-    fun freshInstallOnboardsRunsQuestAbandonsAndRestoresProfile() {
+    fun freshInstallOnboardsRunsQuestAndRestoresProfile() {
         var scenario = ActivityScenario.launch(MainActivity::class.java)
 
         composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("Seu nome")
+            composeRule.onAllNodesWithContentDescription("Começar")
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("Seu nome").performTextInput("Rafa")
-        composeRule.onNodeWithText("Programação").performScrollTo().performClick()
-        composeRule.onNodeWithText("Criar meu jardim").performScrollTo().performClick()
-        composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("O que vamos inventar hoje?")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        composeRule.onNodeWithContentDescription("Começar").performClick()
+        composeRule.onNodeWithContentDescription("Seu nome").performTextInput("Rafa")
+        composeRule.onNodeWithContentDescription("Confirmar nome").performClick()
+        composeRule.onNodeWithContentDescription("Programação").performClick()
+        composeRule.onNodeWithContentDescription("Continuar").performClick()
 
-        composeRule.onNodeWithText("Tags").performClick()
-        composeRule.onNodeWithText("Programação").assertIsDisplayed()
-        composeRule.onNodeWithText("Quests").performClick()
-        composeRule.onNodeWithText("SORTEAR QUEST").performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("Frankenstein Digital")
+            composeRule.onAllNodesWithContentDescription("Sortear quest")
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("COMEÇAR QUEST").performScrollTo().performClick()
+        composeRule.onNodeWithContentDescription("Sortear quest").performClick()
+
         composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("Em andamento 🌱")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeRule.onNodeWithText("Preciso parar").performScrollTo().performClick()
-        composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("SORTEAR QUEST")
+            composeRule.onAllNodesWithContentDescription("Começar quest")
                 .fetchSemanticsNodes().isNotEmpty()
         }
 
         scenario.close()
         scenario = ActivityScenario.launch(MainActivity::class.java)
-        composeRule.onAllNodesWithText("Seu nome").assertCountEquals(0)
         composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithText("Oi, Rafa 🌱")
+            composeRule.onAllNodesWithContentDescription("Sortear quest")
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("Oi, Rafa 🌱").assertIsDisplayed()
-        composeRule.onNodeWithText("SORTEAR QUEST").assertIsDisplayed()
-        scenario.close()
 
+        composeRule.onNodeWithContentDescription("Perfil").performClick()
+        composeRule.onNodeWithContentDescription("Programação").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Abrir configurações").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Início").performClick()
+        composeRule.onNodeWithContentDescription("Sortear quest").assertIsDisplayed()
+
+        scenario.close()
         assertTrue(context.getDatabasePath("pinho-quest.db").exists())
     }
 }

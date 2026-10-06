@@ -1,36 +1,30 @@
 package com.pinhoquest.ui.navigation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.pinhoquest.R
 import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.tag.TagId
-import com.pinhoquest.ui.PinhoCream
-import com.pinhoquest.ui.PinhoForest
-import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.garden.GardenScreen
 import com.pinhoquest.ui.garden.GardenUiState
+import com.pinhoquest.ui.profile.ProfileScreen
 import com.pinhoquest.ui.quests.QuestCompletionDialog
 import com.pinhoquest.ui.quests.QuestScreen
 import com.pinhoquest.ui.settings.SettingsScreen
-import com.pinhoquest.ui.tags.TagsScreen
+import com.pinhoquest.ui.reference.ReferenceHotspot
+import com.pinhoquest.ui.reference.ReferenceRect
 
 @Composable
 fun PinhoQuestNav(
@@ -55,55 +49,11 @@ fun PinhoQuestNav(
         state.message?.takeIf { it.isNotBlank() }?.let { snackbarHostState.showSnackbar(it) }
     }
 
-    val background = when (state.selectedTab) {
-        MainTab.QUESTS -> PinhoQuestBackgrounds.HOME
-        MainTab.TAGS -> PinhoQuestBackgrounds.TAGS
-        MainTab.GARDEN -> PinhoQuestBackgrounds.GARDEN
-        MainTab.SETTINGS -> PinhoQuestBackgrounds.SETTINGS
-    }
-
     Box(modifier = modifier.fillMaxSize()) {
-        PinhoQuestBackground(resource = background, alpha = 0.22f)
-
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            bottomBar = {
-                NavigationBar(
-                    containerColor = PinhoCream.copy(alpha = 0.94f),
-                    tonalElevation = 0.dp,
-                ) {
-                    MainTab.entries.forEach { tab ->
-                        NavigationBarItem(
-                            selected = state.selectedTab == tab,
-                            onClick = { onTabSelected(tab) },
-                            icon = {
-                                Text(
-                                    text = tab.emoji,
-                                    modifier = Modifier.clearAndSetSemantics { },
-                                )
-                            },
-                            label = { Text(tab.label) },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = PinhoForest,
-                                selectedTextColor = PinhoForest,
-                                indicatorColor = PinhoCream,
-                                unselectedIconColor = PinhoInk.copy(alpha = 0.70f),
-                                unselectedTextColor = PinhoInk.copy(alpha = 0.82f),
-                            ),
-                        )
-                    }
-                }
-            },
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-            ) {
-                when (state.selectedTab) {
-                    MainTab.QUESTS -> QuestScreen(
+        when (state.selectedTab) {
+            MainTab.QUESTS -> {
+                if (state.currentQuest != null || state.activeSession != null) {
+                    QuestScreen(
                         ownerName = state.ownerName,
                         currentQuest = state.currentQuest,
                         activeSession = state.activeSession,
@@ -113,34 +63,107 @@ fun PinhoQuestNav(
                         onCompleteQuest = onCompleteQuest,
                         onAbandonQuest = onAbandonQuest,
                     )
-                    MainTab.TAGS -> TagsScreen(
-                        tags = state.tags,
-                        onTagToggled = onTagToggled,
+                } else {
+                    ReferenceBackground(R.drawable.bg_home)
+                    ReferenceHotspot(
+                        rect = ReferenceRect(0.13f, 0.57f, 0.74f, 0.065f),
+                        contentDescription = "Sortear quest",
+                        onClick = { onGenerateQuest(QuestMode.NORMAL) },
                     )
-                    MainTab.GARDEN -> GardenScreen(
-                        state = state.garden ?: GardenUiState(
-                            ownerName = state.ownerName,
-                            lifetimeXp = 0,
-                            spendableXp = 0,
-                            level = 1,
-                            collectedCount = 0,
-                            totalCount = 0,
-                            flowers = emptyList(),
+                    ReferenceHotspot(
+                        rect = ReferenceRect(0.13f, 0.655f, 0.35f, 0.08f),
+                        contentDescription = "Quest de jogo",
+                        onClick = { onGenerateQuest(QuestMode.GAME) },
+                    )
+                    ReferenceHotspot(
+                        rect = ReferenceRect(0.52f, 0.655f, 0.35f, 0.08f),
+                        contentDescription = "Quest aleatória",
+                        onClick = { onGenerateQuest(QuestMode.RANDOM) },
+                    )
+                }
+            }
+
+            MainTab.GARDEN -> {
+                ReferenceBackground(R.drawable.bg_garden)
+                state.garden?.flowers?.take(24)?.forEachIndexed { index, flower ->
+                    val column = index % 4
+                    val row = index / 4
+                    ReferenceHotspot(
+                        rect = ReferenceRect(
+                            left = 0.05f + column * 0.24f,
+                            top = 0.20f + row * 0.12f,
+                            width = 0.20f,
+                            height = 0.105f,
                         ),
-                        onFlowerSelected = onFlowerSelected,
-                        onInvestigate = onInvestigateFlower,
-                        onDismissFlower = onDismissFlower,
+                        contentDescription = "Flor " + flower.commonName,
+                        onClick = { onFlowerSelected(flower.id) },
                     )
-                    MainTab.SETTINGS -> SettingsScreen(
-                        ownerName = state.ownerName,
-                        theme = state.theme,
-                        fontScale = state.fontScale,
-                        onThemeSelected = onThemeSelected,
-                        onFontScaleSelected = onFontScaleSelected,
+                }
+            }
+
+            MainTab.PROFILE -> {
+                ProfileScreen(
+                    tags = state.tags,
+                    onTagToggled = onTagToggled,
+                    onOpenSettings = { onTabSelected(MainTab.SETTINGS) },
+                )
+            }
+
+            MainTab.SETTINGS -> {
+                ReferenceBackground(R.drawable.bg_settings)
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.13f, 0.27f, 0.30f, 0.12f),
+                    contentDescription = "Tema claro",
+                    onClick = { onThemeSelected(ThemePreference.LIGHT) },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.55f, 0.27f, 0.30f, 0.12f),
+                    contentDescription = "Tema escuro",
+                    onClick = { onThemeSelected(ThemePreference.DARK) },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.16f, 0.48f, 0.24f, 0.08f),
+                    contentDescription = "Texto menor",
+                    onClick = { onFontScaleSelected(0.9f) },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.39f, 0.48f, 0.24f, 0.08f),
+                    contentDescription = "Texto médio",
+                    onClick = { onFontScaleSelected(1.0f) },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.62f, 0.48f, 0.24f, 0.08f),
+                    contentDescription = "Texto maior",
+                    onClick = { onFontScaleSelected(1.15f) },
+                )
+            }
+
+            // Kept for compatibility with existing tests and callers; not exposed by the new bottom navigation.
+            MainTab.TAGS -> {
+                ReferenceBackground(R.drawable.bg_onboarding_tags)
+                state.tags.take(12).forEachIndexed { index, tag ->
+                    val column = index % 3
+                    val row = index / 3
+                    ReferenceHotspot(
+                        rect = ReferenceRect(
+                            left = 0.18f + column * 0.25f,
+                            top = 0.40f + row * 0.10f,
+                            width = 0.22f,
+                            height = 0.085f,
+                        ),
+                        contentDescription = tag.label,
+                        onClick = { onTagToggled(tag.id, !tag.enabled) },
                     )
                 }
             }
         }
+
+        ReferenceBottomNavigation(
+            selectedTab = state.selectedTab,
+            onTabSelected = onTabSelected,
+        )
+
+        SnackbarHost(hostState = snackbarHostState)
 
         state.completionDialog?.let { completion ->
             QuestCompletionDialog(
@@ -152,18 +175,34 @@ fun PinhoQuestNav(
     }
 }
 
-private val MainTab.label: String
-    get() = when (this) {
-        MainTab.QUESTS -> "Quests"
-        MainTab.TAGS -> "Tags"
-        MainTab.GARDEN -> "Jardim"
-        MainTab.SETTINGS -> "Configurações"
-    }
+@Composable
+private fun ReferenceBackground(resource: Int) {
+    Image(
+        painter = painterResource(resource),
+        contentDescription = null,
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier.fillMaxSize(),
+    )
+}
 
-private val MainTab.emoji: String
-    get() = when (this) {
-        MainTab.QUESTS -> "🎲"
-        MainTab.TAGS -> "🌿"
-        MainTab.GARDEN -> "🌷"
-        MainTab.SETTINGS -> "⚙"
-    }
+@Composable
+private fun ReferenceBottomNavigation(
+    selectedTab: MainTab,
+    onTabSelected: (MainTab) -> Unit,
+) {
+    ReferenceHotspot(
+        rect = ReferenceRect(0.00f, 0.885f, 0.333f, 0.115f),
+        contentDescription = "Início",
+        onClick = { onTabSelected(MainTab.QUESTS) },
+    )
+    ReferenceHotspot(
+        rect = ReferenceRect(0.333f, 0.885f, 0.334f, 0.115f),
+        contentDescription = "Jardim",
+        onClick = { onTabSelected(MainTab.GARDEN) },
+    )
+    ReferenceHotspot(
+        rect = ReferenceRect(0.667f, 0.885f, 0.333f, 0.115f),
+        contentDescription = "Perfil",
+        onClick = { onTabSelected(MainTab.PROFILE) },
+    )
+}

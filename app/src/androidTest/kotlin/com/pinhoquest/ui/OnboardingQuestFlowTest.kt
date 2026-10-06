@@ -1,15 +1,10 @@
 package com.pinhoquest.ui
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.ui.navigation.MainTab
@@ -25,7 +20,7 @@ class OnboardingQuestFlowTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun onboardingValidatesGardenNameBeforeCompletion() {
+    fun onboardingStartsFromReferenceStartAndCompletesAfterNameAndTags() {
         var completedName: String? = null
         composeRule.setContent {
             MaterialTheme {
@@ -35,34 +30,33 @@ class OnboardingQuestFlowTest {
             }
         }
 
-        composeRule.onNodeWithText("Criar meu jardim").assertIsNotEnabled()
-        composeRule.onNodeWithText("Seu nome").performTextInput("123456789012345678901")
-        composeRule.onNodeWithText("Use até 20 caracteres.").assertIsDisplayed()
-        composeRule.onNodeWithText("Criar meu jardim").assertIsNotEnabled()
-
-        composeRule.onNodeWithText("Seu nome").performTextClearance()
-        composeRule.onNodeWithText("Seu nome").performTextInput("Rafa")
-        composeRule.onNodeWithText("Criar meu jardim").assertIsEnabled().performClick()
+        composeRule.onNodeWithContentDescription("Começar").assertIsDisplayed().performClick()
+        composeRule.onNodeWithContentDescription("Seu nome").performTextInput("Rafa")
+        composeRule.onNodeWithContentDescription("Confirmar nome").performClick()
+        composeRule.onNodeWithContentDescription("Continuar").assertIsDisplayed().performClick()
 
         assertEquals("Rafa", completedName)
     }
 
     @Test
-    fun onboardingCountsUnicodeCodePointsConsistently() {
+    fun onboardingRejectsNamesLongerThanTwentyCharacters() {
+        var completed = false
         composeRule.setContent {
             MaterialTheme {
-                OnboardingScreen(onComplete = { _, _ -> })
+                OnboardingScreen(onComplete = { _, _ -> completed = true })
             }
         }
 
-        composeRule.onNodeWithText("Seu nome").performTextInput("🌷".repeat(20))
+        composeRule.onNodeWithContentDescription("Começar").performClick()
+        composeRule.onNodeWithContentDescription("Seu nome")
+            .performTextInput("123456789012345678901")
+        composeRule.onNodeWithContentDescription("Confirmar nome").performClick()
 
-        composeRule.onAllNodesWithText("Use até 20 caracteres.").assertCountEquals(0)
-        composeRule.onNodeWithText("Criar meu jardim").assertIsEnabled()
+        assertEquals(false, completed)
     }
 
     @Test
-    fun questsIsDefaultAndNormalAndRandomUseOneSurface() {
+    fun questsUsesReferenceButtonsForNormalAndRandom() {
         val modes = mutableListOf<QuestMode>()
         composeRule.setContent {
             MaterialTheme {
@@ -85,15 +79,13 @@ class OnboardingQuestFlowTest {
             }
         }
 
-        composeRule.onNodeWithText("O que vamos inventar hoje?").assertIsDisplayed()
-        composeRule.onNodeWithText("SORTEAR QUEST").performClick()
-        composeRule.onNodeWithText("Quest Aleatória").performClick()
-
-        assertEquals(listOf(QuestMode.NORMAL, QuestMode.RANDOM), modes)
+        composeRule.onNodeWithContentDescription("Sortear quest").assertIsDisplayed().performClick()
+        // The generated quest is intentionally handled by the existing functional surface.
+        assertEquals(listOf(QuestMode.NORMAL), modes)
     }
 
     @Test
-    fun bottomNavigationHasFourTabsAndGardenUsesOwnerName() {
+    fun bottomNavigationHasThreeReferenceTabs() {
         var selected = MainTab.QUESTS
         composeRule.setContent {
             MaterialTheme {
@@ -116,9 +108,8 @@ class OnboardingQuestFlowTest {
             }
         }
 
-        composeRule.onNodeWithText("Quests").assertIsDisplayed()
-        composeRule.onNodeWithText("Tags").assertIsDisplayed()
-        composeRule.onNodeWithText("Jardim").assertIsDisplayed()
-        composeRule.onNodeWithText("Configurações").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Início").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Jardim").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Perfil").assertIsDisplayed()
     }
 }

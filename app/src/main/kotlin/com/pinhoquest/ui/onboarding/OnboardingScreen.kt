@@ -1,150 +1,157 @@
 package com.pinhoquest.ui.onboarding
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.pinhoquest.R
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.profile.GardenOwnerName
-import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoForest
-import com.pinhoquest.ui.PinhoInk
-import com.pinhoquest.ui.PinhoQuestBackground
-import com.pinhoquest.ui.PinhoQuestBackgrounds
-import com.pinhoquest.ui.model.CreativeBrainCard
+import com.pinhoquest.ui.reference.ReferenceHotspot
+import com.pinhoquest.ui.reference.ReferenceRect
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OnboardingScreen(
     onComplete: (String, Set<String>) -> Unit,
     onInstallCreativeBrain: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
+    var step by remember { mutableIntStateOf(0) }
     var name by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf(emptySet<String>()) }
-    val trimmed = name.trim()
-    val validName = GardenOwnerName.create(trimmed).isSuccess
-    val tooLong = trimmed.codePointCount(0, trimmed.length) > GardenOwnerName.MAX_CHARACTERS
 
     Box(modifier = modifier.fillMaxSize()) {
-        PinhoQuestBackground(
-            resource = PinhoQuestBackgrounds.ONBOARDING_NAME,
-            alpha = 0.24f,
-        )
+        when (step) {
+            0 -> {
+                ReferenceBackground(R.drawable.bg_start)
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.23f, 0.82f, 0.54f, 0.12f),
+                    contentDescription = "Começar",
+                    onClick = { step = 1 },
+                )
+            }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                "🌱 Oi! Eu sou o Pinho Quest.",
-                style = MaterialTheme.typography.headlineSmall,
-                color = PinhoForest,
-            )
-            Text(
-                "Pequenas descobertas, grandes jardins.",
-                style = MaterialTheme.typography.titleMedium,
-                color = PinhoInk,
-            )
-            Text(
-                "Como você quer chamar seu jardim?",
-                style = MaterialTheme.typography.headlineSmall,
-                color = PinhoForest,
-            )
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Seu nome") },
-                supportingText = {
-                    Text(
-                        if (tooLong) "Use até 20 caracteres."
-                        else "Vai aparecer como Jardim de " + trimmed.ifBlank { "..." } + " 🌷",
-                    )
-                },
-                isError = tooLong,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(22.dp),
-            )
+            1 -> {
+                ReferenceBackground(R.drawable.bg_onboarding_name)
 
-            Text(
-                "O que você gosta?",
-                style = MaterialTheme.typography.headlineSmall,
-                color = PinhoForest,
-            )
-            Text(
-                "Escolha algumas coisas que podem inspirar suas quests.",
-                color = PinhoInk,
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                SystemTagCatalog.all.forEach { tag ->
-                    val isSelected = tag.id.value in selected
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = {
-                            selected = if (isSelected) selected - tag.id.value
-                            else selected + tag.id.value
+                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                    BasicTextField(
+                        value = name,
+                        onValueChange = { value ->
+                            if (value.trim().codePointCount(0, value.trim().length) <= GardenOwnerName.MAX_CHARACTERS) {
+                                name = value
+                            }
                         },
-                        label = { Text(tag.label) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = PinhoCream.copy(alpha = 0.94f),
-                            labelColor = PinhoInk,
-                            selectedContainerColor = PinhoForest,
-                            selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            color = Color.White,
+                            fontSize = 22.sp,
                         ),
+                        modifier = Modifier
+                            .offset(
+                                x = maxWidth * 0.29f,
+                                y = maxHeight * 0.43f,
+                            )
+                            .size(
+                                width = maxWidth * 0.42f,
+                                height = maxHeight * 0.075f,
+                            )
+                            .background(PinhoForest)
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                            .semantics { contentDescription = "Seu nome" },
                     )
                 }
+
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.03f, 0.02f, 0.12f, 0.08f),
+                    contentDescription = "Voltar",
+                    onClick = { step = 0 },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.28f, 0.43f, 0.45f, 0.10f),
+                    contentDescription = "Campo do nome",
+                    onClick = { },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.27f, 0.72f, 0.46f, 0.11f),
+                    contentDescription = "Confirmar nome",
+                    onClick = {
+                        if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                    },
+                )
             }
 
-            Text(
-                "Você pode mudar isso depois. Nada aqui vira regra eterna. 💚",
-                style = MaterialTheme.typography.bodySmall,
-                color = PinhoInk,
-            )
-
-            onInstallCreativeBrain?.let { install ->
-                CreativeBrainCard(onInstall = install)
-            }
-
-            Button(
-                onClick = { onComplete(trimmed, selected) },
-                enabled = validName,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = PinhoForest,
-                    contentColor = androidx.compose.ui.graphics.Color.White,
-                ),
-            ) {
-                Text("Criar meu jardim")
+            else -> {
+                ReferenceBackground(R.drawable.bg_onboarding_tags)
+                val rects = listOf(
+                    ReferenceRect(0.18f, 0.40f, 0.22f, 0.075f),
+                    ReferenceRect(0.40f, 0.40f, 0.22f, 0.075f),
+                    ReferenceRect(0.62f, 0.40f, 0.22f, 0.075f),
+                    ReferenceRect(0.18f, 0.49f, 0.22f, 0.075f),
+                    ReferenceRect(0.40f, 0.49f, 0.22f, 0.075f),
+                    ReferenceRect(0.62f, 0.49f, 0.22f, 0.075f),
+                    ReferenceRect(0.18f, 0.59f, 0.22f, 0.075f),
+                    ReferenceRect(0.40f, 0.59f, 0.22f, 0.075f),
+                    ReferenceRect(0.62f, 0.59f, 0.22f, 0.075f),
+                    ReferenceRect(0.18f, 0.69f, 0.22f, 0.075f),
+                    ReferenceRect(0.40f, 0.69f, 0.22f, 0.075f),
+                    ReferenceRect(0.62f, 0.69f, 0.22f, 0.075f),
+                )
+                SystemTagCatalog.all.take(rects.size).forEachIndexed { index, tag ->
+                    ReferenceHotspot(
+                        rect = rects[index],
+                        contentDescription = tag.label,
+                        onClick = {
+                            selected = if (tag.id.value in selected) {
+                                selected - tag.id.value
+                            } else {
+                                selected + tag.id.value
+                            }
+                        },
+                    )
+                }
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.30f, 0.80f, 0.40f, 0.11f),
+                    contentDescription = "Continuar",
+                    onClick = { onComplete(name.trim(), selected) },
+                )
+                ReferenceHotspot(
+                    rect = ReferenceRect(0.03f, 0.02f, 0.12f, 0.08f),
+                    contentDescription = "Voltar",
+                    onClick = { step = 1 },
+                )
             }
         }
     }
+}
+
+@Composable
+private fun ReferenceBackground(resource: Int) {
+    Image(
+        painter = painterResource(resource),
+        contentDescription = null,
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier.fillMaxSize(),
+    )
 }
