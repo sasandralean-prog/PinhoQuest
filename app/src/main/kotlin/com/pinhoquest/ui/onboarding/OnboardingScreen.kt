@@ -1,7 +1,7 @@
 package com.pinhoquest.ui.onboarding
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
@@ -23,11 +23,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.profile.GardenOwnerName
-import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.reference.ReferenceHotspot
 import com.pinhoquest.ui.reference.ReferenceRect
 
@@ -55,6 +57,9 @@ fun OnboardingScreen(
             1 -> {
                 ReferenceBackground(R.drawable.bg_onboarding_name)
 
+                val focusRequester = remember { FocusRequester() }
+                val keyboardController = LocalSoftwareKeyboardController.current
+
                 BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                     BasicTextField(
                         value = name,
@@ -69,6 +74,11 @@ fun OnboardingScreen(
                             fontSize = 22.sp,
                         ),
                         modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .clickable {
+                                focusRequester.requestFocus()
+                                keyboardController?.show()
+                            }
                             .offset(
                                 x = maxWidth * 0.29f,
                                 y = maxHeight * 0.43f,
@@ -77,7 +87,6 @@ fun OnboardingScreen(
                                 width = maxWidth * 0.42f,
                                 height = maxHeight * 0.075f,
                             )
-                            .background(PinhoForest)
                             .padding(horizontal = 14.dp, vertical = 8.dp)
                             .semantics { contentDescription = "Seu nome" },
                     )
@@ -87,11 +96,6 @@ fun OnboardingScreen(
                     rect = ReferenceRect(0.03f, 0.02f, 0.12f, 0.08f),
                     contentDescription = "Voltar",
                     onClick = { step = 0 },
-                )
-                ReferenceHotspot(
-                    rect = ReferenceRect(0.28f, 0.43f, 0.45f, 0.10f),
-                    contentDescription = "Campo do nome",
-                    onClick = { },
                 )
                 ReferenceHotspot(
                     rect = ReferenceRect(0.27f, 0.72f, 0.46f, 0.11f),
