@@ -9,12 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.data.settings.ThemePreference
+import com.pinhoquest.ui.PinhoCream
+import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.model.CreativeBrainCard
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -53,6 +57,12 @@ fun SettingsScreen(
                             },
                         )
                     },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = PinhoCream.copy(alpha = 0.94f),
+                        labelColor = PinhoInk,
+                        selectedContainerColor = PinhoForest,
+                        selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                    ),
                 )
             }
         }
@@ -70,6 +80,12 @@ fun SettingsScreen(
                     selected = fontScale == pair.first,
                     onClick = { onFontScaleSelected(pair.first) },
                     label = { Text(pair.second) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = PinhoCream.copy(alpha = 0.94f),
+                        labelColor = PinhoInk,
+                        selectedContainerColor = PinhoForest,
+                        selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                    ),
                 )
             }
         }

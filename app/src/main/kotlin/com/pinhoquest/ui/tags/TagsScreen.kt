@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.ui.PinhoCream
+import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoInk
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -42,6 +46,12 @@ fun TagsScreen(
                     selected = tag.enabled,
                     onClick = { onTagToggled(tag.id, !tag.enabled) },
                     label = { Text(tag.label) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = PinhoCream.copy(alpha = 0.94f),
+                        labelColor = PinhoInk,
+                        selectedContainerColor = PinhoForest,
+                        selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                    ),
                 )
             }
         }

@@ -5,6 +5,14 @@ Branch: feature/cr-0-runtime-consolidation
 CR frontier: CR-9 — productive Android JNI/LiteRT-LM integration diagnosis
 Baseline: bdf4956 — feat(p5): harden settings and accessible user feedback
 
+## P6 V0.5 — current UI/UX checkpoint
+
+Date: 2026-10-06
+Visual frontier: P6 V0.5 — official screen-template integration
+Functional status: IMPLEMENTED / FUNCTIONAL_SMOKE_PASS
+Validation: OnboardingQuestFlowTest 4/4; FoundationActivityE2ETest 1/1; debug APK assembled and installed on Pixel_4_API_33 / Android 13.
+The artwork is presentation-only; existing Compose controls and domain callbacks remain authoritative.
+Next visual refinement: extract reusable button assets and define normal/pressed/disabled/selected states.
 ## 1. Current project state
 
 Pinho Quest remains a governed Android-first micro-adventure generator.
