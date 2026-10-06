@@ -2,7 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - feature/cr-0-runtime-consolidation
   pull_request:
 
 jobs:
@@ -20,7 +22,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :app:lintDebug :app:assembleDebug
       - name: Upload debug APK
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation'
         uses: actions/upload-artifact@v4
         with:
           name: pinhoquest-v05-debug-apk
