@@ -1552,3 +1552,35 @@ The proof must also distinguish `LOCAL_MODEL` from `PROCEDURAL_FALLBACK`, and mu
 > **Shared evidence, separate gates: CR-9 closes the runtime path; P5.5 closes the human-facing validation once that runtime path is proven.**
 
 Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.
+
+
+## 36. P5.6 — final application gate and P5 closure — 2026-10-05
+
+P5.6 closes the application-facing P5 functional gate after CR-9/CR-9.1 became green. The gate was validated from the real Android test APK on Pixel_4_API_33 / Android 13; no runtime bypass or device-specific exception was introduced.
+
+### Evidence
+
+- `:quest-core:test` — PASS.
+- `:android-data:testDebugUnitTest` — PASS.
+- `:app:testDebugUnitTest` — PASS during the consolidated validation run.
+- `:app:compileDebugKotlin` — PASS.
+- `:app:assembleDebug` — PASS.
+- `:app:assembleDebugAndroidTest` — PASS (86/86 tasks).
+- P5 application UI instrumentation — PASS: 10/10 tests, 0 skipped, 0 failed on Pixel_4_API_33 / Android 13.
+- CR-9 productive model E2E — PASS: 1/1 test.
+- CR-9.1 storage diagnosis — PASS / cause identified: XNNPACK weight-cache construction requires sufficient emulator storage; the same APK/model passed after duplicate model cleanup and storage recovery.
+
+The P5 UI suite covers onboarding validation, quest surface/navigation, progression, garden states, large-font layout and accessibility-oriented presentation. P5.1-P5.3 already had independent Android-data evidence with 19/19 tests passing.
+
+### Lint boundary
+
+A consolidated `:app:lintDebug` invocation still reaches the LiteRT-LM bridge and reports the pre-existing Kotlin metadata mismatch (LiteRT-LM/kotlin-reflect metadata 2.4.x versus the project's Kotlin 2.1.x compiler metadata). This is a build-tooling/lint boundary, not a P5 functional regression; changing runtime or parser behavior to hide it is explicitly out of scope. The functional P5 gate therefore closes with this limitation documented rather than misrepresented as a green lint result.
+
+### Gate decision
+
+- **P5.6:** `PASS / FUNCTIONAL_GATE_CLOSED`.
+- **P5:** `CLOSED` for the implemented application/product behavior and Android functional validation.
+- **V1 release gate:** not claimed solely from this checkpoint; release-grade lint/toolchain cleanup remains a separate engineering item.
+- **CR-9 / CR-9.1:** remain closed as previously recorded.
+
+> **P5 closes the application. The remaining lint/toolchain issue is visible, bounded and not allowed to contaminate the runtime contract.**

@@ -6,7 +6,7 @@ A proposta é simples: sortear algo legal para fazer agora — programar, jogar,
 
 ## Estado atual
 
-O **design V1 foi aprovado**. Os planos de implementação foram escritos e estão aguardando revisão/escolha do método de execução. Ainda não há implementação de produto iniciada.
+O **design V1 foi aprovado** e a implementação funcional de Pinho Quest já está em andamento avançado. P5 foi fechado no gate funcional em 2026-10-05, com testes de unidade, Android-data e 10/10 testes de UI no Pixel 4 API 33. A integração local LiteRT-LM/CR-9 também passou o E2E produtivo. O próximo trabalho deve seguir `CURRENT_STATE.md` e o Engineering Genome; o README não substitui os gates técnicos.
 
 ## Leia primeiro
 

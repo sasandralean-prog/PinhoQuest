@@ -1235,3 +1235,31 @@ The proof must also distinguish `LOCAL_MODEL` from `PROCEDURAL_FALLBACK`, and mu
 > **Shared evidence, separate gates: CR-9 closes the runtime path; P5.5 closes the human-facing validation once that runtime path is proven.**
 
 Detailed evidence: docs/evidence/cr9-jni-litertlm-android-diagnosis.md.
+
+
+## 36. P5.6 / P5 closure — functional application gate — 2026-10-05
+
+CR-9 and CR-9.1 are now closed, so the previously paused P5.5/P5.6 validation was resumed. P5.6 was validated against the real Android test APK and Pixel_4_API_33 / Android 13.
+
+Evidence:
+- `:quest-core:test` — PASS.
+- `:android-data:testDebugUnitTest` — PASS.
+- `:app:testDebugUnitTest` — PASS.
+- `:app:compileDebugKotlin` — PASS.
+- `:app:assembleDebug` — PASS.
+- `:app:assembleDebugAndroidTest` — PASS.
+- P5 UI instrumentation package — PASS, 10/10 tests, 0 skipped, 0 failed.
+- CR-9 productive model E2E — PASS, 1/1 test.
+- P5.1-P5.3 Android-data gate remains PASS at 19/19 tests.
+
+The consolidated `:app:lintDebug` path still reports the already-known LiteRT-LM 0.17.1 Kotlin metadata mismatch during lint analysis of the bridge/runtime dependency graph. No production workaround was introduced. This limitation is explicitly separated from the functional P5 gate.
+
+### Gate decision
+
+**P5.6: PASS / FUNCTIONAL_GATE_CLOSED**
+
+**P5: CLOSED** for application behavior and Android functional validation.
+
+The V1 release gate is not claimed from this checkpoint because lint/toolchain cleanup remains outstanding. That follow-up is a build-boundary task, not a reason to alter the P3 runtime contract.
+
+> Shared rule: visible, bounded infrastructure debt is preferable to a silent runtime bypass.

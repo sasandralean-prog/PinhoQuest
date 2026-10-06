@@ -30,7 +30,7 @@ The UI presents semantic outcomes rather than implementation details. Diagnostic
 
 UserFacingCopyTest asserts that backup/restore messages remain non-empty and do not expose implementation terms such as Room, exception, provider, inference or raw schema wording.
 
-The complete app test cannot currently execute because :app:compileDebugKotlin is blocked by the existing LiteRT-LM 0.17.1 Kotlin metadata mismatch (dependency metadata 2.4.0 vs project compiler metadata 2.1.0). No runtime bypass or parser fallback was introduced to work around this.
+The previous compile blocker is no longer active: `:app:compileDebugKotlin` now passes. The P5 UI instrumentation suite subsequently passed 10/10 tests on Pixel_4_API_33 / Android 13. The remaining known limitation is lint analysis crossing the LiteRT-LM Kotlin metadata boundary; it does not invalidate the functional copy/accessibility evidence.
 
 ## Accessibility boundary
 

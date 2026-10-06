@@ -67,3 +67,7 @@ Operational project state: CURRENT_STATE.md
 P3 runtime consolidation plan: docs/consolidationruntime.md
 
 The CR sprint family (CR-0 onward) governs the convergence of the local FunctionGemma runtime. Read the consolidation plan before modifying P3 inference contracts.
+
+## Current application frontier — 2026-10-05
+
+P5 is **CLOSED at the functional application gate** after CR-9/CR-9.1 productive Android evidence and the P5 UI suite passed 10/10 on Pixel_4_API_33 / Android 13. A known LiteRT-LM/Kotlin metadata limitation remains bounded at lint analysis; it is not being hidden by runtime changes.
