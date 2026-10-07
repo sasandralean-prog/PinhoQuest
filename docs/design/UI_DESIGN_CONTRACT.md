@@ -6,7 +6,9 @@
 
 ## 1. Canonical visual references
 
-The images under `docs/ScreenTemplatesOficial/` are canonical visual references for the interface.
+The canonical visual references are indexed by `docs/design/CANONICAL_GRAPHICS.md` and the authored assets under `docs/design/Screen/`, `docs/design/BackGround/` and `docs/design /Button/`.
+
+The registry identifies which files are canonical, secondary, decorative, or non-canonical. In particular, **Home1 remains the primary/source-of-truth composition** and is refined rather than redesigned.
 
 They define:
 - composition;
@@ -20,7 +22,7 @@ They define:
 
 They are **reference compositions**, not screenshots to be placed as one static image.
 
-The implementation must reconstruct the interface with real components and governed state.
+The implementation must reconstruct the interface with real components and governed state. Reference screenshots and full-screen compositions are never the sole rendering mechanism for interactive UI.
 
 ## 2. Implementation boundary
 
@@ -126,7 +128,8 @@ For visual/UX decisions, use this order:
 1. `docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md`
 2. `docs/identity/PINHO_QUEST_GARDEN_PIXEL_ART_GENOME.md`
 3. this `docs/design/UI_DESIGN_CONTRACT.md`
-4. the individual references in `docs/ScreenTemplatesOficial/`
+4. `docs/design/CANONICAL_GRAPHICS.md`
+5. the individual references explicitly classified by that registry
 
 The contract must not contradict the identity genomes. If a visual decision requires changing a canonical identity rule, update the relevant identity genome first, then reconcile this contract.
 
@@ -142,7 +145,13 @@ P7 deepens the Living Garden, flowers, rarity, provenance and pixel-art discover
 
 Detailed pixel-level polish should remain in P6/P7 unless required earlier for correctness or accessibility.
 
-## 11. Canonical design rule
+## 11. Canonical graphics boundary
+
+Authored button and field artwork may skin real interactive components, but must never become hidden interaction owners. A raster reference cannot intercept touches from a real input, button, navigation item, or other control.
+
+Home1 preserves exactly three quest actions — **SORTEAR QUEST**, **Quest de Jogo**, **Quest Aleatória** — and the single continuous bottom navigation **Início | Jardim | Perfil**. Visual references may refine spacing, texture, typography and composition, but may not invent replacement mechanics or a fourth navigation destination.
+
+## 12. Canonical design rule
 
 > **Pinho Quest should feel like a place to visit, not a tool to operate.**
 
