@@ -69,7 +69,7 @@ fun GardenScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
-            PinhoQuestBackgrounds.HOME_NIGHT,
+            PinhoQuestBackgrounds.GARDEN,
             overlay = if (dark) Color(0xFF061B36) else Color(0xFFFFE7B0),
             overlayAlpha = if (dark) 0.08f else 0.20f,
         )
@@ -251,8 +251,8 @@ private fun GardenFlowerCard(
             .fillMaxWidth()
             .height(160.dp)
             .semantics { role = Role.Button }
-            .clickable(onClickLabel = "Flor \${flower.commonName}", onClick = onClick)
-            .testTag("flower-card-\${flower.id}"),
+            .clickable(onClickLabel = "Flor ${flower.commonName}", onClick = onClick)
+            .testTag("flower-card-${flower.id}"),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),

@@ -51,7 +51,7 @@ fun OnboardingScreen(
     Box(modifier = modifier.fillMaxSize()) {
         when (step) {
             0 -> {
-                PinhoQuestBackground(PinhoQuestBackgrounds.HOME_NIGHT)
+                PinhoQuestBackground(PinhoQuestBackgrounds.START)
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -72,7 +72,7 @@ fun OnboardingScreen(
 
             1 -> {
                 PinhoQuestBackground(
-                    PinhoQuestBackgrounds.HOME_DAY,
+                    PinhoQuestBackgrounds.ONBOARDING_NAME_REFERENCE,
                     overlay = PinhoForest,
                     overlayAlpha = 0.04f,
                 )
@@ -160,7 +160,7 @@ fun OnboardingScreen(
 
             else -> {
                 PinhoQuestBackground(
-                    PinhoQuestBackgrounds.HOME_NIGHT,
+                    PinhoQuestBackgrounds.ONBOARDING_TAGS_REFERENCE,
                     overlay = Color(0xFFFFE7B0),
                     overlayAlpha = 0.25f,
                 )

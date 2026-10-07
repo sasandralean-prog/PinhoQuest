@@ -247,6 +247,11 @@ val PinhoShapes = androidx.compose.material3.Shapes(
 object PinhoQuestBackgrounds {
     val HOME_NIGHT = R.drawable.pq_bg_lake_night
     val HOME_DAY = R.drawable.pq_bg_lake_day
+    val HOME = R.drawable.bg_home
+    val GARDEN = R.drawable.bg_garden
+    val EMPTY_GARDEN = R.drawable.bg_empty_garden
+    val PROFILE = R.drawable.bg_profile
+    val SETTINGS = R.drawable.bg_settings
     val ROOM = R.drawable.pq_bg_room
     val START = R.drawable.bg_start
     val ONBOARDING_NAME_REFERENCE = R.drawable.bg_onboarding_name

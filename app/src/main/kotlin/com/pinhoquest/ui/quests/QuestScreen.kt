@@ -50,10 +50,9 @@ fun QuestScreen(
     dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val background = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
-            resource = PinhoQuestBackgrounds.HOME_NIGHT,
+            resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             overlay = if (dark) Color(0xFF061B36) else Color(0xFFFFE7B0),
             overlayAlpha = if (dark) 0.04f else 0.22f,
         )
@@ -152,7 +151,7 @@ private fun GardenSummaryCard(
         modifier = Modifier.fillMaxWidth(0.9f),
     ) {
         Text(
-            text = "🌷 \${flowerCount} flores    ⭐ \${lifetimeXp} XP",
+            text = "🌷 ${flowerCount} flores    ⭐ \${lifetimeXp} XP",
             color = PinhoInk,
             fontSize = 16.sp,
         )
