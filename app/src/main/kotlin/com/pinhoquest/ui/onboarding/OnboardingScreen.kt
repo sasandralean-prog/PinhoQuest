@@ -44,6 +44,7 @@ import com.pinhoquest.R
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.profile.GardenOwnerName
 import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
@@ -294,17 +295,3 @@ private fun Modifier.selectedGlowCompat(selected: Boolean): Modifier =
         ),
     )
 
-private fun DrawScope.drawImage(
-    image: ImageBitmap,
-    srcOffset: IntOffset,
-    srcSize: IntSize,
-    dstSize: IntSize,
-) {
-    drawImage(
-        image = image,
-        srcOffset = srcOffset,
-        srcSize = srcSize,
-        dstOffset = IntOffset.Zero,
-        dstSize = dstSize,
-    )
-}
