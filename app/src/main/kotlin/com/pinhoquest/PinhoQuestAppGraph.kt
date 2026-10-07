@@ -1,6 +1,7 @@
 package com.pinhoquest
 
 import android.app.Application
+import com.pinhoquest.core.backup.BackupCodec
 import com.pinhoquest.core.completion.QuestCompletionService
 import com.pinhoquest.core.garden.FlowerInvestigationService
 import com.pinhoquest.core.inference.AppWorkload
@@ -48,6 +49,17 @@ class PinhoQuestAppGraph(application: Application) {
     val preferencesStore = data.preferencesStore
     val bootstrapper = data.bootstrapper
     val gardenRepository = data.gardenRepository
+    private val backupSnapshotBuilder = data.backupSnapshotBuilder
+    private val backupCodec = BackupCodec()
+
+    suspend fun buildBackupBytes(): Result<ByteArray> = runCatching {
+        when (val result = backupSnapshotBuilder.build(BuildConfig.VERSION_NAME)) {
+            is com.pinhoquest.domain.backup.BackupSnapshotBuildResult.Ready -> backupCodec.encode(result.snapshot)
+            com.pinhoquest.domain.backup.BackupSnapshotBuildResult.NoProfile -> error("Nenhum jardim para copiar ainda.")
+            com.pinhoquest.domain.backup.BackupSnapshotBuildResult.MultipleProfiles -> error("Não foi possível preparar a cópia deste jardim.")
+            is com.pinhoquest.domain.backup.BackupSnapshotBuildResult.InvalidState -> error(result.reason)
+        }
+    }
 
     val investigationService = FlowerInvestigationService(
         store = data.investigationStore,
