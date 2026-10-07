@@ -22,7 +22,6 @@ import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoParchment
-import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
 import com.pinhoquest.ui.PinhoInk
@@ -64,13 +63,6 @@ fun SettingsScreen(
         }
 
         Spacer(Modifier.height(14.dp))
-
-        PinhoQuestBackground(
-            resource = PinhoQuestBackgrounds.ROOM,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(0.dp),
-        )
 
         PinhoParchment(
             modifier = Modifier.fillMaxWidth(),
