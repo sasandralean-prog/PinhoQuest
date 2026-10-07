@@ -34,7 +34,6 @@ import com.pinhoquest.domain.profile.GardenOwnerName
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoGraphicButton
-import com.pinhoquest.ui.PinhoTagGraphicButton
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoTagGraphicButton
