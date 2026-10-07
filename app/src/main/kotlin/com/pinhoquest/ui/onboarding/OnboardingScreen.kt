@@ -22,13 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -126,8 +122,6 @@ fun OnboardingScreen(
                                 contentScale = ContentScale.FillBounds,
                                 modifier = Modifier.fillMaxWidth(),
                             )
-                            val focusRequester = remember { FocusRequester() }
-                            val keyboardController = LocalSoftwareKeyboardController.current
                             BasicTextField(
                                 value = name,
                                 onValueChange = { value ->
@@ -141,14 +135,8 @@ fun OnboardingScreen(
                                     fontSize = 22.sp,
                                 ),
                                 modifier = Modifier
-                                    .focusRequester(focusRequester)
-                                    .clickable {
-                                        focusRequester.requestFocus()
-                                        keyboardController?.show()
-                                    }
                                     .fillMaxWidth(0.72f)
-                                    .height(56.dp)
-                                    .semantics { },
+                                    .height(56.dp),
                             )
                         }
 
