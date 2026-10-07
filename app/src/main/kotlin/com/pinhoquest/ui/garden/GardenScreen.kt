@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.domain.garden.FlowerDiscoveryState
@@ -85,11 +86,16 @@ fun GardenScreen(
                 PinhoBackButton(onClick = onBack)
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text("🌷 Jardim", color = Color.White, style = MaterialTheme.typography.headlineSmall)
+                    Text("🌷 Jardim de ${state.ownerName}", color = Color.White, style = MaterialTheme.typography.headlineSmall)
+                    Text(
+                        "${state.lifetimeXp} XP · Nível ${state.level} · ${state.collectedCount} / ${state.totalCount} flores",
+                        color = Color.White.copy(alpha = 0.92f),
+                        fontSize = 14.sp,
+                    )
                     Text(
                         "Descubra, conquiste e veja seu jardim florescer.",
                         color = Color.White.copy(alpha = 0.92f),
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                     )
                 }
             }
@@ -245,7 +251,8 @@ private fun GardenFlowerCard(
             .fillMaxWidth()
             .height(160.dp)
             .semantics { role = Role.Button }
-            .clickable(onClickLabel = "Flor \${flower.commonName}", onClick = onClick),
+            .clickable(onClickLabel = "Flor \${flower.commonName}", onClick = onClick)
+            .testTag("flower-card-\${flower.id}"),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),
