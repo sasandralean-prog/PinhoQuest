@@ -107,7 +107,6 @@ fun PinhoQuestNav(
                         onDonate = onDonate,
                         onBack = { onTabSelected(MainTab.PROFILE) },
                     )
-                    )
                 }
             }
 
@@ -117,6 +116,7 @@ fun PinhoQuestNav(
                     tags = state.tags,
                     onTagToggled = onTagToggled,
                     onOpenSettings = { onTabSelected(MainTab.SETTINGS) },
+                    dark = dark,
                 )
             }
         }
