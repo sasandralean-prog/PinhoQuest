@@ -173,7 +173,11 @@ fun OnboardingScreen(
             }
 
             else -> {
-                PinhoQuestBackground(PinhoQuestBackgrounds.HOME_DAY)
+                PinhoQuestBackground(
+                    PinhoQuestBackgrounds.HOME_NIGHT,
+                    overlay = Color(0xFFFFE7B0),
+                    overlayAlpha = 0.25f,
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
