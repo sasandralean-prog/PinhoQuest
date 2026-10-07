@@ -53,7 +53,12 @@ class PinhoQuestAppGraph(application: Application) {
     private val backupCodec = BackupCodec()
 
     suspend fun buildBackupBytes(): Result<ByteArray> = runCatching {
-        when (val result = backupSnapshotBuilder.build(BuildConfig.VERSION_NAME)) {
+        val appVersion = appContext.packageManager
+            .getPackageInfo(appContext.packageName, 0)
+            .versionName
+            ?.takeIf { it.isNotBlank() }
+            ?: error("App version is unavailable")
+        when (val result = backupSnapshotBuilder.build(appVersion)) {
             is com.pinhoquest.domain.backup.BackupSnapshotBuildResult.Ready -> backupCodec.encode(result.snapshot)
             com.pinhoquest.domain.backup.BackupSnapshotBuildResult.NoProfile -> error("Nenhum jardim para copiar ainda.")
             com.pinhoquest.domain.backup.BackupSnapshotBuildResult.MultipleProfiles -> error("Não foi possível preparar a cópia deste jardim.")
