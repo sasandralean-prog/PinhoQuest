@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
@@ -116,7 +117,10 @@ fun PinhoBackButton(
             .size(58.dp)
             .background(PinhoWood, RoundedCornerShape(18.dp))
             .border(2.dp, Color(0xFF5D351F), RoundedCornerShape(18.dp))
-            .semantics { role = Role.Button }
+            .semantics {
+                role = Role.Button
+                contentDescription = contentDescription
+            }
             .clickable(onClickLabel = contentDescription, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
