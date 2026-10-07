@@ -38,6 +38,7 @@ fun PinhoQuestNav(
     onFontScaleSelected: (Float) -> Unit,
     onBackup: (() -> Unit)? = null,
     onDonate: (() -> Unit)? = null,
+    dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -62,7 +63,7 @@ fun PinhoQuestNav(
                     onAbandonQuest = onAbandonQuest,
                     flowerCount = state.garden?.collectedCount ?: 0,
                     lifetimeXp = state.garden?.lifetimeXp ?: 0,
-                    dark = state.theme == ThemePreference.DARK,
+                    dark = dark,
                 )
             }
 
@@ -74,6 +75,7 @@ fun PinhoQuestNav(
                         onInvestigate = onInvestigateFlower,
                         onDismissFlower = onDismissFlower,
                         onBack = { onTabSelected(MainTab.QUESTS) },
+                        dark = dark,
                     )
                 }
             }
@@ -84,12 +86,17 @@ fun PinhoQuestNav(
                     tags = state.tags,
                     onTagToggled = onTagToggled,
                     onOpenSettings = { onTabSelected(MainTab.SETTINGS) },
+                    dark = dark,
                 )
             }
 
             MainTab.SETTINGS -> {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    PinhoQuestBackground(PinhoQuestBackgrounds.ROOM, overlay = androidx.compose.ui.graphics.Color.Black, overlayAlpha = 0.08f)
+                    PinhoQuestBackground(
+                        PinhoQuestBackgrounds.ROOM,
+                        overlay = if (dark) androidx.compose.ui.graphics.Color.Black else androidx.compose.ui.graphics.Color(0xFFFFE8BC),
+                        overlayAlpha = if (dark) 0.18f else 0.06f,
+                    )
                     SettingsScreen(
                         ownerName = state.ownerName,
                         theme = state.theme,
@@ -99,6 +106,7 @@ fun PinhoQuestNav(
                         onBackup = onBackup,
                         onDonate = onDonate,
                         onBack = { onTabSelected(MainTab.PROFILE) },
+                    )
                     )
                 }
             }
