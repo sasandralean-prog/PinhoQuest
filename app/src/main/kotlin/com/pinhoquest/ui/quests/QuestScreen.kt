@@ -52,7 +52,11 @@ fun QuestScreen(
 ) {
     val background = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
-        PinhoQuestBackground(background)
+        PinhoQuestBackground(
+            resource = PinhoQuestBackgrounds.HOME_NIGHT,
+            overlay = if (dark) Color(0xFF061B36) else Color(0xFFFFE7B0),
+            overlayAlpha = if (dark) 0.04f else 0.22f,
+        )
 
         if (activeSession != null && currentQuest != null) {
             ActiveQuestContent(
