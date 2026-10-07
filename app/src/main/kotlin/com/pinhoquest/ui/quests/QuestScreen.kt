@@ -94,7 +94,6 @@ fun QuestScreen(
                     onClick = { onGenerateQuest(QuestMode.NORMAL) },
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth(0.92f),
-                    selected = !loading,
                     aspectRatio = 3.05f,
                 )
 
