@@ -99,7 +99,7 @@ fun PinhoGraphicButton(
     ) {
         Image(
             painter = painterResource(resource),
-            contentDescription = description,
+             contentDescription = contentDescription,
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize(),
         )
