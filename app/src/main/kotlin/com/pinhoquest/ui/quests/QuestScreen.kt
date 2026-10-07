@@ -151,13 +151,13 @@ private fun GardenSummaryCard(
         modifier = Modifier.fillMaxWidth(0.9f),
     ) {
         Text(
-            text = "🌷 ${flowerCount} flores    ⭐ \${lifetimeXp} XP",
+            text = "🌷 ${flowerCount} flores    ⭐ ${lifetimeXp} XP",
             color = PinhoInk,
             fontSize = 16.sp,
         )
         Spacer(Modifier.height(5.dp))
         Text(
-            text = "Jardim de \${ownerName}",
+            text = "Jardim de ${ownerName}",
             color = PinhoInk,
             style = MaterialTheme.typography.headlineSmall,
         )
@@ -189,11 +189,11 @@ private fun GeneratedQuestContent(
             Spacer(Modifier.height(14.dp))
             Text("🎯 Objetivos", style = MaterialTheme.typography.titleMedium, color = PinhoForest)
             quest.objectives.forEach { objective ->
-                Text("• \${objective.text}", color = PinhoInk, modifier = Modifier.padding(top = 4.dp))
+                Text("• ${objective.text}", color = PinhoInk, modifier = Modifier.padding(top = 4.dp))
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                "⏱ \${quest.estimatedDuration.minMinutes}–\${quest.estimatedDuration.maxMinutes} min · \${quest.difficulty.name.lowercase()}",
+                "⏱ ${quest.estimatedDuration.minMinutes}–${quest.estimatedDuration.maxMinutes} min · ${quest.difficulty.name.lowercase()}",
                 color = PinhoInk,
             )
         }
@@ -232,11 +232,11 @@ private fun ActiveQuestContent(
             Text(quest.title, color = PinhoInk, style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(10.dp))
             quest.objectives.forEach { objective ->
-                Text("○ \${objective.text}", color = PinhoInk, modifier = Modifier.padding(top = 5.dp))
+                Text("○ ${objective.text}", color = PinhoInk, modifier = Modifier.padding(top = 5.dp))
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                "⏱ Estimativa: \${quest.estimatedDuration.minMinutes}–\${quest.estimatedDuration.maxMinutes} min",
+                "⏱ Estimativa: ${quest.estimatedDuration.minMinutes}–${quest.estimatedDuration.maxMinutes} min",
                 color = PinhoInk,
             )
         }

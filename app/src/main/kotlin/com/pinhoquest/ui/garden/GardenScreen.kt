@@ -42,6 +42,7 @@ import com.pinhoquest.ui.PinhoCreamSoft
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
+import com.pinhoquest.ui.pinhoSelectedGlow
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
@@ -182,6 +183,7 @@ private fun GardenFilterChip(
 ) {
     Box(
         modifier = modifier
+            .pinhoSelectedGlow(selected, cornerRadius = 20.dp)
             .background(
                 if (selected) PinhoForest else PinhoCreamSoft,
                 RoundedCornerShape(20.dp),

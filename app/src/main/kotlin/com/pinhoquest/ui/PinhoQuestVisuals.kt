@@ -88,7 +88,7 @@ fun PinhoGraphicButton(
     Box(
         modifier = modifier
             .aspectRatio(aspectRatio)
-            .selectedGlow(selected)
+            .pinhoSelectedGlow(selected)
             .semantics { role = Role.Button }
             .clickable(
                 enabled = enabled,
@@ -197,7 +197,7 @@ private fun PinhoNavItem(
 ) {
     Column(
         modifier = modifier
-            .selectedGlow(selected, cornerRadius = 22.dp)
+            .pinhoSelectedGlow(selected, cornerRadius = 22.dp)
             .semantics { role = Role.Button }
             .clickable(onClickLabel = label, onClick = onClick)
             .padding(vertical = 2.dp),
@@ -218,7 +218,7 @@ private fun PinhoNavItem(
     }
 }
 
-private fun Modifier.selectedGlow(
+fun Modifier.pinhoSelectedGlow(
     selected: Boolean,
     cornerRadius: androidx.compose.ui.unit.Dp = 28.dp,
 ): Modifier {
@@ -276,7 +276,7 @@ fun PinhoTagGraphicButton(
     Box(
         modifier = modifier
             .height(78.dp)
-            .selectedGlow(selected, cornerRadius = 18.dp)
+            .pinhoSelectedGlow(selected, cornerRadius = 18.dp)
             .semantics { role = Role.Button }
             .clickable(onClickLabel = contentDescription, onClick = onClick),
         contentAlignment = Alignment.Center,
