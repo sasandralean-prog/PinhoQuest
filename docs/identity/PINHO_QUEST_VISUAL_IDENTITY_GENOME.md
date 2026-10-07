@@ -157,7 +157,22 @@ A component is not considered polished merely because it looks attractive in one
 - sacrifice readability for aesthetics
 - introduce visual clutter merely to make the app feel "game-like"
 
-## 10. Governance
+## 10. Canonical reference assets
+
+The authored visual reference set is canonized by `docs/design/CANONICAL_GRAPHICS.md`.
+
+That registry is the authoritative index for:
+- Home1 and the Home/Quest composition;
+- Settings light/dark references;
+- onboarding name/tag references;
+- Garden empty-state references;
+- canonical backgrounds;
+- button, field, tag and decorative artwork;
+- explicit non-canonical captures.
+
+Home1 remains the source of truth: refine its visual treatment without redesigning its world, mechanics or navigation. The Home retains exactly **SORTEAR QUEST**, **Quest de Jogo** and **Quest Aleatória**, with the continuous **Início | Jardim | Perfil** navigation.
+
+## 12. Governance
 
 Visual polish must not:
 - create a second source of domain truth
