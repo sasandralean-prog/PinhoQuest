@@ -40,7 +40,7 @@ fun ProfileScreen(
 ) {
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
-            PinhoQuestBackgrounds.HOME_NIGHT,
+            PinhoQuestBackgrounds.PROFILE,
             overlay = if (dark) Color(0xFF0B1E38) else Color(0xFFFFE8BC),
             overlayAlpha = if (dark) 0.18f else 0.10f,
         )

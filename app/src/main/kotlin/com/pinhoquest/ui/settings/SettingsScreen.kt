@@ -1,6 +1,7 @@
 package com.pinhoquest.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoParchment
+import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
 import com.pinhoquest.ui.PinhoInk
@@ -40,8 +42,14 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val isDark = theme == ThemePreference.DARK
-    Column(
-        modifier = modifier
+    Box(modifier = modifier.fillMaxSize()) {
+        PinhoQuestBackground(
+            resource = PinhoQuestBackgrounds.SETTINGS,
+            overlay = if (isDark) Color(0xFF061B36) else Color(0xFFFFE8BC),
+            overlayAlpha = if (isDark) 0.10f else 0.04f,
+        )
+        Column(
+            modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -176,6 +184,7 @@ fun SettingsScreen(
                 fontSize = 12.sp,
             )
         }
-        Spacer(Modifier.height(80.dp))
+            Spacer(Modifier.height(80.dp))
+        }
     }
 }

@@ -91,23 +91,16 @@ fun PinhoQuestNav(
             }
 
             MainTab.SETTINGS -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    PinhoQuestBackground(
-                        PinhoQuestBackgrounds.ROOM,
-                        overlay = if (dark) androidx.compose.ui.graphics.Color.Black else androidx.compose.ui.graphics.Color(0xFFFFE8BC),
-                        overlayAlpha = if (dark) 0.18f else 0.06f,
-                    )
-                    SettingsScreen(
-                        ownerName = state.ownerName,
-                        theme = state.theme,
-                        fontScale = state.fontScale,
-                        onThemeSelected = onThemeSelected,
-                        onFontScaleSelected = onFontScaleSelected,
-                        onBackup = onBackup,
-                        onDonate = onDonate,
-                        onBack = { onTabSelected(MainTab.PROFILE) },
-                    )
-                }
+                SettingsScreen(
+                    ownerName = state.ownerName,
+                    theme = state.theme,
+                    fontScale = state.fontScale,
+                    onThemeSelected = onThemeSelected,
+                    onFontScaleSelected = onFontScaleSelected,
+                    onBackup = onBackup,
+                    onDonate = onDonate,
+                    onBack = { onTabSelected(MainTab.PROFILE) },
+                )
             }
 
             MainTab.TAGS -> {
