@@ -149,6 +149,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                 }
                             },
+                            dark = useDark,
                             onDonate = {
                                 viewModel.showMessage("O link de apoio será conectado ao destino externo canônico.")
                             },
