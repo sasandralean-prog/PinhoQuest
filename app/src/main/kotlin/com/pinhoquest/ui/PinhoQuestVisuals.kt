@@ -99,7 +99,7 @@ fun PinhoGraphicButton(
     ) {
         Image(
             painter = painterResource(resource),
-            contentDescription = contentDescription,
+            contentDescription = description,
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize(),
         )
@@ -110,7 +110,7 @@ fun PinhoGraphicButton(
 fun PinhoBackButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contentDescription: String = "Voltar",
+    description: String = "Voltar",
 ) {
     Box(
         modifier = modifier
@@ -121,7 +121,7 @@ fun PinhoBackButton(
                 role = Role.Button
                 contentDescription = contentDescription
             }
-            .clickable(onClickLabel = contentDescription, onClick = onClick),
+            .clickable(onClickLabel = description, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Text(
