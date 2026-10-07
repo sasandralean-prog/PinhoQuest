@@ -70,6 +70,10 @@ class PinhoQuestViewModel(
         _state.update { it.copy(selectedTab = tab, message = null) }
     }
 
+    fun showMessage(message: String) {
+        _state.update { it.copy(message = message) }
+    }
+
     fun generateQuest(mode: QuestMode) {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, message = null) }
