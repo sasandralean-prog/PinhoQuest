@@ -1,9 +1,7 @@
 package com.pinhoquest.ui.onboarding
 
 import androidx.compose.foundation.BasicTextField
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -16,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,17 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
@@ -46,6 +38,7 @@ import com.pinhoquest.domain.profile.GardenOwnerName
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoGraphicButton
+import com.pinhoquest.ui.PinhoTagGraphicButton
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoTagGraphicButton
@@ -251,47 +244,4 @@ fun OnboardingScreen(
         }
     }
 }
-
-@Composable
-fun PinhoTagGraphicButton(
-    index: Int,
-    contentDescription: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val bitmap = ImageBitmap.imageResource(R.drawable.pq_tag_buttons)
-    val columns = 3
-    val rows = 4
-    val sourceWidth = bitmap.width / columns
-    val sourceHeight = bitmap.height / rows
-    Box(
-        modifier = modifier
-            .height(78.dp)
-            .selectedGlowCompat(selected)
-            .semantics { role = Role.Button }
-            .clickable(onClickLabel = contentDescription, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawImage(
-                image = bitmap,
-                srcOffset = IntOffset(
-                    x = (index % columns) * sourceWidth,
-                    y = (index / columns) * sourceHeight,
-                ),
-                srcSize = IntSize(sourceWidth, sourceHeight),
-                dstSize = IntSize(size.width.toInt(), size.height.toInt()),
-            )
-        }
-    }
-}
-
-private fun Modifier.selectedGlowCompat(selected: Boolean): Modifier =
-    if (!selected) this else this.then(
-        Modifier.background(
-            color = androidx.compose.ui.graphics.Color(0x22FFD86B),
-            shape = RoundedCornerShape(18.dp),
-        ),
-    )
 
