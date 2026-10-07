@@ -36,6 +36,7 @@ import java.io.File
 import java.util.UUID
 
 class PinhoQuestAppGraph(application: Application) {
+    private val appContext = application.applicationContext
     private val data = AndroidDataGraph(application)
     private val modelStore = AndroidModelStore(File(application.filesDir, "models"))
     private val resourceSnapshotProvider = AndroidResourceSnapshotProvider(application)
