@@ -1,6 +1,6 @@
 package com.pinhoquest.ui.onboarding
 
-import androidx.compose.foundation.BasicTextField
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
