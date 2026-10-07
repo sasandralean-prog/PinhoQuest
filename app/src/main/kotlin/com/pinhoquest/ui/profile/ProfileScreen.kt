@@ -31,13 +31,14 @@ fun ProfileScreen(
     tags: List<Tag>,
     onTagToggled: (TagId, Boolean) -> Unit,
     onOpenSettings: () -> Unit,
+    dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             PinhoQuestBackgrounds.HOME_NIGHT,
-            overlay = Color(0xFF0B1E38),
-            overlayAlpha = 0.18f,
+            overlay = if (dark) Color(0xFF0B1E38) else Color(0xFFFFE8BC),
+            overlayAlpha = if (dark) 0.18f else 0.10f,
         )
 
         Column(
