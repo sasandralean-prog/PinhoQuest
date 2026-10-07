@@ -1,60 +1,119 @@
 package com.pinhoquest.ui.profile
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import com.pinhoquest.R
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
-import com.pinhoquest.ui.reference.ReferenceHotspot
-import com.pinhoquest.ui.reference.ReferenceRect
+import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoParchment
+import com.pinhoquest.ui.PinhoQuestBackground
+import com.pinhoquest.ui.PinhoQuestBackgrounds
+import com.pinhoquest.ui.onboarding.PinhoTagGraphicButton
 
 @Composable
 fun ProfileScreen(
+    ownerName: String,
     tags: List<Tag>,
     onTagToggled: (TagId, Boolean) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(R.drawable.bg_profile),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize(),
+    androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
+        PinhoQuestBackground(
+            PinhoQuestBackgrounds.HOME_NIGHT,
+            overlay = Color(0xFF0B1E38),
+            overlayAlpha = 0.18f,
         )
 
-        ReferenceHotspot(
-            rect = ReferenceRect(0.84f, 0.015f, 0.13f, 0.10f),
-            contentDescription = "Abrir configurações",
-            onClick = onOpenSettings,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 14.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "Perfil",
+                    color = Color.White,
+                    fontSize = 34.sp,
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    "⚙",
+                    color = Color.White,
+                    fontSize = 34.sp,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickableProfile(onOpenSettings),
+                )
+            }
 
-        val rects = listOf(
-            ReferenceRect(0.08f, 0.23f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.23f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.23f, 0.27f, 0.09f),
-            ReferenceRect(0.08f, 0.33f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.33f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.33f, 0.27f, 0.09f),
-            ReferenceRect(0.08f, 0.43f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.43f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.43f, 0.27f, 0.09f),
-            ReferenceRect(0.08f, 0.53f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.53f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.53f, 0.27f, 0.09f),
-        )
+            Spacer(Modifier.height(12.dp))
 
-        tags.take(rects.size).forEachIndexed { index, tag ->
-            ReferenceHotspot(
-                rect = rects[index],
-                contentDescription = tag.label,
-                onClick = { onTagToggled(tag.id, !tag.enabled) },
-            )
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "Jardim de $ownerName",
+                    color = PinhoInk,
+                    fontSize = 24.sp,
+                )
+                Text(
+                    "Suas preferências",
+                    color = PinhoForest,
+                    fontSize = 20.sp,
+                )
+                Spacer(Modifier.height(12.dp))
+
+                tags.take(12).chunked(3).forEachIndexed { rowIndex, row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        row.forEachIndexed { colIndex, tag ->
+                            PinhoTagGraphicButton(
+                                index = rowIndex * 3 + colIndex,
+                                contentDescription = tag.label,
+                                selected = tag.enabled,
+                                onClick = { onTagToggled(tag.id, !tag.enabled) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(7.dp))
+                }
+
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Descreva de forma livre o que você gosta e te faz feliz e tornaremos parte das suas quests. ✎",
+                    color = PinhoInk,
+                    fontSize = 14.sp,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Pequenas preferências, grandes descobertas.",
+                    color = PinhoForest,
+                    fontSize = 13.sp,
+                )
+            }
         }
     }
 }
+
+private fun Modifier.clickableProfile(onClick: () -> Unit): Modifier =
+    clickable(onClick = onClick)
