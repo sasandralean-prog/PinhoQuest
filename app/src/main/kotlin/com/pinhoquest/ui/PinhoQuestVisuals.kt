@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,7 +26,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -194,7 +192,7 @@ private fun PinhoNavItem(
     Column(
         modifier = modifier
             .selectedGlow(selected, cornerRadius = 22.dp)
-            .semantics { role = Role.Tab }
+            .semantics { role = Role.Button }
             .clickable(onClickLabel = label, onClick = onClick)
             .padding(vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
