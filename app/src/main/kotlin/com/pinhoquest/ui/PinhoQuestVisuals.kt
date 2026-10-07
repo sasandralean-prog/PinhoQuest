@@ -119,7 +119,7 @@ fun PinhoBackButton(
             .border(2.dp, Color(0xFF5D351F), RoundedCornerShape(18.dp))
             .semantics {
                 role = Role.Button
-                contentDescription = contentDescription
+                contentDescription = description
             }
             .clickable(onClickLabel = description, onClick = onClick),
         contentAlignment = Alignment.Center,
