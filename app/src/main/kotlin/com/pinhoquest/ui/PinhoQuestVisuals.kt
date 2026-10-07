@@ -1,6 +1,7 @@
 package com.pinhoquest.ui
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +33,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
@@ -243,4 +247,42 @@ object PinhoQuestBackgrounds {
     val START = R.drawable.bg_start
     val ONBOARDING_NAME_REFERENCE = R.drawable.bg_onboarding_name
     val ONBOARDING_TAGS_REFERENCE = R.drawable.bg_onboarding_tags
+}
+
+
+@Composable
+fun PinhoTagGraphicButton(
+    index: Int,
+    contentDescription: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val bitmap = ImageBitmap.imageResource(R.drawable.pq_tag_buttons)
+    val columns = 3
+    val rows = 4
+    val sourceWidth = bitmap.width / columns
+    val sourceHeight = bitmap.height / rows
+
+    Box(
+        modifier = modifier
+            .height(78.dp)
+            .selectedGlow(selected, cornerRadius = 18.dp)
+            .semantics { role = Role.Button }
+            .clickable(onClickLabel = contentDescription, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawImage(
+                image = bitmap,
+                srcOffset = IntOffset(
+                    x = (index % columns) * sourceWidth,
+                    y = (index / columns) * sourceHeight,
+                ),
+                srcSize = IntSize(sourceWidth, sourceHeight),
+                dstOffset = IntOffset.Zero,
+                dstSize = IntSize(size.width.toInt(), size.height.toInt()),
+            )
+        }
+    }
 }
