@@ -52,6 +52,7 @@ fun GardenScreen(
     onInvestigate: (String) -> Unit,
     onDismissFlower: () -> Unit = {},
     onBack: () -> Unit = {},
+    dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     var filter by remember { mutableStateOf(GardenFilter.ALL) }
@@ -68,8 +69,8 @@ fun GardenScreen(
     Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             PinhoQuestBackgrounds.HOME_NIGHT,
-            overlay = Color(0xFF061B36),
-            overlayAlpha = 0.08f,
+            overlay = if (dark) Color(0xFF061B36) else Color(0xFFFFE7B0),
+            overlayAlpha = if (dark) 0.08f else 0.20f,
         )
 
         Column(
