@@ -23,7 +23,7 @@ import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
-import com.pinhoquest.ui.onboarding.PinhoTagGraphicButton
+import com.pinhoquest.ui.PinhoTagGraphicButton
 
 @Composable
 fun ProfileScreen(
