@@ -61,7 +61,7 @@ fun OnboardingScreen(
                     verticalArrangement = Arrangement.Bottom,
                 ) {
                     PinhoGraphicButton(
-                        resource = R.drawable.pq_btn_continue,
+                        resource = R.drawable.btn_start,
                         contentDescription = "Começar",
                         onClick = { step = 1 },
                         modifier = Modifier.fillMaxWidth(0.62f),
