@@ -4,8 +4,43 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+import org.gradle.api.tasks.Copy
+
+val syncCanonicalUiAssets = tasks.register<Copy>("syncCanonicalUiAssets") {
+    val canonicalDir = rootProject.file("docs/design/Button")
+    from(canonicalDir) {
+        include(
+            "BtnBack.png",
+            "BtnQuestGame.png",
+            "BtnQuestRandom.png",
+            "BtnSeeQuests.png",
+            "BtnSortQuest.png",
+            "BtnStart.png",
+            "BtnTagAnimais.png",
+            "BtnTagAventuras.png",
+            "BtnTagCriar.png",
+            "BtnTagFantasia.png",
+            "BtnTagFotografia.png",
+            "BtnTagMusica.png",
+            "BtnTagNatureza.png",
+            "BtnTagRelaxar.png",
+            "BtnTagTecnologia.png",
+            "CardFlowerUnknownA.png",
+            "CardFlowerUnknownB.png",
+        )
+        rename { name ->
+            name
+                .removeSuffix(".png")
+                .replace(Regex("([a-z])([A-Z])"), "$1_$2")
+                .lowercase() + ".png"
+        }
+    }
+    into(layout.buildDirectory.dir("generated/p6-canonical-ui-res/drawable-nodpi"))
+}
+
 android {
-    namespace = "com.pinhoquest"
+    sourceSets["main"].res.srcDir(layout.buildDirectory.dir("generated/p6-canonical-ui-res"))
+
     compileSdk = 35
 
     defaultConfig {
@@ -34,6 +69,10 @@ android {
     kotlin {
         jvmToolchain(17)
     }
+}
+
+tasks.matching { it.name.endsWith("PreBuild") }.configureEach {
+    dependsOn(syncCanonicalUiAssets)
 }
 
 dependencies {
