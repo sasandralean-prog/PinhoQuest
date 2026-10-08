@@ -39,6 +39,7 @@ val syncCanonicalUiAssets = tasks.register<Copy>("syncCanonicalUiAssets") {
 }
 
 android {
+    namespace = "com.pinhoquest"
     sourceSets["main"].res.srcDir(layout.buildDirectory.dir("generated/p6-canonical-ui-res"))
 
     compileSdk = 35
