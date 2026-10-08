@@ -120,7 +120,7 @@ fun QuestThemeSelectionScreen(
 
             Spacer(Modifier.height(16.dp))
             PinhoGraphicButton(
-                resource = R.drawable.pq_btn_continue,
+                resource = R.drawable.btn_sort_quest,
                 contentDescription = "Sortear com estes temas",
                 onClick = onConfirm,
                 modifier = Modifier.fillMaxWidth(0.66f),
