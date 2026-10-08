@@ -19,12 +19,16 @@ import com.pinhoquest.ui.profile.ProfileScreen
 import com.pinhoquest.ui.quests.QuestCompletionDialog
 import com.pinhoquest.ui.quests.QuestScreen
 import com.pinhoquest.ui.settings.SettingsScreen
+import com.pinhoquest.ui.tags.QuestThemeSelectionScreen
 
 @Composable
 fun PinhoQuestNav(
     state: PinhoQuestUiState,
     onTabSelected: (MainTab) -> Unit,
     onGenerateQuest: (QuestMode) -> Unit,
+    onOpenQuestThemeSelection: () -> Unit,
+    onCloseQuestThemeSelection: () -> Unit,
+    onGenerateQuestFromThemeSelection: () -> Unit,
     onStartQuest: () -> Unit,
     onCompleteQuest: () -> Unit,
     onAbandonQuest: () -> Unit,
@@ -50,7 +54,15 @@ fun PinhoQuestNav(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        when (state.selectedTab) {
+        if (state.questThemeSelectionOpen) {
+            QuestThemeSelectionScreen(
+                tags = state.tags,
+                onTagToggled = onTagToggled,
+                onConfirm = onGenerateQuestFromThemeSelection,
+                onBack = onCloseQuestThemeSelection,
+                dark = dark,
+            )
+        } else when (state.selectedTab) {
             MainTab.QUESTS -> {
                 QuestScreen(
                     ownerName = state.ownerName,
@@ -58,6 +70,7 @@ fun PinhoQuestNav(
                     activeSession = state.activeSession,
                     loading = state.loading,
                     onGenerateQuest = onGenerateQuest,
+                    onOpenThemeSelection = onOpenQuestThemeSelection,
                     onStartQuest = onStartQuest,
                     onCompleteQuest = onCompleteQuest,
                     onAbandonQuest = onAbandonQuest,
@@ -114,7 +127,7 @@ fun PinhoQuestNav(
             }
         }
 
-        PinhoBottomNavigation(
+        if (!state.questThemeSelectionOpen) PinhoBottomNavigation(
             selectedTab = when (state.selectedTab) {
                 MainTab.GARDEN -> MainTab.GARDEN
                 MainTab.PROFILE, MainTab.SETTINGS, MainTab.TAGS -> MainTab.PROFILE
