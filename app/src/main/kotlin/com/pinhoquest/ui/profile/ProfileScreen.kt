@@ -92,14 +92,14 @@ fun ProfileScreen(
                 Spacer(Modifier.height(12.dp))
 
                 val canonicalTags = SystemTagCatalog.all.mapNotNull { canonical -> tags.firstOrNull { it.id == canonical.id } ?: canonical }
-                canonicalTags.chunked(3).forEachIndexed { rowIndex, row ->
+                canonicalTags.chunked(3).forEach { row ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(7.dp),
                     ) {
-                        row.forEachIndexed { colIndex, tag ->
+                        row.forEach { tag ->
                             PinhoTagGraphicButton(
-                                index = rowIndex * 3 + colIndex,
+                                tagId = tag.id,
                                 contentDescription = tag.label,
                                 selected = tag.enabled,
                                 onClick = { onTagToggled(tag.id, !tag.enabled) },
