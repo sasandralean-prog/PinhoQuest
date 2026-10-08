@@ -267,7 +267,6 @@ fun PinhoTagGraphicButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val canonicalResource = canonicalTagResource(contentDescription)
     Box(
         modifier = modifier
             .height(78.dp)
