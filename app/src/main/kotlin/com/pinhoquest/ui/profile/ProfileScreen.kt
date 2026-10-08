@@ -29,6 +29,7 @@ import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoTagGraphicButton
+import com.pinhoquest.ui.PinhoVisualTagIds
 
 @Composable
 fun ProfileScreen(
@@ -91,7 +92,9 @@ fun ProfileScreen(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                val canonicalTags = SystemTagCatalog.all.mapNotNull { canonical -> tags.firstOrNull { it.id == canonical.id } ?: canonical }
+                val canonicalTags = PinhoVisualTagIds.mapNotNull { id ->
+                    tags.firstOrNull { it.id == id } ?: SystemTagCatalog.byId(id.value)
+                }
                 canonicalTags.chunked(3).forEach { row ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
