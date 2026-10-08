@@ -95,7 +95,7 @@ fun QuestScreen(
                 Spacer(Modifier.height(12.dp))
 
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_sort_quest,
+                    resource = R.drawable.btn_sort_quest,
                     contentDescription = "Sortear quest",
                     onClick = onOpenThemeSelection,
                     enabled = !loading,
@@ -109,7 +109,7 @@ fun QuestScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     PinhoGraphicButton(
-                        resource = R.drawable.pq_btn_quest_random,
+                        resource = R.drawable.btn_quest_random,
                         contentDescription = "Quest aleatória",
                         onClick = { onGenerateQuest(QuestMode.RANDOM) },
                         enabled = !loading,
@@ -117,7 +117,7 @@ fun QuestScreen(
                         aspectRatio = 1.95f,
                     )
                     PinhoGraphicButton(
-                        resource = R.drawable.pq_btn_quest_game,
+                        resource = R.drawable.btn_quest_game,
                         contentDescription = "Quest de jogo",
                         onClick = { onGenerateQuest(QuestMode.GAME) },
                         enabled = !loading,
