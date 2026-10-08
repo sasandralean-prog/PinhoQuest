@@ -74,6 +74,19 @@ class PinhoQuestViewModel(
         _state.update { it.copy(message = message) }
     }
 
+    fun openQuestThemeSelection() {
+        _state.update { it.copy(questThemeSelectionOpen = true, message = null) }
+    }
+
+    fun closeQuestThemeSelection() {
+        _state.update { it.copy(questThemeSelectionOpen = false) }
+    }
+
+    fun confirmQuestThemeSelection() {
+        _state.update { it.copy(questThemeSelectionOpen = false) }
+        generateQuest(QuestMode.NORMAL)
+    }
+
     fun generateQuest(mode: QuestMode) {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, message = null) }
