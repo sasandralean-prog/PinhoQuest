@@ -29,6 +29,7 @@ import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoTagGraphicButton
+import com.pinhoquest.ui.PinhoVisualTagIds
 import com.pinhoquest.ui.PinhoGraphicButton
 
 /**
@@ -46,8 +47,8 @@ fun QuestThemeSelectionScreen(
     dark: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val canonicalTags = SystemTagCatalog.all.mapNotNull { canonical ->
-        tags.firstOrNull { it.id == canonical.id } ?: canonical
+    val canonicalTags = PinhoVisualTagIds.mapNotNull { id ->
+        tags.firstOrNull { it.id == id } ?: SystemTagCatalog.byId(id.value)
     }
 
     Box(modifier = modifier.fillMaxSize()) {
