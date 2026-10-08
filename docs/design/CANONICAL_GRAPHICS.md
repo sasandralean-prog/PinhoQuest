@@ -104,7 +104,9 @@ The current authored background set is under `docs/design/BackGround/`.
 
 The current authored button batch is stored at:
 
-`docs/design /Button/`
+`docs/design/Button/`
+
+The path was normalized from the historical `docs/design /Button/` path because the trailing space was not portable to Windows. The canonical assets were preserved byte-for-byte during that normalization.
 
 > The directory name contains a trailing space. This is the repository path as currently published. Windows worktrees cannot materialize such a path reliably; this registry does not treat that filesystem limitation as permission to duplicate or redesign the artwork. A future path normalization must preserve the same assets and semantics.
 
