@@ -86,7 +86,13 @@ fun QuestScreen(
                     lifetimeXp = lifetimeXp,
                     dark = dark,
                 )
-                Spacer(Modifier.height(34.dp))
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    text = "✨ O que vamos descobrir?",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Spacer(Modifier.height(12.dp))
 
                 PinhoGraphicButton(
                     resource = R.drawable.pq_btn_sort_quest,
