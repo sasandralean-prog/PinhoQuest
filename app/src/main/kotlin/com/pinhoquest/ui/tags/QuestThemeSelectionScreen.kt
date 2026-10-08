@@ -87,14 +87,14 @@ fun QuestThemeSelectionScreen(
 
             Spacer(Modifier.height(18.dp))
 
-            canonicalTags.chunked(3).forEachIndexed { rowIndex, row ->
+            canonicalTags.chunked(3).forEach { row ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    row.forEachIndexed { columnIndex, tag ->
+                    row.forEach { tag ->
                         PinhoTagGraphicButton(
-                            index = rowIndex * 3 + columnIndex,
+                            tagId = tag.id,
                             contentDescription = tag.label,
                             selected = tag.enabled,
                             onClick = { onTagToggled(tag.id, !tag.enabled) },
