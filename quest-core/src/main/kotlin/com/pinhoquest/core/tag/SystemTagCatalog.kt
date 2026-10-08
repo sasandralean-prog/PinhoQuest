@@ -36,8 +36,8 @@ object SystemTagCatalog {
             .mapNotNull { tag ->
                 categoryFor(tag.id)?.let { category -> category to tag.affinity }
             }
-            .groupingBy { it.first }
-            .fold(0.0) { acc, pair -> acc + pair.second }
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+            .mapValues { (_, affinities) -> affinities.sum() }
 
     private fun categoryFor(id: TagId): QuestCategory? = when (id.value) {
         "games" -> QuestCategory.GAMING
