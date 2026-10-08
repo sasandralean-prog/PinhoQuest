@@ -5,18 +5,27 @@ import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.domain.tag.TagSource
 
+/**
+ * Canonical product themes shown by the PinhoQuest visual language.
+ *
+ * The UI renders these as themes; the quest engine still consumes the governed
+ * tag/category affinities below. Additional user-created tags are stored
+ * separately and are not silently invented here.
+ */
 object SystemTagCatalog {
     val all = listOf(
-        system("coding", "Programação"),
-        system("games", "Jogos"),
-        system("creative", "Criatividade"),
-        system("music", "Música"),
-        system("learning", "Aprender"),
-        system("exploration", "Explorar"),
-        system("technology", "Tecnologia"),
-        system("photography", "Fotografia"),
-        system("outdoor", "Ao ar livre"),
-        system("experiments", "Experimentos"),
+        system("games", "Jogos", QuestCategory.GAMING),
+        system("creative", "Criatividade", QuestCategory.CREATIVE),
+        system("learning", "Aprender", QuestCategory.LEARNING),
+        system("music", "Música", QuestCategory.CREATIVE),
+        system("photography", "Fotografia", QuestCategory.EXPLORATION),
+        system("nature", "Natureza", QuestCategory.EXPLORATION),
+        system("technology", "Tecnologia", QuestCategory.CODING),
+        system("animals", "Animais", QuestCategory.EXPLORATION),
+        system("adventures", "Aventuras", QuestCategory.EXPLORATION),
+        system("relax", "Relaxar", QuestCategory.LEARNING),
+        system("create", "Criar", QuestCategory.CREATIVE),
+        system("fantasy", "Fantasia", QuestCategory.CREATIVE),
     )
 
     fun byId(id: String): Tag? = all.firstOrNull { it.id.value == id }
@@ -27,18 +36,23 @@ object SystemTagCatalog {
             .mapNotNull { tag ->
                 categoryFor(tag.id)?.let { category -> category to tag.affinity }
             }
-            .toMap()
+            .groupingBy { it.first }
+            .fold(0.0) { acc, pair -> acc + pair.second }
 
     private fun categoryFor(id: TagId): QuestCategory? = when (id.value) {
-        "coding" -> QuestCategory.CODING
         "games" -> QuestCategory.GAMING
-        "creative" -> QuestCategory.CREATIVE
-        "learning" -> QuestCategory.LEARNING
-        "exploration" -> QuestCategory.EXPLORATION
+        "creative", "music", "create", "fantasy" -> QuestCategory.CREATIVE
+        "learning", "relax" -> QuestCategory.LEARNING
+        "photography", "nature", "animals", "adventures" -> QuestCategory.EXPLORATION
+        "technology" -> QuestCategory.CODING
         else -> null
     }
 
-    private fun system(id: String, label: String) = Tag(
+    private fun system(
+        id: String,
+        label: String,
+        category: QuestCategory,
+    ) = Tag(
         id = TagId(id),
         label = label,
         source = TagSource.SYSTEM,
