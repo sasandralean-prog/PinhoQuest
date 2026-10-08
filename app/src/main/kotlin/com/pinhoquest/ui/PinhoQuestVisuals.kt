@@ -1,7 +1,6 @@
 package com.pinhoquest.ui
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,10 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -37,8 +34,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.core.tag.SystemTagCatalog
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
@@ -131,11 +126,11 @@ fun PinhoBackButton(
             .clickable(onClickLabel = description, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = "‹",
-            color = Color(0xFF3C2418),
-            fontSize = 42.sp,
-            lineHeight = 42.sp,
+        Image(
+            painter = painterResource(R.drawable.btn_back),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
@@ -266,6 +261,32 @@ object PinhoQuestBackgrounds {
 }
 
 
+@DrawableRes
+private fun tagGraphicAsset(tagId: TagId): Int? = when (tagId.value) {
+    "music" -> R.drawable.btn_tag_musica
+    "photography" -> R.drawable.btn_tag_fotografia
+    "nature" -> R.drawable.btn_tag_natureza
+    "technology" -> R.drawable.btn_tag_tecnologia
+    "animals" -> R.drawable.btn_tag_animais
+    "adventures" -> R.drawable.btn_tag_aventuras
+    "relax" -> R.drawable.btn_tag_relaxar
+    "create" -> R.drawable.btn_tag_criar
+    "fantasy" -> R.drawable.btn_tag_fantasia
+    else -> null
+}
+
+val PinhoVisualTagIds: List<TagId> = listOf(
+    TagId("music"),
+    TagId("photography"),
+    TagId("nature"),
+    TagId("technology"),
+    TagId("animals"),
+    TagId("adventures"),
+    TagId("relax"),
+    TagId("create"),
+    TagId("fantasy"),
+)
+
 @Composable
 fun PinhoTagGraphicButton(
     tagId: TagId,
@@ -274,8 +295,9 @@ fun PinhoTagGraphicButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val index = SystemTagCatalog.all.indexOfFirst { it.id == tagId }
-    require(index >= 0) { "Unknown system tag: " + tagId.value }
+    val asset = requireNotNull(tagGraphicAsset(tagId)) {
+        "No canonical visual asset registered for system tag: " + tagId.value
+    }
 
     Box(
         modifier = modifier
@@ -288,22 +310,11 @@ fun PinhoTagGraphicButton(
             .clickable(onClickLabel = contentDescription, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        val bitmap = ImageBitmap.imageResource(R.drawable.pq_tag_buttons)
-        val columns = 3
-        val rows = 4
-        val sourceWidth = bitmap.width / columns
-        val sourceHeight = bitmap.height / rows
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawImage(
-                image = bitmap,
-                srcOffset = IntOffset(
-                    x = (index % columns) * sourceWidth,
-                    y = (index / columns) * sourceHeight,
-                ),
-                srcSize = IntSize(sourceWidth, sourceHeight),
-                dstOffset = IntOffset.Zero,
-                dstSize = IntSize(size.width.toInt(), size.height.toInt()),
-            )
-        }
+        Image(
+            painter = painterResource(asset),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
