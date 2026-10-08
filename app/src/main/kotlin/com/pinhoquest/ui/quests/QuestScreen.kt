@@ -42,6 +42,7 @@ fun QuestScreen(
     activeSession: QuestSession?,
     loading: Boolean,
     onGenerateQuest: (QuestMode) -> Unit,
+    onOpenThemeSelection: () -> Unit,
     onStartQuest: () -> Unit,
     onCompleteQuest: () -> Unit,
     onAbandonQuest: () -> Unit,
@@ -90,7 +91,7 @@ fun QuestScreen(
                 PinhoGraphicButton(
                     resource = R.drawable.pq_btn_sort_quest,
                     contentDescription = "Sortear quest",
-                    onClick = { onGenerateQuest(QuestMode.NORMAL) },
+                    onClick = onOpenThemeSelection,
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth(0.92f),
                     aspectRatio = 3.05f,
