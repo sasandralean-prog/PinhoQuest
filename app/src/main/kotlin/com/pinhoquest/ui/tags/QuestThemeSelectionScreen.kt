@@ -1,6 +1,7 @@
 package com.pinhoquest.ui.tags
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -49,11 +50,7 @@ fun QuestThemeSelectionScreen(
         tags.firstOrNull { it.id == canonical.id } ?: canonical
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 18.dp, vertical = 14.dp),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             modifier = Modifier.fillMaxSize(),
@@ -65,6 +62,7 @@ fun QuestThemeSelectionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = 18.dp, vertical = 14.dp)
                 .padding(bottom = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
