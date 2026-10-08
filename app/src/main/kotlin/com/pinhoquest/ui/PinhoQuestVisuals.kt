@@ -34,6 +34,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.core.tag.SystemTagCatalog
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -89,7 +92,10 @@ fun PinhoGraphicButton(
         modifier = modifier
             .aspectRatio(aspectRatio)
             .pinhoSelectedGlow(selected)
-            .semantics { role = Role.Button }
+            .semantics {
+                role = Role.Button
+                stateDescription = if (selected) "Selecionado" else "Não selecionado"
+            }
             .clickable(
                 enabled = enabled,
                 onClickLabel = contentDescription,
@@ -99,7 +105,8 @@ fun PinhoGraphicButton(
     ) {
         Image(
             painter = painterResource(resource),
-             contentDescription = contentDescription,
+            contentDescription = null,
+            alpha = if (enabled) 1f else 0.55f,
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize(),
         )
@@ -261,24 +268,31 @@ object PinhoQuestBackgrounds {
 
 @Composable
 fun PinhoTagGraphicButton(
-    index: Int,
+    tagId: TagId,
     contentDescription: String,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val index = SystemTagCatalog.all.indexOfFirst { it.id == tagId }
+    require(index >= 0) { "Unknown system tag: " + tagId.value }
+
     Box(
         modifier = modifier
             .height(78.dp)
             .pinhoSelectedGlow(selected, cornerRadius = 18.dp)
-            .semantics { role = Role.Button }
+            .semantics {
+                role = Role.Button
+                stateDescription = if (selected) "Selecionado" else "Não selecionado"
+            }
             .clickable(onClickLabel = contentDescription, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         val bitmap = ImageBitmap.imageResource(R.drawable.pq_tag_buttons)
         val columns = 3
+        val rows = 4
         val sourceWidth = bitmap.width / columns
-        val sourceHeight = bitmap.height / 4
+        val sourceHeight = bitmap.height / rows
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawImage(
                 image = bitmap,
