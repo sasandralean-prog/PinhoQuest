@@ -112,14 +112,49 @@ The path was normalized from the historical `docs/design /Button/` path because 
 
 ### Primary green actions
 
+- `BtnStart.png` — **Começar** / onboarding start
+- `BtnSortQuest.png` — **SORTEAR QUEST**
+- `BtnSeeQuests.png` — **Ver quests** / empty-garden action
+
+### Shared navigation/system
+
+- `BtnBack.png` — shared **Voltar** control
+
+### Quest/action cards
+
+- `BtnQuestGame.png` — **Quest de Jogo**
+- `BtnQuestRandom.png` — **Quest Aleatória**
+
+### Flower placeholders
+
+- `CardFlowerUnknownA.png` — unknown flower placeholder/card variant A
+- `CardFlowerUnknownB.png` — unknown flower placeholder/card variant B
+
+These are state placeholders only. Flower identity remains domain-owned.
+
+### Theme/category artwork
+
+The authored batch contains one real interactive skin per canonical theme:
+
+- `BtnTagMusica.png` — Música
+- `BtnTagFotografia.png` — Fotografia
+- `BtnTagNatureza.png` — Natureza
+- `BtnTagTecnologia.png` — Tecnologia
+- `BtnTagAnimais.png` — Animais
+- `BtnTagAventuras.png` — Aventuras
+- `BtnTagRelaxar.png` — Relaxar
+- `BtnTagCriar.png` — Criar
+- `BtnTagFantasia.png` — Fantasia
+
+The extraction manifest is authoritative for the source/crop relationship:
+`docs/design/Button/ASSET_EXTRACTION_MANIFEST.md`.
+
+### Existing system artwork
+
+The previously canonized system assets remain valid when present:
+
 - `BtnConfirm.png` — Confirmar
 - `BtnContinue.png` — Continuar
-- `BtnSortQuest.png` — SORTEAR QUEST
-
-Use these as visual references/skins for real buttons.
-
-### Wooden/system actions
-
 - `BtnBackup.png` — backup/cópia do jardim
 - `BtnDay.png` — Dia
 - `BtnNight.png` — Noite
@@ -128,16 +163,6 @@ Use these as visual references/skins for real buttons.
 - `BtnMenor.png` — Menor
 - `BtnPinhoDonate.png` — Apoie o criador Pinho Abacaxi
 - `TopBarConfig.png` — Configurações title bar
-
-### Quest/action cards
-
-- `BtnQuestGame.png` — Quest de Jogo
-- `BtnQuestRandom.png` — Quest Aleatória
-- `BtnSeeQuest.jpg` — Ver quests
-
-### Tag/category artwork
-
-- `BtnTags.jpg` — canonical tag/category card family, including Jogos, Criatividade, Aprender, Música, Fotografia, Natureza, Tecnologia, Animais, Aventuras, Relaxar, Criar and Fantasia.
 
 ### Name-field artwork
 
