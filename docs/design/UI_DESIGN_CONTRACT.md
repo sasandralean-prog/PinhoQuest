@@ -6,7 +6,7 @@
 
 ## 1. Canonical visual references
 
-The canonical visual references are indexed by `docs/design/CANONICAL_GRAPHICS.md` and the authored assets under `docs/design/Screen/`, `docs/design/BackGround/` and `docs/design /Button/`.
+The canonical visual references are indexed by `docs/design/CANONICAL_GRAPHICS.md` and the authored assets under `docs/design/Screen/`, `docs/design/BackGround/` and `docs/design/Button/`.
 
 The registry identifies which files are canonical, secondary, decorative, or non-canonical. In particular, **Home1 remains the primary/source-of-truth composition** and is refined rather than redesigned.
 
@@ -156,3 +156,18 @@ Home1 preserves exactly three quest actions — **SORTEAR QUEST**, **Quest de Jo
 > **Pinho Quest should feel like a place to visit, not a tool to operate.**
 
 The architecture may remain rigorous underneath; the interface should feel warm, calm, intuitive and alive.
+
+## 13. P6 product interaction decisions
+
+The detailed interaction contract is canonized in `docs/design/P6_UI_UX_INTERACTION_CONTRACT.md`.
+
+Key invariants:
+- **SORTEAR QUEST** opens theme/category selection rather than bypassing selection.
+- Theme selections may be combined freely, including all available themes.
+- The last valid theme/tag selection is remembered.
+- Custom tags may belong to multiple themes and participate while enabled.
+- Hybrid quests may combine at most three explicit semantic tags.
+- Quest de Jogo receives a game from the dynamic catalog and the selected game remains explicit in the generated quest.
+- Garden collections contain nine unique flower identities and the next collection is prepared in background/cache when the current collection is completed.
+- Flower identity is keyed by scientific-name-derived hash; collection identity is derived from its nine flower identities.
+- Lifetime/level XP and spendable research XP are independent progressions.
