@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
@@ -90,7 +91,8 @@ fun ProfileScreen(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                tags.take(12).chunked(3).forEachIndexed { rowIndex, row ->
+                val canonicalTags = SystemTagCatalog.all.mapNotNull { canonical -> tags.firstOrNull { it.id == canonical.id } ?: canonical }
+                canonicalTags.chunked(3).forEachIndexed { rowIndex, row ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(7.dp),
