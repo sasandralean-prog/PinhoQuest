@@ -134,7 +134,9 @@ These are state placeholders only. Flower identity remains domain-owned.
 
 ### Theme/category artwork
 
-The authored batch contains one real interactive skin per canonical theme:
+The canonical theme family has twelve product themes. The new extracted batch contains the nine standalone cards below; the existing tag-sheet artwork remains the source for the first three themes until standalone crops are registered:
+
+- `BtnTags.jpg` — existing canonical family containing Jogos, Criatividade and Aprender
 
 - `BtnTagMusica.png` — Música
 - `BtnTagFotografia.png` — Fotografia
