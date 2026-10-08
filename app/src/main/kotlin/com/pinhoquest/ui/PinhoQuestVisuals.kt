@@ -267,12 +267,7 @@ fun PinhoTagGraphicButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val bitmap = ImageBitmap.imageResource(R.drawable.pq_tag_buttons)
-    val columns = 3
-    val rows = 4
-    val sourceWidth = bitmap.width / columns
-    val sourceHeight = bitmap.height / rows
-
+    val canonicalResource = canonicalTagResource(contentDescription)
     Box(
         modifier = modifier
             .height(78.dp)
@@ -281,17 +276,44 @@ fun PinhoTagGraphicButton(
             .clickable(onClickLabel = contentDescription, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawImage(
-                image = bitmap,
-                srcOffset = IntOffset(
-                    x = (index % columns) * sourceWidth,
-                    y = (index / columns) * sourceHeight,
-                ),
-                srcSize = IntSize(sourceWidth, sourceHeight),
-                dstOffset = IntOffset.Zero,
-                dstSize = IntSize(size.width.toInt(), size.height.toInt()),
+        if (canonicalResource != null) {
+            Image(
+                painter = painterResource(canonicalResource),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize(),
             )
+        } else {
+            val bitmap = ImageBitmap.imageResource(R.drawable.pq_tag_buttons)
+            val columns = 3
+            val sourceWidth = bitmap.width / columns
+            val sourceHeight = bitmap.height / 4
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawImage(
+                    image = bitmap,
+                    srcOffset = IntOffset(
+                        x = (index % columns) * sourceWidth,
+                        y = (index / columns) * sourceHeight,
+                    ),
+                    srcSize = IntSize(sourceWidth, sourceHeight),
+                    dstOffset = IntOffset.Zero,
+                    dstSize = IntSize(size.width.toInt(), size.height.toInt()),
+                )
+            }
         }
     }
+}
+
+@DrawableRes
+private fun canonicalTagResource(label: String): Int? = when (label.trim().lowercase()) {
+    "música" -> R.drawable.pq_btn_tag_musica
+    "fotografia" -> R.drawable.pq_btn_tag_fotografia
+    "natureza" -> R.drawable.pq_btn_tag_natureza
+    "tecnologia" -> R.drawable.pq_btn_tag_tecnologia
+    "animais" -> R.drawable.pq_btn_tag_animais
+    "aventuras" -> R.drawable.pq_btn_tag_aventuras
+    "relaxar" -> R.drawable.pq_btn_tag_relaxar
+    "criar" -> R.drawable.pq_btn_tag_criar
+    "fantasia" -> R.drawable.pq_btn_tag_fantasia
+    else -> null
 }

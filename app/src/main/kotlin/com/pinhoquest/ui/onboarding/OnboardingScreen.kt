@@ -114,14 +114,18 @@ fun OnboardingScreen(
                             modifier = Modifier.fillMaxWidth(0.86f),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Image(
-                                painter = painterResource(R.drawable.pq_label_name),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
+                            Box(
                                 modifier = Modifier.fillMaxWidth(),
-                            )
-                            BasicTextField(
-                                value = name,
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.pq_label_name),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillBounds,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                BasicTextField(
+                                    value = name,
                                 onValueChange = { value ->
                                     if (value.trim().codePointCount(0, value.trim().length) <= GardenOwnerName.MAX_CHARACTERS) {
                                         name = value
@@ -132,10 +136,11 @@ fun OnboardingScreen(
                                     color = androidx.compose.ui.graphics.Color.White,
                                     fontSize = 22.sp,
                                 ),
-                                modifier = Modifier
-                                    .fillMaxWidth(0.72f)
-                                    .height(56.dp),
-                            )
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.72f)
+                                        .height(56.dp),
+                                )
+                            }
                         }
 
                         Spacer(Modifier.height(10.dp))
