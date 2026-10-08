@@ -36,6 +36,7 @@ import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoTagGraphicButton
+import com.pinhoquest.ui.PinhoVisualTagIds
 import com.pinhoquest.ui.PinhoBackButton
 
 @Composable
@@ -200,7 +201,9 @@ fun OnboardingScreen(
                     )
                     Spacer(Modifier.height(18.dp))
 
-                    val tags = SystemTagCatalog.all.take(12)
+                    val tags = PinhoVisualTagIds.mapNotNull { id ->
+                        SystemTagCatalog.byId(id.value)
+                    }
                     tags.chunked(3).forEachIndexed { rowIndex, row ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -208,7 +211,7 @@ fun OnboardingScreen(
                         ) {
                             row.forEachIndexed { colIndex, tag ->
                                 PinhoTagGraphicButton(
-                                    index = rowIndex * 3 + colIndex,
+                                    tagId = tag.id,
                                     contentDescription = tag.label,
                                     selected = tag.id.value in selected,
                                     modifier = Modifier.weight(1f),
