@@ -43,6 +43,9 @@ Themes and tags are separate concepts.
 
 A selectable product-level category such as:
 
+- Jogos
+- Criatividade
+- Aprender
 - Música
 - Fotografia
 - Natureza
