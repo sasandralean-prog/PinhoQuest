@@ -72,7 +72,7 @@ android {
     }
 }
 
-tasks.matching { it.name.endsWith("PreBuild") }.configureEach {
+tasks.named("preBuild") {
     dependsOn(syncCanonicalUiAssets)
 }
 
