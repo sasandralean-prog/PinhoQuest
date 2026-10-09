@@ -1,318 +1,65 @@
 # PinhoQuest — P6 UI/UX Interaction Contract
 
-**Status:** canonical product/interaction contract for the current P6 refactor  
-**Scope:** Home/Quest, Themes/Tags, Profile, Garden collections and flower discovery
+**Status:** contrato canônico de interação P6.  
+**Escopo:** Home/Quest, onboarding, temas/tags, Perfil, Configurações e Jardim/coleção/descoberta.
 
-This document records the decisions made during the P6 UI/UX reconstruction so visual implementation does not silently redefine domain behavior.
+Este contrato governa semântica de ações e estado de produto. O inventário e aliases ficam em ASSET_CATALOG.md; os papéis visuais e composições ficam em CANONICAL_GRAPHICS.md. A arte é skin/composição, nunca a autoridade do comportamento.
 
-## 1. Home / Quest actions
+## 1. Home/Quest
 
-The Home screen keeps exactly three quest actions:
+A Home mantém exatamente três ações:
+1. **SORTEAR QUEST** — abre seleção de temas/categorias.
+2. **Quest de Jogo** — utiliza contexto de jogo do catálogo dinâmico; o jogo selecionado deve continuar explícito na quest gerada.
+3. **Quest Aleatória** — usa temas/tags habilitados dentro do contrato governado de geração.
 
-1. **SORTEAR QUEST**
-2. **Quest de Jogo**
-3. **Quest Aleatória**
+As skins podem usar btn_quest_draw.png, btn_quest_game.png e btn_quest_random.png. O CTA, callback, estado carregando/desabilitado e rótulo acessível continuam Compose.
 
-### 1.1 SORTEAR QUEST
+A superfície de resumo pode usar card_home_day/night. Nome do jardim, contagem de flores, XP e copy variável permanecem dados e texto reais.
 
-Opens the category/theme selection experience.
+## 2. Tema, tag e arte de categoria
 
-The user may select any combination of available themes, including all themes simultaneously.
+Tema selecionável, tag semântica e imagem de categoria são conceitos diferentes. O pacote atual inclui category_animal, category_appreciation, category_creativity, category_games, category_learn, category_music, category_nature, category_photography e category_science.
 
-The app remembers the last selection and reuses it for later **SORTEAR QUEST** actions until the user changes it.
+A presença de um PNG não cria um novo Theme/Tag nem atualiza o conjunto canônico do domínio. Cada asset visual precisa de associação explícita a um ID de domínio antes de ser selecionável. Em particular, não equiparar appreciation a affection, learn a learning, science a technology ou animal a animals sem verificar o catálogo e aprovar o mapeamento.
 
-### 1.2 Quest Aleatória
+A seleção aceita combinações dos temas disponíveis e restaura a última seleção válida. Tags podem pertencer a mais de um tema conforme o modelo vigente. O limite de até três tags aplica-se à combinação semântica explícita de uma quest híbrida, não ao número de preferências habilitadas.
 
-The quest composer receives the currently enabled themes/tags and has maximum creative freedom within the governed quest-generation contract.
+## 3. Onboarding
 
-The selected themes and their enabled tags are context, not a hardcoded quest template.
+O nome do jardim deve ser inserido num campo editável real. name_bar.png, quando usado, é moldura decorativa; foco, teclado, limite de caracteres, validação e persistência permanecem Compose/domínio.
 
-### 1.3 Quest de Jogo
+Os rótulos e o slogan não devem depender de texto gravado no fundo. O botão de confirmação é uma skin para um controle com ação real.
 
-The game catalog supplies the game context. The activity itself is generated dynamically.
+## 4. Configurações
 
-The selected game must be explicitly represented in the resulting quest.
+O tema e o tamanho de fonte pertencem à autoridade de preferências já existente. btn_theme_day/night e btn_font_size são skins. Valor selecionado, persistência e escala de texto permanecem estado/configuração real.
 
-The game catalog is dynamically cached; the quest generator does not replace that catalog with a second ad-hoc source of game facts.
+Backup e apoio ao criador só são mostrados como ações funcionais quando há callback/fluxo disponível. Arte não representa confirmação de sucesso; feedback vem da operação real.
 
-## 2. Themes and tags
+## 5. Perfil
 
-Themes and tags are separate concepts.
+card_profile_day/night e card_profile_tags são superfícies visuais. Nome, preferências, tags ativadas, texto de perfil e seleção são dinâmicos e permanecem Compose/dados governados. Configurações é um fluxo interno, não uma quarta aba global.
 
-### Theme
+## 6. Jardim e coleção
 
-A selectable product-level category such as:
+O Jardim possui três composições da mesma fonte de dados: vazio, jardim em arte e coleção aberta.
 
-- Jogos
-- Criatividade
-- Aprender
-- Música
-- Fotografia
-- Natureza
-- Tecnologia
-- Animais
-- Aventuras
-- Relaxar
-- Criar
-- Fantasia
+- **Vazio:** bg_gardem_empty_day/night; opcionalmente card_garden_empty_day/night quando a composição aprovada pedir. Não fabricar flores coletadas; CTA convida para o fluxo de quests.
+- **Jardim em arte:** bg_gardem_art_day/night quando o estado de domínio indicar progresso.
+- **Coleção:** nove posições por coleção. card_flower_unknown_day/night só representa um placeholder quando o estado de descoberta permitir ocultar a identidade.
 
-The exact canonical set is owned by the theme catalog, not by the UI.
+Os filtros visuais representam Todas, Coletadas, Pesquisadas e Desconhecidas, mas não criam estados de domínio novos. Mapear “Pesquisadas” à semântica exata do modelo atual; não confundir pesquisa/revelação com coleta. Id, raridade, pertença à coleção e progressão são governados por domínio/dados, nunca inferidos do PNG.
 
-### Tag
+Abrir ou fechar a coleção altera apresentação/navegação, não gera coleções, gasta XP ou altera a identidade de flores.
 
-A finer-grained semantic input used by quest generation.
+## 7. Texto, estado e imagem
 
-A tag may belong to **multiple themes**.
+Texto mutável, localizável, acessível ou sensível à escala de fonte fica no Compose. PNGs podem fornecer textura, molduras, ícones e skins. Texto visual estático só pode permanecer incorporado quando for parte decorativa intencional e não substituir label acessível ou dado dinâmico.
 
-Example:
+## 8. Invariantes
 
-`fotografar pássaros`
-
-may belong to:
-
-- Fotografia
-- Animais
-
-When a theme is enabled, its associated tags become eligible generation context.
-
-### Custom tags
-
-There may be an arbitrary number of persistent custom tags.
-
-A custom tag:
-
-- is stored as user data;
-- belongs to one or more themes;
-- participates in future quest generation while enabled;
-- does not create a new top-level navigation destination;
-- is not a replacement for the theme selector.
-
-The free-form preference field is therefore a semantic input surface whose normalized result becomes one or more governed custom tags/theme associations. Raw free-form text must not be passed directly to rendering or uncontrolled model prompts.
-
-## 3. Hybrid quests
-
-Hybrid quests are allowed.
-
-A generated hybrid quest may use **at most three semantic tags** as its explicit hybrid combination.
-
-The limit applies to the hybrid combination itself; it does not mean the profile is limited to three enabled preferences.
-
-The generation layer remains responsible for selecting and validating the final semantic set.
-
-## 4. Selection persistence
-
-The current theme/tag selection is persistent.
-
-The UI must restore the last valid selection rather than resetting every time the selector is opened.
-
-Selection state belongs to the appropriate profile/preferences authority. The Compose screen must not become the persistence owner.
-
-## 5. Visual interaction rule
-
-The authored button PNGs are skins for real controls.
-
-They do not own:
-
-- click handling;
-- navigation;
-- selection state;
-- enabled state;
-- accessibility semantics;
-- domain state.
-
-Selected controls use the shared **yellow glow** treatment.
-
-The same semantic control may reuse one asset in both day and night modes, or use a mode-specific variant where the authored design provides one.
-
-## 6. Garden model
-
-The Garden contains both:
-
-1. the visual garden/place; and
-2. the flower collection/catalog experience.
-
-The collection is not a second unrelated progression system.
-
-### 6.1 Collection size
-
-The initial collection size is **9 flowers**.
-
-Each collection has its own progression.
-
-### 6.2 Flower identity
-
-Every flower has an immutable identity hash derived from its **scientific name**.
-
-The scientific-name identity is the canonical deduplication key.
-
-A flower must never appear twice across generated collections when the canonical scientific-name identity is already present.
-
-### 6.3 Collection identity
-
-A collection has its own immutable hash derived from the hashes of its nine flowers.
-
-Conceptually:
-
-`collectionHash = H(sorted(flowerHash_1 ... flowerHash_9))`
-
-The exact hashing implementation belongs to the domain/data layer.
-
-### 6.4 Collection generation
-
-There is a global flower catalog.
-
-The catalog may be populated from reputable botanical sources and Wikipedia's botanical category, subject to the project's research/provenance rules.
-
-Collections are assembled **locally** from the global catalog.
-
-A collection is therefore a deterministic product of:
-
-- the available canonical flower catalog;
-- the collection-generation algorithm;
-- the uniqueness constraints;
-- the resulting nine flower identities.
-
-## 7. Flower discovery states
-
-The flower's discovery state changes how it is presented; it does not create a second flower identity.
-
-The current conceptual states are:
-
-- **Desconhecida**
-- **Pesquisada**
-- **Coletada**
-
-A researched flower may subsequently become collected.
-
-The same immutable flower identity remains throughout.
-
-### 7.1 Unknown
-
-The card can show an obscured/placeholder representation.
-
-The user does not yet receive the full botanical identity.
-
-### 7.2 Researched
-
-Research XP reveals the botanical identity/information.
-
-The UI can show the researched flower while it is still not collected.
-
-### 7.3 Collected
-
-Completing any valid quest awards a flower and quest XP.
-
-The awarded flower becomes collected and its generated pixel-art representation is revealed.
-
-The collection card can retain the provenance of the quest that awarded it.
-
-## 8. Two parallel XP progressions
-
-The Garden uses two simultaneous progressions.
-
-### Lifetime / level XP
-
-- increases when quests are completed;
-- determines player level;
-- is never reduced by flower research.
-
-### Research XP
-
-- is derived from the accumulated progression/reward economy;
-- is spendable on flower research;
-- decreases when research is purchased;
-- progresses independently from level XP.
-
-Therefore:
-
-**research spending must never reduce lifetime XP or level.**
-
-The UI should make this distinction understandable rather than exposing internal ledger terminology.
-
-## 9. Completing a collection
-
-When all nine flowers in the active collection are collected, completion unlocks/generates the next collection.
-
-The next collection must be generated **in background/cache**, rather than waiting for the user to open the Garden.
-
-The generation must be governed and idempotent:
-
-- do not generate duplicate collections for the same completed collection;
-- persist the generated collection identity;
-- never reuse a flower identity already consumed by an earlier collection;
-- preserve the generated collection across process death;
-- keep generation work outside the UI thread.
-
-If background generation fails, the existing completed collection remains valid and the next-generation work is retryable. Failure must not corrupt the current collection.
-
-## 10. Flower research and generated artwork
-
-When a flower becomes collected/revealed, the pipeline may transform a real reference photograph into the game's pixel-art representation through the governed image-processing pipeline.
-
-The UI consumes the resulting canonical asset by flower identity.
-
-The UI must not:
-
-- infer flower identity from image pixels;
-- generate placeholder filenames from display names;
-- substitute an arbitrary flower image when the canonical asset is unavailable.
-
-## 11. Flower detail interaction
-
-Pressing a discovered/researched/collected flower opens a compact detail surface.
-
-The detail surface may show:
-
-- common name;
-- scientific name;
-- rarity;
-- botanical description;
-- discovery/research state;
-- XP associated with the quest that awarded it, when applicable;
-- the quest that caused its acquisition, when applicable.
-
-For an unknown flower, only the information allowed by its current discovery state is shown.
-
-## 12. UI authority boundary
-
-The UI renders state supplied by domain/data authorities.
-
-It must not invent:
-
-- flower identity;
-- flower rarity;
-- collection membership;
-- game metadata;
-- quest semantics;
-- theme/tag relationships.
-
-When a visual reference contains sample values such as a name, level, XP count or flower, those values are composition examples only.
-
-## 13. P6 implementation order
-
-The implementation should proceed in small verified checkpoints:
-
-1. canonical button assets and shared controls;
-2. Home/Quest composition;
-3. Theme selection and persistent selection state;
-4. custom tag/theme association UI;
-5. Garden collection composition;
-6. flower detail surface;
-7. collection completion → background next-generation orchestration;
-8. visual polish and accessibility regression;
-9. E2E validation.
-
-No step should introduce a parallel navigation authority or duplicate domain state.
-
-## 14. Governança da implementação P6
-
-A execução, a sequência de gates e as evidências obrigatórias estão em
-[`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](../../Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
-
-Este contrato continua sendo a autoridade de interação do produto. O protocolo P6 define como implementar/testar as decisões aqui registradas; não altera por si só a semântica de produto.
-
-Regras de interpretação:
-- As três entradas globais da navegação visual são **Início, Jardim e Perfil**; configurações e seletores são fluxos internos salvo decisão explícita que altere esta autoridade.
-- Os três modos visuais do Jardim não são três fontes de dados. O estado de coleta deriva do domínio; abrir a coleção é navegação de apresentação.
-- Repetição de quests é algo a diagnosticar. Causas como seleção determinística, contexto recente ou tags não propagadas são hipóteses até que teste/reprodução as confirme.
-- Screenshots e artes são referência/componente visual; jamais substituem campos editáveis, ações acessíveis ou o estado canônico.
+- Uma única barra global: **Início | Jardim | Perfil**.
+- A arte não intercepta clique nem substitui um campo editável.
+- Tema, fonte, tags, flor, raridade, XP e coleção vêm de autoridades reais.
+- Trocar o nome de um asset não muda semântica do domínio.
+- P6 gates e evidência de validação são governados por Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md.
