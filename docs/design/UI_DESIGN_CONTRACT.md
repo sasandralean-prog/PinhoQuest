@@ -171,3 +171,17 @@ Key invariants:
 - Garden collections contain nine unique flower identities and the next collection is prepared in background/cache when the current collection is completed.
 - Flower identity is keyed by scientific-name-derived hash; collection identity is derived from its nine flower identities.
 - Lifetime/level XP and spendable research XP are independent progressions.
+
+## 14. P6 implementation protocol
+
+The official gate sequence, evidence quality rules, checkpoint discipline and transition policy are defined in
+[`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](../../Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
+
+This contract remains the implementation authority for UI boundaries. The P6 protocol governs how those boundaries are validated and when a gate may be reported as complete; it does not override the visual identity genomes or product interaction contract.
+
+Before implementation:
+- verify the exact source asset and Android alias in [`ASSET_CATALOG.md`](ASSET_CATALOG.md);
+- verify its visual role in [`CANONICAL_GRAPHICS.md`](CANONICAL_GRAPHICS.md);
+- do not use a composition reference as a static interactive screen;
+- validate real touch semantics, accessibility, responsive sizing, theme and font scale;
+- report a gate as validated only with the evidence required by the P6 protocol.
