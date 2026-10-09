@@ -1,13 +1,17 @@
 package com.pinhoquest.ui.profile
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +22,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.domain.tag.Tag
@@ -40,6 +46,7 @@ fun ProfileScreen(
     dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val foreground = if (dark) Color(0xFFFFF0D0) else PinhoForest
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.PROFILE_NIGHT else PinhoQuestBackgrounds.PROFILE_DAY,
@@ -49,7 +56,9 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 14.dp, vertical = 16.dp)
+                .padding(bottom = 86.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
@@ -58,13 +67,13 @@ fun ProfileScreen(
             ) {
                 Text(
                     "Perfil",
-                    color = Color.White,
+                    color = foreground,
                     fontSize = 34.sp,
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
                     "⚙",
-                    color = Color.White,
+                    color = foreground,
                     fontSize = 34.sp,
                     modifier = Modifier
                         .padding(8.dp)
@@ -76,21 +85,60 @@ fun ProfileScreen(
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(if (dark) 972f / 448f else 996f / 461f),
+            ) {
+                Image(
+                    painter = painterResource(
+                        if (dark) R.drawable.card_profile_night else R.drawable.card_profile_day,
+                    ),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 22.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        "Jardim de $ownerName",
+                        color = PinhoInk,
+                        fontSize = 24.sp,
+                    )
+                    Text(
+                        "Pequenas preferências, grandes descobertas.",
+                        color = PinhoForest,
+                        fontSize = 14.sp,
+                    )
+                }
+            }
 
-            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    "Jardim de $ownerName",
-                    color = PinhoInk,
-                    fontSize = 24.sp,
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1304f / 376f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.card_profile_tags),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
                 )
                 Text(
                     "Suas preferências",
                     color = PinhoForest,
                     fontSize = 20.sp,
                 )
-                Spacer(Modifier.height(12.dp))
+            }
 
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
                 val canonicalTags = PinhoVisualTagIds.mapNotNull { id ->
                     tags.firstOrNull { it.id == id } ?: SystemTagCatalog.byId(id.value)
                 }
@@ -117,12 +165,6 @@ fun ProfileScreen(
                     "Descreva de forma livre o que você gosta e te faz feliz e tornaremos parte das suas quests. ✎",
                     color = PinhoInk,
                     fontSize = 14.sp,
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "Pequenas preferências, grandes descobertas.",
-                    color = PinhoForest,
-                    fontSize = 13.sp,
                 )
             }
         }
