@@ -102,81 +102,26 @@ The current authored background set is under `docs/design/BackGround/`.
 
 ## 6. Button and component artwork
 
-The current authored button batch is stored at:
+**Current filename inventory and Android resource aliases are maintained only in [`ASSET_CATALOG.md`](ASSET_CATALOG.md).** This registry intentionally does not duplicate the complete filename list: duplicated inventories drift and create competing authorities.
 
-`docs/design/Button/`
+Canonical source directories for this branch are:
 
-The path was normalized from the historical `docs/design /Button/` path because the trailing space was not portable to Windows. The canonical assets were preserved byte-for-byte during that normalization.
+- `docs/design/BackGround/`
+- `docs/design/Button/`
+- `docs/design/Screen/` for composition/reference images only.
 
-> The directory name contains a trailing space. This is the repository path as currently published. Windows worktrees cannot materialize such a path reliably; this registry does not treat that filesystem limitation as permission to duplicate or redesign the artwork. A future path normalization must preserve the same assets and semantics.
+### Rules for asset references
 
-### Primary green actions
+- Before referring to a filename as current/canonical, verify that the exact path exists in the target branch.
+- Use `ASSET_CATALOG.md` to resolve source filenames to generated Android drawable aliases.
+- Treat historical names such as `BtnStart.png`, `BtnSortQuest.png`, `BtnBack.png`, `BtnQuestGame.png` and `BtnQuestRandom.png` as legacy references unless the current catalog confirms that exact file exists.
+- Do not infer that a source file exists because an older screenshot, extraction note or documentation revision mentions it.
+- The visual reference board is not a runtime layout asset; reconstruct its composition using real Compose controls and canonical source assets.
+- Editable text, focus, clicks, selected/disabled state, navigation and accessibility remain owned by real UI components.
 
-- `BtnStart.png` — **Começar** / onboarding start
-- `BtnSortQuest.png` — **SORTEAR QUEST**
-- `BtnSeeQuests.png` — **Ver quests** / empty-garden action
+### Existing extraction information
 
-### Shared navigation/system
-
-- `BtnBack.png` — shared **Voltar** control
-
-### Quest/action cards
-
-- `BtnQuestGame.png` — **Quest de Jogo**
-- `BtnQuestRandom.png` — **Quest Aleatória**
-
-### Flower placeholders
-
-- `CardFlowerUnknownA.png` — unknown flower placeholder/card variant A
-- `CardFlowerUnknownB.png` — unknown flower placeholder/card variant B
-
-These are state placeholders only. Flower identity remains domain-owned.
-
-### Theme/category artwork
-
-The canonical theme family has twelve product themes. The new extracted batch contains the nine standalone cards below; the existing tag-sheet artwork remains the source for the first three themes until standalone crops are registered:
-
-- `BtnTags.jpg` — existing canonical family containing Jogos, Criatividade and Aprender
-
-- `BtnTagMusica.png` — Música
-- `BtnTagFotografia.png` — Fotografia
-- `BtnTagNatureza.png` — Natureza
-- `BtnTagTecnologia.png` — Tecnologia
-- `BtnTagAnimais.png` — Animais
-- `BtnTagAventuras.png` — Aventuras
-- `BtnTagRelaxar.png` — Relaxar
-- `BtnTagCriar.png` — Criar
-- `BtnTagFantasia.png` — Fantasia
-
-The extraction manifest is authoritative for the source/crop relationship:
-`docs/design/Button/ASSET_EXTRACTION_MANIFEST.md`.
-
-### Existing system artwork
-
-The previously canonized system assets remain valid when present:
-
-- `BtnConfirm.png` — Confirmar
-- `BtnContinue.png` — Continuar
-- `BtnBackup.png` — backup/cópia do jardim
-- `BtnDay.png` — Dia
-- `BtnNight.png` — Noite
-- `BtnMaior.png` — Maior
-- `BtnMedio.png` — Médio
-- `BtnMenor.png` — Menor
-- `BtnPinhoDonate.png` — Apoie o criador Pinho Abacaxi
-- `TopBarConfig.png` — Configurações title bar
-
-### Name-field artwork
-
-- `LabelName.png` — canonical visual chrome for the name field.
-
-The editable text value itself must remain real UI state.
-
-### Decorative/instruction artwork
-
-- `FunPic_20261007_055241466.png` — authored free-form preference/instruction panel reference.
-
-The text inside this asset is presentation artwork only when used as a static decorative panel. Any user-editable or dynamic copy must remain real text.
+If an extraction manifest exists at `docs/design/Button/ASSET_EXTRACTION_MANIFEST.md` in the target branch, it may be used to understand source/crop lineage. It does not override the current asset catalog or the actual repository tree.
 
 ## 7. Non-canonical captures
 
