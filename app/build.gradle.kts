@@ -6,38 +6,74 @@ plugins {
 
 import org.gradle.api.tasks.Copy
 
+// P6-A: source-of-truth asset mappings. Source filenames in docs/design remain
+// untouched; aliases make Android resource names stable and valid.
+val canonicalBackgroundAssets = mapOf(
+    "ConfigBGDIA.png" to "canonical_bg_settings_day.png",
+    "JArdimVazioBG.png" to "canonical_bg_garden_empty_alt.png",
+    "JardimArteDia.png" to "canonical_bg_garden_art_day.png",
+    "JardimArteNoite.png" to "canonical_bg_garden_art_night.png",
+    "JardimVazioDiaBG.png" to "canonical_bg_garden_empty_day.png",
+    "PerfilBGDIA.png" to "canonical_bg_profile_day.png",
+    "PerfilBGNoite.png" to "canonical_bg_profile_night.png",
+    "StartBG.png" to "canonical_bg_start.png",
+    "StartBGDIa.png" to "canonical_bg_start_day.png",
+)
+
+val canonicalButtonAssets = mapOf(
+    "BackButton.png" to "btn_back.png",
+    "BackupButton.png" to "canonical_backup_button.png",
+    "ButtonTopBarConfig.png" to "canonical_topbar_config.png",
+    "DOnateButton.png" to "canonical_donate_button.png",
+    "DayButton.png" to "canonical_day_button.png",
+    "FlowerCardDay.png" to "canonical_flower_card_day.png",
+    "FlowerCardNight.png" to "canonical_flower_card_night.png",
+    "FlowerColectionButton.png" to "canonical_flower_collection_button.png",
+    "FlowerFilter.png" to "canonical_flower_filter.png",
+    "FlowerFilterSearched.png" to "canonical_flower_filter_searched.png",
+    "FlowerFilterUnkw.png" to "canonical_flower_filter_unknown.png",
+    "FlowersFilterAll.png" to "canonical_flower_filter_all.png",
+    "GameQuestButton.png" to "btn_quest_game.png",
+    "JardimDeDay.png" to "canonical_garden_day_element.png",
+    "JardimDeNight.png" to "canonical_garden_night_element.png",
+    "JardimVAzioNight.png" to "canonical_garden_empty_night_element.png",
+    "JardimVazioDIa.png" to "canonical_garden_empty_day_element.png",
+    "MaiorButton.png" to "canonical_font_larger_button.png",
+    "MedioButton.png" to "canonical_font_medium_button.png",
+    "MenorButton.png" to "canonical_font_smaller_button.png",
+    "NameBar.png" to "canonical_name_bar.png",
+    "NavBarDay.png" to "canonical_nav_bar_day.png",
+    "NavBarNight.png" to "canonical_nav_bar_night.png",
+    "NightButton.png" to "canonical_night_button.png",
+    "RandomQuestButton.png" to "btn_quest_random.png",
+    "SortQuest.png" to "btn_sort_quest.png",
+    "StartButton.png" to "btn_start.png",
+    "TagAnimals.png" to "btn_tag_animais.png",
+    "TagCreate.png" to "btn_tag_criar.png",
+    "TagFantasy.png" to "btn_tag_fantasia.png",
+    "TagLearn.png" to "btn_tag_learn.png",
+    "TagMusic.png" to "btn_tag_musica.png",
+    "TagNature.png" to "btn_tag_natureza.png",
+    "TagPhoto.png" to "btn_tag_fotografia.png",
+    "TagRelax.png" to "btn_tag_relaxar.png",
+    "TagTech.png" to "btn_tag_tecnologia.png",
+    "VerQuestButton.png" to "canonical_see_quests_button.png",
+)
+
 val syncCanonicalUiAssets = tasks.register<Copy>("syncCanonicalUiAssets") {
-    val canonicalDir = rootProject.file("docs/design/Button")
-    from(canonicalDir) {
-        include(
-            "BtnBack.png",
-            "BtnQuestGame.png",
-            "BtnQuestRandom.png",
-            "BtnSeeQuests.png",
-            "BtnSortQuest.png",
-            "BtnStart.png",
-            "BtnTagAnimais.png",
-            "BtnTagAventuras.png",
-            "BtnTagCriar.png",
-            "BtnTagFantasia.png",
-            "BtnTagFotografia.png",
-            "BtnTagMusica.png",
-            "BtnTagNatureza.png",
-            "BtnTagRelaxar.png",
-            "BtnTagTecnologia.png",
-            "CardFlowerUnknownA.png",
-            "CardFlowerUnknownB.png",
-        )
-        rename { name ->
-            name
-                .removeSuffix(".png")
-                .replace(Regex("([a-z])([A-Z])"), "$1_$2")
-                .lowercase() + ".png"
-        }
+    val canonicalBackgroundDir = rootProject.file("docs/design/BackGround")
+    val canonicalButtonDir = rootProject.file("docs/design/Button")
+
+    from(canonicalBackgroundDir) {
+        include(canonicalBackgroundAssets.keys)
+        rename { sourceName -> canonicalBackgroundAssets.getValue(sourceName) }
+    }
+    from(canonicalButtonDir) {
+        include(canonicalButtonAssets.keys)
+        rename { sourceName -> canonicalButtonAssets.getValue(sourceName) }
     }
     into(layout.buildDirectory.dir("generated/p6-canonical-ui-res/drawable-nodpi"))
 }
-
 android {
     namespace = "com.pinhoquest"
     sourceSets["main"].res.srcDir(layout.buildDirectory.dir("generated/p6-canonical-ui-res"))
