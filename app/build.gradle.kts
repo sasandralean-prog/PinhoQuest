@@ -108,8 +108,47 @@ android {
     }
 }
 
-tasks.named("preBuild") {
+val verifyCanonicalUiAssets = tasks.register("verifyCanonicalUiAssets") {
     dependsOn(syncCanonicalUiAssets)
+    val canonicalBackgroundDir = rootProject.file("docs/design/BackGround")
+    val canonicalButtonDir = rootProject.file("docs/design/Button")
+    val generatedDir = layout.buildDirectory.dir("generated/p6-canonical-ui-res/drawable-nodpi")
+    inputs.files(
+        canonicalBackgroundAssets.keys.map { canonicalBackgroundDir.resolve(it) } +
+            canonicalButtonAssets.keys.map { canonicalButtonDir.resolve(it) },
+    )
+    outputs.dir(generatedDir)
+    doLast {
+        val missingSources = buildList {
+            canonicalBackgroundAssets.keys
+                .filterNot { canonicalBackgroundDir.resolve(it).isFile }
+                .forEach { add("docs/design/BackGround/$it") }
+            canonicalButtonAssets.keys
+                .filterNot { canonicalButtonDir.resolve(it).isFile }
+                .forEach { add("docs/design/Button/$it") }
+        }
+        check(missingSources.isEmpty()) {
+            "Missing canonical PinhoQuest assets:\\n" + missingSources.joinToString("\\n")
+        }
+        val generatedRoot = generatedDir.get().asFile
+        val missingOutputs = (canonicalBackgroundAssets.values + canonicalButtonAssets.values)
+            .filterNot { generatedRoot.resolve(it).isFile }
+        check(missingOutputs.isEmpty()) {
+            "Canonical asset sync did not generate:\\n" + missingOutputs.joinToString("\\n")
+        }
+        val duplicateOutputs = (canonicalBackgroundAssets.values + canonicalButtonAssets.values)
+            .groupingBy { it }
+            .eachCount()
+            .filterValues { it > 1 }
+            .keys
+        check(duplicateOutputs.isEmpty()) {
+            "Duplicate canonical Android resource names: " + duplicateOutputs.joinToString()
+        }
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn(verifyCanonicalUiAssets)
 }
 
 dependencies {
