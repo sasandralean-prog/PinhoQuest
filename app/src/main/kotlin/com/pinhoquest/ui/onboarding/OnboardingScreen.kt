@@ -3,6 +3,7 @@ package com.pinhoquest.ui.onboarding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.profile.GardenOwnerName
+import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoGraphicButton
