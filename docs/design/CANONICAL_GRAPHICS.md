@@ -1,159 +1,89 @@
-# Pinho Quest — Canonical Graphics Registry
+# PinhoQuest — Canonical Graphics Registry
 
-**Status:** canonical visual reference registry  
-**Scope:** P6–P7 visual implementation  
-**Authority:** this registry records which repository assets are authoritative references and what each asset is allowed to mean.
+**Status:** registro normativo dos papéis visuais para P6/P7.  
+**Branch de referência:** feature/p6-total-ui-refactor.  
+**Autoridade:** este documento classifica papéis visuais e composições. O inventário e os aliases vivem em ASSET_CATALOG.md e no mapa executável de app/build.gradle.kts.
 
-## 1. Canonical rule
+## 1. Limite canônico
 
-The assets in this registry are **visual references and authored graphic elements**. They are not permission to turn screenshots into static UI.
+Os PNGs são fundos, superfícies decorativas ou skins de componentes reais. Não substituem estado, texto dinâmico, semântica, hitbox ou ação Compose. Screenshots descrevem composição; nunca devem ser colocados sobre a UI interativa como uma tela estática.
 
-Implementation must preserve:
-- real Compose interaction and state;
-- governed domain data;
-- responsive layout;
-- accessibility and font scaling;
-- the single navigation authority.
+## 2. Autoridade visual
 
-Raster artwork may provide scenery, texture, decorative chrome, or the visual skin of a real component. It must not become a hidden hitbox, state store, navigation owner, or replacement for an interactive component.
+A cadeia de autoridade segue:
+1. docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md
+2. docs/identity/PINHO_QUEST_GARDEN_PIXEL_ART_GENOME.md
+3. docs/design/UI_DESIGN_CONTRACT.md
+4. este registro
+5. artes individuais classificadas aqui e em ASSET_CATALOG.md
 
-## 2. Canonical authority chain
+Home1 continua a composição canônica de Home/Quest: refinar, sem alterar a semântica das ações ou a navegação. A barra global permanece Início | Jardim | Perfil.
 
-For visual decisions, use:
+## 3. Família de backgrounds
 
-1. `docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md`
-2. `docs/identity/PINHO_QUEST_GARDEN_PIXEL_ART_GENOME.md`
-3. `docs/design/UI_DESIGN_CONTRACT.md`
-4. **this registry**
-5. the individual references listed below.
+- bg_start_day.png / bg_start_night.png: cenário da abertura. O botão Começar é controle separado. A marca e o slogan devem ser Compose ou asset de marca separado, não duplicados no fundo.
+- bg_config_day.png / bg_config_night.png: ambiente interno para Configurações.
+- bg_gardem_art_day.png / bg_gardem_art_night.png: cenário da composição Jardim em arte, quando os dados de domínio indicarem progresso.
+- bg_gardem_empty_day.png / bg_gardem_empty_night.png: cenário da composição de jardim vazio.
+- bg_profile_day.png / bg_profile_night.png: cenário de Perfil. Reutilização em cards/empty states só é permitida quando a composição testada não conflitar com bordas, texto ou controles.
 
-When a reference conflicts with a higher-level identity rule, the identity rule wins.
+A grafia gardem é intencionalmente preservada nesta geração por decisão do proprietário. Qualquer renome futuro exige atualizar catálogo, Gradle e consumidores no mesmo checkpoint.
 
-## 3. Home1 is the source of truth
+## 4. Componentes gráficos
 
-**Home1 is canonical. It is refined, not redesigned.**
+- btn_back.png: skin de voltar; o hit target e a semântica são Compose. O canvas de 66×75 px exige teste em escala real.
+- btn_confirm.png, btn_quest_draw.png, btn_quest_game.png, btn_quest_random.png, btn_view_quests.png: skins de ações reais.
+- btn_font_size.png: skin dos controles de fonte; rótulos Menor/Médio/Maior, escala aplicada e estado selecionado são Compose.
+- btn_theme_day.png / btn_theme_night.png: skin dos seletores; valor e persistência vêm das preferências.
+- btn_garden_backup.png / btn_support_creator.png: decoração das ações de backup e apoio; callbacks e feedback são Compose.
+- btn_garden_collection.png: skin/ícone para abrir a coleção.
+- btn_garden_filter_all.png, btn_garden_filter_collected.png, btn_garden_filter_searched.png, btn_garden_filter_unkw.png: skins de filtro. A seleção e os resultados derivados do domínio não são rasterizados.
+- category_*.png: imagens para opções de categoria. A presença do PNG não define automaticamente Theme/Tag nem autoriza o mapeamento semântico.
+- card_flower_unknown_day.png / card_flower_unknown_night.png: placeholder de flor desconhecida; não revela identidade botânica.
+- card_home_day.png / card_home_night.png: superfície para o resumo Home; nome, contagem de flores, XP e mensagens ficam em Compose.
+- card_profile_day.png / card_profile_night.png / card_profile_tags.png: superfícies de perfil; conteúdo e seleção continuam reais.
+- card_garden_empty_day.png / card_garden_empty_night.png: componente ilustrado do estado vazio, distinto do background de tela inteira.
+- name_bar.png: moldura para um campo real, com foco, teclado e validação no Compose.
+- nav_bar_day.png / nav_bar_night.png: base visual para a única navbar global. Destinos, rótulos acessíveis, seleção e hit targets continuam um componente Compose compartilhado.
 
-The Home/Quest composition must preserve:
-- the PinhoQuest world and lakeside/garden atmosphere;
-- the established logo and visual identity;
-- the authored card/composition language;
-- exactly three simultaneous quest actions:
-  - **SORTEAR QUEST**
-  - **Quest de Jogo**
-  - **Quest Aleatória**
-- the continuous bottom navigation:
-  - **Início**
-  - **Jardim**
-  - **Perfil**
+## 5. Composições de tela
 
-No fourth navigation destination is introduced by visual references. Settings remains an application/settings destination, not a fourth item in the canonical bottom navigation.
+### Abertura
+Usar bg_start_day/night e montar logo/marca, slogan e CTA em camadas independentes. O botão Começar não faz parte do background. Validar a zona segura e o recorte em telas com proporções distintas.
 
-Current Home/Quest reference:
-- `docs/design/Screen/1791406007965.jpg`
+### Home/Quest
+Preservar as três ações: SORTEAR QUEST, Quest de Jogo e Quest Aleatória. O resumo pode usar card_home_day/night; nome do jardim, flores e XP são dados dinâmicos. Não inferir que bg_start seja também background da Home sem confirmar a intenção de composição e o fluxo de navegação.
 
-## 4. Screen references
+### Onboarding — nome
+Usar cenário coerente com tema. name_bar é uma moldura; o campo digitável é real. O valor do nome, foco, teclado e validação permanecem Compose/domínio.
 
-### Settings
+### Onboarding — categorias/tags
+Usar category_* somente depois de mapear os itens aos IDs de Theme/Tag do catálogo de domínio. Não converter “categoria” automaticamente em “tag”. Assets sem correspondência aprovada ficam não mapeados.
 
-| Reference | Authority | Meaning |
-|---|---|---|
-| `docs/design/Screen/1791368109565.jpg` | canonical | Settings — dark |
-| `docs/design/Screen/1791368270990.jpg` | canonical | Settings — light |
+### Configurações
+Usar bg_config_day/night, btn_theme_day/night, btn_font_size, btn_garden_backup e btn_support_creator. Títulos e labels são texto real. A navbar global segue o contrato de destinos.
 
-These establish the authored wood title bar, Day/Night controls, font-size controls, backup action, donation action, blurred/cozy room background, and persistent bottom navigation.
+### Jardim vazio
+Usar bg_gardem_empty_day/night e, quando a composição aprovada pedir, card_garden_empty_day/night. A mensagem e CTA são Compose e não podem fingir flores coletadas.
 
-### Onboarding / name + tags
+### Jardim em arte
+Usar bg_gardem_art_day/night quando o domínio indicar progresso. A arte de fundo não fabrica flores, XP, raridade ou identidade de coleção.
 
-| Reference | Authority | Meaning |
-|---|---|---|
-| `docs/design/Screen/1791405606818.jpg` | canonical | Name/tags — light |
-| `docs/design/Screen/1791405677300.jpg` | canonical | Name/tags — dark |
-| `docs/design/Screen/1791405470928.jpg` | canonical | Tags-selection continuation |
+### Coleção
+Mostrar nove posições da coleção ativa com dados de domínio. card_flower_unknown_day/night pode preencher placeholders permitidos pelo estado de descoberta. Filtros mudam a projeção visual, não criam uma segunda fonte de estado.
 
-The name field remains a real editable field. The artwork around it is visual chrome, not an input hitbox.
+### Perfil
+Usar bg_profile_day/night e surfaces card_profile_day/night e card_profile_tags.png conforme composição validada. Preferências e estado das tags vêm do catálogo e dos dados reais.
 
-### Garden
+## 6. Escala, tema e acessibilidade
 
-| Reference | Authority | Meaning |
-|---|---|---|
-| `docs/design/Screen/1791406141636.jpg` | canonical | Empty Garden — dark |
-| `docs/design/Screen/1791406257190.jpg` | canonical | Empty Garden — light |
-| `docs/design/Screen/1791406339880.jpg` | duplicate/secondary | Same empty-garden composition; do not create a second semantic design from it |
+- Os fundos são imagens 9:16 em 1536×2752, exceto bg_config_night (784×1342); revisar o par diurno/noturno antes do gate.
+- card_home_day/night e nav_bar_day/night possuem proporções diferentes dentro do par; cada elemento precisa manter razão própria ou a arte deve ser normalizada numa decisão explícita.
+- PinhoGraphicButton usa ContentScale.FillBounds no código atualmente observado; isso pode distorcer os novos assets se a razão do container divergir. P6-B deve retirar esse comportamento genérico para componentes que precisem preservar proporção.
+- Texto configurável e dinâmico nunca deve ser rasterizado em background ou card.
+- Controles gráficos oferecem área de toque adequada independentemente do tamanho visível, descrição acessível e estado selecionado perceptível sem depender exclusivamente de cor.
+- Overlay de tema deve ser validado visualmente e não substituir um par específico de assets quando este existe.
 
-The Garden remains a place, not a database table. The empty state communicates that the garden has room to grow and points toward quests.
+## 7. Gate de canonização
 
-### Reference board
-
-`docs/design/Screen/1791405120200.jpg` is a **reference board/contact sheet**. It may be used to understand the family resemblance and progression of screens, but it is not a screen to embed or implement as a whole.
-
-## 5. Background references
-
-The current authored background set is under `docs/design/BackGround/`.
-
-| Reference | Canonical role |
-|---|---|
-| `1791363403488.jpg` | PinhoQuest opening/hero garden-lake scene |
-| `1791363635961.jpg` | Garden scene — dark visual treatment |
-| `1791363831082.jpg` | PinhoQuest lake/mountain atmospheric scene |
-| `1791363980201.jpg` | Cozy indoor garden/workroom atmosphere |
-| `FunPic_20261007_053152346.jpg` | Garden scene — light visual treatment |
-
-`Home (1).png` is currently an empty/placeholder repository object and is **not** a canonical visual reference.
-
-## 6. Button and component artwork
-
-**Current filename inventory and Android resource aliases are maintained only in [`ASSET_CATALOG.md`](ASSET_CATALOG.md).** This registry intentionally does not duplicate the complete filename list: duplicated inventories drift and create competing authorities.
-
-Canonical source directories for this branch are:
-
-- `docs/design/BackGround/`
-- `docs/design/Button/`
-- `docs/design/Screen/` for composition/reference images only.
-
-### Rules for asset references
-
-- Before referring to a filename as current/canonical, verify that the exact path exists in the target branch.
-- Use `ASSET_CATALOG.md` to resolve source filenames to generated Android drawable aliases.
-- Treat historical names such as `BtnStart.png`, `BtnSortQuest.png`, `BtnBack.png`, `BtnQuestGame.png` and `BtnQuestRandom.png` as legacy references unless the current catalog confirms that exact file exists.
-- Do not infer that a source file exists because an older screenshot, extraction note or documentation revision mentions it.
-- The visual reference board is not a runtime layout asset; reconstruct its composition using real Compose controls and canonical source assets.
-- Editable text, focus, clicks, selected/disabled state, navigation and accessibility remain owned by real UI components.
-
-### Existing extraction information
-
-If an extraction manifest exists at `docs/design/Button/ASSET_EXTRACTION_MANIFEST.md` in the target branch, it may be used to understand source/crop lineage. It does not override the current asset catalog or the actual repository tree.
-
-## 7. Non-canonical captures
-
-The following files currently present under `docs/design/Screen/` are **not** visual authority for Pinho Quest UI:
-
-- `IMG-20261007-WA0029.jpg`
-- `IMG-20261007-WA0030.jpg`
-
-They are unrelated external shopping/product captures and must not be used as game UI references.
-
-Likewise, files whose semantic role has not been identified are not automatically canonical merely because they live under `docs/design/`.
-
-## 8. Implementation invariants
-
-1. Never place a full-screen reference screenshot over a live UI.
-2. Never place a transparent hotspot over a real input/button and allow it to intercept touch.
-3. Button artwork may skin a real button; it does not own the click.
-4. Name-field artwork may frame a real text field; it does not replace the field.
-5. Screen references define composition, not domain state.
-6. Home1 remains the canonical source of truth; later references refine it rather than redesigning its mechanics/navigation.
-7. Shared bottom navigation remains one global component with `Início | Jardim | Perfil`.
-8. Light/dark references define visual treatments, while Settings remains the authority for the selected theme.
-9. Typography that must react to user settings remains real text.
-10. Any new asset must be explicitly classified as canonical, secondary, decorative, or non-canonical before becoming an implementation reference.
-
-## 9. Canonization gate
-
-A visual reference is considered **canonized** only when:
-- its repository path is recorded here;
-- its semantic role is identified;
-- its authority level is explicit;
-- its interactive/static boundary is explicit;
-- implementation rules do not contradict the identity genomes.
-
-This registry is the index used by P6 visual implementation and future visual audits.
+Os papéis desta registry são decisões de design; não significam que a integração foi concluída. Para P6-A PASS, o catálogo, o diretório real, o mapa Gradle, os aliases e os consumidores Kotlin precisam concordar. O gate também exige executar as verificações disponíveis e registrar evidência. Para P6-B PASS, cada tela precisa de captura reproduzível, build/testes pertinentes e verificação de toque, proporção, tema e escala de fonte.
