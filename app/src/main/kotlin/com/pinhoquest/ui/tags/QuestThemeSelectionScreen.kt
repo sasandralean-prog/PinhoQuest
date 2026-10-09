@@ -55,8 +55,7 @@ fun QuestThemeSelectionScreen(
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             modifier = Modifier.fillMaxSize(),
-            overlay = if (dark) Color(0xFF061B36) else Color(0xFFFFE7B0),
-            overlayAlpha = if (dark) 0.10f else 0.16f,
+            overlayAlpha = 0f,
         )
 
         Column(
@@ -74,7 +73,8 @@ fun QuestThemeSelectionScreen(
                 PinhoBackButton(onClick = onBack)
             }
 
-            Spacer(Modifier.height(16.dp))
+            // Keep the logo and slogan embedded in the approved background unobstructed.
+            Spacer(Modifier.height(190.dp))
             Text(
                 text = "O que vamos descobrir?",
                 color = if (dark) Color.White else PinhoForest,
@@ -120,11 +120,15 @@ fun QuestThemeSelectionScreen(
 
             Spacer(Modifier.height(16.dp))
             PinhoGraphicButton(
-                resource = R.drawable.btn_sort_quest,
+                resource = R.drawable.btn_quest_draw,
                 contentDescription = "Sortear com estes temas",
                 onClick = onConfirm,
                 modifier = Modifier.fillMaxWidth(0.66f),
-                aspectRatio = 3.2f,
+                aspectRatio = 349f / 95f,
+                label = "Sortear quest",
+                labelColor = if (dark) Color(0xFFFFF4DD) else PinhoCream,
+                labelFontSize = 18.sp,
+                labelStartFraction = 0.20f,
             )
             Spacer(Modifier.height(80.dp))
         }
