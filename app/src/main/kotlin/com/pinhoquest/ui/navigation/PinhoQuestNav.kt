@@ -135,6 +135,7 @@ fun PinhoQuestNav(
             },
             onTabSelected = onTabSelected,
             modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter),
+            dark = dark,
         )
 
         SnackbarHost(
