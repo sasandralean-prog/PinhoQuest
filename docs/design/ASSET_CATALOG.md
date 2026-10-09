@@ -103,8 +103,7 @@ Todos são PNG RGBA com transparência.
 
 ## Pontos pendentes antes do P6-A PASS
 
-- Confirmar path canônico final no GitHub e que os 47 assets estão presentes na branch esperada.
-- Atualizar o mapa de origem/alias em app/build.gradle.kts para Background, Button, Card e NavBar e garantir que não haja aliases duplicados.
+- Confirmar por build que o mapeamento publicado funciona e que os 47 assets são gerados sem duplicação ou ausência.
 - Validar se bg_config_night.png deve ser reexportado para corresponder à proporção de bg_config_day.png.
 - Avaliar a proporção divergente de card_home_day/night e nav_bar_day/night.
 - Mapear semanticamente category_* após revisar o catálogo do domínio; itens ambíguos ficam pendentes, não associados por aproximação.
