@@ -198,6 +198,7 @@ fun GardenScreen(
                     }
                 }
             }
+        }
 
         state.selectedFlower?.let { flower ->
             FlowerDetailScreen(
