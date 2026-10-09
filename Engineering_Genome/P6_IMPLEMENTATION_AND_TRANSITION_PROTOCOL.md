@@ -341,3 +341,29 @@ PinhoQuestVisuals.kt ainda usa ContentScale.FillBounds em PinhoGraphicButton e P
 - Os contratos foram atualizados por commit documental; isso não demonstra que Gradle, Kotlin ou testes passaram.
 - P6-A e P6-B continuam sem PASS até a presença dos arquivos na pasta canônica, o mapeamento Gradle, a compilação, os testes e as capturas reproduzíveis serem verificados.
 - CURRENT_STATE.md só deve ser atualizado após registrar SHA real e evidência do próximo checkpoint; não inferir estado do runtime a partir do ZIP.
+
+
+## 13. Atualização de fonte e estado após confirmação dos paths — 2026-10-09
+
+**CONFIRMADO por leitura do tree remoto em `feature/p6-total-ui-refactor`:** os novos PNGs estão publicados em `docs/design/Background/`, `docs/design/Button/`, `docs/design/Card/` e `docs/design/Navbar/`. Os quatro diretórios contêm um arquivo `Null` de 1 byte que não é asset e deve continuar excluído. O build Gradle foi atualizado para os 47 PNGs desses quatro diretórios; isso não equivale a execução bem-sucedida do Gradle.
+
+A configuração `app/build.gradle.kts` foi alterada para criar mapas por grupo, sincronizar esses recursos para `build/generated/p6-canonical-ui-res/drawable-nodpi` e verificar:
+- fontes existentes;
+- saídas geradas;
+- aliases de saída sem duplicação;
+- exatamente 47 mapeamentos.
+
+O diagnóstico de arquivos ausentes foi corrigido para imprimir quebras de linha reais. **PENDENTE:** executar `./gradlew :app:verifyCanonicalUiAssets` e `./gradlew :app:assembleDebug` em ambiente com o checkout atual; não existe resultado de execução associado a esta revisão documental/Gradle.
+
+### Correções derivadas da inspeção visual
+
+- Os backgrounds `bg_start_day/night` fornecidos incluem logotipo PinhoQuest e slogan na composição. O CTA Começar permanece controle Compose separado; não adicionar outro logotipo/slogan sobre a arte, pois duplicaria conteúdo.
+- `bg_gardem_empty_day.png` é byte-a-byte idêntico a `bg_profile_day.png`; `bg_gardem_empty_night.png` é byte-a-byte idêntico a `bg_profile_night.png`. O projeto pode manter aliases/papéis semânticos separados, mas não precisa duplicar os bytes no futuro se uma decisão de composição aprovar compartilhamento de recurso.
+- Os contratos foram ajustados para registrar os paths reais e essa composição de início.
+
+### Estado real dos gates
+
+- **P6-A:** inventário/catalogação e mapa Gradle remodelados e publicados; **BLOCKED/PENDING VALIDATION** até executar o verificador e build e inspecionar os paths/fontes geradas. Nenhum build foi executado por esta integração.
+- **P6-B:** **NOT_STARTED/IN_PROGRESS**. Os consumidores Kotlin ainda usam drawables legados. Os arquivos SettingsScreen.kt, OnboardingScreen.kt, QuestScreen.kt, GardenScreen.kt, ProfileScreen.kt e PinhoQuestVisuals.kt exigem migração por tela e teste.
+- Os aliases de categoria (`category_* `) não foram associados automaticamente aos IDs de Theme/Tag. A semântica permanece pendente de reconciliação com o catálogo de domínio.
+- Não atualizar `CURRENT_STATE.md` para PASS sem SHA/head confirmado e evidências dos gates.
