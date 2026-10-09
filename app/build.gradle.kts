@@ -117,7 +117,6 @@ val verifyCanonicalUiAssets = tasks.register("verifyCanonicalUiAssets") {
         canonicalBackgroundAssets.keys.map { canonicalBackgroundDir.resolve(it) } +
             canonicalButtonAssets.keys.map { canonicalButtonDir.resolve(it) },
     )
-    outputs.dir(generatedDir)
     doLast {
         val missingSources = buildList {
             canonicalBackgroundAssets.keys
@@ -128,13 +127,13 @@ val verifyCanonicalUiAssets = tasks.register("verifyCanonicalUiAssets") {
                 .forEach { add("docs/design/Button/$it") }
         }
         check(missingSources.isEmpty()) {
-            "Missing canonical PinhoQuest assets:\\n" + missingSources.joinToString("\\n")
+            "Missing canonical PinhoQuest assets:\n" + missingSources.joinToString("\n")
         }
         val generatedRoot = generatedDir.get().asFile
         val missingOutputs = (canonicalBackgroundAssets.values + canonicalButtonAssets.values)
             .filterNot { generatedRoot.resolve(it).isFile }
         check(missingOutputs.isEmpty()) {
-            "Canonical asset sync did not generate:\\n" + missingOutputs.joinToString("\\n")
+            "Canonical asset sync did not generate:\n" + missingOutputs.joinToString("\n")
         }
         val duplicateOutputs = (canonicalBackgroundAssets.values + canonicalButtonAssets.values)
             .groupingBy { it }
