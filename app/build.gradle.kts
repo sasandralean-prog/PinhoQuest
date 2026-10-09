@@ -132,13 +132,13 @@ val verifyCanonicalUiAssets = tasks.register("verifyCanonicalUiAssets") {
                 .map { "$relativeDir/$it" }
         }
         check(missingSources.isEmpty()) {
-            "Missing canonical PinhoQuest assets:\\n" + missingSources.joinToString("\\n")
+            "Missing canonical PinhoQuest assets:\n" + missingSources.joinToString("\n")
         }
         val outputs = canonicalAssetGroups.flatMap { (_, mappings, _) -> mappings.values }
         val generatedRoot = generatedDir.get().asFile
         val missingOutputs = outputs.filterNot { generatedRoot.resolve(it).isFile }
         check(missingOutputs.isEmpty()) {
-            "Canonical asset sync did not generate:\\n" + missingOutputs.joinToString("\\n")
+            "Canonical asset sync did not generate:\n" + missingOutputs.joinToString("\n")
         }
         val duplicateOutputs = outputs.groupingBy { it }.eachCount().filterValues { it > 1 }.keys
         check(duplicateOutputs.isEmpty()) {
