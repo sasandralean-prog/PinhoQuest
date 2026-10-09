@@ -308,3 +308,36 @@ Os gates são sequenciais quando houver dependência. Cada gate termina em `PASS
 Esta é a formalização inicial do protocolo. A leitura documental confirma divergência de nomenclatura/autoridade e defasagem do snapshot operacional. **Isto não declara P6-A..P6-E como PASS.** Validação em código, testes, screenshots e workflow permanece pendente até que a evidência específica seja coletada.
 
 Regra final: **o documento descreve o caminho e os critérios; só a evidência registrada fecha o gate.**
+
+
+## 12. Addendum — pacote gráfico recebido em 2026-10-09
+
+**Estado:** contratos de catálogo/composição/interação atualizados; implementação do build e telas pendente.  
+**Fonte inspecionada:** ZIP local Desing.zip enviado pelo proprietário; 47 PNGs verificados por nome, dimensão, formato e modo de cor. A inspeção do ZIP não prova por si só que o conteúdo publicado no GitHub corresponda byte a byte ao ZIP.
+
+### Descobertas confirmadas no pacote
+
+- Há 10 backgrounds RGB opacos, 27 imagens na pasta Button (incluindo dois arquivos semanticamente classificados como cards e nove artes de categoria), 7 imagens Card e 3 imagens NavBar.
+- Os backgrounds, exceto bg_config_night.png, são 1536×2752. bg_config_night.png mede 784×1342.
+- btn_back.png mede 66×75. Não aplicar upscaling automático sem avaliar o resultado no tamanho-alvo.
+- card_home_day.png mede 612×292 e card_home_night.png 1062×450; a proporção difere.
+- nav_bar_day.png mede 768×181 e nav_bar_night.png 798×167; a proporção difere.
+- Os componentes são RGBA com alfa; os fundos são RGB opacos.
+- card_flower_unknown_day/night ficam fisicamente na pasta Button, mas o catálogo os classifica por função como cards.
+- O proprietário pediu para preservar os nomes gardem e unkw nesta geração, então contratos os registram sem renomeação silenciosa.
+
+### Consequência para P6-A
+
+O ASSET_CATALOG.md, CANONICAL_GRAPHICS.md e P6_UI_UX_INTERACTION_CONTRACT.md foram remodelados para refletir o pacote e distinguir inventário, papel visual e semântica de interação. Isso é trabalho documental, não gate implementado.
+
+O app/build.gradle.kts observado nesta branch ainda lista fontes antigas como ConfigBGDIA.png, JardimArteDia.png, BackButton.png, DayButton.png, TagAnimals.png e não inclui as novas fontes Card/NavBar. A migração não está compilável/validada apenas com a atualização dos contratos: P6-A precisa escolher o caminho canônico real, atualizar o mapa Gradle para os novos nomes, garantir aliases exclusivos e manter verifyCanonicalUiAssets coerente com o inventário.
+
+### Consequência para P6-B
+
+PinhoQuestVisuals.kt ainda usa ContentScale.FillBounds em PinhoGraphicButton e PinhoBackButton. SettingsScreen.kt, OnboardingScreen.kt, QuestScreen.kt, GardenScreen.kt e ProfileScreen.kt ainda apontam para um misto de drawables legados e aliases anteriores. P6-B deve migrar consumidores por fatias de tela, validar proporção natural dos assets e comprovar comportamento, tema dia/noite, escala de fonte, acessibilidade e callbacks reais.
+
+### Regras de evidência e estado
+
+- Os contratos foram atualizados por commit documental; isso não demonstra que Gradle, Kotlin ou testes passaram.
+- P6-A e P6-B continuam sem PASS até a presença dos arquivos na pasta canônica, o mapeamento Gradle, a compilação, os testes e as capturas reproduzíveis serem verificados.
+- CURRENT_STATE.md só deve ser atualizado após registrar SHA real e evidência do próximo checkpoint; não inferir estado do runtime a partir do ZIP.
