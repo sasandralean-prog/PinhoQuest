@@ -246,6 +246,7 @@ val PinhoShapes = androidx.compose.material3.Shapes(
 )
 
 object PinhoQuestBackgrounds {
+    // Existing runtime choices are preserved until P6-B screen composition.
     val HOME_NIGHT = R.drawable.pq_bg_lake_night
     val HOME_DAY = R.drawable.pq_bg_lake_day
     val HOME = R.drawable.bg_home
@@ -257,6 +258,18 @@ object PinhoQuestBackgrounds {
     val START = R.drawable.bg_start
     val ONBOARDING_NAME_REFERENCE = R.drawable.bg_onboarding_name
     val ONBOARDING_TAGS_REFERENCE = R.drawable.bg_onboarding_tags
+
+    // Current canonical background assets from docs/design/BackGround.
+    // These aliases are available for screen owners to adopt in P6-B.
+    val CANONICAL_SETTINGS_DAY = R.drawable.canonical_bg_settings_day
+    val CANONICAL_GARDEN_EMPTY_ALT = R.drawable.canonical_bg_garden_empty_alt
+    val CANONICAL_GARDEN_ART_DAY = R.drawable.canonical_bg_garden_art_day
+    val CANONICAL_GARDEN_ART_NIGHT = R.drawable.canonical_bg_garden_art_night
+    val CANONICAL_GARDEN_EMPTY_DAY = R.drawable.canonical_bg_garden_empty_day
+    val CANONICAL_PROFILE_DAY = R.drawable.canonical_bg_profile_day
+    val CANONICAL_PROFILE_NIGHT = R.drawable.canonical_bg_profile_night
+    val CANONICAL_START = R.drawable.canonical_bg_start
+    val CANONICAL_START_DAY = R.drawable.canonical_bg_start_day
 }
 
 
@@ -267,7 +280,7 @@ private fun tagGraphicAsset(tagId: TagId): Int? = when (tagId.value) {
     "nature" -> R.drawable.btn_tag_natureza
     "technology" -> R.drawable.btn_tag_tecnologia
     "animals" -> R.drawable.btn_tag_animais
-    "adventures" -> R.drawable.btn_tag_aventuras
+    "learning" -> R.drawable.btn_tag_learn
     "relax" -> R.drawable.btn_tag_relaxar
     "create" -> R.drawable.btn_tag_criar
     "fantasy" -> R.drawable.btn_tag_fantasia
@@ -280,7 +293,7 @@ val PinhoVisualTagIds: List<TagId> = listOf(
     TagId("nature"),
     TagId("technology"),
     TagId("animals"),
-    TagId("adventures"),
+    TagId("learning"),
     TagId("relax"),
     TagId("create"),
     TagId("fantasy"),
