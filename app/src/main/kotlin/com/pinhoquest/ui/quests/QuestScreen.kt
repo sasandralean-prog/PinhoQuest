@@ -1,5 +1,6 @@
 package com.pinhoquest.ui.quests
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import com.pinhoquest.R
 import com.pinhoquest.domain.quest.Quest
 import com.pinhoquest.domain.quest.QuestMode
@@ -54,8 +57,7 @@ fun QuestScreen(
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
-            overlay = if (dark) Color(0xFF061B36) else Color(0xFFFFE7B0),
-            overlayAlpha = if (dark) 0.04f else 0.22f,
+            overlayAlpha = 0f,
         )
 
         if (activeSession != null && currentQuest != null) {
@@ -77,30 +79,31 @@ fun QuestScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 22.dp, vertical = 86.dp),
+                    .padding(horizontal = 22.dp, vertical = 0.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // The approved start background contains the PinhoQuest wordmark and slogan.
+                // Leave that upper composition unobstructed and start live content below it.
+                Spacer(Modifier.height(205.dp))
                 GardenSummaryCard(
                     ownerName = ownerName,
                     flowerCount = flowerCount,
                     lifetimeXp = lifetimeXp,
                     dark = dark,
                 )
-                Spacer(Modifier.height(24.dp))
-                Text(
-                    text = "✨ O que vamos descobrir?",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(18.dp))
 
                 PinhoGraphicButton(
-                    resource = R.drawable.btn_sort_quest,
+                    resource = R.drawable.btn_quest_draw,
                     contentDescription = "Sortear quest",
                     onClick = onOpenThemeSelection,
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth(0.92f),
-                    aspectRatio = 3.05f,
+                    aspectRatio = 349f / 95f,
+                    label = "Sortear quest",
+                    labelColor = Color(0xFFFFF4DD),
+                    labelFontSize = 20.sp,
+                    labelStartFraction = 0.20f,
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -114,7 +117,11 @@ fun QuestScreen(
                         onClick = { onGenerateQuest(QuestMode.RANDOM) },
                         enabled = !loading,
                         modifier = Modifier.weight(1f),
-                        aspectRatio = 1.95f,
+                        aspectRatio = 165f / 90f,
+                        label = "Quest aleatória",
+                        labelColor = Color(0xFF4A2114),
+                        labelFontSize = 15.sp,
+                        labelStartFraction = 0.15f,
                     )
                     PinhoGraphicButton(
                         resource = R.drawable.btn_quest_game,
@@ -122,7 +129,11 @@ fun QuestScreen(
                         onClick = { onGenerateQuest(QuestMode.GAME) },
                         enabled = !loading,
                         modifier = Modifier.weight(1f),
-                        aspectRatio = 1.95f,
+                        aspectRatio = 174f / 86f,
+                        label = "Quest de Jogo",
+                        labelColor = Color(0xFF4A2114),
+                        labelFontSize = 15.sp,
+                        labelStartFraction = 0.15f,
                     )
                 }
 
@@ -154,25 +165,43 @@ private fun GardenSummaryCard(
     lifetimeXp: Int,
     dark: Boolean,
 ) {
-    PinhoParchment(
-        modifier = Modifier.fillMaxWidth(0.9f),
+    val cardResource = if (dark) R.drawable.card_home_night else R.drawable.card_home_day
+    val cardAspectRatio = if (dark) 1062f / 450f else 612f / 292f
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.90f)
+            .aspectRatio(cardAspectRatio),
+        contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = "🌷 ${flowerCount} flores    ⭐ ${lifetimeXp} XP",
-            color = PinhoInk,
-            fontSize = 16.sp,
+        Image(
+            painter = painterResource(cardResource),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize(),
         )
-        Spacer(Modifier.height(5.dp))
-        Text(
-            text = "Jardim de ${ownerName}",
-            color = PinhoInk,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Text(
-            text = if (dark) "Pequenas descobertas sob as estrelas." else "Pequenas descobertas, um jardim crescendo.",
-            color = PinhoInk,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 18.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "🌷 ${flowerCount} flores    ⭐ ${lifetimeXp} XP",
+                color = PinhoInk,
+                fontSize = 16.sp,
+            )
+            Spacer(Modifier.height(5.dp))
+            Text(
+                text = "Jardim de ${ownerName}",
+                color = PinhoInk,
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Text(
+                text = if (dark) "Pequenas descobertas sob as estrelas." else "Pequenas descobertas, um jardim crescendo.",
+                color = PinhoInk,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
 
@@ -206,11 +235,15 @@ private fun GeneratedQuestContent(
         }
         Spacer(Modifier.height(18.dp))
         PinhoGraphicButton(
-            resource = R.drawable.pq_btn_continue,
+            resource = R.drawable.btn_confirm,
             contentDescription = "Começar quest",
             onClick = onStartQuest,
             modifier = Modifier.fillMaxWidth(0.68f),
-            aspectRatio = 3.25f,
+            aspectRatio = 187f / 86f,
+            label = "Começar quest",
+            labelColor = Color(0xFF4A2114),
+            labelFontSize = 17.sp,
+            labelStartFraction = 0.14f,
         )
         Spacer(Modifier.height(10.dp))
         androidx.compose.material3.TextButton(onClick = onAnotherQuest) {
