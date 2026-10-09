@@ -32,6 +32,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import com.pinhoquest.domain.tag.TagId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,6 +83,11 @@ fun PinhoGraphicButton(
     selected: Boolean = false,
     enabled: Boolean = true,
     aspectRatio: Float = 2.7f,
+    label: String? = null,
+    labelColor: Color = Color.White,
+    labelFontSize: TextUnit = 16.sp,
+    labelAlignment: Alignment = Alignment.Center,
+    labelStartFraction: Float = 0f,
 ) {
     Box(
         modifier = modifier
@@ -88,6 +95,7 @@ fun PinhoGraphicButton(
             .pinhoSelectedGlow(selected)
             .semantics {
                 role = Role.Button
+                this.contentDescription = contentDescription
                 stateDescription = if (selected) "Selecionado" else "Não selecionado"
             }
             .clickable(
@@ -101,9 +109,30 @@ fun PinhoGraphicButton(
             painter = painterResource(resource),
             contentDescription = null,
             alpha = if (enabled) 1f else 0.55f,
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
         )
+        label?.let { visibleLabel ->
+            val labelModifier = if (labelStartFraction > 0f) {
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxWidth((1f - labelStartFraction).coerceIn(0.1f, 1f))
+                    .padding(end = 8.dp, top = 3.dp, bottom = 3.dp)
+            } else {
+                Modifier
+                    .align(labelAlignment)
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            }
+            Text(
+                text = visibleLabel,
+                color = labelColor,
+                fontSize = labelFontSize,
+                textAlign = TextAlign.Center,
+                lineHeight = labelFontSize * 1.05f,
+                modifier = labelModifier,
+            )
+        }
     }
 }
 
@@ -116,8 +145,6 @@ fun PinhoBackButton(
     Box(
         modifier = modifier
             .size(58.dp)
-            .background(PinhoWood, RoundedCornerShape(18.dp))
-            .border(2.dp, Color(0xFF5D351F), RoundedCornerShape(18.dp))
             .semantics {
                 role = Role.Button
                 contentDescription = description
@@ -128,7 +155,7 @@ fun PinhoBackButton(
         Image(
             painter = painterResource(R.drawable.btn_back),
             contentDescription = null,
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -153,38 +180,55 @@ fun PinhoBottomNavigation(
     selectedTab: MainTab,
     onTabSelected: (MainTab) -> Unit,
     modifier: Modifier = Modifier,
+    dark: Boolean = false,
 ) {
-    Row(
+    val backgroundResource = if (dark) R.drawable.nav_bar_night else R.drawable.nav_bar_day
+    val aspectRatio = if (dark) 798f / 167f else 768f / 181f
+
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(PinhoCream.copy(alpha = 0.97f))
-            .border(1.dp, Color(0xFFB99162))
             .navigationBarsPadding()
-            .padding(horizontal = 8.dp, vertical = 5.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
+            .aspectRatio(aspectRatio),
     ) {
-        PinhoNavItem(
-            label = "Início",
-            icon = "⌂",
-            selected = selectedTab == MainTab.QUESTS,
-            onClick = { onTabSelected(MainTab.QUESTS) },
-            modifier = Modifier.weight(1f),
+        Image(
+            painter = painterResource(backgroundResource),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize(),
         )
-        PinhoNavItem(
-            label = "Jardim",
-            icon = "🌷",
-            selected = selectedTab == MainTab.GARDEN,
-            onClick = { onTabSelected(MainTab.GARDEN) },
-            modifier = Modifier.weight(1f),
-        )
-        PinhoNavItem(
-            label = "Perfil",
-            icon = "▣",
-            selected = selectedTab == MainTab.PROFILE,
-            onClick = { onTabSelected(MainTab.PROFILE) },
-            modifier = Modifier.weight(1f),
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            PinhoNavItem(
+                label = "Início",
+                icon = "⌂",
+                selected = selectedTab == MainTab.QUESTS,
+                onClick = { onTabSelected(MainTab.QUESTS) },
+                modifier = Modifier.weight(1f),
+                dark = dark,
+            )
+            PinhoNavItem(
+                label = "Jardim",
+                icon = "🌷",
+                selected = selectedTab == MainTab.GARDEN,
+                onClick = { onTabSelected(MainTab.GARDEN) },
+                modifier = Modifier.weight(1f),
+                dark = dark,
+            )
+            PinhoNavItem(
+                label = "Perfil",
+                icon = "▣",
+                selected = selectedTab == MainTab.PROFILE,
+                onClick = { onTabSelected(MainTab.PROFILE) },
+                modifier = Modifier.weight(1f),
+                dark = dark,
+            )
+        }
     }
 }
 
@@ -195,6 +239,7 @@ private fun PinhoNavItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    dark: Boolean = false,
 ) {
     Column(
         modifier = modifier
@@ -208,11 +253,11 @@ private fun PinhoNavItem(
         Text(
             text = icon,
             fontSize = 25.sp,
-            color = if (selected) PinhoForest else PinhoInk,
+            color = if (selected) PinhoGold else if (dark) PinhoCream else PinhoInk,
         )
         Text(
             text = label,
-            color = PinhoInk,
+            color = if (dark) PinhoCream else PinhoInk,
             fontSize = 15.sp,
         )
         Spacer(Modifier.height(1.dp))
@@ -246,45 +291,51 @@ val PinhoShapes = androidx.compose.material3.Shapes(
 )
 
 object PinhoQuestBackgrounds {
-    // Existing runtime choices are preserved until P6-B screen composition.
-    val HOME_NIGHT = R.drawable.pq_bg_lake_night
-    val HOME_DAY = R.drawable.pq_bg_lake_day
-    val HOME = R.drawable.bg_home
-    val GARDEN = R.drawable.bg_garden
-    val EMPTY_GARDEN = R.drawable.bg_empty_garden
-    val PROFILE = R.drawable.bg_profile
-    val SETTINGS = R.drawable.bg_settings
-    val ROOM = R.drawable.pq_bg_room
-    val START = R.drawable.bg_start
-    val ONBOARDING_NAME_REFERENCE = R.drawable.bg_onboarding_name
-    val ONBOARDING_TAGS_REFERENCE = R.drawable.bg_onboarding_tags
+    val HOME_NIGHT = R.drawable.canonical_bg_start_night
+    val HOME_DAY = R.drawable.canonical_bg_start_day
+    val HOME = HOME_DAY
+    val GARDEN = R.drawable.canonical_bg_gardem_art_day
+    val EMPTY_GARDEN = R.drawable.canonical_bg_gardem_empty_day
+    val PROFILE = R.drawable.canonical_bg_profile_day
+    val SETTINGS = R.drawable.canonical_bg_config_day
+    val ROOM = R.drawable.canonical_bg_config_day
+    val START = R.drawable.canonical_bg_start_day
+    val ONBOARDING_NAME_REFERENCE = R.drawable.canonical_bg_start_day
+    val ONBOARDING_TAGS_REFERENCE = R.drawable.canonical_bg_start_day
 
-    // Current canonical background assets from docs/design/BackGround.
-    // These aliases are available for screen owners to adopt in P6-B.
-    val CANONICAL_SETTINGS_DAY = R.drawable.canonical_bg_settings_day
-    val CANONICAL_GARDEN_EMPTY_ALT = R.drawable.canonical_bg_garden_empty_alt
-    val CANONICAL_GARDEN_ART_DAY = R.drawable.canonical_bg_garden_art_day
-    val CANONICAL_GARDEN_ART_NIGHT = R.drawable.canonical_bg_garden_art_night
-    val CANONICAL_GARDEN_EMPTY_DAY = R.drawable.canonical_bg_garden_empty_day
-    val CANONICAL_PROFILE_DAY = R.drawable.canonical_bg_profile_day
-    val CANONICAL_PROFILE_NIGHT = R.drawable.canonical_bg_profile_night
-    val CANONICAL_START = R.drawable.canonical_bg_start
-    val CANONICAL_START_DAY = R.drawable.canonical_bg_start_day
+    val SETTINGS_DAY = R.drawable.canonical_bg_config_day
+    val SETTINGS_NIGHT = R.drawable.canonical_bg_config_night
+    val GARDEN_ART_DAY = R.drawable.canonical_bg_gardem_art_day
+    val GARDEN_ART_NIGHT = R.drawable.canonical_bg_gardem_art_night
+    val GARDEN_EMPTY_DAY = R.drawable.canonical_bg_gardem_empty_day
+    val GARDEN_EMPTY_NIGHT = R.drawable.canonical_bg_gardem_empty_night
+    val PROFILE_DAY = R.drawable.canonical_bg_profile_day
+    val PROFILE_NIGHT = R.drawable.canonical_bg_profile_night
+    val START_DAY = R.drawable.canonical_bg_start_day
+    val START_NIGHT = R.drawable.canonical_bg_start_night
+
+    val HOME_CARD_DAY = R.drawable.card_home_day
+    val HOME_CARD_NIGHT = R.drawable.card_home_night
+    val PROFILE_CARD_DAY = R.drawable.card_profile_day
+    val PROFILE_CARD_NIGHT = R.drawable.card_profile_night
+    val PROFILE_TAGS_CARD = R.drawable.card_profile_tags
+    val EMPTY_GARDEN_CARD_DAY = R.drawable.card_garden_empty_day
+    val EMPTY_GARDEN_CARD_NIGHT = R.drawable.card_garden_empty_night
+    val UNKNOWN_FLOWER_CARD_DAY = R.drawable.card_flower_unknown_day
+    val UNKNOWN_FLOWER_CARD_NIGHT = R.drawable.card_flower_unknown_night
 }
 
-
 @DrawableRes
-private fun tagGraphicAsset(tagId: TagId): Int? = when (tagId.value) {
-    "music" -> R.drawable.btn_tag_musica
-    "photography" -> R.drawable.btn_tag_fotografia
-    "nature" -> R.drawable.btn_tag_natureza
-    "technology" -> R.drawable.btn_tag_tecnologia
-    "animals" -> R.drawable.btn_tag_animais
-    "learning" -> R.drawable.btn_tag_learn
-    "relax" -> R.drawable.btn_tag_relaxar
-    "create" -> R.drawable.btn_tag_criar
-    "fantasy" -> R.drawable.btn_tag_fantasia
-    else -> null
+private fun tagGraphicAsset(tagId: TagId): Int = when (tagId.value) {
+    "music" -> R.drawable.category_music
+    "photography" -> R.drawable.category_photography
+    "nature" -> R.drawable.category_nature
+    "animals" -> R.drawable.category_animal
+    "learning" -> R.drawable.category_learn
+    // These legacy semantic tags have no exact matching category art in the new pack.
+    // A neutral skin keeps the controls usable without falsely assigning another category icon.
+    "technology", "relax", "create", "fantasy" -> R.drawable.btn_font_size
+    else -> R.drawable.btn_font_size
 }
 
 val PinhoVisualTagIds: List<TagId> = listOf(
@@ -325,8 +376,19 @@ fun PinhoTagGraphicButton(
         Image(
             painter = painterResource(asset),
             contentDescription = null,
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
+        )
+        Text(
+            text = contentDescription,
+            color = if (selected) PinhoForest else PinhoInk,
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = 12.sp,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(horizontal = 5.dp, vertical = 4.dp),
         )
     }
 }
