@@ -317,6 +317,17 @@ object PinhoQuestBackgrounds {
     val START_DAY = R.drawable.canonical_bg_start_day
     val START_NIGHT = R.drawable.canonical_bg_start_night
 
+    // Compatibility aliases while remaining screen consumers are migrated.
+    val CANONICAL_SETTINGS_DAY = SETTINGS_DAY
+    val CANONICAL_GARDEN_EMPTY_ALT = GARDEN_EMPTY_DAY
+    val CANONICAL_GARDEN_ART_DAY = GARDEN_ART_DAY
+    val CANONICAL_GARDEN_ART_NIGHT = GARDEN_ART_NIGHT
+    val CANONICAL_GARDEN_EMPTY_DAY = GARDEN_EMPTY_DAY
+    val CANONICAL_PROFILE_DAY = PROFILE_DAY
+    val CANONICAL_PROFILE_NIGHT = PROFILE_NIGHT
+    val CANONICAL_START = START_DAY
+    val CANONICAL_START_DAY = START_DAY
+
     val HOME_CARD_DAY = R.drawable.card_home_day
     val HOME_CARD_NIGHT = R.drawable.card_home_night
     val PROFILE_CARD_DAY = R.drawable.card_profile_day
