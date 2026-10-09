@@ -1,89 +1,111 @@
-# P6-A — Canonical design asset catalog
+# P6-A — Canonical Asset Catalog
 
-**Authority:** the editable source assets in `docs/design/BackGround/` and `docs/design/Button/`.
-**Composition references:** `docs/design/Screen/`. These JPGs describe the intended layout; they are not full-screen runtime assets and must not be layered over live Compose controls.
-**Scope:** asset naming, Android resource availability, and source-of-truth documentation only. Screen composition and behavior changes belong to P6-B onward.
+**Branch de referência:** feature/p6-total-ui-refactor  
+**Status:** inventário documental remodelado com base no pacote local Desing.zip (47 PNGs inspecionados). A presença desses arquivos no ZIP está confirmada; a presença nos paths canônicos do repositório, a sincronização Gradle e o consumo em runtime ainda precisam de validação.
 
-## Rules
+## Autoridade
 
-- Do not rename or rewrite the original PNG/JPG files to satisfy Android resource naming rules.
-- `app/build.gradle.kts` maps the original filenames to stable lowercase Android resource aliases and copies them to a generated resource directory.
-- `verifyCanonicalUiAssets` is a `preBuild` dependency. It fails if any mapped source asset or generated output is missing, or if two assets claim the same resource name.
-- Files called `null`/ `Null 1` are not design assets and are intentionally excluded.
-- The timestamp-named JPGs under `BackGround/` are preserved as unclassified source/reference images; they are not yet wired as runtime backgrounds because their intended day/night/screen role is ambiguous.
-- Legacy resources under `app/src/main/res/drawable-nodpi/` are intentionally retained until P6-B migrates their consumers and regression tests prove they are unused.
+- Este documento cataloga nomes de origem, dimensões, classificação e aliases Android propostos.
+- app/build.gradle.kts deve ser a implementação executável do mesmo mapeamento. A lista deste documento e o mapa Gradle precisam ser reconciliados no P6-A.
+- CANONICAL_GRAPHICS.md define o papel visual e a composição por tela.
+- P6_UI_UX_INTERACTION_CONTRACT.md define semântica de interação; assets não criam estado nem regras de domínio.
+- Referências em docs/design/Screen descrevem composição e não devem ser usadas como telas estáticas interativas.
 
-## Background source-to-resource map
+## Fonte de arquivos
 
-| Source in `docs/design/BackGround/` | Generated resource |
-|---|---|
-| `ConfigBGDIA.png` | `canonical_bg_settings_day` |
-| `JArdimVazioBG.png` | `canonical_bg_garden_empty_alt` |
-| `JardimArteDia.png` | `canonical_bg_garden_art_day` |
-| `JardimArteNoite.png` | `canonical_bg_garden_art_night` |
-| `JardimVazioDiaBG.png` | `canonical_bg_garden_empty_day` |
-| `PerfilBGDIA.png` | `canonical_bg_profile_day` |
-| `PerfilBGNoite.png` | `canonical_bg_profile_night` |
-| `StartBG.png` | `canonical_bg_start` |
-| `StartBGDIa.png` | `canonical_bg_start_day` |
+O ZIP recebido veio organizado em Desing/Background, Desing/Button, Desing/Card e Desing/NavBar. A pasta canônica no repositório ainda precisa ser confirmada antes de alterar o build; não criar uma segunda fonte de verdade em paralelo a docs/design. A grafia gardem e a abreviação unkw são preservadas nesta geração por decisão do proprietário.
 
-## Button/card source-to-resource map
+## Backgrounds
 
-| Source in `docs/design/Button/` | Generated resource |
-|---|---|
-| `BackButton.png` | `btn_back` |
-| `BackupButton.png` | `canonical_backup_button` |
-| `ButtonTopBarConfig.png` | `canonical_topbar_config` |
-| `DOnateButton.png` | `canonical_donate_button` |
-| `DayButton.png` | `canonical_day_button` |
-| `FlowerCardDay.png` | `canonical_flower_card_day` |
-| `FlowerCardNight.png` | `canonical_flower_card_night` |
-| `FlowerColectionButton.png` | `canonical_flower_collection_button` |
-| `FlowerFilter.png` | `canonical_flower_filter` |
-| `FlowerFilterSearched.png` | `canonical_flower_filter_searched` |
-| `FlowerFilterUnkw.png` | `canonical_flower_filter_unknown` |
-| `FlowersFilterAll.png` | `canonical_flower_filter_all` |
-| `GameQuestButton.png` | `btn_quest_game` |
-| `JardimDeDay.png` | `canonical_garden_day_element` |
-| `JardimDeNight.png` | `canonical_garden_night_element` |
-| `JardimVAzioNight.png` | `canonical_garden_empty_night_element` |
-| `JardimVazioDIa.png` | `canonical_garden_empty_day_element` |
-| `MaiorButton.png` | `canonical_font_larger_button` |
-| `MedioButton.png` | `canonical_font_medium_button` |
-| `MenorButton.png` | `canonical_font_smaller_button` |
-| `NameBar.png` | `canonical_name_bar` |
-| `NavBarDay.png` | `canonical_nav_bar_day` |
-| `NavBarNight.png` | `canonical_nav_bar_night` |
-| `NightButton.png` | `canonical_night_button` |
-| `RandomQuestButton.png` | `btn_quest_random` |
-| `SortQuest.png` | `btn_sort_quest` |
-| `StartButton.png` | `btn_start` |
-| `TagAnimals.png` | `btn_tag_animais` |
-| `TagCreate.png` | `btn_tag_criar` |
-| `TagFantasy.png` | `btn_tag_fantasia` |
-| `TagLearn.png` | `btn_tag_learn` |
-| `TagMusic.png` | `btn_tag_musica` |
-| `TagNature.png` | `btn_tag_natureza` |
-| `TagPhoto.png` | `btn_tag_fotografia` |
-| `TagRelax.png` | `btn_tag_relaxar` |
-| `TagTech.png` | `btn_tag_tecnologia` |
-| `VerQuestButton.png` | `canonical_see_quests_button` |
+Todos são PNG RGB opacos, sem canal alfa.
 
-## Semantic tag mapping
+| Origem | Dimensões | Alias Android proposto | Papel |
+|---|---:|---|---|
+| Background/bg_config_day.png | 1536×2752 | canonical_bg_config_day | Configurações — dia |
+| Background/bg_config_night.png | 784×1342 | canonical_bg_config_night | Configurações — noite; dimensões diferem do par diurno |
+| Background/bg_gardem_art_day.png | 1536×2752 | canonical_bg_gardem_art_day | Jardim ilustrado — dia |
+| Background/bg_gardem_art_night.png | 1536×2752 | canonical_bg_gardem_art_night | Jardim ilustrado — noite |
+| Background/bg_gardem_empty_day.png | 1536×2752 | canonical_bg_gardem_empty_day | Jardim vazio — dia |
+| Background/bg_gardem_empty_night.png | 1536×2752 | canonical_bg_gardem_empty_night | Jardim vazio — noite |
+| Background/bg_profile_day.png | 1536×2752 | canonical_bg_profile_day | Perfil — dia |
+| Background/bg_profile_night.png | 1536×2752 | canonical_bg_profile_night | Perfil — noite |
+| Background/bg_start_day.png | 1536×2752 | canonical_bg_start_day | Abertura — dia |
+| Background/bg_start_night.png | 1536×2752 | canonical_bg_start_night | Abertura — noite |
 
-The nine canonical tag graphics map to the existing system tags: Animals → `animals`; Create → `create`; Fantasy → `fantasy`; Learn → `learning`; Music → `music`; Nature → `nature`; Photo → `photography`; Relax → `relax`; Tech → `technology`.
+## Botões e artes de categoria
 
-The canonical `TagLearn.png` asset is **not** the Adventures tag. The visual catalog therefore maps it to the system tag `learning`; the old visual mapping of Adventures to a non-existent `TagAdventures.png` was removed. This changes only the displayed visual-tag selection catalog, not the domain tag definitions or quest-generation semantics.
+Todos são PNG RGBA com transparência. As dimensões descrevem o canvas do arquivo, não o tamanho final de exibição.
 
-## Canonical screen references
+| Origem | Dimensões | Alias Android proposto | Papel |
+|---|---:|---|---|
+| Button/btn_back.png | 66×75 | btn_back | Botão/ícone de voltar; validar nitidez no tamanho real |
+| Button/btn_confirm.png | 187×86 | btn_confirm | Skin de confirmação |
+| Button/btn_font_size.png | 224×68 | btn_font_size | Skin reutilizável para controles de tamanho de fonte; rótulos/estado são Compose |
+| Button/btn_garden_backup.png | 682×160 | btn_garden_backup | Skin de backup |
+| Button/btn_garden_collection.png | 62×54 | btn_garden_collection | Ícone/skin para abrir coleção |
+| Button/btn_garden_filter_all.png | 107×46 | btn_garden_filter_all | Filtro Todas |
+| Button/btn_garden_filter_collected.png | 106×40 | btn_garden_filter_collected | Filtro Coletadas |
+| Button/btn_garden_filter_searched.png | 109×40 | btn_garden_filter_searched | Filtro Pesquisadas; alinhar com estado de domínio vigente |
+| Button/btn_garden_filter_unkw.png | 119×40 | btn_garden_filter_unkw | Filtro Desconhecidas; nome abreviado preservado |
+| Button/btn_quest_draw.png | 349×95 | btn_quest_draw | Ação Sortear quest |
+| Button/btn_quest_game.png | 174×86 | btn_quest_game | Ação Quest de Jogo |
+| Button/btn_quest_random.png | 165×90 | btn_quest_random | Ação Quest Aleatória |
+| Button/btn_support_creator.png | 428×128 | btn_support_creator | Skin de apoio ao criador |
+| Button/btn_theme_day.png | 295×168 | btn_theme_day | Seletor tema dia |
+| Button/btn_theme_night.png | 290×172 | btn_theme_night | Seletor tema noite |
+| Button/btn_view_quests.png | 258×87 | btn_view_quests | Skin Ver quests |
+| Button/card_flower_unknown_day.png | 174×255 | card_flower_unknown_day | Card placeholder de flor, dia; classificado como card apesar da pasta Button |
+| Button/card_flower_unknown_night.png | 178×256 | card_flower_unknown_night | Card placeholder de flor, noite; classificado como card apesar da pasta Button |
+| Button/category_animal.png | 148×111 | category_animal | Arte de categoria; associação semântica ainda exige validação |
+| Button/category_appreciation.png | 155×112 | category_appreciation | Arte de categoria; não inferir equivalência com outro conceito |
+| Button/category_creativity.png | 153×109 | category_creativity | Arte de categoria Criatividade |
+| Button/category_games.png | 159×109 | category_games | Arte de categoria Jogos |
+| Button/category_learn.png | 154×113 | category_learn | Arte de categoria Aprender |
+| Button/category_music.png | 156×110 | category_music | Arte de categoria Música |
+| Button/category_nature.png | 158×113 | category_nature | Arte de categoria Natureza |
+| Button/category_photography.png | 160×111 | category_photography | Arte de categoria Fotografia |
+| Button/category_science.png | 156×112 | category_science | Arte de categoria Ciência |
 
-- `1791405120200.jpg`: overall composition reference.
-- `1791368109565.jpg` and `1791368270990.jpg`: settings day/night composition references.
-- The reference images are not production backgrounds. P6-B must compose live controls and text over the current canonical backgrounds while using these images as layout guidance.
+## Cards e painéis
 
-## Deliberately not changed in P6-A
+Todos são PNG RGBA com transparência.
 
-- Which specific screen uses each background.
-- Layout, sizing, cropping, overlays, typography, bottom navigation, and back-stack behavior.
-- Garden state transitions and quest generation.
-- Removal of legacy sprite sheets or old drawable files.
+| Origem | Dimensões | Alias Android proposto | Papel |
+|---|---:|---|---|
+| Card/card_garden_empty_day.png | 392×282 | card_garden_empty_day | Ilustração/card do estado vazio — dia |
+| Card/card_garden_empty_night.png | 388×316 | card_garden_empty_night | Ilustração/card do estado vazio — noite |
+| Card/card_home_day.png | 612×292 | card_home_day | Superfície do resumo Home — dia; dados dinâmicos ficam em Compose |
+| Card/card_home_night.png | 1062×450 | card_home_night | Superfície do resumo Home — noite; proporção difere do par diurno |
+| Card/card_profile_day.png | 996×461 | card_profile_day | Superfície do perfil — dia |
+| Card/card_profile_night.png | 972×448 | card_profile_night | Superfície do perfil — noite |
+| Card/card_profile_tags.png | 1304×376 | card_profile_tags | Superfície decorativa para área de tags/perfil |
+
+## Navegação e campo de nome
+
+Todos são PNG RGBA com transparência.
+
+| Origem | Dimensões | Alias Android proposto | Papel |
+|---|---:|---|---|
+| NavBar/name_bar.png | 388×124 | name_bar | Moldura para campo de nome real |
+| NavBar/nav_bar_day.png | 768×181 | nav_bar_day | Skin/base da navegação inferior — dia |
+| NavBar/nav_bar_night.png | 798×167 | nav_bar_night | Skin/base da navegação inferior — noite; proporção difere do par diurno |
+
+## Regras de consumo
+
+1. Backgrounds: escolher Crop/Fit conforme o foco da composição; não deformar para preencher. Revalidar áreas de foco em telas diferentes.
+2. Botões: imagem é skin. Callback, enabled/disabled, seleção, descrição acessível e hit target pertencem ao Compose.
+3. Texto dinâmico ou sujeito a escala, tradução e acessibilidade — nome do jardim, XP, flores, rótulos de filtros, títulos, feedback — deve ser texto real em Compose.
+4. Cards: usar a arte como superfície; dados mutáveis não devem ser rasterizados no card.
+5. Navbar: os três destinos globais continuam Início | Jardim | Perfil. A arte pode ser o fundo visual, mas cada destino deve ter ação e área de toque real.
+6. Categoria visual e tag semântica não são sinônimos. Não conectar category_* a IDs de Theme/Tag apenas por semelhança de nome.
+7. Não usar ContentScale.FillBounds para skins, cards ou ícones quando isso alterar a proporção. Usar dimensionamento por razão do asset ou uma estratégia de crop aprovada.
+8. Não executar upscaling automático de btn_back.png; validar a nitidez no tamanho de uso ou regenerar a arte se necessário.
+
+## Pontos pendentes antes do P6-A PASS
+
+- Confirmar path canônico final no GitHub e que os 47 assets estão presentes na branch esperada.
+- Atualizar o mapa de origem/alias em app/build.gradle.kts para Background, Button, Card e NavBar e garantir que não haja aliases duplicados.
+- Validar se bg_config_night.png deve ser reexportado para corresponder à proporção de bg_config_day.png.
+- Avaliar a proporção divergente de card_home_day/night e nav_bar_day/night.
+- Mapear semanticamente category_* após revisar o catálogo do domínio; itens ambíguos ficam pendentes, não associados por aproximação.
+- Atualizar consumidores Kotlin, executar verifyCanonicalUiAssets, build/testes relevantes e registrar resultado. Este documento por si só não valida runtime.
