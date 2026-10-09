@@ -81,6 +81,7 @@ fun PinhoGraphicButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     selected: Boolean = false,
+    showSelectionState: Boolean = false,
     enabled: Boolean = true,
     aspectRatio: Float = 2.7f,
     label: String? = null,
@@ -96,7 +97,9 @@ fun PinhoGraphicButton(
             .semantics {
                 role = Role.Button
                 this.contentDescription = contentDescription
-                stateDescription = if (selected) "Selecionado" else "Não selecionado"
+                if (showSelectionState) {
+                    stateDescription = if (selected) "Selecionado" else "Não selecionado"
+                }
             }
             .clickable(
                 enabled = enabled,
