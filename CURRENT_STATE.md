@@ -1592,3 +1592,25 @@ A consolidated `:app:lintDebug` invocation still reaches the LiteRT-LM bridge an
 - **CR-9 / CR-9.1:** remain closed as previously recorded.
 
 > **P5 closes the application. The remaining lint/toolchain issue is visible, bounded and not allowed to contaminate the runtime contract.**
+
+## P6 documentation authority and transition protocol — 2026-10-09
+
+The official P6 implementation and transition protocol is
+`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`.
+
+### Documentation checkpoint
+
+- Branch: `feature/p6-total-ui-refactor`.
+- This checkpoint changes documentation only: P6 protocol, Engineering Genome entry/authority map, visual registry and contracts, and README pointers.
+- No Kotlin runtime code, binary assets, Gradle/workflow scripts or tests were changed by this documentation checkpoint.
+- The GitHub Contents API confirmed the branch-specific commits for the document and related contract changes. A stable branch HEAD SHA was not independently resolved during this operation, so this note deliberately does not claim a single final HEAD hash.
+- The document distinguishes facts observed in existing docs, hypotheses needing code/runtime reproduction, normative decisions, and gates not yet validated.
+- P6-A through P6-E remain open until their specific implementation and evidence criteria are met. A prior test report is historical evidence for that checkpoint, not a result for the current branch head.
+- Current visual contracts define global bottom-navigation destinations as Início, Jardim and Perfil; historical four-tab wording in Engineering Genome is identified as a documentation conflict to reconcile, not as permission to introduce a second navigation owner.
+
+### Documented issues and remaining work
+
+- `docs/design/CANONICAL_GRAPHICS.md` previously repeated old button filenames and contradicted itself about whether the Button path still had a trailing space. It now points to `ASSET_CATALOG.md` as the sole operational filename/alias inventory and states that any filename must be verified in the target branch.
+- `P6_UI_UX_INTERACTION_CONTRACT.md` and `UI_DESIGN_CONTRACT.md` now link to the protocol while retaining their respective interaction and implementation authority.
+- The legacy date/branch header at the top of this file is not rewritten in this documentation-only checkpoint because the branch HEAD was not independently confirmed. It remains a follow-up item for a dedicated state-snapshot update backed by an exact commit SHA.
+- Runtime consumer migration, three-state Garden behavior, quest repetition root cause, instrumented CI coverage and end-to-end visual validation are not claimed as completed by this documentation change.
