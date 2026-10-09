@@ -283,11 +283,15 @@ private fun ActiveQuestContent(
         }
         Spacer(Modifier.height(18.dp))
         PinhoGraphicButton(
-            resource = R.drawable.pq_btn_confirm,
+            resource = R.drawable.btn_confirm,
             contentDescription = "Concluir quest",
             onClick = onCompleteQuest,
             modifier = Modifier.fillMaxWidth(0.68f),
-            aspectRatio = 3.25f,
+            aspectRatio = 187f / 86f,
+            label = "Concluir quest",
+            labelColor = Color(0xFF4A2114),
+            labelFontSize = 17.sp,
+            labelStartFraction = 0.14f,
         )
         Spacer(Modifier.height(10.dp))
         androidx.compose.material3.TextButton(onClick = onAbandonQuest) {
