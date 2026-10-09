@@ -303,3 +303,16 @@ The implementation should proceed in small verified checkpoints:
 9. E2E validation.
 
 No step should introduce a parallel navigation authority or duplicate domain state.
+
+## 14. Governança da implementação P6
+
+A execução, a sequência de gates e as evidências obrigatórias estão em
+[`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](../../Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
+
+Este contrato continua sendo a autoridade de interação do produto. O protocolo P6 define como implementar/testar as decisões aqui registradas; não altera por si só a semântica de produto.
+
+Regras de interpretação:
+- As três entradas globais da navegação visual são **Início, Jardim e Perfil**; configurações e seletores são fluxos internos salvo decisão explícita que altere esta autoridade.
+- Os três modos visuais do Jardim não são três fontes de dados. O estado de coleta deriva do domínio; abrir a coleção é navegação de apresentação.
+- Repetição de quests é algo a diagnosticar. Causas como seleção determinística, contexto recente ou tags não propagadas são hipóteses até que teste/reprodução as confirme.
+- Screenshots e artes são referência/componente visual; jamais substituem campos editáveis, ações acessíveis ou o estado canônico.
