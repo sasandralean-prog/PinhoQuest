@@ -28,7 +28,7 @@ A seleção aceita combinações dos temas disponíveis e restaura a última sel
 
 O nome do jardim deve ser inserido num campo editável real. name_bar.png, quando usado, é moldura decorativa; foco, teclado, limite de caracteres, validação e persistência permanecem Compose/domínio.
 
-Os rótulos e o slogan não devem depender de texto gravado no fundo. O botão de confirmação é uma skin para um controle com ação real.
+Na abertura, o logotipo e o slogan são parte estática dos backgrounds canônicos bg_start_day/night e não devem ser duplicados por texto Compose. Nas telas de formulário, todos os demais textos funcionais/dinâmicos permanecem Compose. O botão de confirmação é uma skin para um controle com ação real.
 
 ## 4. Configurações
 
@@ -44,7 +44,7 @@ card_profile_day/night e card_profile_tags são superfícies visuais. Nome, pref
 
 O Jardim possui três composições da mesma fonte de dados: vazio, jardim em arte e coleção aberta.
 
-- **Vazio:** bg_gardem_empty_day/night; opcionalmente card_garden_empty_day/night quando a composição aprovada pedir. Não fabricar flores coletadas; CTA convida para o fluxo de quests.
+- **Vazio:** bg_gardem_empty_day/night; opcionalmente card_garden_empty_day/night quando a composição aprovada pedir. bg_gardem_empty_day/night são byte-a-byte iguais aos bg_profile_day/night correspondentes no pacote atual; a reutilização da mesma arte não funde os papéis de tela. Não fabricar flores coletadas; CTA convida para o fluxo de quests.
 - **Jardim em arte:** bg_gardem_art_day/night quando o estado de domínio indicar progresso.
 - **Coleção:** nove posições por coleção. card_flower_unknown_day/night só representa um placeholder quando o estado de descoberta permitir ocultar a identidade.
 
