@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -49,7 +50,7 @@ fun OnboardingScreen(
     var name by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf(emptySet<String>()) }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         when (step) {
             0 -> {
                 PinhoQuestBackground(PinhoQuestBackgrounds.START)
@@ -61,11 +62,15 @@ fun OnboardingScreen(
                     verticalArrangement = Arrangement.Bottom,
                 ) {
                     PinhoGraphicButton(
-                        resource = R.drawable.btn_start,
+                        resource = R.drawable.btn_confirm,
                         contentDescription = "Começar",
                         onClick = { step = 1 },
                         modifier = Modifier.fillMaxWidth(0.62f),
-                        aspectRatio = 3.2f,
+                        aspectRatio = 187f / 86f,
+                        label = "Começar",
+                        labelColor = PinhoCream,
+                        labelFontSize = 19.sp,
+                        labelStartFraction = 0.15f,
                     )
                     Spacer(Modifier.height(76.dp))
                 }
@@ -90,26 +95,15 @@ fun OnboardingScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = 104.dp),
+                            .padding(top = maxHeight * 0.31f),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        androidx.compose.material3.Text(
-                            text = "PinhoQuest",
-                            color = PinhoForest,
-                            fontSize = 42.sp,
-                            style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
-                        )
                         androidx.compose.material3.Text(
                             text = "Como você quer chamar seu jardim?",
                             color = PinhoForest,
                             fontSize = 24.sp,
                         )
                         Spacer(Modifier.height(16.dp))
-                        androidx.compose.material3.Text(
-                            text = "🌼",
-                            fontSize = 30.sp,
-                        )
-                        Spacer(Modifier.height(10.dp))
 
                         Box(
                             modifier = Modifier.fillMaxWidth(0.86f),
@@ -120,10 +114,12 @@ fun OnboardingScreen(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Image(
-                                    painter = painterResource(R.drawable.pq_label_name),
+                                    painter = painterResource(R.drawable.name_bar),
                                     contentDescription = null,
-                                    contentScale = ContentScale.FillBounds,
-                                    modifier = Modifier.fillMaxWidth(),
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(388f / 124f),
                                 )
                                 BasicTextField(
                                     value = name,
@@ -152,13 +148,17 @@ fun OnboardingScreen(
                         )
                         Spacer(Modifier.height(24.dp))
                         PinhoGraphicButton(
-                            resource = R.drawable.pq_btn_confirm,
+                            resource = R.drawable.btn_confirm,
                             contentDescription = "Confirmar nome",
                             onClick = {
                                 if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
                             },
                             modifier = Modifier.fillMaxWidth(0.56f),
-                            aspectRatio = 3.25f,
+                            aspectRatio = 187f / 86f,
+                            label = "Confirmar",
+                            labelColor = PinhoCream,
+                            labelFontSize = 18.sp,
+                            labelStartFraction = 0.15f,
                         )
                     }
                 }
@@ -182,13 +182,7 @@ fun OnboardingScreen(
                     ) {
                         PinhoBackButton(onClick = { step = 1 })
                     }
-                    Spacer(Modifier.height(26.dp))
-                    androidx.compose.material3.Text(
-                        "PinhoQuest",
-                        color = PinhoForest,
-                        fontSize = 38.sp,
-                        style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
-                    )
+                    Spacer(Modifier.height(maxHeight * 0.28f))
                     androidx.compose.material3.Text(
                         "O que você gosta?",
                         color = PinhoForest,
