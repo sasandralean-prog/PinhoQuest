@@ -21,7 +21,7 @@ Home1 continua a composição canônica de Home/Quest: refinar, sem alterar a se
 
 ## 3. Família de backgrounds
 
-- bg_start_day.png / bg_start_night.png: cenário da abertura. O botão Começar é controle separado. A marca e o slogan devem ser Compose ou asset de marca separado, não duplicados no fundo.
+- bg_start_day.png / bg_start_night.png: cenários de abertura com marca PinhoQuest e slogan incorporados na arte aprovada. O botão Começar é um controle Compose separado. Não sobrepor outro logotipo/slogan por cima destes backgrounds, o que duplicaria a marca.
 - bg_config_day.png / bg_config_night.png: ambiente interno para Configurações.
 - bg_gardem_art_day.png / bg_gardem_art_night.png: cenário da composição Jardim em arte, quando os dados de domínio indicarem progresso.
 - bg_gardem_empty_day.png / bg_gardem_empty_night.png: cenário da composição de jardim vazio.
@@ -78,6 +78,7 @@ Usar bg_profile_day/night e surfaces card_profile_day/night e card_profile_tags.
 ## 6. Escala, tema e acessibilidade
 
 - Os fundos são imagens 9:16 em 1536×2752, exceto bg_config_night (784×1342); revisar o par diurno/noturno antes do gate.
+- Os arquivos bg_gardem_empty_day.png e bg_profile_day.png são byte-a-byte idênticos no pacote recebido; o mesmo ocorre com bg_gardem_empty_night.png e bg_profile_night.png. Mantêm-se aliases e papéis semânticos separados por decisão de composição, mas uma futura consolidação pode reduzir duplicação após validação visual.
 - card_home_day/night e nav_bar_day/night possuem proporções diferentes dentro do par; cada elemento precisa manter razão própria ou a arte deve ser normalizada numa decisão explícita.
 - PinhoGraphicButton usa ContentScale.FillBounds no código atualmente observado; isso pode distorcer os novos assets se a razão do container divergir. P6-B deve retirar esse comportamento genérico para componentes que precisem preservar proporção.
 - Texto configurável e dinâmico nunca deve ser rasterizado em background ou card.
