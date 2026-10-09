@@ -24,6 +24,7 @@ import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.ui.PinhoBackButton
+import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoQuestBackground
