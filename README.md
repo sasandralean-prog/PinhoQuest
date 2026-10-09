@@ -26,3 +26,15 @@ O **design V1 foi aprovado** e a implementação funcional de Pinho Quest já es
 - Backups privados e públicos como snapshots.
 - Nada de streak, FOMO, lootbox ou retenção punitiva.
 - UX afável, otimista e verdadeira.
+
+## Engenharia do P6
+
+O ponto oficial de continuidade da refatoração visual é
+[`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
+Ele define os gates P6-A..P6-E, a ordem documental, critérios de validação e política de checkpoints. A existência do protocolo não significa que a implementação ou os gates estejam concluídos.
+
+Para referência visual e de implementação, consulte também:
+- [Catálogo canônico de assets](docs/design/ASSET_CATALOG.md)
+- [Registry de referências visuais](docs/design/CANONICAL_GRAPHICS.md)
+- [Contrato visual de implementação](docs/design/UI_DESIGN_CONTRACT.md)
+- [Contrato de interação P6](docs/design/P6_UI_UX_INTERACTION_CONTRACT.md)
