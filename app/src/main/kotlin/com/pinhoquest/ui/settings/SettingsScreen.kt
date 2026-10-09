@@ -1,5 +1,6 @@
 package com.pinhoquest.ui.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +23,11 @@ import com.pinhoquest.R
 import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoGraphicButton
-import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
 import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoWood
 
 @Composable
 fun SettingsScreen(
@@ -44,120 +45,149 @@ fun SettingsScreen(
     val isDark = theme == ThemePreference.DARK
     Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
-            resource = PinhoQuestBackgrounds.SETTINGS,
-            overlay = if (isDark) Color(0xFF061B36) else Color(0xFFFFE8BC),
-            overlayAlpha = if (isDark) 0.10f else 0.04f,
+            resource = if (isDark) PinhoQuestBackgrounds.SETTINGS_NIGHT else PinhoQuestBackgrounds.SETTINGS_DAY,
         )
         Column(
             modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            PinhoBackButton(onClick = onBack)
-            Spacer(Modifier.weight(1f))
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(R.drawable.pq_topbar_config),
-                contentDescription = "Configurações",
-                modifier = Modifier
-                    .fillMaxWidth(0.78f)
-                    .height(72.dp),
-            )
-        }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PinhoBackButton(onClick = onBack)
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(72.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.name_bar),
+                        contentDescription = null,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    Text(
+                        text = "⚙ Configurações",
+                        color = Color(0xFF4A2114),
+                        fontSize = 25.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                }
+            }
 
-        Spacer(Modifier.height(14.dp))
-
-        PinhoParchment(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                "Jardim de $ownerName",
-                color = PinhoInk,
-                fontSize = 18.sp,
-            )
-            Spacer(Modifier.height(16.dp))
-
-            Text("Tema", color = PinhoForest, fontSize = 22.sp)
+            Spacer(Modifier.height(18.dp))
+            Text("Tema", color = PinhoForest, fontSize = 23.sp)
             Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_day,
-                    contentDescription = "Dia",
+                    resource = R.drawable.btn_theme_day,
+                    contentDescription = "Selecionar tema dia",
                     onClick = { onThemeSelected(ThemePreference.LIGHT) },
                     selected = !isDark,
+                    showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 1.55f,
+                    aspectRatio = 295f / 168f,
+                    label = "Dia",
+                    labelColor = PinhoInk,
+                    labelFontSize = 20.sp,
+                    labelAlignment = Alignment.BottomCenter,
                 )
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_night,
-                    contentDescription = "Noite",
+                    resource = R.drawable.btn_theme_night,
+                    contentDescription = "Selecionar tema noite",
                     onClick = { onThemeSelected(ThemePreference.DARK) },
                     selected = isDark,
+                    showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 1.55f,
+                    aspectRatio = 290f / 172f,
+                    label = "Noite",
+                    labelColor = Color(0xFFFFF0BD),
+                    labelFontSize = 20.sp,
+                    labelAlignment = Alignment.BottomCenter,
                 )
             }
 
-            Spacer(Modifier.height(18.dp))
-            Text("Tamanho da fonte", color = PinhoForest, fontSize = 22.sp)
+            Spacer(Modifier.height(20.dp))
+            Text("Tamanho da fonte", color = PinhoForest, fontSize = 23.sp)
             Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(7.dp),
             ) {
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_menor,
-                    contentDescription = "Menor",
+                    resource = R.drawable.btn_font_size,
+                    contentDescription = "Tamanho de fonte menor",
                     onClick = { onFontScaleSelected(0.9f) },
                     selected = fontScale == 0.9f,
+                    showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 2.35f,
+                    aspectRatio = 224f / 68f,
+                    label = "Menor",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 16.sp,
                 )
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_medio,
-                    contentDescription = "Médio",
+                    resource = R.drawable.btn_font_size,
+                    contentDescription = "Tamanho de fonte médio",
                     onClick = { onFontScaleSelected(1.0f) },
                     selected = fontScale == 1.0f,
+                    showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 2.35f,
+                    aspectRatio = 224f / 68f,
+                    label = "Médio",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 16.sp,
                 )
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_maior,
-                    contentDescription = "Maior",
+                    resource = R.drawable.btn_font_size,
+                    contentDescription = "Tamanho de fonte maior",
                     onClick = { onFontScaleSelected(1.15f) },
                     selected = fontScale == 1.15f,
+                    showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 2.35f,
+                    aspectRatio = 224f / 68f,
+                    label = "Maior",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 16.sp,
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(22.dp))
             onBackup?.let {
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_backup,
+                    resource = R.drawable.btn_garden_backup,
                     contentDescription = "Guardar uma cópia do seu jardim",
                     onClick = it,
                     modifier = Modifier.fillMaxWidth(),
-                    aspectRatio = 4.45f,
+                    aspectRatio = 682f / 160f,
+                    label = "Guardar uma cópia do seu jardim",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 18.sp,
+                    labelStartFraction = 0.20f,
                 )
             }
 
             Spacer(Modifier.height(12.dp))
             onDonate?.let {
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_donate,
+                    resource = R.drawable.btn_support_creator,
                     contentDescription = "Apoie o criador Pinho Abacaxi",
                     onClick = it,
                     modifier = Modifier.fillMaxWidth(0.86f),
-                    aspectRatio = 3.7f,
+                    aspectRatio = 428f / 128f,
+                    label = "Apoie o criador\nPinho Abacaxi",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 18.sp,
+                    labelStartFraction = 0.22f,
                 )
             }
 
@@ -169,21 +199,18 @@ fun SettingsScreen(
                     fontSize = 13.sp,
                 )
                 PinhoGraphicButton(
-                    resource = R.drawable.pq_btn_confirm,
+                    resource = R.drawable.btn_confirm,
                     contentDescription = "Baixar cérebro criativo",
                     onClick = install,
                     modifier = Modifier.fillMaxWidth(0.70f),
-                    aspectRatio = 3.25f,
+                    aspectRatio = 187f / 86f,
+                    label = "Baixar cérebro criativo",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 15.sp,
+                    labelStartFraction = 0.15f,
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "Suas escolhas ficam salvas neste aparelho.",
-                color = PinhoInk.copy(alpha = 0.78f),
-                fontSize = 12.sp,
-            )
-        }
             Spacer(Modifier.height(80.dp))
         }
     }
