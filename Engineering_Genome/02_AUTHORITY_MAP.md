@@ -170,3 +170,14 @@ UI may not:
 - directly mark a reward owned;
 - bypass validators;
 - directly become persistence authority.
+
+## P6 visual authority and diagnostics
+
+For visual implementation and P6 completion criteria, follow
+`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`.
+
+The protocol does not replace this domain-authority map. It governs P6 sequencing, evidence quality and the handoff between visual composition and the existing domain/core contracts.
+
+Current P6 visual contract identifies three global bottom-navigation destinations: **Início, Jardim, Perfil**. Settings and theme/tag selection are internal destinations/flows unless product authority is explicitly changed. Treat historical four-tab statements as a documentation conflict to reconcile, not as permission to create a second navigation owner.
+
+Quest repetition remains a diagnostic target until reproduced. Trace approved tags/context, plan, composer path, model/fallback outcome and shared validation boundary before assigning a root cause. Never pass raw domain/research data into the model or allow raw model output to bypass typed decoding and validation.
