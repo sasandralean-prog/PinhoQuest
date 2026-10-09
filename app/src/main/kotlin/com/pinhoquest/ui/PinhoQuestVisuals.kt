@@ -340,16 +340,15 @@ object PinhoQuestBackgrounds {
 }
 
 @DrawableRes
-private fun tagGraphicAsset(tagId: TagId): Int = when (tagId.value) {
+private fun tagGraphicAsset(tagId: TagId): Int? = when (tagId.value) {
     "music" -> R.drawable.category_music
     "photography" -> R.drawable.category_photography
     "nature" -> R.drawable.category_nature
     "animals" -> R.drawable.category_animal
     "learning" -> R.drawable.category_learn
-    // These legacy semantic tags have no exact matching category art in the new pack.
-    // A neutral skin keeps the controls usable without falsely assigning another category icon.
-    "technology", "relax", "create", "fantasy" -> R.drawable.btn_font_size
-    else -> R.drawable.btn_font_size
+    // No exact category art exists for technology, relax, create, or fantasy.
+    // Those tags use a neutral Compose surface until the owner approves more art.
+    else -> null
 }
 
 val PinhoVisualTagIds: List<TagId> = listOf(
@@ -372,30 +371,46 @@ fun PinhoTagGraphicButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val asset = requireNotNull(tagGraphicAsset(tagId)) {
-        "No canonical visual asset registered for system tag: " + tagId.value
+    val asset = tagGraphicAsset(tagId)
+    val fallbackSurface = if (asset == null) {
+        Modifier
+            .background(
+                if (selected) PinhoCreamSoft else PinhoCream.copy(alpha = 0.96f),
+                RoundedCornerShape(18.dp),
+            )
+            .border(
+                1.dp,
+                if (selected) PinhoLeaf else Color(0xFFB99162),
+                RoundedCornerShape(18.dp),
+            )
+    } else {
+        Modifier
     }
 
     Box(
         modifier = modifier
             .height(78.dp)
+            .then(fallbackSurface)
             .pinhoSelectedGlow(selected, cornerRadius = 18.dp)
             .semantics {
                 role = Role.Button
+                this.contentDescription = contentDescription
                 stateDescription = if (selected) "Selecionado" else "Não selecionado"
             }
             .clickable(onClickLabel = contentDescription, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = painterResource(asset),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize(),
-        )
+        asset?.let {
+            Image(
+                painter = painterResource(it),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
         Text(
             text = contentDescription,
-            color = if (selected) PinhoForest else PinhoInk,
+            color = PinhoInk,
             fontSize = 11.sp,
             textAlign = TextAlign.Center,
             lineHeight = 12.sp,
