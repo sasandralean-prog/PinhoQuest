@@ -226,11 +226,15 @@ fun OnboardingScreen(
 
                     Spacer(Modifier.weight(1f))
                     PinhoGraphicButton(
-                        resource = R.drawable.pq_btn_continue,
+                        resource = R.drawable.btn_confirm,
                         contentDescription = "Continuar",
                         onClick = { onComplete(name.trim(), selected) },
                         modifier = Modifier.fillMaxWidth(0.62f),
-                        aspectRatio = 3.2f,
+                        aspectRatio = 187f / 86f,
+                        label = "Continuar",
+                        labelColor = PinhoCream,
+                        labelFontSize = 18.sp,
+                        labelStartFraction = 0.15f,
                     )
                     Spacer(Modifier.height(18.dp))
                 }
