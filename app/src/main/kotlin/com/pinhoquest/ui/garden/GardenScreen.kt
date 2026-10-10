@@ -241,6 +241,7 @@ private fun GardenFilterChip(
         selected = selected,
         showSelectionState = true,
         aspectRatio = aspectRatio,
+        selectionCornerRadius = 10.dp,
         label = label,
         labelColor = Color(0xFF4A2114),
         labelFontSize = 9.sp,

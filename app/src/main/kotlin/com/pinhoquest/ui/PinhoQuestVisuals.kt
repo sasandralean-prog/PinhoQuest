@@ -96,11 +96,12 @@ fun PinhoGraphicButton(
     labelStartFraction: Float = 0f,
     labelEndFraction: Float = 0f,
     labelBottomFraction: Float = 0f,
+    selectionCornerRadius: androidx.compose.ui.unit.Dp = 28.dp,
 ) {
     Box(
         modifier = modifier
             .aspectRatio(aspectRatio)
-            .pinhoSelectedGlow(selected)
+            .pinhoSelectedGlow(selected, cornerRadius = selectionCornerRadius)
             .semantics {
                 role = Role.Button
                 this.contentDescription = contentDescription
@@ -262,7 +263,6 @@ private fun PinhoNavItem(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pinhoSelectedGlow(selected, cornerRadius = 22.dp)
             .semantics {
                 role = Role.Button
                 contentDescription = label

@@ -81,8 +81,8 @@ fun SettingsScreen(
                     Row(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .fillMaxWidth(0.82f)
-                            .offset(x = maxWidth * 0.05f),
+                            .fillMaxWidth(0.68f)
+                            .offset(x = maxWidth * 0.10f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                     ) {
@@ -96,7 +96,7 @@ fun SettingsScreen(
                             text = "Configurações",
                             modifier = Modifier.weight(1f),
                             color = Color(0xFF4A2114),
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                             maxLines = 1,
                             softWrap = false,
                             overflow = TextOverflow.Ellipsis,
@@ -121,6 +121,7 @@ fun SettingsScreen(
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 300f / 180f,
+                    selectionCornerRadius = 18.dp,
                     label = "Dia",
                     labelColor = PinhoInk,
                     labelFontSize = 18.sp,
@@ -135,6 +136,7 @@ fun SettingsScreen(
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 300f / 180f,
+                    selectionCornerRadius = 18.dp,
                     label = "Noite",
                     labelColor = Color(0xFFFFF0BD),
                     labelFontSize = 18.sp,
@@ -158,6 +160,7 @@ fun SettingsScreen(
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 224f / 68f,
+                    selectionCornerRadius = 12.dp,
                     label = "Menor",
                     labelColor = Color(0xFF4A2114),
                     labelFontSize = 16.sp,
@@ -170,6 +173,7 @@ fun SettingsScreen(
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 224f / 68f,
+                    selectionCornerRadius = 12.dp,
                     label = "Médio",
                     labelColor = Color(0xFF4A2114),
                     labelFontSize = 16.sp,
@@ -182,6 +186,7 @@ fun SettingsScreen(
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 224f / 68f,
+                    selectionCornerRadius = 12.dp,
                     label = "Maior",
                     labelColor = Color(0xFF4A2114),
                     labelFontSize = 16.sp,
