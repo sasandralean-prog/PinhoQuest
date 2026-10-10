@@ -35,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
@@ -99,7 +100,7 @@ fun OnboardingScreen(
                 ) {
                     PinhoBackButton(
                         onClick = { step = 0 },
-                        modifier = Modifier.padding(top = 16.dp, start = 4.dp),
+                        modifier = Modifier.padding(top = 16.dp, start = 4.dp).zIndex(1f),
                     )
 
                     Column(
