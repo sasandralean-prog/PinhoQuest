@@ -24,9 +24,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -281,17 +284,39 @@ fun Modifier.pinhoSelectedGlow(
     cornerRadius: androidx.compose.ui.unit.Dp = 28.dp,
 ): Modifier {
     if (!selected) return this
-    return drawBehind {
+    return drawWithContent {
         val radius = cornerRadius.toPx()
+        val glow = 5.dp.toPx()
+
+        // Draw a soft halo outside the component bounds first. Unlike drawBehind,
+        // the selected treatment below is also painted after opaque PNG artwork.
         drawRoundRect(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    PinhoGold.copy(alpha = 0.24f),
-                    PinhoGold.copy(alpha = 0.08f),
-                    Color.Transparent,
-                ),
-            ),
+            color = PinhoGold.copy(alpha = 0.22f),
+            topLeft = Offset(-glow, -glow),
+            size = Size(size.width + glow * 2f, size.height + glow * 2f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius + glow, radius + glow),
+            style = Stroke(width = glow * 1.5f),
+        )
+        drawRoundRect(
+            color = PinhoGold.copy(alpha = 0.34f),
+            topLeft = Offset(-glow * 0.35f, -glow * 0.35f),
+            size = Size(size.width + glow * 0.7f, size.height + glow * 0.7f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius + glow * 0.35f, radius + glow * 0.35f),
+            style = Stroke(width = glow * 0.65f),
+        )
+
+        drawContent()
+
+        // A restrained warm tint plus a clear gold edge makes selection visible
+        // on both light and dark skins without replacing the original artwork.
+        drawRoundRect(
+            color = PinhoGold.copy(alpha = 0.07f),
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
+        )
+        drawRoundRect(
+            color = PinhoGold.copy(alpha = 0.96f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
+            style = Stroke(width = 2.dp.toPx()),
         )
     }
 }
