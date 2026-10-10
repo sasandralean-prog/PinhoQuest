@@ -93,7 +93,8 @@ fun GardenScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 10.dp, vertical = 12.dp),
+                // Keep the global bottom navigation from covering the last collection row.
+                .padding(start = 10.dp, top = 12.dp, end = 10.dp, bottom = 92.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -392,43 +393,46 @@ private fun GardenFlowerCard(
                 modifier = Modifier.fillMaxSize(),
             )
         }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(icon, fontSize = 42.sp)
-            Spacer(Modifier.height(2.dp))
-            when (flower.discoveryState) {
-                FlowerDiscoveryState.HIDDEN,
-                FlowerDiscoveryState.HINTED,
-                -> {
-                    Text(
-                        if (flower.discoveryState == FlowerDiscoveryState.HIDDEN) "???" else "Uma pista",
-                        color = PinhoInk,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Text(
-                        if (flower.discoveryState == FlowerDiscoveryState.HIDDEN) "Desconhecida" else "Pesquisada",
-                        color = PinhoInk,
-                        fontSize = 12.sp,
-                    )
-                }
-                FlowerDiscoveryState.REVEALED,
-                FlowerDiscoveryState.COLLECTED,
-                -> {
-                    Text(
-                        flower.commonName,
-                        color = PinhoInk,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Text(
-                        flower.rarity.label,
-                        color = PinhoInk,
-                        fontSize = 12.sp,
-                    )
+        // The unknown-flower PNG already contains the question mark, "???",
+        // and "Desconhecida" lettering. Do not paint a second copy over the artwork.
+        if (!isUnknown) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(icon, fontSize = 42.sp)
+                Spacer(Modifier.height(2.dp))
+                when (flower.discoveryState) {
+                    FlowerDiscoveryState.HIDDEN -> Unit
+                    FlowerDiscoveryState.HINTED -> {
+                        Text(
+                            "Uma pista",
+                            color = PinhoInk,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            "Pesquisada",
+                            color = PinhoInk,
+                            fontSize = 12.sp,
+                        )
+                    }
+                    FlowerDiscoveryState.REVEALED,
+                    FlowerDiscoveryState.COLLECTED,
+                    -> {
+                        Text(
+                            flower.commonName,
+                            color = PinhoInk,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            flower.rarity.label,
+                            color = PinhoInk,
+                            fontSize = 12.sp,
+                        )
+                    }
                 }
             }
         }
