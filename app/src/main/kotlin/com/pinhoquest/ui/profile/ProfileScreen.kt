@@ -2,6 +2,7 @@ package com.pinhoquest.ui.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.core.tag.SystemTagCatalog
