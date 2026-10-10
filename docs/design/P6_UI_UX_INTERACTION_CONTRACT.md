@@ -33,9 +33,9 @@ A seleção de várias preferências não é limitada a três. Qualquer limite d
 - O nome do jardim é campo editável real. `name_bar.png` é moldura visual; foco, teclado, caracteres permitidos, validação e persistência continuam Compose/domínio.
 - A validação de nome continua com `GardenOwnerName`.
 - Marca/logotipo embutidos no background não devem ser redesenhados por cima.
-- A tela de nome deve manter campo e CTA Confirmar acessíveis com IME/teclado aberto.
-- A seleção visual de tags deve permitir acessar todas as opções e Continuar em alturas compactas. As telas devem responder ao espaço útil de conteúdo, sem dependência de deslocamentos proporcionais fixos.
-- Estas duas regras de responsividade permanecem trabalho de P6-C.
+- A etapa de nome na implementação corrente usa rolagem vertical e `imePadding`; a ação IME Done só avança se `GardenOwnerName.create(name.trim())` for bem-sucedido. Ainda falta confirmar foco, reposicionamento e acesso ao CTA no teclado real do aparelho.
+- A seleção visual de tags permite rolagem e evita o antigo espaçador vertical proporcional grande; as nove opções e Continuar precisam ser verificadas em viewport compacta, especialmente com fonte ampliada.
+- Implementação parcial de P6-C; o gate permanece aberto até CI verde do novo SHA e validação visual/funcional em aparelho.
 
 ## 4. Configurações e preferências
 
@@ -61,7 +61,7 @@ O Jardim tem três composições da mesma fonte governada: vazio, jardim em arte
 - Filtros não podem cortar nomes; grade começa abaixo dos filtros e respeita o espaço restante.
 - A navbar global não pode esconder itens da grade, detalhe de flor ou CTAs.
 
-Correções de geometria, scroll, filtros e safe areas são de P6-C. O texto define o requisito, não atesta que esteja corrigido.
+Correções de geometria, rolagem, filtros e safe areas estão em implementação em P6-C: a grade usa a altura restante do painel, os filtros mudam para duas colunas em largura compacta, o card desconhecido usa proporção retrato e as telas passam a reservar espaço inferior com base na navbar/insets. Isso não declara o gate concluído; CI do novo SHA e revisão no aparelho são obrigatórios.
 
 ## 7. Navbar e navegação
 
@@ -96,4 +96,4 @@ Configurações e seleção de temas são fluxos internos; não criam abas globa
 - `P6-E`: distribuição segura do modelo, mapeamento semântico de categoria, fonte e acessibilidade.
 - `P6-Final`: regressão de release ligada ao SHA testado.
 
-Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
+**Estado atual:** P6-B aceito como concluído nesta rodada com base na CI verde #38081485398 e na avaliação provisória do proprietário; P6-C permanece em andamento enquanto a nova CI e a validação de runtime em aparelho não forem concluídas. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.

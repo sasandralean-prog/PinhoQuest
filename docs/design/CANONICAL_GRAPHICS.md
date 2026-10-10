@@ -56,10 +56,10 @@ Há nove imagens `category_*` 160×120, fisicamente em `docs/design/Button/` e c
 ## 4. Regras de composição por tela
 
 ### Abertura e onboarding
-A marca embutida nos backgrounds start não deve ser duplicada. Botões e campos são controles reais. A etapa de nome precisa manter campo e CTA acessíveis quando o teclado está aberto. A etapa de tags precisa permitir acessar todas as opções e Continuar em viewport compacta. No baseline atual há espaçadores proporcionais e o conteúdo da etapa de tags não tem rolagem própria; isso é item de correção P6-C, não considerado resolvido aqui.
+A marca embutida nos backgrounds start não deve ser duplicada. Botões e campos são controles reais. No código atual da branch P6, a etapa de nome usa rolagem vertical e `imePadding`, com ação IME Done que só avança se `GardenOwnerName` validar o nome; a tela de tags é rolável e reserva menos espaço vazio acima das opções. O item segue em P6-C até ser validado com teclado real aberto e viewport compacta.
 
 ### Home/Quest
-A Home mantém Sortear Quest, Quest Aleatória e Quest de Jogo. O card de resumo mostra nome do jardim, contagem e XP a partir de estado real. Textos ficam na área segura livre da ilustração; não duplicar ícones já desenhados. O código atualmente usa razões antigas em alguns consumidores, que devem ser atualizadas em P6-B. Para quest gerada/ativa, não deixar parchment ou conteúdo invadir marca incorporada e manter objetivos/CTAs alcançáveis (P6-C).
+A Home mantém Sortear Quest, Quest Aleatória e Quest de Jogo. O card de resumo mostra nome do jardim, contagem e XP a partir de estado real. Textos ficam na área segura livre da ilustração; não duplicar ícones já desenhados. P6-B ajustou o resumo ao canvas comum 612×292 e os controles gráficos às proporções canônicas. P6-C começou a aplicar reserva inferior calculada a partir da proporção da arte da navbar e dos insets do sistema às telas de quest; a legibilidade final de conteúdo longo aguarda CI e captura no aparelho.
 
 ### Configurações
 Usar o cenário config, os botões de tema, fonte, backup e apoio. As imagens de tema têm canvas comum 300×180; o Compose controla seleção e preferência persistida. A navbar continua global e não deve ocultar ações do conteúdo rolável.
@@ -68,8 +68,10 @@ Usar o cenário config, os botões de tema, fonte, backup e apoio. As imagens de
 - A fonte de dados é `GardenUiState` e as autoridades de domínio/dados.
 - Vazio, jardim em arte e coleção são composições distintas da mesma autoridade; não fabricar XP nem flores.
 - A coleção comporta nove posições; filtros alteram a projeção, não o domínio.
-- A grade deve começar abaixo dos filtros e usar apenas o espaço restante. O conteúdo rolável não pode ficar sob a navbar.
-- Um card de flor desconhecida usa a arte existente sem redesenhar seu “?” ou “???”. Nome botânico, raridade e estado mudam segundo o domínio.
+- A grade deve começar abaixo dos filtros e usar apenas o espaço restante; o código atual dá o peso vertical da área remanescente à `LazyVerticalGrid` dentro do pergaminho.
+- Os quatro filtros preservam rótulos completos; em largura inferior a 520 dp são distribuídos em duas colunas/duas linhas, em vez de esmagar todos numa única linha.
+- Cards de flor desconhecida usam proporção retrato e a arte existente sem redesenhar “?” ou “???”. Nome botânico, raridade e estado continuam vindo do domínio.
+- P6-C introduziu uma reserva inferior comum calculada a partir da proporção da navbar e dos insets do sistema; CI e teste em aparelho ainda precisam confirmar o resultado.
 - Filtro “Pesquisadas” deve corresponder à semântica dos estados de descoberta/revelação no domínio atual.
 
 ### Perfil
@@ -87,9 +89,8 @@ Nome e preferências vêm do estado real. As nove tags visuais atuais não têm 
 
 ## 6. Evidência e gate
 
-O presente registro define intenção visual. A implementação segue pendente onde as screenshots e a inspeção de código apontam divergências:
-- `P6-B`: sobreposição de ícones, proporções de botões/cards, labels e navbar.
-- `P6-C`: onboarding/IME, grade e filtros da coleção, safe areas e textos longos.
-- `P6-E`: mapeamento semântico de artes e decisão/licença da MS Boli.
-
-Para P6-A, o inventário e os aliases foram reconciliados documentalmente com o Gradle. A CI do snapshot base foi consultada; a execução no commit documental resultante precisa ser registrada antes de atualizar o estado do gate. Não declarar gate visual PASS sem screenshots reproduzíveis do APK testado.
+Estado de implementação na revisão de 10/10/2026:
+- **P6-A:** inventário e aliases canônicos reconciliados; consultar o protocolo para o SHA/CI de evidência.
+- **P6-B:** concluído nesta rodada conforme aceitação provisória do proprietário; [Android CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) passou no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`. Polimentos visuais residuais não são declarados resolvidos por esse gate.
+- **P6-C:** implementação em andamento na branch `feature/p6-total-ui-refactor`. Jardim, coleção, safe areas e IME tiveram correções iniciais; a execução de CI do SHA `31e603392d89734102e7b89a09144efc9886c494` estava em andamento na revisão. Ainda faltam CI verde ligado ao novo SHA e capturas no aparelho. Não declarar gate visual PASS só por compilar.
+- **P6-E:** o mapeamento visual das nove categorias foi aprovado pelo proprietário. Licença/procedência da MS Boli e distribuição verificável do modelo local continuam pendentes.

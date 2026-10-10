@@ -3,7 +3,7 @@
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
 **Revisão do contrato:** 2026-10-10  
-**SHA de código base para esta atualização documental:** cc385fac097112d76e5e5381b8ac9040354c280f  
+**HEAD de código revisado antes desta atualização documental:** 31e603392d89734102e7b89a09144efc9886c494  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
 > Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
@@ -57,10 +57,13 @@ Documentos que devem permanecer sincronizados:
 
 ### 3.1 Snapshot desta revisão
 
-- Branch: feature/p6-total-ui-refactor.
-- HEAD de código antes deste incremento documental: `cc385fac097112d76e5e5381b8ac9040354c280f`.
-- Execução consultada para esse SHA: [Android CI #159](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38061875849), conclusão `success`.
-- A alteração P6-A atual é documental. Depois de publicar estes documentos, conferir a execução CI ligada ao novo commit antes de declarar a verificação do snapshot resultante. A execução anterior não substitui validação visual em aparelho nem prova que os problemas das screenshots estejam corrigidos.
+- **Branch:** `feature/p6-total-ui-refactor`.
+- **HEAD de código revisado antes desta atualização:** `31e603392d89734102e7b89a09144efc9886c494`.
+- **P6-B:** concluído nesta rodada por aceitação provisória do proprietário. A execução [Android CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) concluiu com `success` no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`. Pequenos polimentos estéticos restantes não são descritos como resolvidos nem bloqueiam esta aceitação.
+- **P6-C:** primeira implementação publicada nos commits `1df9957d02f6002985233a577187089685b7e2ee`, `73f380203b4279f164dc48fce0bfa7c6cd5954f3`, `8274be1342ab423eb071366390e64a783fe55043`, `19c083a83bc9727663ff9df780a64e4fff4af5b0` e correção de imports em `31e603392d89734102e7b89a09144efc9886c494`.
+- A execução [Android CI #38093315567](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093315567) estava `in_progress` para o SHA `31e603392d89734102e7b89a09144efc9886c494` na última consulta antes desta atualização documental. O build P6-C não é declarado verde por este registro.
+- O workflow compila testes instrumentados mas não os executa em aparelho/emulador. Evidência real do IME, escalas ampliadas e safe areas em dispositivo continua necessária para fechar P6-C.
+- A CI verde do P6-B não substitui a CI do SHA atual nem comprova a validação visual de runtime.
 
 ### 3.2 Assets publicados e mapeamento de build
 
@@ -116,6 +119,16 @@ A padronização dos backgrounds para 1080 × 1920 px (9:16) também foi registr
 
 Essas observações foram reproduzidas pela inspeção da branch e comparadas com as screenshots. Qualquer hipótese adicional sobre densidade, teclado, tema ou comportamento em outras telas precisa de teste, não deve ser registrada como fato até ser reproduzida.
 
+### 3.5 Implementação corrente após P6-B
+
+Os itens abaixo registram a implementação publicada, não o fechamento do gate:
+- **C-01:** o card desconhecido usa proporção retrato `174/255` e preserva o lettering que já existe no PNG.
+- **C-02/C-03:** a grade recebe `weight(1f)` dentro do painel rolável, e os filtros completos usam uma linha em larguras ≥520 dp ou duas colunas/duas linhas em telas mais estreitas. Foi adicionado teste Compose instrumentado para 360×720 dp que verifica os quatro filtros e a operação de Desconhecidas.
+- **C-04:** `PinhoQuestNav` fornece `LocalPinhoBottomNavigationInset` calculado com a proporção da navbar atual e `WindowInsets.navigationBars`; Jardim, perfil, configurações e telas de quest consomem essa reserva em vez de alturas mágicas locais.
+- **C-05/C-06:** a etapa de nome é rolável e usa `imePadding`; o campo tem semântica acessível e ação Done condicional à validação. A página de tags reduz o espaçador superior e permanece rolável. Falta confirmar o comportamento com IME real no aparelho.
+- **C-07:** conteúdo Home/quest gerada/ativa reserva espaço inferior calculado para não ficar sob a navbar; textos longos continuam aguardando regressão visual/instrumentada.
+- A correção de imports publicada em `31e603392d89734102e7b89a09144efc9886c494` resolve os erros de referência encontrados na execução falha do SHA anterior. A nova execução precisa comprovar o resultado.
+
 ## 4. Priorização e política de gate
 
 - **P1 — bloqueia uso confiável ou um fluxo principal:** ação encoberta, informação essencial ilegível, seleção que não funciona, conteúdo inacessível, repetição que contradiz o modo de geração prometido, ou requisito de produto V1 sem caminho de execução.
@@ -161,6 +174,8 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 
 **Objetivo:** eliminar sobreposições causadas pelo código compartilhado e usar as proporções finais dos assets, sem redesenhar as artes.
 
+**Estado em 10/10/2026: CONCLUÍDO NESTA RODADA.** O proprietário aceitou o resultado visual atual, reconhecendo que ainda cabe polimento futuro. [Android CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) passou no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`. Este status não fecha P6-C nem P6-Final, e não afirma que todas as capturas de release já existam.
+
 **Itens**
 - **B-01 — HomeSummary:** corrigir GardenSummaryCard para proporção 612/292 nos dois temas; eliminar emojis duplicados; reservar área segura para os textos; preservar o nome, contagem e XP como dados reais; garantir que o texto não invada a árvore decorativa.
 - **B-02 — Botão gráfico:** revisar PinhoGraphicButton para que imagem mantenha proporção natural e que os labels usem área útil compatível com a arte. Remover dependência de um labelStartFraction genérico que não serve para todos os PNGs; registrar ajustes por família de asset quando justificados pelo espaço visual.
@@ -188,6 +203,8 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 ### P6-C — Jardim, coleção, onboarding e safe areas (P1)
 
 **Objetivo:** tornar todos os controles e conteúdos essenciais alcançáveis em telas compactas, com teclado aberto e escala de fonte aumentada.
+
+**Estado em 10/10/2026: EM ANDAMENTO; gate aberto.** A grade agora usa o espaço vertical restante do pergaminho, os filtros preservam os quatro rótulos completos e se distribuem em duas linhas em largura compacta, cards desconhecidos usam proporção retrato e a navbar compartilha uma reserva inferior calculada por proporção e inset do sistema. O onboarding de nome usa scroll + `imePadding` e valida a ação IME Done via `GardenOwnerName`. A CI para o SHA-base desta revisão estava pendente; a validação visual/funcional em aparelho não foi feita nem deve ser presumida.
 
 **Itens**
 - **C-01 — Card de flor desconhecida:** usar proporção derivada do asset 174×255; não redesenhar o ponto de interrogação nem o “???” já incorporados; manter no Compose apenas os dados que o asset não representa (estado real, raridade/nome quando revelados). Definir explicitamente os estados hidden, hinted, revealed e collected.
@@ -404,20 +421,20 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 
 | Gate | Estado na publicação deste protocolo | Motivo / condição de saída |
 |---|---|---|
-| P6-A — baseline/assets/docs | **DOCUMENTAÇÃO/INVENTÁRIO RECONCILIADOS; CI DO NOVO COMMIT PENDENTE** | 47 aliases conferidos contra Gradle, caminhos e dimensões conhecidos registrados, contrato e registro gráfico reconciliados; consultar CI do commit resultante e manter rastreabilidade de capturas/APK |
-| P6-B — composição visual | **PENDENTE** | Screenshots demonstram ícones/labels sobrepostos; precisa de implementação, teste Compose e capturas antes/depois |
-| P6-C — layouts responsivos | **PENDENTE** | Coleção, filtros, navbar e onboarding têm problemas de acesso/composição confirmados |
+| P6-A — baseline/assets/docs | **INVENTÁRIO RECONCILIADO; CI BASE CONCLUÍDO** | O verificador/build do snapshot aceito para P6-B passou em [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398); o documento atual ainda será validado pelo CI após este commit. |
+| P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
+| P6-C — layouts responsivos | **EM ANDAMENTO — CI DO SHA BASE PENDENTE** | Implementação inicial publicada; consultar [CI #38093315567](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093315567) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
 | P6-D — geração diversa | **PENDENTE** | Seleção de categoria e fallback determinístico explicam repetição observada; testes do core ainda precisam comprovar a correção |
 | P6-E — modelo/tipografia/categorias | **PENDENTE / MODEL-01 pode ficar BLOCKED** | Modelo ausente e catálogo de pacote não configurado; tags/arte e MS Boli exigem decisões e validação |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
-Nenhuma linha deste quadro declara implementação nova neste commit documental.
+Este quadro distingue aceitação visual provisória de P6-B, implementação ainda em progresso de P6-C e gate final de release; documentação não substitui evidência de runtime.
 
 ## 12. Registro de decisões em aberto
 
 1. **Distribuição LiteRT-LM:** confirmar a fonte do modelo, licença, tamanho, hash, formato/runtime suportado e mecanismo de confiança. Sem esses dados, não inventar URL nem adicionar binário ao Git.
 2. **MS Boli:** confirmar arquivo legítimo e licença antes de adicionar a fonte.
-3. **Mapeamento de categorias:** aprovar associação de cada arte visual a IDs de domínio; equivalência semântica não pode ser inferida apenas do nome de arquivo.
+3. **Mapeamento visual de categorias:** resolvido visualmente pelo proprietário; os nove aliases estão documentados em `CANONICAL_GRAPHICS.md` e `P6_UI_UX_INTERACTION_CONTRACT.md`. Os IDs e afinidades de domínio não foram alterados.
 4. **Navbar:** confirmar visualmente a posição do rótulo em relação aos ícones incorporados na arte e manter uma única barra global.
 5. **Critério de diversidade:** definir limite aceitável de repetição junto com testes determinísticos, sem requisito impossível de nunca repetir texto.
 6. **Escopo de P6-Final:** se o proprietário deliberadamente retirar o modelo local do requisito V1, documentar a decisão de produto antes de rebaixar MODEL-01.
