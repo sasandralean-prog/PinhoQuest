@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.ui.navigation.MainTab
@@ -36,6 +37,20 @@ class OnboardingQuestFlowTest {
         composeRule.onNodeWithContentDescription("Continuar").assertIsDisplayed().performClick()
 
         assertEquals("Rafa", completedName)
+    }
+
+    @Test
+    fun onboardingImeDoneAdvancesToTagsAfterValidName() {
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(onComplete = { _, _ -> })
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Começar").performClick()
+        composeRule.onNodeWithContentDescription("Seu nome").performTextInput("Rafa")
+        composeRule.onNodeWithContentDescription("Seu nome").performImeAction()
+        composeRule.onNodeWithContentDescription("Continuar").assertIsDisplayed()
     }
 
     @Test
