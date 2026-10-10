@@ -3,7 +3,7 @@
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
 **Revisão do contrato:** 2026-10-10  
-**HEAD de código revisado antes desta atualização documental:** 31e603392d89734102e7b89a09144efc9886c494  
+**HEAD de código revisado antes desta atualização documental:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
 > Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
@@ -60,8 +60,8 @@ Documentos que devem permanecer sincronizados:
 - **Branch:** `feature/p6-total-ui-refactor`.
 - **HEAD de código revisado antes desta atualização:** `31e603392d89734102e7b89a09144efc9886c494`.
 - **P6-B:** concluído nesta rodada por aceitação provisória do proprietário. A execução [Android CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) concluiu com `success` no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`. Pequenos polimentos estéticos restantes não são descritos como resolvidos nem bloqueiam esta aceitação.
-- **P6-C:** primeira implementação publicada nos commits `1df9957d02f6002985233a577187089685b7e2ee`, `73f380203b4279f164dc48fce0bfa7c6cd5954f3`, `8274be1342ab423eb071366390e64a783fe55043`, `19c083a83bc9727663ff9df780a64e4fff4af5b0` e correção de imports em `31e603392d89734102e7b89a09144efc9886c494`.
-- A execução [Android CI #38093315567](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093315567) estava `in_progress` para o SHA `31e603392d89734102e7b89a09144efc9886c494` na última consulta antes desta atualização documental. O build P6-C não é declarado verde por este registro.
+- **P6-C:** primeira implementação publicada nos commits `1df9957d02f6002985233a577187089685b7e2ee`, `73f380203b4279f164dc48fce0bfa7c6cd5954f3`, `8274be1342ab423eb071366390e64a783fe55043`, `19c083a83bc9727663ff9df780a64e4fff4af5b0`, teste da ação IME Done em `dd0d3115bf03c0be75fb4bcbbf0b52856e2d9c41` e import `dp` do teste compacto em `42426c2f6667c86c3f7c70f99b50ca20543d4f64`.
+- A execução [Android CI #38093315567](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093315567) terminou `failure` no SHA `31e603392d89734102e7b89a09144efc9886c494`: `:app:assembleDebug` e `:app:compileDebugKotlin` passaram, mas `:app:compileDebugAndroidTestKotlin` falhou porque faltava importar `dp` em `GardenFlowTest.kt`. O import foi adicionado no SHA `42426c2f6667c86c3f7c70f99b50ca20543d4f64`. A execução [Android CI #38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) estava `in_progress` para esse SHA quando o snapshot foi feito; P6-C continua sem declaração de CI verde.
 - O workflow compila testes instrumentados mas não os executa em aparelho/emulador. Evidência real do IME, escalas ampliadas e safe areas em dispositivo continua necessária para fechar P6-C.
 - A CI verde do P6-B não substitui a CI do SHA atual nem comprova a validação visual de runtime.
 
@@ -127,7 +127,7 @@ Os itens abaixo registram a implementação publicada, não o fechamento do gate
 - **C-04:** `PinhoQuestNav` fornece `LocalPinhoBottomNavigationInset` calculado com a proporção da navbar atual e `WindowInsets.navigationBars`; Jardim, perfil, configurações e telas de quest consomem essa reserva em vez de alturas mágicas locais.
 - **C-05/C-06:** a etapa de nome é rolável e usa `imePadding`; o campo tem semântica acessível e ação Done condicional à validação. A página de tags reduz o espaçador superior e permanece rolável. Falta confirmar o comportamento com IME real no aparelho.
 - **C-07:** conteúdo Home/quest gerada/ativa reserva espaço inferior calculado para não ficar sob a navbar; textos longos continuam aguardando regressão visual/instrumentada.
-- A correção de imports publicada em `31e603392d89734102e7b89a09144efc9886c494` resolve os erros de referência encontrados na execução falha do SHA anterior. A nova execução precisa comprovar o resultado.
+- A execução #38093315567 mostra que o código de produção compilou e o APK debug foi montado, mas a compilação de AndroidTest falhou por um import `dp` ausente em `GardenFlowTest.kt`. Isso foi corrigido em `42426c2f6667c86c3f7c70f99b50ca20543d4f64`; o novo CI #38093650095 ainda precisa concluir com sucesso.
 
 ## 4. Priorização e política de gate
 
@@ -204,7 +204,7 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 
 **Objetivo:** tornar todos os controles e conteúdos essenciais alcançáveis em telas compactas, com teclado aberto e escala de fonte aumentada.
 
-**Estado em 10/10/2026: EM ANDAMENTO; gate aberto.** A grade agora usa o espaço vertical restante do pergaminho, os filtros preservam os quatro rótulos completos e se distribuem em duas linhas em largura compacta, cards desconhecidos usam proporção retrato e a navbar compartilha uma reserva inferior calculada por proporção e inset do sistema. O onboarding de nome usa scroll + `imePadding` e valida a ação IME Done via `GardenOwnerName`. A CI para o SHA-base desta revisão estava pendente; a validação visual/funcional em aparelho não foi feita nem deve ser presumida.
+**Estado em 10/10/2026: EM ANDAMENTO; gate aberto.** A grade agora usa o espaço vertical restante do pergaminho, os filtros preservam os quatro rótulos completos e se distribuem em duas linhas em largura compacta, cards desconhecidos usam proporção retrato e a navbar compartilha uma reserva inferior calculada por proporção e inset do sistema. O onboarding de nome usa scroll + `imePadding` e valida a ação IME Done via `GardenOwnerName`; um teste instrumentado foi adicionado para proteger essa transição. O SHA `31e603392d89734102e7b89a09144efc9886c494` compilou o app, mas falhou na compilação dos testes pela importação `dp`; a correção está em `42426c2f6667c86c3f7c70f99b50ca20543d4f64`. A CI [#38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) estava em andamento; a validação visual/funcional em aparelho ainda não foi feita.
 
 **Itens**
 - **C-01 — Card de flor desconhecida:** usar proporção derivada do asset 174×255; não redesenhar o ponto de interrogação nem o “???” já incorporados; manter no Compose apenas os dados que o asset não representa (estado real, raridade/nome quando revelados). Definir explicitamente os estados hidden, hinted, revealed e collected.
@@ -423,7 +423,7 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 |---|---|---|
 | P6-A — baseline/assets/docs | **INVENTÁRIO RECONCILIADO; CI BASE CONCLUÍDO** | O verificador/build do snapshot aceito para P6-B passou em [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398); o documento atual ainda será validado pelo CI após este commit. |
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
-| P6-C — layouts responsivos | **EM ANDAMENTO — CI DO SHA BASE PENDENTE** | Implementação inicial publicada; consultar [CI #38093315567](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093315567) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
+| P6-C — layouts responsivos | **EM ANDAMENTO — CI ATUAL PENDENTE** | Correção do import `dp` publicada no SHA `42426c2f6667c86c3f7c70f99b50ca20543d4f64`; consultar [CI #38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
 | P6-D — geração diversa | **PENDENTE** | Seleção de categoria e fallback determinístico explicam repetição observada; testes do core ainda precisam comprovar a correção |
 | P6-E — modelo/tipografia/categorias | **PENDENTE / MODEL-01 pode ficar BLOCKED** | Modelo ausente e catálogo de pacote não configurado; tags/arte e MS Boli exigem decisões e validação |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
