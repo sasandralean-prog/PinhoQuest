@@ -40,8 +40,6 @@ val canonicalButtonAssets = mapOf(
     "btn_theme_day.png" to "btn_theme_day.png",
     "btn_theme_night.png" to "btn_theme_night.png",
     "btn_view_quests.png" to "btn_view_quests.png",
-    "card_flower_unknown_day.png" to "card_flower_unknown_day.png",
-    "card_flower_unknown_night.png" to "card_flower_unknown_night.png",
     "category_animal.png" to "category_animal.png",
     "category_appreciation.png" to "category_appreciation.png",
     "category_creativity.png" to "category_creativity.png",
@@ -54,6 +52,8 @@ val canonicalButtonAssets = mapOf(
 )
 
 val canonicalCardAssets = mapOf(
+    "card_flower_unknown_day.png" to "card_flower_unknown_day.png",
+    "card_flower_unknown_night.png" to "card_flower_unknown_night.png",
     "card_garden_empty_day.png" to "card_garden_empty_day.png",
     "card_garden_empty_night.png" to "card_garden_empty_night.png",
     "card_home_day.png" to "card_home_day.png",
