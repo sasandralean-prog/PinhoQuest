@@ -33,6 +33,7 @@ import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.core.tag.SystemTagCatalog
+import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
@@ -62,7 +63,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 14.dp, vertical = 16.dp)
-                .padding(bottom = 86.dp),
+                .padding(bottom = LocalPinhoBottomNavigationInset.current + 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(

@@ -35,6 +35,7 @@ import com.pinhoquest.R
 import com.pinhoquest.domain.quest.Quest
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.quest.QuestSession
+import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
@@ -59,6 +60,7 @@ fun QuestScreen(
     dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val bottomNavigationInset = LocalPinhoBottomNavigationInset.current
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
@@ -84,7 +86,7 @@ fun QuestScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 22.dp, vertical = 0.dp),
+                    .padding(start = 22.dp, top = 0.dp, end = 22.dp, bottom = bottomNavigationInset + 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // The approved start background contains the PinhoQuest wordmark and slogan.
@@ -158,7 +160,6 @@ fun QuestScreen(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
-                Spacer(Modifier.height(100.dp))
             }
         }
     }
@@ -251,7 +252,7 @@ private fun GeneratedQuestContent(
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 72.dp),
+            .padding(start = 20.dp, top = 72.dp, end = 20.dp, bottom = LocalPinhoBottomNavigationInset.current + 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         PinhoParchment(modifier = Modifier.fillMaxWidth()) {
@@ -285,7 +286,6 @@ private fun GeneratedQuestContent(
         androidx.compose.material3.TextButton(onClick = onAnotherQuest) {
             Text("Outra ideia", color = Color.White)
         }
-        Spacer(Modifier.height(90.dp))
     }
 }
 
@@ -299,7 +299,7 @@ private fun ActiveQuestContent(
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 72.dp),
+            .padding(start = 20.dp, top = 72.dp, end = 20.dp, bottom = LocalPinhoBottomNavigationInset.current + 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         PinhoParchment(modifier = Modifier.fillMaxWidth()) {
@@ -332,6 +332,5 @@ private fun ActiveQuestContent(
         androidx.compose.material3.TextButton(onClick = onAbandonQuest) {
             Text("Preciso parar", color = Color.White)
         }
-        Spacer(Modifier.height(90.dp))
     }
 }

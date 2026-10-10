@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.abs
 import com.pinhoquest.R
 import com.pinhoquest.data.settings.ThemePreference
+import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoQuestBackground
@@ -57,7 +58,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = LocalPinhoBottomNavigationInset.current + 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
@@ -244,7 +245,6 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(Modifier.height(80.dp))
         }
     }
 }
