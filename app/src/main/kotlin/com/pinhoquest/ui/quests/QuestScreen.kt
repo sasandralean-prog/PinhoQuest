@@ -89,7 +89,7 @@ fun QuestScreen(
             ) {
                 // The approved start background contains the PinhoQuest wordmark and slogan.
                 // Leave that upper composition unobstructed and start live content below it.
-                Spacer(Modifier.height(maxHeight * 0.24f))
+                Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.24f))
                 GardenSummaryCard(
                     ownerName = ownerName,
                     flowerCount = flowerCount,
