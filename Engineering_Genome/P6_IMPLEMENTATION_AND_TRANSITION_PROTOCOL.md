@@ -3,7 +3,7 @@
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
 **Revisão do contrato:** 2026-10-10  
-**Snapshot técnico usado nesta revisão:** 65b620b588482ecefb40c1d55325a67f4b90ad54  
+**SHA de código base para esta atualização documental:** cc385fac097112d76e5e5381b8ac9040354c280f  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
 > Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
@@ -58,9 +58,9 @@ Documentos que devem permanecer sincronizados:
 ### 3.1 Snapshot desta revisão
 
 - Branch: feature/p6-total-ui-refactor.
-- HEAD lido imediatamente antes da atualização deste documento: 65b620b588482ecefb40c1d55325a67f4b90ad54.
-- Execução consultada: [Android CI #158](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38008684377), associada ao SHA de referência observado, com conclusão success.
-- Isso confirma uma execução de CI bem-sucedida para esse snapshot. Não substitui a validação visual no aparelho e não prova que os problemas descritos nas screenshots estejam corrigidos.
+- HEAD de código antes deste incremento documental: `cc385fac097112d76e5e5381b8ac9040354c280f`.
+- Execução consultada para esse SHA: [Android CI #159](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38061875849), conclusão `success`.
+- A alteração P6-A atual é documental. Depois de publicar estes documentos, conferir a execução CI ligada ao novo commit antes de declarar a verificação do snapshot resultante. A execução anterior não substitui validação visual em aparelho nem prova que os problemas das screenshots estejam corrigidos.
 
 ### 3.2 Assets publicados e mapeamento de build
 
@@ -138,7 +138,7 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 - **A-01 — Snapshot reproduzível:** manter branch, SHA, execução CI, APK e data associados em toda revisão de gate.
 - **A-02 — Catálogo coerente:** corrigir ASSET_CATALOG e CANONICAL_GRAPHICS onde ainda afirmam que cards de flor estão no grupo Gradle errado ou que os aliases não foram publicados. Preservar os diretórios físicos e a classificação semântica explícita.
 - **A-03 — Contratos sincronizados:** atualizar este protocolo e reconciliar P6_UI_UX_INTERACTION_CONTRACT com as regras de arte não autoritativa, dimensões finais e papéis reais de navbar/cards.
-- **A-04 — Baseline visual:** armazenar capturas originais do APK atual por tela e tema como evidência; nomear os cenários para comparação posterior.
+- **A-04 — Baseline visual:** registrar os nomes e sintomas das dez capturas fornecidas pelo proprietário em `docs/evidence/p6-a-2026-10-10-baseline.md`; para regressão reproduzível, capturar depois um APK/commit identificado e registrar resolução, tema, escala e estado de dados. As imagens originais ainda não estão armazenadas no repositório.
 - **A-05 — Auditar mapeamento:** executar o verificador de assets no checkout atual e confirmar que nenhum arquivo auxiliar Null entra como recurso e que os aliases não colidem.
 
 **Arquivos principais:** app/build.gradle.kts (somente se a execução demonstrar divergência), docs/design/ASSET_CATALOG.md, docs/design/CANONICAL_GRAPHICS.md, docs/design/P6_UI_UX_INTERACTION_CONTRACT.md, este protocolo e pasta de evidências.
@@ -148,14 +148,14 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 - Os dois cards de flor desconhecida estão classificados e mapeados como cards.
 - A documentação não afirma que o repositório de imagens externo é a fonte da verdade.
 - A execução de :app:verifyCanonicalUiAssets registra PASS no SHA revisado.
-- O baseline tem capturas de Home, onboarding com e sem teclado, coleção, perfil/configurações e quest.
+- O registro identifica as dez capturas baseline recebidas (Home, onboarding com/sem teclado, tags, jardim, coleção, perfil, configurações e quest); para comparar mudanças futuras, as capturas devem ser geradas/armazenadas com SHA de APK e condições de teste conhecidos.
 - O protocolo distingue PASS de build e PASS de runtime visual.
 
 **Testes/evidências:** verificador Gradle, assembleDebug, lista dos aliases gerados, resultado de CI e baseline de screenshots.
 
 **Risco/rollback:** baixo. Não mover assets nem renomear arquivos sem mudança coordenada de Gradle, catálogo, consumidores e testes.
 
-**Gate P6-A:** a configuração de assets já existe e um CI recente passou. Fechar formalmente a documentação somente após sincronizar os textos divergentes e anexar a evidência de verificação aplicável ao SHA. Isso não fecha qualquer sprint visual posterior.
+**Gate P6-A:** a configuração de assets e os 47 aliases foram reconciliados documentalmente; o CI #159 passou no SHA de código base `cc385fac097112d76e5e5381b8ac9040354c280f`. O resultado da CI para o commit documental que contém esta revisão ainda precisa ser consultado. O baseline sintomático recebido foi indexado, mas seus binários e metadados exatos de APK não estão armazenados no repositório. Não declarar P6-B/C visual PASS por isso.
 
 ### P6-B — Composição visual e componentes compartilhados (P1)
 
@@ -404,7 +404,7 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 
 | Gate | Estado na publicação deste protocolo | Motivo / condição de saída |
 |---|---|---|
-| P6-A — baseline/assets/docs | **BASELINE DISPONÍVEL; fechamento documental em andamento** | Mapeamento atual e CI recente existem; sincronizar documentos que ainda contêm estados antigos e registrar evidência de verificação do SHA |
+| P6-A — baseline/assets/docs | **DOCUMENTAÇÃO/INVENTÁRIO RECONCILIADOS; CI DO NOVO COMMIT PENDENTE** | 47 aliases conferidos contra Gradle, caminhos e dimensões conhecidos registrados, contrato e registro gráfico reconciliados; consultar CI do commit resultante e manter rastreabilidade de capturas/APK |
 | P6-B — composição visual | **PENDENTE** | Screenshots demonstram ícones/labels sobrepostos; precisa de implementação, teste Compose e capturas antes/depois |
 | P6-C — layouts responsivos | **PENDENTE** | Coleção, filtros, navbar e onboarding têm problemas de acesso/composição confirmados |
 | P6-D — geração diversa | **PENDENTE** | Seleção de categoria e fallback determinístico explicam repetição observada; testes do core ainda precisam comprovar a correção |
@@ -443,4 +443,5 @@ Ao fechar P6-Final, registrar o SHA do APK/release, checks, matriz visual, estad
 - [ASSET_CATALOG.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/ASSET_CATALOG.md)
 - [CANONICAL_GRAPHICS.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/CANONICAL_GRAPHICS.md)
 - [P6_UI_UX_INTERACTION_CONTRACT.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/P6_UI_UX_INTERACTION_CONTRACT.md)
+- [P6-A baseline visual e inventário de evidências](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/evidence/p6-a-2026-10-10-baseline.md)
 - [PINHO_QUEST_VISUAL_IDENTITY_GENOME.md](https://github.com/sasandralean-prog/PinhoQuest/blob/main/docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md)

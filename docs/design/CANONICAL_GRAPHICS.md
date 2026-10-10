@@ -1,90 +1,95 @@
-# PinhoQuest — Canonical Graphics Registry
+# PinhoQuest — Registro Canônico de Composição Gráfica
 
-**Status:** registro normativo dos papéis visuais para P6/P7.  
-**Branch de referência:** feature/p6-total-ui-refactor.  
-**Autoridade:** este documento classifica papéis visuais e composições. O inventário e os aliases vivem em ASSET_CATALOG.md e no mapa executável de app/build.gradle.kts.
+**Branch de referência:** `feature/p6-total-ui-refactor`  
+**Status:** contrato normativo de papéis e composição. Não significa que todos os problemas de runtime estejam corrigidos.  
+**Fonte de assets:** `docs/design/` na branch P6; o repositório de imagens externo está desatualizado e não é autoritativo.
 
-## 1. Limite canônico
+## 1. Limite entre arte e comportamento
 
-Os PNGs são fundos, superfícies decorativas ou skins de componentes reais. Não substituem estado, texto dinâmico, semântica, hitbox ou ação Compose. Screenshots descrevem composição; nunca devem ser colocados sobre a UI interativa como uma tela estática.
+PNGs são backgrounds, superfícies decorativas ou skins. Não substituem estado, texto dinâmico, semântica, hitbox ou ação Compose. O mapa executável fica em `app/build.gradle.kts`; as dimensões e aliases estão em `ASSET_CATALOG.md`; semântica de ação/estado está em `P6_UI_UX_INTERACTION_CONTRACT.md`.
 
-## 2. Autoridade visual
+## 2. Componentes gráficos compartilhados
 
-A cadeia de autoridade segue:
-1. docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md
-2. docs/identity/PINHO_QUEST_GARDEN_PIXEL_ART_GENOME.md
-3. docs/design/UI_DESIGN_CONTRACT.md
-4. este registro
-5. artes individuais classificadas aqui e em ASSET_CATALOG.md
+- `PinhoQuestBackground` usa `ContentScale.Crop` por padrão. Backgrounds de 1080×1920 são 9:16, mas Crop pode alterar enquadramento em aparelhos diferentes; validar logo, CTA e áreas focais em tamanho compacto e maior.
+- `PinhoGraphicButton` e `PinhoBackButton` usam `ContentScale.Fit` no código observado. A documentação histórica que dizia `FillBounds` está desatualizada. Quando um asset parecer distorcido ou o label não couber, conferir a razão do contêiner e a área segura antes de mudar o PNG.
+- Labels, enabled/disabled, estado selecionado, descrição acessível e ação do botão pertencem ao Compose.
+- `PinhoParchment` é uma superfície Compose; deve dimensionar-se pelo conteúdo e não recortar textos longos.
+- A navegação inferior tem uma única instância global. Os controles Compose fornecem hit targets e ações; a arte fornece fundo/ícones, sem ícones redundantes por cima.
 
-Home1 continua a composição canônica de Home/Quest: refinar, sem alterar a semântica das ações ou a navegação. A barra global permanece Início | Jardim | Perfil.
+## 3. Famílias de assets
 
-## 3. Família de backgrounds
+### Backgrounds
+- `bg_start_day.png` / `bg_start_night.png`: a arte contém a marca/logotipo. CTA Começar e conteúdo dinâmico são Compose. Não sobrepor outra marca.
+- `bg_config_day.png` / `bg_config_night.png`: cenário de Configurações.
+- `bg_gardem_art_day.png` / `bg_gardem_art_night.png`: cenário de Jardim quando o estado de domínio indicar progresso/arte.
+- `bg_gardem_empty_day.png` / `bg_gardem_empty_night.png`: cenário de Jardim vazio.
+- `bg_profile_day.png` / `bg_profile_night.png`: cenário de Perfil.
+- O código atual reutiliza o background start também na Home/Quest. Os estados de quest gerada/ativa precisam preservar legibilidade e a zona superior da marca ou usar uma composição aprovada que não duplique logo.
 
-- bg_start_day.png / bg_start_night.png: cenários de abertura com marca PinhoQuest e slogan incorporados na arte aprovada. O botão Começar é um controle Compose separado. Não sobrepor outro logotipo/slogan por cima destes backgrounds, o que duplicaria a marca.
-- bg_config_day.png / bg_config_night.png: ambiente interno para Configurações.
-- bg_gardem_art_day.png / bg_gardem_art_night.png: cenário da composição Jardim em arte, quando os dados de domínio indicarem progresso.
-- bg_gardem_empty_day.png / bg_gardem_empty_night.png: cenário da composição de jardim vazio.
-- bg_profile_day.png / bg_profile_night.png: cenário de Perfil. Reutilização em cards/empty states só é permitida quando a composição testada não conflitar com bordas, texto ou controles.
+### Botões
+- `btn_back.png`: canvas 66×75 px; o Compose determina tamanho visível e área de toque. Não fazer upscale raster artificial.
+- `btn_confirm.png`: canvas 187×86 px. A folha incorporada ocupa parte da área esquerda; o label Compose precisa começar após a arte e caber em fontes maiores.
+- `btn_quest_draw.png`, `btn_quest_game.png`, `btn_quest_random.png` e `btn_view_quests.png`: skins das ações; label e callbacks são reais. A reserva de label precisa respeitar cada desenho.
+- `btn_theme_day.png` / `btn_theme_night.png`: ambos 300×180; usar mesma proporção de canvas e rótulos/seleção em Compose.
+- `btn_garden_filter_all.png`, `btn_garden_filter_collected.png`, `btn_garden_filter_searched.png`, `btn_garden_filter_unkw.png`: todos 120×48; a seleção e o texto do filtro são Compose.
+- `btn_font_size.png`: canvas 224×68; Menor/Médio/Maior, escala aplicada e estado selecionado são Compose.
+- `btn_garden_backup.png` / `btn_support_creator.png`: skins das ações de backup/apoio; callback e feedback vêm do fluxo real.
 
-A grafia gardem é intencionalmente preservada nesta geração por decisão do proprietário. Qualquer renome futuro exige atualizar catálogo, Gradle e consumidores no mesmo checkpoint.
+### Cards
+- `card_home_day.png` / `card_home_night.png`: ambos 612×292. Os assets já contêm motivos decorativos, inclusive ícones flor/estrela. Não desenhar emojis de flor ou estrela na mesma área; dados dinâmicos devem ocupar a região de texto livre sem invadir a decoração.
+- `card_garden_empty_day.png` / `card_garden_empty_night.png`: ambos 392×316. Diferem de backgrounds de tela inteira.
+- `card_flower_unknown_day.png` 174×255 e `card_flower_unknown_night.png` 178×256: já trazem o símbolo “?”/inscrição de desconhecida. Não duplicar esses elementos em Compose sobre a mesma área. O estado de descoberta é autoridade para ocultar/revelar identidade.
+- `card_profile_day.png` / `card_profile_night.png`: ambos 996×461.
+- `card_profile_tags.png`: 1304×376. Elementos de texto/seleção mutáveis permanecem Compose.
 
-## 4. Componentes gráficos
+### Campo de nome
+- `name_bar.png`: canvas 388×124 px. É moldura de um campo editável real; foco, IME, validação e nome persistido continuam Compose/domínio.
 
-- btn_back.png: skin de voltar; o hit target e a semântica são Compose. O canvas de 66×75 px exige teste em escala real.
-- btn_confirm.png, btn_quest_draw.png, btn_quest_game.png, btn_quest_random.png, btn_view_quests.png: skins de ações reais.
-- btn_font_size.png: skin dos controles de fonte; rótulos Menor/Médio/Maior, escala aplicada e estado selecionado são Compose.
-- btn_theme_day.png / btn_theme_night.png: skin dos seletores; valor e persistência vêm das preferências.
-- btn_garden_backup.png / btn_support_creator.png: decoração das ações de backup e apoio; callbacks e feedback são Compose.
-- btn_garden_collection.png: skin/ícone para abrir a coleção.
-- btn_garden_filter_all.png, btn_garden_filter_collected.png, btn_garden_filter_searched.png, btn_garden_filter_unkw.png: skins de filtro. A seleção e os resultados derivados do domínio não são rasterizados.
-- category_*.png: imagens para opções de categoria. A presença do PNG não define automaticamente Theme/Tag nem autoriza o mapeamento semântico.
-- card_flower_unknown_day.png / card_flower_unknown_night.png (em `docs/design/Card/`): placeholder de flor desconhecida; não revela identidade botânica.
-- card_home_day.png / card_home_night.png: superfície para o resumo Home; nome, contagem de flores, XP e mensagens ficam em Compose.
-- card_profile_day.png / card_profile_night.png / card_profile_tags.png: superfícies de perfil; conteúdo e seleção continuam reais.
-- card_garden_empty_day.png / card_garden_empty_night.png: componente ilustrado do estado vazio, distinto do background de tela inteira.
-- name_bar.png: moldura para um campo real, com foco, teclado e validação no Compose.
-- nav_bar_day.png / nav_bar_night.png: base visual para a única navbar global. Destinos, rótulos acessíveis, seleção e hit targets continuam um componente Compose compartilhado.
+### Navbar
+- `nav_bar_day.png`: 768×181; `nav_bar_night.png`: 798×167.
+- Os dois PNGs já contêm casa, flor e livro. O item visual não deve desenhar outro símbolo no mesmo ponto. Compose mantém os três destinos, labels, semântica, foco e clique.
+- Os ícones fazem parte dos assets, mas rótulos e ações não: confirmar alinhamento do label com cada ícone no teste de tela.
 
-## 5. Composições de tela
+### Categorias
+Há nove imagens `category_*` 160×120. A pasta física é `docs/design/Button/` e o mapeamento de build atual as inclui em `canonicalButtonAssets`. Isso é uma decisão de organização do source tree, não decisão semântica de domínio. Usar somente associações aprovadas em `SystemTagCatalog`; não inferir que appreciation = affection, science = technology ou category_creativity deve ser attached automaticamente ao ID creative/create. A superfície neutra permanece válida até aprovação.
 
-### Abertura
-Usar bg_start_day/night e montar logo/marca, slogan e CTA em camadas independentes. O botão Começar não faz parte do background. Validar a zona segura e o recorte em telas com proporções distintas.
+## 4. Regras de composição por tela
+
+### Abertura e onboarding
+A marca embutida nos backgrounds start não deve ser duplicada. Botões e campos são controles reais. A etapa de nome precisa manter campo e CTA acessíveis quando o teclado está aberto. A etapa de tags precisa permitir acessar todas as opções e Continuar em viewport compacta. No baseline atual há espaçadores proporcionais e o conteúdo da etapa de tags não tem rolagem própria; isso é item de correção P6-C, não considerado resolvido aqui.
 
 ### Home/Quest
-Preservar as três ações: SORTEAR QUEST, Quest de Jogo e Quest Aleatória. O resumo pode usar card_home_day/night; nome do jardim, flores e XP são dados dinâmicos. Não inferir que bg_start seja também background da Home sem confirmar a intenção de composição e o fluxo de navegação.
-
-### Onboarding — nome
-Usar cenário coerente com tema. name_bar é uma moldura; o campo digitável é real. O valor do nome, foco, teclado e validação permanecem Compose/domínio.
-
-### Onboarding — categorias/tags
-Usar category_* somente depois de mapear os itens aos IDs de Theme/Tag do catálogo de domínio. Não converter “categoria” automaticamente em “tag”. Assets sem correspondência aprovada ficam não mapeados.
+A Home mantém Sortear Quest, Quest Aleatória e Quest de Jogo. O card de resumo mostra nome do jardim, contagem e XP a partir de estado real. Textos ficam na área segura livre da ilustração; não duplicar ícones já desenhados. O código atualmente usa razões antigas em alguns consumidores, que devem ser atualizadas em P6-B. Para quest gerada/ativa, não deixar parchment ou conteúdo invadir marca incorporada e manter objetivos/CTAs alcançáveis (P6-C).
 
 ### Configurações
-Usar bg_config_day/night, btn_theme_day/night, btn_font_size, btn_garden_backup e btn_support_creator. Títulos e labels são texto real. A navbar global segue o contrato de destinos.
+Usar o cenário config, os botões de tema, fonte, backup e apoio. As imagens de tema têm canvas comum 300×180; o Compose controla seleção e preferência persistida. A navbar continua global e não deve ocultar ações do conteúdo rolável.
 
-### Jardim vazio
-Usar bg_gardem_empty_day/night e, quando a composição aprovada pedir, card_garden_empty_day/night. A mensagem e CTA são Compose e não podem fingir flores coletadas.
-
-### Jardim em arte
-Usar bg_gardem_art_day/night quando o domínio indicar progresso. A arte de fundo não fabrica flores, XP, raridade ou identidade de coleção.
-
-### Coleção
-Mostrar nove posições da coleção ativa com dados de domínio. card_flower_unknown_day/night pode preencher placeholders permitidos pelo estado de descoberta. Filtros mudam a projeção visual, não criam uma segunda fonte de estado.
+### Jardim e coleção
+- A fonte de dados é `GardenUiState` e as autoridades de domínio/dados.
+- Vazio, jardim em arte e coleção são composições distintas da mesma autoridade; não fabricar XP nem flores.
+- A coleção comporta nove posições; filtros alteram a projeção, não o domínio.
+- A grade deve começar abaixo dos filtros e usar apenas o espaço restante. O conteúdo rolável não pode ficar sob a navbar.
+- Um card de flor desconhecida usa a arte existente sem redesenhar seu “?” ou “???”. Nome botânico, raridade e estado mudam segundo o domínio.
+- Filtro “Pesquisadas” deve corresponder à semântica dos estados de descoberta/revelação no domínio atual.
 
 ### Perfil
-Usar bg_profile_day/night e surfaces card_profile_day/night e card_profile_tags.png conforme composição validada. Preferências e estado das tags vêm do catálogo e dos dados reais.
+Nome e preferências vêm do estado real. As nove tags visuais atuais não têm nove artes semanticamente aprovadas; manter superfície neutra onde a associação não existe. Não apresentar superfícies neutras como se fossem um asset quebrado.
 
-## 6. Escala, tema e acessibilidade
+## 5. Escala, tema e acessibilidade
 
-- Os backgrounds publicados foram padronizados para 1080×1920 (9:16). Preservar proporção e validar enquadramento/crop em telas Android; não usar `FillBounds` para forçar o ajuste.
-- Os arquivos bg_gardem_empty_day.png e bg_profile_day.png são byte-a-byte idênticos no pacote recebido; o mesmo ocorre com bg_gardem_empty_night.png e bg_profile_night.png. Mantêm-se aliases e papéis semânticos separados por decisão de composição, mas uma futura consolidação pode reduzir duplicação após validação visual.
-- As dimensões listadas no ZIP anterior para cards e navbar foram supersedidas pela exportação padronizada. Inspecionar os PNGs atuais antes de decidir tamanhos e garantir consistência entre pares dia/noite.
-- PinhoGraphicButton usa ContentScale.FillBounds no código atualmente observado; isso pode distorcer os novos assets se a razão do container divergir. P6-B deve retirar esse comportamento genérico para componentes que precisem preservar proporção.
-- Texto configurável e dinâmico nunca deve ser rasterizado em background ou card.
-- Controles gráficos oferecem área de toque adequada independentemente do tamanho visível, descrição acessível e estado selecionado perceptível sem depender exclusivamente de cor.
-- Overlay de tema deve ser validado visualmente e não substituir um par específico de assets quando este existe.
+- Testar tema claro/escuro, fonte 1.0 e 1.3 e ao menos uma viewport compacta.
+- Labels essenciais nunca podem ser cortados ou ficar sob decoração da imagem.
+- Hit targets devem ter pelo menos 48 dp, independentemente do tamanho visual da ilustração.
+- Estado selecionado não pode depender apenas da cor.
+- Nenhum fluxo pode depender de texto incorporado no PNG para descrição acessível ou estado de domínio.
+- Texto grande/variável deve poder quebrar linha e rolar; contêiner fixo não deve recortar texto.
+- Animação/recompensa visual não pode criar falso sucesso.
 
-## 7. Gate de canonização
+## 6. Evidência e gate
 
-Os papéis desta registry são decisões de design; não significam que a integração foi concluída. Para P6-A PASS, o catálogo, o diretório real, o mapa Gradle, os aliases e os consumidores Kotlin precisam concordar. O gate também exige executar as verificações disponíveis e registrar evidência. Para P6-B PASS, cada tela precisa de captura reproduzível, build/testes pertinentes e verificação de toque, proporção, tema e escala de fonte.
+O presente registro define intenção visual. A implementação segue pendente onde as screenshots e a inspeção de código apontam divergências:
+- `P6-B`: sobreposição de ícones, proporções de botões/cards, labels e navbar.
+- `P6-C`: onboarding/IME, grade e filtros da coleção, safe areas e textos longos.
+- `P6-E`: mapeamento semântico de artes e decisão/licença da MS Boli.
+
+Para P6-A, o inventário e os aliases foram reconciliados documentalmente com o Gradle. A CI do snapshot base foi consultada; a execução no commit documental resultante precisa ser registrada antes de atualizar o estado do gate. Não declarar gate visual PASS sem screenshots reproduzíveis do APK testado.
