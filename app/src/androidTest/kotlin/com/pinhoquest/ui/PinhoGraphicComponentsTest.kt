@@ -2,14 +2,15 @@ package com.pinhoquest.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import com.pinhoquest.ui.navigation.MainTab
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -41,9 +42,9 @@ class PinhoGraphicComponentsTest {
 
         // The PNG supplies the glyphs. Compose should expose labels, not draw the
         // old text glyphs on top of the same artwork.
-        composeRule.onNodeWithText("⌂", useUnmergedTree = true).assertDoesNotExist()
-        composeRule.onNodeWithText("🌷", useUnmergedTree = true).assertDoesNotExist()
-        composeRule.onNodeWithText("▣", useUnmergedTree = true).assertDoesNotExist()
+        assertTrue(composeRule.onAllNodesWithText("⌂", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        assertTrue(composeRule.onAllNodesWithText("🌷", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
+        assertTrue(composeRule.onAllNodesWithText("▣", useUnmergedTree = true).fetchSemanticsNodes().isEmpty())
     }
 
     @Test

@@ -63,7 +63,10 @@ class OnboardingQuestFlowTest {
                 PinhoQuestNav(
                     state = PinhoQuestUiState.ready(ownerName = "Rafa"),
                     onTabSelected = {},
-                    onGenerateQuest = { modes += it },
+                    onGenerateQuest = { modes += it }
+                    onOpenQuestThemeSelection = {},
+                    onCloseQuestThemeSelection = {},
+                    onGenerateQuestFromThemeSelection = {},
                     onStartQuest = {},
                     onCompleteQuest = {},
                     onAbandonQuest = {},
@@ -92,7 +95,10 @@ class OnboardingQuestFlowTest {
                 PinhoQuestNav(
                     state = PinhoQuestUiState.ready(ownerName = "Rafa", selectedTab = selected),
                     onTabSelected = { selected = it },
-                    onGenerateQuest = {},
+                    onGenerateQuest = {}
+                    onOpenQuestThemeSelection = {},
+                    onCloseQuestThemeSelection = {},
+                    onGenerateQuestFromThemeSelection = {},
                     onStartQuest = {},
                     onCompleteQuest = {},
                     onAbandonQuest = {},
