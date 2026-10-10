@@ -3,6 +3,8 @@ package com.pinhoquest.ui.quests
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
@@ -105,7 +108,7 @@ fun QuestScreen(
                     label = "Sortear quest",
                     labelColor = Color(0xFFFFF4DD),
                     labelFontSize = 20.sp,
-                    labelStartFraction = 0.20f,
+                    labelStartFraction = 0.28f,
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -123,7 +126,8 @@ fun QuestScreen(
                         label = "Quest aleatória",
                         labelColor = Color(0xFF4A2114),
                         labelFontSize = 15.sp,
-                        labelStartFraction = 0.15f,
+                        labelStartFraction = 0.02f,
+                        labelEndFraction = 0.25f,
                     )
                     PinhoGraphicButton(
                         resource = R.drawable.btn_quest_game,
@@ -135,7 +139,7 @@ fun QuestScreen(
                         label = "Quest de Jogo",
                         labelColor = Color(0xFF4A2114),
                         labelFontSize = 15.sp,
-                        labelStartFraction = 0.15f,
+                        labelStartFraction = 0.31f,
                     )
                 }
 
@@ -168,12 +172,10 @@ private fun GardenSummaryCard(
     dark: Boolean,
 ) {
     val cardResource = if (dark) R.drawable.card_home_night else R.drawable.card_home_day
-    val cardAspectRatio = if (dark) 1062f / 450f else 612f / 292f
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth(0.90f)
-            .aspectRatio(cardAspectRatio),
-        contentAlignment = Alignment.Center,
+            .aspectRatio(612f / 292f),
     ) {
         Image(
             painter = painterResource(cardResource),
@@ -181,29 +183,61 @@ private fun GardenSummaryCard(
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
         )
-        Column(
+
+        // These two figures sit beside the flower/star already drawn into the card.
+        // Keep their text inside the cream left area and do not redraw the decorative icons.
+        Text(
+            text = "$flowerCount flores",
+            color = PinhoInk,
+            fontSize = 10.sp,
+            lineHeight = 11.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 18.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = "🌷 ${flowerCount} flores    ⭐ ${lifetimeXp} XP",
-                color = PinhoInk,
-                fontSize = 16.sp,
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                text = "Jardim de ${ownerName}",
-                color = PinhoInk,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-            Text(
-                text = if (dark) "Pequenas descobertas sob as estrelas." else "Pequenas descobertas, um jardim crescendo.",
-                color = PinhoInk,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
+                .align(Alignment.TopStart)
+                .offset(x = maxWidth * 0.145f, y = maxHeight * 0.16f)
+                .fillMaxWidth(0.23f),
+        )
+        Text(
+            text = "$lifetimeXp XP",
+            color = PinhoInk,
+            fontSize = 9.sp,
+            lineHeight = 10.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = maxWidth * 0.405f, y = maxHeight * 0.16f)
+                .fillMaxWidth(0.145f),
+        )
+        Text(
+            text = "Jardim de $ownerName",
+            color = PinhoInk,
+            fontSize = 18.sp,
+            lineHeight = 20.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = maxWidth * 0.035f, y = maxHeight * 0.39f)
+                .fillMaxWidth(0.50f),
+        )
+        Text(
+            text = if (dark) {
+                "Pequenas descobertas sob as estrelas."
+            } else {
+                "Pequenas descobertas, um jardim crescendo."
+            },
+            color = PinhoInk,
+            fontSize = 11.sp,
+            lineHeight = 13.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset(x = maxWidth * 0.035f, y = maxHeight * 0.66f)
+                .fillMaxWidth(0.50f),
+        )
     }
 }
 
@@ -245,7 +279,7 @@ private fun GeneratedQuestContent(
             label = "Começar quest",
             labelColor = Color(0xFF4A2114),
             labelFontSize = 17.sp,
-            labelStartFraction = 0.14f,
+            labelStartFraction = 0.28f,
         )
         Spacer(Modifier.height(10.dp))
         androidx.compose.material3.TextButton(onClick = onAnotherQuest) {
@@ -292,7 +326,7 @@ private fun ActiveQuestContent(
             label = "Concluir quest",
             labelColor = Color(0xFF4A2114),
             labelFontSize = 17.sp,
-            labelStartFraction = 0.14f,
+            labelStartFraction = 0.28f,
         )
         Spacer(Modifier.height(10.dp))
         androidx.compose.material3.TextButton(onClick = onAbandonQuest) {

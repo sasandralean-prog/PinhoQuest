@@ -129,7 +129,7 @@ fun QuestThemeSelectionScreen(
                 label = "Sortear quest",
                 labelColor = if (dark) Color(0xFFFFF4DD) else PinhoCream,
                 labelFontSize = 18.sp,
-                labelStartFraction = 0.20f,
+                labelStartFraction = 0.28f,
             )
             Spacer(Modifier.height(80.dp))
         }

@@ -217,10 +217,10 @@ private enum class GardenFilter(
     val resource: Int,
     val aspectRatio: Float,
 ) {
-    ALL("Todas", R.drawable.btn_garden_filter_all, 107f / 46f),
-    COLLECTED("Coletadas", R.drawable.btn_garden_filter_collected, 106f / 40f),
-    RESEARCHED("Pesquisadas", R.drawable.btn_garden_filter_searched, 109f / 40f),
-    UNKNOWN("Desconhecidas", R.drawable.btn_garden_filter_unkw, 119f / 40f),
+    ALL("Todas", R.drawable.btn_garden_filter_all, 120f / 48f),
+    COLLECTED("Coletadas", R.drawable.btn_garden_filter_collected, 120f / 48f),
+    RESEARCHED("Pesquisadas", R.drawable.btn_garden_filter_searched, 120f / 48f),
+    UNKNOWN("Desconhecidas", R.drawable.btn_garden_filter_unkw, 120f / 48f),
 }
 
 @Composable
@@ -242,7 +242,8 @@ private fun GardenFilterChip(
         aspectRatio = aspectRatio,
         label = label,
         labelColor = Color(0xFF4A2114),
-        labelFontSize = 10.sp,
+        labelFontSize = 9.sp,
+        labelStartFraction = 0.23f,
     )
 }
 
@@ -260,7 +261,7 @@ private fun EmptyGardenState(
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.78f)
-                .aspectRatio(if (dark) 388f / 316f else 392f / 282f),
+                .aspectRatio(392f / 316f),
             contentAlignment = Alignment.Center,
         ) {
             Image(
@@ -295,7 +296,7 @@ private fun EmptyGardenState(
             label = "Ver quests",
             labelColor = Color(0xFF4A2114),
             labelFontSize = 17.sp,
-            labelStartFraction = 0.14f,
+            labelStartFraction = 0.28f,
         )
     }
 }

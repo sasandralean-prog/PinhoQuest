@@ -72,7 +72,7 @@ fun OnboardingScreen(
                         label = "Começar",
                         labelColor = PinhoCream,
                         labelFontSize = 19.sp,
-                        labelStartFraction = 0.15f,
+                        labelStartFraction = 0.28f
                     )
                     Spacer(Modifier.height(76.dp))
                 }
@@ -160,7 +160,7 @@ fun OnboardingScreen(
                             label = "Confirmar",
                             labelColor = PinhoCream,
                             labelFontSize = 18.sp,
-                            labelStartFraction = 0.15f,
+                            labelStartFraction = 0.28f
                         )
                     }
                 }
@@ -234,7 +234,7 @@ fun OnboardingScreen(
                         label = "Continuar",
                         labelColor = PinhoCream,
                         labelFontSize = 18.sp,
-                        labelStartFraction = 0.15f,
+                        labelStartFraction = 0.28f
                     )
                     Spacer(Modifier.height(18.dp))
                 }

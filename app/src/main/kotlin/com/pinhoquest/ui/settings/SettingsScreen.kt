@@ -96,7 +96,7 @@ fun SettingsScreen(
                     selected = !isDark,
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 295f / 168f,
+                    aspectRatio = 300f / 180f,
                     label = "Dia",
                     labelColor = PinhoInk,
                     labelFontSize = 20.sp,
@@ -109,7 +109,7 @@ fun SettingsScreen(
                     selected = isDark,
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
-                    aspectRatio = 290f / 172f,
+                    aspectRatio = 300f / 180f,
                     label = "Noite",
                     labelColor = Color(0xFFFFF0BD),
                     labelFontSize = 20.sp,
@@ -208,7 +208,7 @@ fun SettingsScreen(
                     label = "Baixar cérebro criativo",
                     labelColor = Color(0xFF4A2114),
                     labelFontSize = 15.sp,
-                    labelStartFraction = 0.15f,
+                    labelStartFraction = 0.28f,
                 )
             }
 

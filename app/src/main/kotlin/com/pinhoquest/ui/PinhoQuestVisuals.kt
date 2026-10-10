@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +35,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import com.pinhoquest.domain.tag.TagId
 import androidx.compose.ui.unit.dp
@@ -89,6 +92,7 @@ fun PinhoGraphicButton(
     labelFontSize: TextUnit = 16.sp,
     labelAlignment: Alignment = Alignment.Center,
     labelStartFraction: Float = 0f,
+    labelEndFraction: Float = 0f,
 ) {
     Box(
         modifier = modifier
@@ -116,25 +120,32 @@ fun PinhoGraphicButton(
             modifier = Modifier.fillMaxSize(),
         )
         label?.let { visibleLabel ->
-            val labelModifier = if (labelStartFraction > 0f) {
-                Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxWidth((1f - labelStartFraction).coerceIn(0.1f, 1f))
-                    .padding(end = 8.dp, top = 3.dp, bottom = 3.dp)
-            } else {
-                Modifier
-                    .align(labelAlignment)
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                val startFraction = labelStartFraction.coerceIn(0f, 0.8f)
+                val endFraction = labelEndFraction.coerceIn(0f, 0.8f)
+                val availableFraction = (1f - startFraction - endFraction).coerceIn(0.2f, 1f)
+                val labelModifier = if (startFraction > 0f || endFraction > 0f) {
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .offset(x = maxWidth * startFraction)
+                        .fillMaxWidth(availableFraction)
+                        .padding(end = 8.dp, top = 3.dp, bottom = 3.dp)
+                } else {
+                    Modifier
+                        .align(labelAlignment)
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                }
+                Text(
+                    text = visibleLabel,
+                    color = labelColor,
+                    fontSize = labelFontSize,
+                    textAlign = TextAlign.Center,
+                    lineHeight = labelFontSize * 1.05f,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = labelModifier,
+                )
             }
-            Text(
-                text = visibleLabel,
-                color = labelColor,
-                fontSize = labelFontSize,
-                textAlign = TextAlign.Center,
-                lineHeight = labelFontSize * 1.05f,
-                modifier = labelModifier,
-            )
         }
     }
 }
@@ -194,6 +205,8 @@ fun PinhoBottomNavigation(
             .navigationBarsPadding()
             .aspectRatio(aspectRatio),
     ) {
+        // The artwork already contains the house, flower, and book icons.
+        // Compose owns labels, hit targets, semantics, selection, and navigation only.
         Image(
             painter = painterResource(backgroundResource),
             contentDescription = null,
@@ -201,15 +214,12 @@ fun PinhoBottomNavigation(
             modifier = Modifier.fillMaxSize(),
         )
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             PinhoNavItem(
                 label = "Início",
-                icon = "⌂",
                 selected = selectedTab == MainTab.QUESTS,
                 onClick = { onTabSelected(MainTab.QUESTS) },
                 modifier = Modifier.weight(1f),
@@ -217,7 +227,6 @@ fun PinhoBottomNavigation(
             )
             PinhoNavItem(
                 label = "Jardim",
-                icon = "🌷",
                 selected = selectedTab == MainTab.GARDEN,
                 onClick = { onTabSelected(MainTab.GARDEN) },
                 modifier = Modifier.weight(1f),
@@ -225,7 +234,6 @@ fun PinhoBottomNavigation(
             )
             PinhoNavItem(
                 label = "Perfil",
-                icon = "▣",
                 selected = selectedTab == MainTab.PROFILE,
                 onClick = { onTabSelected(MainTab.PROFILE) },
                 modifier = Modifier.weight(1f),
@@ -238,35 +246,36 @@ fun PinhoBottomNavigation(
 @Composable
 private fun PinhoNavItem(
     label: String,
-    icon: String,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     dark: Boolean = false,
 ) {
-    Column(
+    Box(
         modifier = modifier
+            .fillMaxSize()
             .pinhoSelectedGlow(selected, cornerRadius = 22.dp)
-            .semantics { role = Role.Button }
-            .clickable(onClickLabel = label, onClick = onClick)
-            .padding(vertical = 2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .semantics {
+                role = Role.Button
+                contentDescription = label
+                stateDescription = if (selected) "Selecionado" else "Não selecionado"
+            }
+            .clickable(onClickLabel = label, onClick = onClick),
+        contentAlignment = Alignment.BottomCenter,
     ) {
         Text(
-            text = icon,
-            fontSize = 25.sp,
-            color = if (selected) PinhoGold else if (dark) PinhoCream else PinhoInk,
-        )
-        Text(
             text = label,
-            color = if (dark) PinhoCream else PinhoInk,
-            fontSize = 15.sp,
+            color = if (selected) PinhoGold else if (dark) PinhoCream else PinhoInk,
+            fontSize = 14.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp, vertical = 6.dp),
         )
-        Spacer(Modifier.height(1.dp))
     }
 }
-
 fun Modifier.pinhoSelectedGlow(
     selected: Boolean,
     cornerRadius: androidx.compose.ui.unit.Dp = 28.dp,
