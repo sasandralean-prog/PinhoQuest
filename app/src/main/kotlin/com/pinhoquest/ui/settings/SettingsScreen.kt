@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -78,11 +77,12 @@ fun SettingsScreen(
                         contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                         modifier = Modifier.fillMaxSize(),
                     )
+                    val artworkWidth = minOf(maxWidth, maxHeight * (388f / 124f))
                     Row(
                         modifier = Modifier
-                            .align(Alignment.Center)
-                            .fillMaxWidth(0.68f)
-                            .offset(x = maxWidth * 0.10f),
+                            .align(Alignment.CenterStart)
+                            .offset(x = (maxWidth - artworkWidth) * 0.5f + artworkWidth * 0.15f)
+                            .width(artworkWidth * 0.70f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                     ) {
