@@ -1,6 +1,8 @@
 package com.pinhoquest.ui.onboarding
 
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,6 +32,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
@@ -99,7 +105,12 @@ fun OnboardingScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = this@BoxWithConstraints.maxHeight * 0.31f),
+                            .verticalScroll(rememberScrollState())
+                            .imePadding()
+                            .padding(
+                                top = (this@BoxWithConstraints.maxHeight * 0.24f).coerceAtMost(180.dp),
+                                bottom = 20.dp,
+                            ),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         androidx.compose.material3.Text(
@@ -127,19 +138,29 @@ fun OnboardingScreen(
                                 )
                                 BasicTextField(
                                     value = name,
-                                onValueChange = { value ->
-                                    if (value.trim().codePointCount(0, value.trim().length) <= GardenOwnerName.MAX_CHARACTERS) {
-                                        name = value
-                                    }
-                                },
-                                singleLine = true,
-                                textStyle = TextStyle(
-                                    color = androidx.compose.ui.graphics.Color.White,
-                                    fontSize = 22.sp,
-                                ),
+                                    onValueChange = { value ->
+                                        if (
+                                            value.trim().codePointCount(0, value.trim().length) <=
+                                            GardenOwnerName.MAX_CHARACTERS
+                                        ) {
+                                            name = value
+                                        }
+                                    },
+                                    singleLine = true,
+                                    textStyle = TextStyle(
+                                        color = androidx.compose.ui.graphics.Color.White,
+                                        fontSize = 22.sp,
+                                    ),
+                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                                        },
+                                    ),
                                     modifier = Modifier
                                         .fillMaxWidth(0.72f)
-                                        .height(56.dp),
+                                        .height(56.dp)
+                                        .semantics { contentDescription = "Seu nome" },
                                 )
                             }
                         }
@@ -187,7 +208,7 @@ fun OnboardingScreen(
                     ) {
                         PinhoBackButton(onClick = { step = 1 })
                     }
-                    Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.21f))
+                    Spacer(Modifier.height(96.dp))
                     androidx.compose.material3.Text(
                         "O que você gosta?",
                         color = PinhoForest,
