@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -52,6 +54,9 @@ val PinhoCreamSoft = Color(0xFFF7E9C9)
 val PinhoWood = Color(0xFF8A5A32)
 val PinhoInk = Color(0xFF24452F)
 val PinhoGold = Color(0xFFFFD86B)
+
+/** Measured global navbar plus system inset; backgrounds remain full-screen. */
+val LocalPinhoBottomNavigationInset = staticCompositionLocalOf { 0.dp }
 val PinhoNight = Color(0xFF102D55)
 
 @Composable
@@ -187,14 +192,14 @@ fun PinhoBackButton(
 @Composable
 fun PinhoParchment(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = modifier
             .background(PinhoCream.copy(alpha = 0.96f), RoundedCornerShape(24.dp))
             .border(2.dp, Color(0xFFB99162), RoundedCornerShape(24.dp))
             .padding(14.dp),
-        content = { content() },
+        content = content,
     )
 }
 

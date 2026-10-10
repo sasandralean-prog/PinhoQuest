@@ -1,16 +1,24 @@
 package com.pinhoquest.ui.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateBottomPadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoBottomNavigation
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
@@ -53,7 +61,19 @@ fun PinhoQuestNav(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val navigationAspectRatio = if (dark) 798f / 167f else 768f / 181f
+        val systemNavigationInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        val reservedNavigationSpace = if (state.questThemeSelectionOpen) {
+            0.dp
+        } else {
+            maxWidth / navigationAspectRatio + systemNavigationInset
+        }
+
+        CompositionLocalProvider(
+            LocalPinhoBottomNavigationInset provides reservedNavigationSpace,
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
         if (state.questThemeSelectionOpen) {
             QuestThemeSelectionScreen(
                 tags = state.tags,
@@ -150,6 +170,8 @@ fun PinhoQuestNav(
                 onDismiss = onDismissCompletion,
                 onOpenGarden = onOpenGardenFromCompletion,
             )
+        }
+            }
         }
     }
 }

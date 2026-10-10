@@ -48,6 +48,7 @@ import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoCreamSoft
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.pinhoSelectedGlow
 import com.pinhoquest.ui.PinhoQuestBackground
@@ -69,6 +70,7 @@ fun GardenScreen(
         mutableStateOf(state.collectedCount == 0)
     }
     val isGardenEmpty = state.collectedCount == 0
+    val bottomNavigationInset = LocalPinhoBottomNavigationInset.current
     val filtered = state.flowers.filter { flower ->
         when (filter) {
             GardenFilter.ALL -> true
@@ -94,7 +96,8 @@ fun GardenScreen(
             modifier = Modifier
                 .fillMaxSize()
                 // Keep the global bottom navigation from covering the last collection row.
-                .padding(start = 10.dp, top = 12.dp, end = 10.dp, bottom = 92.dp),
+                .padding(start = 10.dp, top = 12.dp, end = 10.dp)
+                .padding(bottom = bottomNavigationInset + 12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -148,24 +151,36 @@ fun GardenScreen(
                             .fillMaxWidth()
                             .weight(1f),
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            GardenFilter.entries.forEach { option ->
-                                GardenFilterChip(
-                                    label = option.label,
-                                    resource = option.resource,
-                                    aspectRatio = option.aspectRatio,
-                                    selected = filter == option,
-                                    onClick = { filter = option },
-                                    modifier = Modifier.weight(1f),
-                                )
+                        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                            val filterRows: List<List<GardenFilter>> =
+                                if (maxWidth >= 520.dp) {
+                                    listOf(GardenFilter.entries.toList())
+                                } else {
+                                    GardenFilter.entries.chunked(2)
+                                }
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                filterRows.forEach { row ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        row.forEach { option ->
+                                            GardenFilterChip(
+                                                label = option.label,
+                                                resource = option.resource,
+                                                aspectRatio = option.aspectRatio,
+                                                selected = filter == option,
+                                                onClick = { filter = option },
+                                                modifier = Modifier.weight(1f),
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(8.dp))
 
                         if (filtered.isEmpty()) {
                             Box(
@@ -183,8 +198,8 @@ fun GardenScreen(
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Adaptive(minSize = 112.dp),
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 18.dp),
+                                modifier = Modifier.weight(1f).fillMaxWidth(),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 12.dp),
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
@@ -372,7 +387,7 @@ private fun GardenFlowerCard(
     }
     val cardModifier = Modifier
         .fillMaxWidth()
-        .height(160.dp)
+        .aspectRatio(174f / 255f)
         .then(
             if (isUnknown) Modifier
             else Modifier
