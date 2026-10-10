@@ -1614,3 +1614,51 @@ The official P6 implementation and transition protocol is
 - `P6_UI_UX_INTERACTION_CONTRACT.md` and `UI_DESIGN_CONTRACT.md` now link to the protocol while retaining their respective interaction and implementation authority.
 - The legacy date/branch header at the top of this file is not rewritten in this documentation-only checkpoint because the branch HEAD was not independently confirmed. It remains a follow-up item for a dedicated state-snapshot update backed by an exact commit SHA.
 - Runtime consumer migration, three-state Garden behavior, quest repetition root cause, instrumented CI coverage and end-to-end visual validation are not claimed as completed by this documentation change.
+
+## 37. LiteRT-LM artifact recovery and reproducible distribution — 2026-10-10
+
+The canonical CR-7.4 artifact was recovered from the PinhoQuest-owned release
+`p6-local-debug-bundled-cr74-2026-10-06`: its `app-debug.apk` was verified as
+303410971 bytes / SHA-256
+`afb8a489bc34306c95765dcbb687ab0ef0de96c3531e69eede89c20b337e639d`, then
+its `assets/model.litertlm` entry was extracted without transformation and
+verified as 284692656 bytes / SHA-256
+`e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`.
+
+### Distribution and integration decision
+
+- The model is not stored in Git or Git LFS. It exceeds normal GitHub Git blob
+  limits and is distributed as the dedicated `model.litertlm` asset of the
+  `cr74-semantic-isolation-v1` GitHub prerelease. Its SHA-256 is pinned in code
+  and documentation, so a changed or substituted asset is rejected.
+- `docs/model-artifacts/CR74_SEMANTIC_ISOLATION.md` is the current recovery,
+  provenance, license, clean-checkout and validation record. The repository
+  also carries the required Gemma Notice text and ships it beside the release
+  asset.
+- `Cr74SemanticIsolationModelCatalog` is the one production package catalog.
+  It provides the immutable release URL, bytes, hash, CPU backend and context
+  limit to the existing resumable worker / `AndroidModelStore` path.
+- The model is still external to the normal APK. Settings now requires an
+  explicit acknowledgement before it schedules that download; no startup or
+  silent download was added. The installed runtime filename remains
+  `files/models/cr74_semantic_isolation/1/model.litertlm`.
+- Gradle currently resolves `litertlm-android:0.16.1`; its JNI runtime remains
+  packaged for `arm64-v8a` and `x86_64` through the existing `runtimeOnly`
+  dependency. No library or model version was changed in this recovery.
+
+### Validation boundary
+
+- A fresh public-release download passed the committed verification script with
+  the exact expected byte count and SHA-256.
+- A fresh depth-1 clone of `feature/p6-total-ui-refactor` contained the recovery
+  script and verified that download without local model paths or LFS objects.
+- Current-head local Gradle validation passed `:quest-domain:test`,
+  `:quest-core:test`, `:android-data:testDebugUnitTest`,
+  `:litertlm-bridge:test`, `:app:testDebugUnitTest`, `:app:lintDebug`,
+  `:app:assembleDebug` and `:app:compileDebugAndroidTestKotlin` on JDK 21.
+- APK inspection confirmed the two LiteRT-LM JNI libraries and no model asset.
+- CI was updated to use JDK 21 because LiteRT-LM test classes cannot run under
+  the prior JDK 17 host. A current-device inference result is not claimed here:
+  `emulator-5554` reported as connected but rejected shell commands with
+  `error: closed`, so staging and executing the instrumentation probe was not
+  possible in this recovery checkpoint.
