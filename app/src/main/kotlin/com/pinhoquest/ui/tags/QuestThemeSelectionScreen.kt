@@ -76,7 +76,7 @@ fun QuestThemeSelectionScreen(
             }
 
             // Keep the logo and slogan embedded in the approved background unobstructed.
-            Spacer(Modifier.height(maxHeight * 0.23f))
+            Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.23f))
             Text(
                 text = "O que vamos descobrir?",
                 color = if (dark) Color.White else PinhoForest,
