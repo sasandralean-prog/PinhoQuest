@@ -39,7 +39,7 @@ A grafia gardem é intencionalmente preservada nesta geração por decisão do p
 - btn_garden_collection.png: skin/ícone para abrir a coleção.
 - btn_garden_filter_all.png, btn_garden_filter_collected.png, btn_garden_filter_searched.png, btn_garden_filter_unkw.png: skins de filtro. A seleção e os resultados derivados do domínio não são rasterizados.
 - category_*.png: imagens para opções de categoria. A presença do PNG não define automaticamente Theme/Tag nem autoriza o mapeamento semântico.
-- card_flower_unknown_day.png / card_flower_unknown_night.png: placeholder de flor desconhecida; não revela identidade botânica.
+- card_flower_unknown_day.png / card_flower_unknown_night.png (em `docs/design/Card/`): placeholder de flor desconhecida; não revela identidade botânica.
 - card_home_day.png / card_home_night.png: superfície para o resumo Home; nome, contagem de flores, XP e mensagens ficam em Compose.
 - card_profile_day.png / card_profile_night.png / card_profile_tags.png: superfícies de perfil; conteúdo e seleção continuam reais.
 - card_garden_empty_day.png / card_garden_empty_night.png: componente ilustrado do estado vazio, distinto do background de tela inteira.
@@ -77,9 +77,9 @@ Usar bg_profile_day/night e surfaces card_profile_day/night e card_profile_tags.
 
 ## 6. Escala, tema e acessibilidade
 
-- Os fundos são imagens 9:16 em 1536×2752, exceto bg_config_night (784×1342); revisar o par diurno/noturno antes do gate.
+- Os backgrounds publicados foram padronizados para 1080×1920 (9:16). Preservar proporção e validar enquadramento/crop em telas Android; não usar `FillBounds` para forçar o ajuste.
 - Os arquivos bg_gardem_empty_day.png e bg_profile_day.png são byte-a-byte idênticos no pacote recebido; o mesmo ocorre com bg_gardem_empty_night.png e bg_profile_night.png. Mantêm-se aliases e papéis semânticos separados por decisão de composição, mas uma futura consolidação pode reduzir duplicação após validação visual.
-- card_home_day/night e nav_bar_day/night possuem proporções diferentes dentro do par; cada elemento precisa manter razão própria ou a arte deve ser normalizada numa decisão explícita.
+- As dimensões listadas no ZIP anterior para cards e navbar foram supersedidas pela exportação padronizada. Inspecionar os PNGs atuais antes de decidir tamanhos e garantir consistência entre pares dia/noite.
 - PinhoGraphicButton usa ContentScale.FillBounds no código atualmente observado; isso pode distorcer os novos assets se a razão do container divergir. P6-B deve retirar esse comportamento genérico para componentes que precisem preservar proporção.
 - Texto configurável e dinâmico nunca deve ser rasterizado em background ou card.
 - Controles gráficos oferecem área de toque adequada independentemente do tamanho visível, descrição acessível e estado selecionado perceptível sem depender exclusivamente de cor.
