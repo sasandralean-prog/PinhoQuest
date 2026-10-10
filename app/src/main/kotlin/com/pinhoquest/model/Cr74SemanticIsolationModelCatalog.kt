@@ -18,7 +18,7 @@ object Cr74SemanticIsolationModelCatalog : ModelPackageCatalog {
     const val SOURCE = "PinhoQuest CR-7.4 semantic-isolation release artifact"
     const val DOWNLOAD_URL =
         "https://github.com/sasandralean-prog/PinhoQuest/releases/download/" +
-            "cr74-semantic-isolation-v1/pinhoquest-cr74-semantic-isolation-v1.litertlm"
+            "cr74-semantic-isolation-v1/model.litertlm"
 
     override fun current(): ModelDownloadSpec = ModelDownloadSpec(
         modelId = MODEL_ID,

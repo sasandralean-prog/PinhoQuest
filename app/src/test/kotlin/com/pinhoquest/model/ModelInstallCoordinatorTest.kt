@@ -21,7 +21,7 @@ class ModelInstallCoordinatorTest {
         assertEquals(listOf("CPU"), spec.supportedBackends)
         assertEquals(
             "https://github.com/sasandralean-prog/PinhoQuest/releases/download/" +
-                "cr74-semantic-isolation-v1/pinhoquest-cr74-semantic-isolation-v1.litertlm",
+                "cr74-semantic-isolation-v1/model.litertlm",
             spec.downloadUrl,
         )
     }

@@ -10,8 +10,8 @@ Git and is intentionally not packaged into the normal APK.
 | --- | --- |
 | Model id / version | `cr74_semantic_isolation` / `1` |
 | Runtime format | `litertlm` |
-| Distribution | GitHub Release tag `cr74-semantic-isolation-v1`, asset `pinhoquest-cr74-semantic-isolation-v1.litertlm` |
-| Release URL | `https://github.com/sasandralean-prog/PinhoQuest/releases/download/cr74-semantic-isolation-v1/pinhoquest-cr74-semantic-isolation-v1.litertlm` |
+| Distribution | GitHub Release tag `cr74-semantic-isolation-v1`, asset `model.litertlm` |
+| Release URL | `https://github.com/sasandralean-prog/PinhoQuest/releases/download/cr74-semantic-isolation-v1/model.litertlm` |
 | Size | `284692656` bytes |
 | SHA-256 | `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb` |
 | Backend | CPU |
@@ -67,7 +67,7 @@ ensure their own use and redistribution remain compliant.
 2. Verify it before use:
 
    ```powershell
-   ./tools/verify_cr74_model.ps1 -Path ./pinhoquest-cr74-semantic-isolation-v1.litertlm
+   ./tools/verify_cr74_model.ps1 -Path ./model.litertlm
    ```
 
 3. Build the application normally. The model is installed only after a user
