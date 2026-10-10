@@ -3,7 +3,7 @@
 **Status:** contrato canônico de interação P6.  
 **Escopo:** Home/Quest, onboarding, temas/tags, Perfil, Configurações e Jardim/coleção/descoberta.
 
-Este contrato governa semântica de ações e estado de produto. O inventário e aliases ficam em ASSET_CATALOG.md; os papéis visuais e composições ficam em CANONICAL_GRAPHICS.md. A arte é skin/composição, nunca a autoridade do comportamento.
+Este contrato governa semântica de ações e estado de produto. O inventário e aliases ficam em ASSET_CATALOG.md; os papéis visuais e composições ficam em CANONICAL_GRAPHICS.md. A arte é skin/composição, nunca a autoridade do comportamento. Os assets foram padronizados e os cards de flor desconhecida estão fisicamente em `docs/design/Card/`; mudanças de caminho precisam ser refletidas no mapa Gradle antes de considerar P6-A validado.
 
 ## 1. Home/Quest
 
