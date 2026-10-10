@@ -22,9 +22,9 @@ Tema de aparência, tag/preferência semântica e imagem de categoria são conce
 
 O catálogo de domínio atual (`SystemTagCatalog`) contém IDs como `games`, `creative`, `learning`, `music`, `photography`, `nature`, `technology`, `animals`, `adventures`, `relax`, `create` e `fantasy`. A seleção visual atual usa um subconjunto de nove IDs: `music`, `photography`, `nature`, `technology`, `animals`, `learning`, `relax`, `create` e `fantasy`.
 
-O código visual mapeia explicitamente apenas cinco IDs a imagens: `music`, `photography`, `nature`, `animals` e `learning`. As opções restantes usam superfície neutra. Os nove PNGs `category_*` são fontes visuais, não autorização automática para mudar esse mapeamento.
+O mapeamento visual aprovado para as nove preferências apresentadas é: `music→category_music`, `photography→category_photography`, `nature→category_nature`, `animals→category_animal`, `learning→category_learn`, `technology→category_science`, `relax→category_appreciation`, `create→category_creativity` e `fantasy→category_games` (arte do dragão). Esses aliases existem somente na camada visual; não criam um ID `games` para a opção Fantasia nem alteram as afinidades do `SystemTagCatalog`. O estado selecionado é indicado pelo glow dourado compartilhado, sem depender apenas da cor.
 
-Não inferir equivalência lexical: `appreciation` não é automaticamente `affection`; `science` não é automaticamente `technology`; `category_creativity` não decide por si só entre `creative` e `create`; singular/plural em `animal`/`animals` deve seguir mapeamento aprovado. Decisão visual fica no P6-E depois de revisar o catálogo do domínio e aprovar correspondências.
+O mapeamento visual está aprovado; qualquer alteração de ID, afinidade ou significado de domínio continua exigindo mudança explícita e testes em `SystemTagCatalog`.
 
 A seleção de várias preferências não é limitada a três. Qualquer limite de tags para uma quest híbrida é regra de domínio explícita, não efeito colateral da UI.
 

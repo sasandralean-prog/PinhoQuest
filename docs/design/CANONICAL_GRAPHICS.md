@@ -51,7 +51,7 @@ PNGs são backgrounds, superfícies decorativas ou skins. Não substituem estado
 - Os ícones fazem parte dos assets, mas rótulos e ações não: confirmar alinhamento do label com cada ícone no teste de tela.
 
 ### Categorias
-Há nove imagens `category_*` 160×120. A pasta física é `docs/design/Button/` e o mapeamento de build atual as inclui em `canonicalButtonAssets`. Isso é uma decisão de organização do source tree, não decisão semântica de domínio. Usar somente associações aprovadas em `SystemTagCatalog`; não inferir que appreciation = affection, science = technology ou category_creativity deve ser attached automaticamente ao ID creative/create. A superfície neutra permanece válida até aprovação.
+Há nove imagens `category_*` 160×120, fisicamente em `docs/design/Button/` e copiadas pelo mapa `canonicalButtonAssets`. O mapeamento visual aprovado é: Música→`category_music`, Fotografia→`category_photography`, Natureza→`category_nature`, Animais→`category_animal`, Aprender→`category_learn`, Tecnologia→`category_science`, Relaxar→`category_appreciation`, Criar→`category_creativity` e Fantasia→`category_games` (a arte do dragão). Esse alias visual não muda o ID ou a afinidade de domínio. Todas as nove opções visuais agora têm arte; testes protegem esse contrato.
 
 ## 4. Regras de composição por tela
 

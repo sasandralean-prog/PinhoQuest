@@ -55,17 +55,17 @@ Os PNGs desta seção têm transparência RGBA. Dimensão do canvas não é, por
 | `Button/btn_theme_day.png` | 300 × 180 | `btn_theme_day.png` | Selecionar tema dia |
 | `Button/btn_theme_night.png` | 300 × 180 | `btn_theme_night.png` | Selecionar tema noite |
 | `Button/btn_view_quests.png` | 258 × 87 | `btn_view_quests.png` | Ver quests |
-| `Button/category_animal.png` | 160 × 120 | `category_animal.png` | Arte de categoria; associação semântica controlada |
-| `Button/category_appreciation.png` | 160 × 120 | `category_appreciation.png` | Arte de categoria; associação ainda não aprovada |
-| `Button/category_creativity.png` | 160 × 120 | `category_creativity.png` | Arte de categoria Criatividade; associação ainda precisa ser aprovada |
-| `Button/category_games.png` | 160 × 120 | `category_games.png` | Arte de Jogos; não cria tag nova |
-| `Button/category_learn.png` | 160 × 120 | `category_learn.png` | Arte de Aprender; conferir o ID semântico existente |
+| `Button/category_animal.png` | 160 × 120 | `category_animal.png` | Preferência Animais |
+| `Button/category_appreciation.png` | 160 × 120 | `category_appreciation.png` | Preferência Relaxar (associação visual aprovada) |
+| `Button/category_creativity.png` | 160 × 120 | `category_creativity.png` | Preferência Criar (associação visual aprovada) |
+| `Button/category_games.png` | 160 × 120 | `category_games.png` | Preferência Fantasia (dragão; alias visual aprovado, não cria tag games) |
+| `Button/category_learn.png` | 160 × 120 | `category_learn.png` | Preferência Aprender |
 | `Button/category_music.png` | 160 × 120 | `category_music.png` | Arte de Música |
 | `Button/category_nature.png` | 160 × 120 | `category_nature.png` | Arte de Natureza |
 | `Button/category_photography.png` | 160 × 120 | `category_photography.png` | Arte de Fotografia |
-| `Button/category_science.png` | 160 × 120 | `category_science.png` | Arte de Ciência; não equiparar automaticamente a Tecnologia |
+| `Button/category_science.png` | 160 × 120 | `category_science.png` | Preferência Tecnologia (lâmpada; associação visual aprovada) |
 
-Os arquivos de categorias permanecem fisicamente em `docs/design/Button/` e fazem parte de `canonicalButtonAssets` para fins de diretório/fonte de build. Essa classificação física não determina sua semântica de produto. O código atual mapeia cinco IDs visuais a imagens; os restantes usam superfície neutra. Resolver em P6-E após conferir `SystemTagCatalog` e aprovar os IDs, não por semelhança lexical.
+Os arquivos de categorias permanecem fisicamente em `docs/design/Button/` e fazem parte de `canonicalButtonAssets` para fins de diretório/fonte de build. Essa classificação física não determina sua semântica de produto. O código visual associa explicitamente os nove IDs apresentados às nove artes: `music→category_music`, `photography→category_photography`, `nature→category_nature`, `animals→category_animal`, `learning→category_learn`, `technology→category_science`, `relax→category_appreciation`, `create→category_creativity` e `fantasy→category_games`. Estas são associações visuais aprovadas; não criam nem renomeiam tags de domínio.
 
 ## Cards
 
