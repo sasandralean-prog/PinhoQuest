@@ -1,380 +1,446 @@
-# P6 — Protocolo Oficial de Implementação e Transição
+# P6 — Contrato Oficial de Sprints, Implementação e Transição
 
 **Projeto:** PinhoQuest  
-**Branch de referência:** `feature/p6-total-ui-refactor`  
-**Estado:** protocolo normativo; não significa que gates de implementação estejam fechados.  
-**Última revisão documental:** 2026-10-09  
-**Escopo desta revisão:** documentação e contratos. Código Kotlin, assets binários, scripts de build e testes não são alterados por esta etapa.
+**Branch de trabalho:** feature/p6-total-ui-refactor  
+**Revisão do contrato:** 2026-10-10  
+**Snapshot técnico usado nesta revisão:** 65b620b588482ecefb40c1d55325a67f4b90ad54  
+**Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
-> Este documento define como o P6 deve ser executado, verificado e encerrado. Evidência técnica prevalece sobre expectativa, screenshot ou descrição histórica. Uma hipótese só vira diagnóstico confirmado quando existe reprodução ou evidência rastreável.
+> Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
 
-## 1. Objetivo e resultado esperado
+## 1. Objetivo e limites de P6
 
-O P6 refina a experiência visual e de interação do PinhoQuest sem alterar silenciosamente as regras do produto nem criar uma segunda autoridade para navegação, estado de domínio, persistência ou geração de quests.
+P6 deve entregar uma interface coesa, acessível e responsiva para PinhoQuest, preservando as autoridades de estado e de domínio já existentes. A interface deve usar corretamente os assets canônicos, mostrar texto dinâmico sem colisões, permitir completar os fluxos principais e apresentar quests variadas com fallback honesto quando o modelo local não está instalado ou não pode ser usado.
 
-O resultado de P6 precisa demonstrar, com evidência, que:
-
-1. os assets gráficos têm inventário canônico e mapeamentos Android rastreáveis;
-2. as telas recompõem layouts de referência com controles reais e acessíveis;
-3. backgrounds, botões e cards preservam proporções e não interceptam interação;
-4. o Jardim distingue vazio, jardim em arte e coleção de nove posições, refletindo dados reais;
-5. a geração de quests permanece sob contrato de domínio, recebe contexto permitido e tem diagnóstico suficiente para investigar variedade;
-6. a navegação global e os fluxos internos seguem uma hierarquia inequívoca;
-7. testes automatizados e inspeção visual cobrem o comportamento alterado;
-8. o estado publicado diferencia implementação, validação limitada, bloqueio e gate concluído.
-
-P6 não será declarado concluído por uma compilação verde, por um screenshot isolado ou porque uma tela parece correta. Cada gate precisa satisfazer critérios de saída.
-
-## 2. Escopo e limites
+P6 não é somente uma troca de PNGs. O trabalho inclui o encaixe real entre assets, Compose, estados, navegação e geração de quests.
 
 ### Incluído
 
-- Inventário, nomenclatura, classificação e mapeamento de assets em `docs/design/BackGround/`, `docs/design/Button/` e referências em `docs/design/Screen/`.
-- Reconstituição visual de Home/Quest, onboarding/nome e tags, Jardim/coleção, Perfil, Configurações e navegação.
-- Comportamentos visuais de dia/noite, controles selecionados, escala tipográfica, estados disabled/loading/failure e acessibilidade.
-- Estados visuais do Jardim derivados do estado de domínio e navegação entre composições.
-- Auditoria do fluxo de geração de quests para determinar se contexto/tags, planner, composer, modelo/fallback e validação mantêm seus contratos.
-- Cobertura de testes unitários, testes de UI/instrumentados, E2E produtivo aplicável e inspeção visual.
-- Correção e sincronização de documentos canônicos e do estado operacional.
+- Alinhar a documentação operacional P6 ao código atual e às evidências disponíveis.
+- Corrigir a composição de cards, botões e navbar que duplica arte ou sobrepõe texto.
+- Corrigir filtros, cartões da coleção, safe areas e layout de onboarding com teclado.
+- Corrigir a seleção de categoria e a diversidade do compositor procedural.
+- Definir e implementar um caminho seguro e verificável para disponibilizar LiteRT-LM, caso continue sendo requisito de produto V1.
+- Completar a associação visual das categorias somente após validar IDs semânticos no catálogo de domínio.
+- Integrar MS Boli somente após verificar procedência e licença; manter o texto funcional legível e responsivo.
+- Testes automatizados, revisão em aparelho, screenshots comparativas, build e atualização do estado documental.
+
+### Fora de escopo, salvo decisão explícita
+
+- Redesenhar as artes canônicas sem aprovação do proprietário.
+- Colocar um modelo binário grande no Git apenas por conveniência.
+- Introduzir uma segunda autoridade de navegação, estado, persistência, recompensas ou geração de quests.
+- Corrigir a aparência com dados, nomes, dimensões ou branches específicos do aparelho.
+- Associar uma ilustração a uma tag apenas porque os nomes parecem semelhantes.
+- Declarar P6 concluído somente porque compila, ou com base apenas nas screenshots.
+- Tratar o repositório de imagens externo/desatualizado como fonte de verdade.
+- Tratar o README como fonte atual do estado de implementação sem cruzar com a branch P6.
+
+## 2. Hierarquia de autoridade
+
+1. Código, testes, assets e configuração de build publicados na branch de referência.
+2. Evidência de CI ligada ao SHA exato, logs de execução e resultados dos testes.
+3. Contratos de produto e arquitetura aprovados, desde que não contradigam o comportamento atual confirmado.
+4. Screenshots reais do APK, usadas como evidência de sintomas visuais/funcionais e não como prova isolada de causa.
+5. Catálogo e registro gráfico, que devem ser reconciliados com código e build.
+6. README, apontamentos antigos e notas de sprint: fontes auxiliares sujeitas a atualização.
+
+Documentos que devem permanecer sincronizados:
+- Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md — plano, gates, estado e evidências.
+- docs/design/P6_UI_UX_INTERACTION_CONTRACT.md — semântica das ações e dos estados.
+- docs/design/ASSET_CATALOG.md — origem, classificação, dimensões e aliases.
+- docs/design/CANONICAL_GRAPHICS.md — papéis visuais e composição por tela.
+- app/build.gradle.kts — mapeamento executável de assets.
+- Testes e artefatos CI — evidência das verificações executadas.
+
+## 3. Snapshot confirmado e trabalho já realizado
+
+### 3.1 Snapshot desta revisão
+
+- Branch: feature/p6-total-ui-refactor.
+- HEAD lido imediatamente antes da atualização deste documento: 65b620b588482ecefb40c1d55325a67f4b90ad54.
+- Execução consultada: [Android CI #158](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38008684377), associada ao SHA de referência observado, com conclusão success.
+- Isso confirma uma execução de CI bem-sucedida para esse snapshot. Não substitui a validação visual no aparelho e não prova que os problemas descritos nas screenshots estejam corrigidos.
+
+### 3.2 Assets publicados e mapeamento de build
+
+Os assets canônicos do APK vêm de docs/design/ na branch P6. O repositório PinhoQuestImagens não é fonte da verdade nesta etapa.
+
+A inspeção do tree e dos arquivos confirmou estes diretórios:
+- docs/design/Background/
+- docs/design/Button/
+- docs/design/Card/
+- docs/design/Navbar/
+
+O app/build.gradle.kts define mapeamentos canônicos, inclui os dois card_flower_unknown em canonicalCardAssets e associa os recursos aos diretórios atuais. As imagens category_* continuam fisicamente em docs/design/Button/ por decisão/estrutura histórica do pacote; isso não as transforma semanticamente em botões nem autoriza renomeação de IDs. O verificador deve continuar cobrindo os aliases e arquivos esperados. Há entradas auxiliares chamadas Null nos diretórios de arte; não devem ser tratadas como assets.
+
+Exemplos de hashes e dimensões conferidos diretamente na branch:
+| Asset | Dimensão publicada | Resultado da comparação |
+|---|---:|---|
+| Button/btn_garden_filter_all.png | 120 × 48 px | hash do blob Git confirmado |
+| Button/btn_theme_day.png | 300 × 180 px | hash do blob Git confirmado |
+| Card/card_home_day.png | 612 × 292 px | hash do blob Git confirmado |
+| Card/card_home_night.png | 612 × 292 px | hash do blob Git confirmado |
+| Card/card_garden_empty_day.png | 392 × 316 px | hash do blob Git confirmado |
+| Card/card_garden_empty_night.png | 392 × 316 px | hash do blob Git confirmado |
+| Card/card_profile_night.png | 996 × 461 px | hash do blob Git confirmado |
+| Button/category_animal.png | 160 × 120 px | hash do blob Git confirmado |
+| Button/category_creativity.png | 160 × 120 px | hash do blob Git confirmado |
+| Card/card_flower_unknown_day.png | 174 × 255 px | asset preservado; hash do blob Git confirmado |
+
+A padronização dos backgrounds para 1080 × 1920 px (9:16) também foi registrada e os arquivos estão publicados. Os exemplos acima não devem ser lidos como inventário de todos os 47 aliases nem como declaração de que cada tela já consome a proporção correta.
+
+### 3.3 Trabalho concluído ou já disponível
+
+- O inventário visual e a estrutura de diretórios foram publicados na branch.
+- O mapeamento Gradle atual já inclui os cards de flor desconhecida em canonicalCardAssets; notas históricas dizendo que o mapa ainda os coloca em canonicalButtonAssets estão desatualizadas.
+- Existem componentes compartilhados de Compose para fundo, botão gráfico, painel em pergaminho, tag visual e navbar.
+- O estado de tema e escala de fonte tem persistência já conectada ao store de preferências.
+- A grade e a coleção já usam dados de GardenUiState; não se deve criar uma segunda fonte de estado para “consertar” visualmente os cards.
+- O fluxo de geração e validação de quests, o compositor procedural e a infraestrutura LiteRT-LM estão presentes no código.
+- As verificações e o APK não foram gerados por esta atualização documental. A conclusão do CI consultado é uma evidência remota anterior, não uma nova execução feita por este commit de documentação.
+
+### 3.4 Defeitos observados nas screenshots e confirmados por inspeção do código
+
+1. GardenSummaryCard desenha emojis de flor/estrela sobre card_home_day/night, cujas artes já contêm motivos decorativos; usa também a proporção antiga 1062/450 no card noturno em vez de 612/292.
+2. Os botões gráficos têm vários parâmetros de proporção antigos, e labelStartFraction de aproximadamente 0.14–0.15 pode deixar a folha incorporada na arte por cima do início do texto.
+3. PinhoBottomNavigation desenha caracteres/emoji de casa, flor e livro sobre nav_bar_day/night, que já contêm os três ícones.
+4. GardenFlowerCard desenha “?” e textos sobre card_flower_unknown, que já contém símbolo e texto decorativos; a altura de 160 dp não corresponde à proporção do asset.
+5. A LazyVerticalGrid usa fillMaxSize dentro do painel com filtros; os filtros têm larguras iguais e labels longos; o conteúdo inferior disputa espaço com a navbar sobreposta.
+6. OnboardingScreen usa deslocamentos verticais relativos à altura e não tem um contrato suficiente para manter o CTA visível com o IME aberto nem para garantir acesso a todas as categorias.
+7. SettingsScreen usa proporções antigas 295/168 e 290/172 para assets finais com canvas 300/180. EmptyGardenState usa 392/282 para card_garden_empty_day, cujo canvas final é 392/316.
+8. Somente cinco tags visuais têm mapeamento explícito em tagGraphicAsset; quatro usam a superfície neutra. Os outros cinco assets de categoria não devem ser associados por aproximação semântica.
+9. QuestPlanner.selectNovelCategory seleciona a primeira categoria candidata ausente em recentCategories. O contexto de produção observado preenche afinidades mas não fornece histórico recente; por isso, o caminho aleatório pode escolher CODING repetidamente.
+10. ProceduralComposer mapeia cada categoria para uma composição determinística fixa; CODING produz “Frankenstein Digital”. Sem modelo ativo, PinhoQuestAppGraph usa ProceduralComposer.
+11. Existe infraestrutura de instalação do modelo, mas UnconfiguredModelPackageCatalog.current() retorna null. O callback opcional de instalação não é encaminhado pelo PinhoQuestNav para SettingsScreen. O modelo está ausente do APK informado pelo proprietário.
+
+Essas observações foram reproduzidas pela inspeção da branch e comparadas com as screenshots. Qualquer hipótese adicional sobre densidade, teclado, tema ou comportamento em outras telas precisa de teste, não deve ser registrada como fato até ser reproduzida.
+
+## 4. Priorização e política de gate
 
-### Fora do escopo desta etapa documental
+- **P1 — bloqueia uso confiável ou um fluxo principal:** ação encoberta, informação essencial ilegível, seleção que não funciona, conteúdo inacessível, repetição que contradiz o modo de geração prometido, ou requisito de produto V1 sem caminho de execução.
+- **P2 — bloqueia acabamento consistente/acessível:** inconsistência visual, suporte insuficiente a escala de fonte, mapeamento de arte ainda pendente, tipografia de identidade ou pequenas divergências entre telas.
+- Um P1 não pode ser rebaixado para deixar um gate verde.
+- Um P2 pode ser explicitamente adiado somente com escopo, impacto, evidência e aprovação registrados; não pode ser descrito como concluído.
+- “PASS” exige evidência associada ao commit verificado. “PASS CI” não significa “PASS visual”. “BLOCKED” exige identificar uma dependência real e o próximo passo que a remove.
 
-- Alterações em código de runtime, regras de domínio, persistência, assets binários, Gradle/workflows e testes.
-- Fechar qualquer gate apenas porque ele está descrito neste documento.
-- Alterar a semântica de temas/tags, política de recompensa, identidade botânica, progressão ou contrato do modelo.
-- Remover recursos antigos antes de provar que nenhum consumidor depende deles.
-- Alegar execução de teste sem saída de ferramenta, workflow ou evidência preservada.
+## 5. Plano oficial por sprints
 
-## 3. Snapshot e qualidade da evidência
+A sequência abaixo substitui cronogramas históricos com apenas três marcos. P6-A consolida a base já publicada e limpa as divergências documentais; P6-B a P6-E implementam as correções; P6-Final fecha integração e release. As datas antigas são apenas contexto e não devem ser tratadas como compromisso atual.
 
-A branch remota confirmada é `feature/p6-total-ui-refactor`. Os arquivos documentais foram lidos pelo GitHub Connector nessa branch. A API usada nesta revisão não forneceu um SHA de HEAD de branch confirmado; portanto este protocolo não fixa um hash-base fictício. Ao realizar o próximo checkpoint, registrar o SHA real de HEAD observado e atualizar `CURRENT_STATE.md`.
+### P6-A — Baseline canônico e reconciliação de evidências
 
-### Estados obrigatórios para afirmações
+**Objetivo:** fixar a fonte de verdade, confirmar os mapeamentos de assets e fazer com que documentos operacionais parem de descrever um estado anterior da branch.
 
-- **CONFIRMADO:** leitura direta de código/documento, teste executado com resultado, workflow identificado ou reprodução documentada.
-- **HIPÓTESE:** explicação plausível, mas sem prova suficiente para estabelecer causalidade.
-- **PENDENTE DE VERIFICAÇÃO:** não foi possível observar ou validar no snapshot analisado.
-- **DECISÃO NORMATIVA:** regra aprovada para orientar implementação futura; não implica que esteja implementada.
-- **SUPERADO:** afirmação antiga substituída por evidência ou contrato mais recente. Preservar a razão da supersessão quando relevante.
+**Estado-base:** estrutura de assets e mapas Gradle presentes; CI remoto no SHA de referência concluído com sucesso. O estado visual observado ainda contém defeitos, portanto isso não fecha P6-B/C.
 
-Toda atualização de estado deve indicar data, branch, SHA, escopo do teste e evidência. “CI verde” sem identificar workflow e comandos não é evidência suficiente.
+**Itens**
+- **A-01 — Snapshot reproduzível:** manter branch, SHA, execução CI, APK e data associados em toda revisão de gate.
+- **A-02 — Catálogo coerente:** corrigir ASSET_CATALOG e CANONICAL_GRAPHICS onde ainda afirmam que cards de flor estão no grupo Gradle errado ou que os aliases não foram publicados. Preservar os diretórios físicos e a classificação semântica explícita.
+- **A-03 — Contratos sincronizados:** atualizar este protocolo e reconciliar P6_UI_UX_INTERACTION_CONTRACT com as regras de arte não autoritativa, dimensões finais e papéis reais de navbar/cards.
+- **A-04 — Baseline visual:** armazenar capturas originais do APK atual por tela e tema como evidência; nomear os cenários para comparação posterior.
+- **A-05 — Auditar mapeamento:** executar o verificador de assets no checkout atual e confirmar que nenhum arquivo auxiliar Null entra como recurso e que os aliases não colidem.
 
-## 4. Mapa de autoridade documental
+**Arquivos principais:** app/build.gradle.kts (somente se a execução demonstrar divergência), docs/design/ASSET_CATALOG.md, docs/design/CANONICAL_GRAPHICS.md, docs/design/P6_UI_UX_INTERACTION_CONTRACT.md, este protocolo e pasta de evidências.
 
-Os documentos têm papéis diferentes; não devem competir pela mesma autoridade.
+**Critérios de aceite**
+- O catálogo e o mapa Gradle descrevem os mesmos diretórios, arquivos e aliases.
+- Os dois cards de flor desconhecida estão classificados e mapeados como cards.
+- A documentação não afirma que o repositório de imagens externo é a fonte da verdade.
+- A execução de :app:verifyCanonicalUiAssets registra PASS no SHA revisado.
+- O baseline tem capturas de Home, onboarding com e sem teclado, coleção, perfil/configurações e quest.
+- O protocolo distingue PASS de build e PASS de runtime visual.
 
-1. **Identidade visual:** `docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md` e `docs/identity/PINHO_QUEST_GARDEN_PIXEL_ART_GENOME.md`. Uma alteração de identidade atualiza primeiro a autoridade correspondente.
-2. **Contrato de implementação visual:** `docs/design/UI_DESIGN_CONTRACT.md`. Define limites de implementação, responsividade, acessibilidade e autoridade da UI.
-3. **Referências classificadas:** `docs/design/CANONICAL_GRAPHICS.md`. Indexa composição, referência visual, papel e status sem substituir o inventário de arquivos.
-4. **Inventário e aliases de recursos:** `docs/design/ASSET_CATALOG.md`. Referência operacional de nomes de origem e nomes de recurso gerado; a configuração real do build é a prova final do mapeamento.
-5. **Interação de produto P6:** `docs/design/P6_UI_UX_INTERACTION_CONTRACT.md`. Define comportamento esperado de ações, temas/tags, Jardim e coleção.
-6. **Este protocolo:** `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Governa ordem dos gates, critérios de validação, checkpoints e classificação de evidências. Não redefine identidade visual nem contratos de domínio.
-7. **Estado operacional:** `CURRENT_STATE.md`. Registra o que existe e foi validado na branch/commit observados; nunca converte metas futuras em fatos atuais.
-8. **Genome de entrada e handoff:** `Engineering_Genome/00_START_HERE.md`, `01_ENGINEERING_PHILOSOPHY.md`, `02_AUTHORITY_MAP.md` e `10_RAFA_LUCIO_HANDOFF.md`. Devem apontar para os contratos vigentes e evitar copiar especificações completas.
+**Testes/evidências:** verificador Gradle, assembleDebug, lista dos aliases gerados, resultado de CI e baseline de screenshots.
 
-### Regra de precedência e reconciliação
+**Risco/rollback:** baixo. Não mover assets nem renomear arquivos sem mudança coordenada de Gradle, catálogo, consumidores e testes.
 
-Em caso de conflito, respeitar a autoridade específica do domínio acima. Se dois documentos do mesmo nível divergirem, não escolher silenciosamente: abrir alteração documental pequena, explicar qual regra prevalece, corrigir os dois lados e registrar a decisão. O catálogo não decide qual tela deve usar cada background; ele registra assets e aliases. O registry visual classifica referências; não substitui o inventário.
+**Gate P6-A:** a configuração de assets já existe e um CI recente passou. Fechar formalmente a documentação somente após sincronizar os textos divergentes e anexar a evidência de verificação aplicável ao SHA. Isso não fecha qualquer sprint visual posterior.
 
-## 5. Diagnóstico documental e técnico inicial
+### P6-B — Composição visual e componentes compartilhados (P1)
 
-Esta seção separa observações do snapshot de explicações ainda por confirmar.
+**Objetivo:** eliminar sobreposições causadas pelo código compartilhado e usar as proporções finais dos assets, sem redesenhar as artes.
 
-### 5.1 Assets e composição visual
+**Itens**
+- **B-01 — HomeSummary:** corrigir GardenSummaryCard para proporção 612/292 nos dois temas; eliminar emojis duplicados; reservar área segura para os textos; preservar o nome, contagem e XP como dados reais; garantir que o texto não invada a árvore decorativa.
+- **B-02 — Botão gráfico:** revisar PinhoGraphicButton para que imagem mantenha proporção natural e que os labels usem área útil compatível com a arte. Remover dependência de um labelStartFraction genérico que não serve para todos os PNGs; registrar ajustes por família de asset quando justificados pelo espaço visual.
+- **B-03 — Navbar:** manter nav_bar_day/night como superfície ilustrada; remover os caracteres de ícone duplicados. Os três destinos continuam controles Compose verdadeiros, com click target, semântica, seleção e rótulo acessível.
+- **B-04 — Temas:** atualizar SettingsScreen para proporção 300/180 nos dois botões de tema, sem distorcer imagem nem mover labels para cima da ilustração do sol/lua.
+- **B-05 — Jardim vazio:** usar a proporção final 392/316 para card_garden_empty_day/night quando o par for apresentado em canvas comum; ajustar o conteúdo restante sem sobreposição.
+- **B-06 — Voltar:** validar PinhoBackButton quanto a tamanho visual, proporção e alvo de toque mínimo de 48 dp. Preservar o PNG 66×75; não ampliar o arquivo raster artificialmente. Ajustar a geometria Compose se a captura e o teste de toque comprovarem insuficiência.
 
-**CONFIRMADO por inspeção documental:**
+**Arquivos principais:** PinhoQuestVisuals.kt, QuestScreen.kt, SettingsScreen.kt, GardenScreen.kt.
 
-- `docs/design/ASSET_CATALOG.md` contém tabelas de assets de `BackGround/` e `Button/` com aliases de recursos gerados por `app/build.gradle.kts`.
-- O catálogo declara `verifyCanonicalUiAssets` como dependência de `preBuild` e determina reter recursos antigos até que consumidores sejam migrados e regressões verificadas.
-- `docs/design/CANONICAL_GRAPHICS.md` preserva nomes e papéis antigos, como `BtnStart.png`, `BtnSortQuest.png` e `BtnBack.png`, e contém uma nota contraditória sobre `docs/design/Button/`: uma seção diz que o caminho foi normalizado, outra afirma que o caminho publicado ainda tem espaço final.
-- Os contratos visual e de interação afirmam que screenshots são referências de composição, não telas estáticas que substituem controles Compose.
-- `docs/design/Screen/1791405120200.jpg` é um quadro/folha de referência de composição, não um background de produção.
-- `docs/evidence/p6-v05-ui-ux.md` documenta um checkpoint histórico V0.5 que usou templates compostos como backgrounds e reporta testes daquele checkpoint. Isso não demonstra, por si só, a validade do layout/código atual da branch P6.
+**Critérios de aceite**
+- Nenhum símbolo duplicado na Home ou navbar.
+- Home day/night usa o mesmo canvas de card e a mesma área semântica de texto.
+- Texto de todo botão principal fica separado da folha/ícone desenhado no PNG e permanece legível em scale 1.0 e 1.3.
+- Todas as imagens preservam aspecto natural; nenhum FillBounds pode deformar um asset sem decisão visual expressa.
+- Controles permanecem clicáveis e acessíveis por Compose, e não são substituídos por imagem estática.
+- Capturas antes/depois nas duas variantes de tema não mostram sobreposições.
 
-**HIPÓTESE a verificar no código/runtime:**
+**Testes:** testes Compose de componentes partilhados, verificação de proporção no catálogo, screenshots, semântica/click test da navbar e botões.
 
-- Parte das telas pode ainda consumir recursos legados em vez dos aliases canônicos.
-- `ContentScale.FillBounds` pode deformar botões quando a proporção do contentor não coincide com a imagem. A ocorrência e os elementos afetados devem ser confirmados no código da branch antes de atribuir impacto visual concreto.
-- A integração visual pode estar incompleta em onboarding, configurações, Jardim e barra inferior.
+**Dependências:** P6-A baseline e aliases estáveis.
 
-**DECISÃO NORMATIVA:**
+**Risco/rollback:** médio; um ajuste de área de texto pode afetar várias telas. Alterar uma família de componente por vez, manter screenshots de referência e reverter por componente se a semântica de clique for afetada.
 
-- PNG/JPG de origem não será renomeado ou modificado apenas para cumprir regras Android.
-- Aliases de recursos são gerados a partir de um único mapeamento verificável. Não manter uma segunda tabela manual que possa divergir do build.
-- Uma referência completa de tela nunca pode ser o único elemento de renderização de um fluxo interativo.
-- Imagens devem manter proporção. Usar `Fit`, dimensões com razão explícita ou estratégia documentada; `FillBounds` somente quando a deformação for deliberada e aprovada para o asset.
-- Recursos legados só podem ser removidos após busca de consumidores, migração, build, testes de regressão e checkpoint de remoção.
+### P6-C — Jardim, coleção, onboarding e safe areas (P1)
 
-### 5.2 Estados do Jardim
+**Objetivo:** tornar todos os controles e conteúdos essenciais alcançáveis em telas compactas, com teclado aberto e escala de fonte aumentada.
 
-**CONFIRMADO por contrato:** o Jardim tem uma dimensão de espaço visual e uma experiência de coleção; a coleção inicial tem nove flores, com estados de descoberta e coleta definidos pelo domínio. A UI não inventa identidade, raridade, pertencimento à coleção ou progresso.
+**Itens**
+- **C-01 — Card de flor desconhecida:** usar proporção derivada do asset 174×255; não redesenhar o ponto de interrogação nem o “???” já incorporados; manter no Compose apenas os dados que o asset não representa (estado real, raridade/nome quando revelados). Definir explicitamente os estados hidden, hinted, revealed e collected.
+- **C-02 — Grade da coleção:** depois dos filtros, a LazyVerticalGrid deve usar somente o espaço remanescente (por exemplo, weight dentro de um contêiner de altura limitada), sem ocupar o cabeçalho inteiro. A rolagem deve pertencer a um só contêiner por eixo para evitar conflitos.
+- **C-03 — Filtros:** quatro filtros devem caber sem cortar labels. Testar labels completas (“Todas”, “Coletadas”, “Pesquisadas”, “Desconhecidas”) em largura compacta. Se não houver largura, usar uma solução responsiva aprovada (quebra de linha ou região horizontal rolável); não esconder sufixos para forçar o layout.
+- **C-04 — Navbar e safe area:** reservar no layout raiz o espaço que a barra global ocupa, com insets reais. Cards e ações devem continuar acessíveis atrás/ao redor da barra; não usar alturas mágicas específicas do aparelho.
+- **C-05 — Onboarding nome:** aplicar tratamento IME, rolagem/foco e reposicionamento por constraints de forma que o campo e o CTA Confirmar sejam alcançáveis com o teclado aberto. A validação de nome continua pertencendo a GardenOwnerName.
+- **C-06 — Onboarding tags:** remover espaçadores proporcionais que consomem a área de conteúdo sem necessidade. Todas as categorias e o CTA Continuar devem permanecer alcançáveis; a área que rola e a ação inferior precisam ter responsabilidades claras.
+- **C-07 — Layout de quest:** descrições e objetivos longos devem rolar dentro da área de conteúdo sem serem encobertos por navbar, CTA ou barras de sistema. Evitar fixar altura de parchment de acordo com um exemplo único.
 
-**PENDENTE DE VERIFICAÇÃO:** expressão atual de estado em `GardenScreen.kt`, semântica de `collectedCount`, representação de slots vazios e completude dos testes na branch/HEAD atual precisam ser verificadas durante P6-C. Não tratar nomes de campos presumidos como contrato definitivo.
+**Arquivos principais:** GardenScreen.kt, FlowerDetailScreen.kt, OnboardingScreen.kt, QuestScreen.kt, PinhoQuestNav.kt e componentes de layout compartilhados.
 
-**DECISÃO NORMATIVA — três composições:**
+**Critérios de aceite**
+- Nenhum card é coberto pela navbar nem invade a região dos filtros.
+- Cards desconhecidos não têm “?” ou “???” duplicados.
+- Os quatro filtros continuam legíveis e operáveis em larguras compactas.
+- Com teclado aberto, o usuário consegue selecionar o campo, inserir nome válido e alcançar Confirmar sem fechar o teclado à força.
+- As nove opções de onboarding e o CTA Continuar podem ser acessados por rolagem em tela compacta.
+- Quest com título/descrição/objetivos longos permite alcançar o último objetivo e ambos os CTAs.
+- Testes com fonte 1.0 e 1.3, tema dia e noite, sem overflow, corte nem alvo encoberto.
 
-1. **Jardim vazio:** nenhuma flor foi coletada no perfil. Explica o primeiro passo e leva para quests; não deve fingir que existem flores coletadas.
-2. **Jardim em arte:** pelo menos uma flor foi coletada e a coleção não está aberta. Mostra a composição do lugar e o progresso fornecido pelo domínio.
-3. **Coleção:** o usuário abriu explicitamente a coleção. Mostra nove posições e filtros/estados apoiados em dados governados (desconhecida, pesquisada/revelada e coletada conforme o modelo vigente).
+**Testes:** Compose UI tests para IME/CTA, semântica dos filtros, rolagem da coleção, card states e interação por clique; capturas em tamanho compacto e tela de referência.
 
-O estado de domínio determina se o jardim já floresceu; a seleção entre “arte” e “coleção” é estado de navegação/presentação. Essa seleção visual não altera coleção, recompensa ou persistência. Abrir coleção não gera coleção, gasta XP nem modifica o domínio. Voltar à arte apenas retorna à composição anterior.
+**Dependências:** P6-B entrega componentes e proporções previsíveis.
 
-Os critérios devem cobrir perfil com zero flores, uma flor, coleção com posições ainda desconhecidas, estados mistos e transição/retorno. Não introduzir fixtures incompatíveis com o modelo atual sem declará-las.
+**Risco/rollback:** médio/alto porque mexe em áreas roláveis e teclado. Usar testes de fluxo antes de alterar a hierarquia raiz; evitar aninhar duas listas verticais roláveis sem limites claros.
 
-### 5.3 Geração e variedade de quests
+### P6-D — Geração de quests, contexto e fallback diverso (P1)
 
-**CONFIRMADO por contrato de arquitetura:** planner e validação pertencem ao core/domínio; o composer produz conteúdo criativo; o compositor local é opcional sob política de admissão; o fallback procedural permanece governado; a UI não constrói quests diretamente. O `CURRENT_STATE.md` consultado afirma que, naquele checkpoint documentado, a geração de produção ainda seguia caminho determinístico/procedural e não devia ser confundida com o trabalho experimental de FunctionGemma.
+**Objetivo:** fazer o modo aleatório variar de verdade, preservar as restrições de geração e garantir que a saída seja válida, mesmo sem modelo local.
 
-**HIPÓTESES a investigar, não diagnósticos concluídos:**
+**Itens**
+- **D-01 — Histórico real:** rastrear de onde pode vir recentCategories no contrato de core. Alimentar o planner somente com histórico autorizado e disponível; não fabricar uma lista em estado local da UI.
+- **D-02 — Seleção não enviesada:** corrigir selectNovelCategory para não escolher sempre o primeiro candidato. Manter os filtros hard como autoridade; quando todos os candidatos foram usados, fazer rotação determinística documentada ou seleção pseudoaleatória testável, sem ignorar restrições válidas.
+- **D-03 — Diversidade procedural:** substituir o mapeamento único por categoria por um conjunto finito de composições úteis com variação de ângulo, ação, duração e objetivo, sem combinações sem sentido nem fixtures específicas para contornar testes.
+- **D-04 — Pipeline observável:** expor diagnóstico não sensível sobre estado do modelo, caminho selecionado (LLM/procedural), categoria, resultado de validação e razão de fallback. Não registrar conteúdo pessoal do usuário ou prompt privado em logs de produção.
+- **D-05 — Contrato de saída:** continuar passando toda saída por QuestValidator. Saída LLM inválida, inferência falha ou modelo indisponível nunca deve produzir falso sucesso; fallback válido é permitido e deve ser diagnosticável.
+- **D-06 — Testes de variedade:** testar categorias candidatas, categorias recentes vazias/parciais/completas, filtros, modo RANDOM e modo GAME. Testar uma série reproduzível de 20 gerações sob seed/controlador determinístico de teste. O objetivo não é “nunca repetir qualquer texto”, e sim provar que escolhas não ficam presas ao primeiro item e que a variedade programada é alcançável.
+- **D-07 — Estado persistido:** verificar que histórico usado para variar geração vem do repositório/serviço de domínio adequado, e só é atualizado conforme evento válido definido pelo contrato. Não mudar a fonte de verdade em memória da tela.
 
-- Repetição pode decorrer de categorias selecionadas deterministicamente, contexto recente vazio, tags que não chegam ao composer ou templates do fallback.
-- Pode haver mais de uma causa concorrente; observar duas quests repetidas não prova causalidade.
-- A origem `LOCAL_MODEL` versus `PROCEDURAL_FALLBACK` pode não estar exposta de forma suficiente no limite público necessário ao diagnóstico.
+**Arquivos principais:** QuestPlanner.kt, QuestContext/QuestContextProvider, QuestSessionService e eventuais ports de histórico, ComposerPort.kt, QuestValidator.kt, PinhoQuestAppGraph.kt e testes de quest-core.
 
-**Protocolo normativo para P6-D:**
+**Critérios de aceite**
+- Com contexto vazio, RANDOM não fica deterministamente preso em CODING.
+- Com categorias recentes parciais, há rotação/diversidade sem violar filtros explícitos.
+- GAME nunca se converte silenciosamente em NORMAL ou em uma quest de outra categoria quando não existe candidato válido.
+- Todas as saídas passam por QuestValidator; falha de geração aparece como estado de erro ou fallback válido claramente identificável.
+- Suite de 20 gerações controladas cobre mais de uma categoria e demonstra ausência de viés fixo para o primeiro item; teste usa seed ou fonte de escolha injetável, não expectativa probabilística instável.
+- Nenhum log de produção contém texto pessoal, prompts completos ou dados sensíveis.
 
-1. Reproduzir repetição com semente/contexto/configuração documentados ou teste determinístico de regressão.
-2. Rastrear o pedido: seleção de tema/tags → contexto aprovado → planner → plano → composer/admission/modelo ou fallback → validador → resultado exibido.
-3. Em cada fronteira, registrar entrada/saída tipada e limitada; não registrar prompts livres, dados pessoais nem payloads brutos do modelo.
-4. Confirmar por contrato quais tags podem ser passadas; usar somente labels permitidos, normalizados e limitados. Não enviar entidades Room, histórico bruto, afinidades internas, HTML/URLs ou pesquisa não filtrada ao modelo.
-5. Tornar observável a origem do resultado por resultado tipado/telemetria de diagnóstico, sem acoplar core a Android `Log` se isso violar fronteiras de módulo.
-6. Garantir que resultados do modelo e fallback convergem para o mesmo `QuestValidator`. Saída inválida não pode contornar o validador.
-7. Testar variedade ao longo de uma sequência, distribuição de categorias quando aplicável, influência de tags, indisponibilidade do modelo, admissão negada, resultado inválido e esgotamento de candidatos.
-8. Corrigir a causa identificada por camada; não adicionar aleatoriedade cega se a repetição resultar de contexto/tag não propagados ou contrato quebrado.
+**Testes:** quest-core unit tests, testes do contexto e serviço, testes de integração para falha/retorno de inferência e confirmação de que histórico é atualizado somente por caminho governado.
 
-P6-D não autoriza refazer a integração LiteRT-LM experimental nem violar os gates de runtime P3/CR. Alterações no runtime local seguem o contrato de autoridade do Engineering Genome e o gate CR vigente.
+**Dependências:** P6-A permite reproduzir a versão; nenhum ajuste de UI substitui esta correção.
 
-### 5.4 Navegação e destinos
+**Risco/rollback:** alto para regra de domínio. Mudanças pequenas e cobertas por testes; não alterar validações para fazer a geração “passar”. Se a nova variedade produzir drafts inválidos, corrigir o compositor/planejador, não enfraquecer QuestValidator.
 
-**CONFIRMADO por contratos visuais P6 consultados:** a composição canônica atual de Home prevê exatamente três destinos globais na barra inferior — **Início, Jardim, Perfil**. Configurações é um destino acessado por fluxo interno, não uma quarta aba. O `Engineering_Genome/00_START_HERE.md` ainda contém uma formulação legada de quatro abas (Quests, Tags, Jardim, Configurações), portanto existe divergência documental a reconciliar com a especificação V1 e contratos atuais.
+### P6-E — Distribuição do modelo, categorias semânticas e tipografia (P1/P2)
 
-**DECISÃO NORMATIVA para P6-B/P6-E:**
+**Objetivo:** resolver a ausência do modelo local sem incluir um binário grande no Git por padrão; completar a consistência visual e de acessibilidade.
 
-- Documentos atuais distinguem destinos globais de subtelas/fluxos internos. A barra global apresenta apenas os três destinos aprovados até que uma decisão explícita de produto altere os contratos canônicos.
-- Seletor de tema, detalhes de flor, configurações e onboarding são fluxos/subtelas; só aparecem como destinos globais se uma decisão explícita atualizar primeiro os contratos canônicos.
-- Cada navegação tem política previsível para back da UI e do sistema. Configurações retorna ao chamador/destino de origem conforme back stack; não deve sair do app por acidente.
-- A visibilidade da barra durante onboarding e subtelas segue o contrato de cada tipo de destino, não uma condição ad hoc espalhada na UI.
-- Não forçar a barra a estar sempre visível: cada fluxo define onde ela é apropriada. Testar transições reais, inclusive o seletor de tema.
+**Itens**
+- **E-01 — Decisão formal de distribuição LiteRT-LM (P1, bloqueia o requisito LLM V1):** registrar se o modelo continuará requisito de produto. Como está ausente do APK e não há catálogo de pacote configurado, escolher uma distribuição externa imutável ou outro mecanismo aprovado. Não fingir que o modelo está ativo.
+- **E-02 — Manifesto confiável:** especificar modelId, versão, runtimeFormat, tamanho máximo esperado, bytes, SHA-256, licença, URL oficial e backends suportados. A origem do manifesto precisa ser confiável; SHA-256 sem uma origem íntegra/autenticada não basta contra adulteração. Preferir manifesto assinado ou canal autenticado e versionado, com estratégia explícita de rotação.
+- **E-03 — Instalação segura:** ligar ModelPackageCatalog e ModelInstallCoordinator ao fluxo real de Settings/Profile, usando WorkManager existente onde apropriado. Validar conectividade, tamanho e hash; baixar para .part; rejeitar truncado; promover atomicamente após validação; preservar modelo anterior até novo modelo válido; mostrar progresso, cancelamento/retry e erros compreensíveis. Não passar dados privados do jardim para um servidor de inferência: geração local é local.
+- **E-04 — UX honesta sem modelo:** oferecer fallback procedural sem quebrar o loop principal. Mostrar que o cérebro criativo não está instalado e permitir instalação explícita com tamanho/licença/fonte antes de iniciar o download. Nunca comunicar “LLM ativo” sem modelo instalado e runtime carregado. Quando a fonte oficial do artefato estiver indefinida, manter o catálogo desconfigurado e registrar esse gate como BLOCKED; não inventar URL ou modelo.
+- **E-05 — Mapeamento visual de categorias (P2):** comparar os nove assets com os IDs de domínio de SystemTagCatalog e documentar associação aprovada. Não mapear appreciation→affection, learn→learning, science→technology nem animal→animals apenas por semelhança lexical. Se não houver arte semanticamente adequada, manter a superfície neutra intencional, com estilo consistente e sem parecer um asset quebrado.
+- **E-06 — MS Boli (P2):** validar procedência, arquivo e licença antes de adicionar a fonte em res/font. Usar apenas nos papéis de display de quests aprovados. Texto funcional, labels, métricas e acessibilidade permanecem legíveis; uma fonte manuscrita não pode substituir layout responsivo.
+- **E-07 — Escala de fonte e contraste (P2):** testar densidade e escala do Compose em múltiplos estados; corrigir componentes fixos. Validar contraste sobre arte e pergaminho; os estados não podem depender apenas da cor.
 
-### 5.5 Testes, CI e acessibilidade
+**Arquivos principais:** ModelInstallCoordinator.kt, ModelDownloadWorker.kt, ModelDownloadTransport.kt, UnconfiguredModelPackageCatalog, PinhoQuestAppGraph.kt, SettingsScreen.kt, PinhoQuestNav.kt, PinhoQuestVisuals.kt, catálogo de domínio, MainActivity.kt, recursos de fonte e testes respectivos.
+
+**Critérios de aceite**
+- A decisão de distribuição do modelo está documentada; o P6-Final não fecha com “LLM disponível” como alegação se o modelo não puder ser instalado/ativado.
+- Instalação verifica manifesto confiável, tamanho e hash antes de ativar; instalação parcial nunca substitui modelo ativo.
+- Falhas de rede, digest, arquivo e runtime deixam o app utilizável em fallback e mostram estado verdadeiro.
+- Não existe falso positivo de “modelo instalado” quando o catálogo retorna null ou o runtime não carrega.
+- Os nove assets têm decisão semântica documentada; nenhum nome de imagem cria automaticamente uma tag.
+- MS Boli só entra após licença/procedência verificadas, e o app não depende dela para layout correto.
+- Fonte 1.0 e 1.3, temas claro/escuro e strings compridas não causam clipping nem perdem o acesso ao CTA.
+
+**Testes:** testes unitários do catálogo e coordenador de instalação, downloads interrompidos, hash incorreto, versão inválida, troca atômica, falha do runtime, fallback procedural, testes de fonte/contraste e capturas.
+
+**Dependências:** P6-D estabiliza o contrato de composição/fallback. E-01 precisa de decisão de produto e pacote real confiável para uma implementação completa.
+
+**Risco/rollback:** alto para distribuição de modelo e privacidade. Nunca ativar artefato só por URL; não sobrescrever versão válida antes de validar a nova; se distribuição confiável não estiver disponível, manter fallback funcional e gate de modelo explicitamente BLOCKED, sem fingir conclusão.
+
+### P6-Final — Regressão integrada, release e fechamento de gates
 
-**CONFIRMADO por documentação lida:** o checkpoint V0.5 reporta testes instrumentados executados naquele checkpoint. `CURRENT_STATE.md` também registra resultados de gates anteriores e limitações de lint/toolchain em determinado momento. Esses registros históricos não provam o estado de CI ou instrumentação no HEAD atual.
+**Objetivo:** provar que a experiência completa funciona no APK produzido a partir de um SHA conhecido.
 
-**PENDENTE DE VERIFICAÇÃO:** conferir workflow atual e seus comandos antes de dizer que executa `:app:connectedDebugAndroidTest`, E2E de modelo, screenshots ou matriz dia/noite. A mera presença de arquivos `androidTest` não prova cobertura.
-
-Regras:
-
-- CI executa testes unitários por módulo, lint/build configurados e instrumentados somente quando o workflow os invocar explicitamente.
-- Teste instrumentado só é considerado executado com resultado registrado (workflow/job/log ou evidência local reproduzível).
-- E2E deve atravessar o fluxo real especificado; unitário, montagem de APK e teste isolado de componente não substituem E2E.
-- Controles acessíveis oferecem semântica estável (rótulo/descrição/testTag quando adequado) e touch targets reais. Não resolver falhas reduzindo acessibilidade nem usando coordenadas arbitrárias sem justificativa.
-- Regressão visual registra dispositivo/API, escala tipográfica, tema, fixtures e critério de comparação; diferenciar screenshot aprovado de mera captura produzida.
-- Erros do pipeline são triados por camada e registrados como bloqueio, não escondidos por desativar testes ou diminuir cobertura.
-
-## 6. Gates oficiais do P6
-
-Os gates são sequenciais quando houver dependência. Cada gate termina em `PASS`, `PASS_BOUNDED`, `BLOCKED` ou `NOT_STARTED`. `IMPLEMENTED` sozinho não equivale a validado.
-
-### P6-A — Canonização documental e inventário de assets
-
-**Objetivo:** uma única autoridade operacional para nomes de origem → aliases e classificação coerente de referências.
-
-**Entrada:** branch/SHA observados; catálogo, registry, build mapping e diretórios de assets disponíveis.
-
-**Trabalho:** conferir cada path/nome real; reconciliar `ASSET_CATALOG.md` e `CANONICAL_GRAPHICS.md`; retirar listas obsoletas ou marcá-las como histórico; classificar referências como canônica, secundária/duplicada, decorativa, não canônica ou não classificada; manter `UI_DESIGN_CONTRACT.md` como autoridade de implementação e o contrato P6 como autoridade de interação; atualizar Genome/README/CURRENT_STATE com links e precedência.
-
-**Saída obrigatória:** inventário sem aliases duplicados e com paths reais; nenhum conflito não declarado entre path, catálogo e registry; decisão para imagens timestamp e nomenclaturas contraditórias; `verifyCanonicalUiAssets` executado com evidência ou status bloqueado.
-
-**Bloqueadores:** arquivo citado inexistente; alias/path ambíguo; afirmação de validação do build sem evidência.
-
-### P6-B — Composição visual e controles
-
-**Objetivo:** reconstruir telas com referências canônicas e interações reais.
-
-**Entrada:** P6-A validado para assets consumidos no slice de tela.
-
-**Trabalho:** migrar uma tela por checkpoint; ligar cenário e skin aos aliases existentes; preservar callback, estado, navegação, copy e acessibilidade; validar proporções e recorte em telas/fontes representativas.
-
-**Saída obrigatória:** build/lint disponível executados; testes de UI pertinentes; capturas dia/noite e escala de fonte quando relevantes; verificação de toque/teclado/back; regressão conhecida triada.
-
-**Bloqueadores:** referência de tela usada como UI estática interativa; botão sem callback; campo sem foco/teclado; deformação não intencional; controle inacessível.
-
-### P6-C — Máquina de estados do Jardim
-
-**Objetivo:** três composições refletem a autoridade de domínio e mantêm a coleção intacta.
-
-**Entrada:** contrato de interação/identidade visual reconciliados; fonte dos dados de coleta identificada.
-
-**Testes obrigatórios:** Jardim vazio; primeira flor coletada; coleção aberta; nove posições; estados mistos de descoberta; filtro; detalhe de flor; retorno da coleção; recriação/process death se houver dependência de estado persistido.
-
-**Saída obrigatória:** regra de transição documentada e testes verdes; troca de composição não muta domínio; fixtures compatíveis com nove slots e modelo vigente.
-
-**Bloqueadores:** usar lista vazia como substituto de contagem de coleta quando não equivalentes; perder coleções, inventar flores ou regenerar coleção ao abrir tela.
-
-### P6-D — Contexto, variedade e fallback de quests
-
-**Objetivo:** diagnosticar e corrigir repetição com evidência, não aleatoriedade paliativa.
-
-**Entrada:** baseline reproduzível e fronteiras de planner/composer/validator identificadas.
-
-**Testes obrigatórios:** tags permitidas influenciam geração conforme contrato; sequência mede repetição; caminhos local e procedural; indisponibilidade/saída inválida; admissão negada; validador aplicado em todos os caminhos; esgotamento de candidatos.
-
-**Saída obrigatória:** causa(s) demonstrada(s), correção por camada, regressão reproduzível e origem do resultado diagnosticável no limite apropriado. Sem causa comprovada, manter diagnóstico parcial e gate aberto.
-
-**Bloqueadores:** raw model output chega à UI/domínio/persistência; tags ignoradas sem análise; logs expõem payload pessoal; fallback contorna validação; mudança P3 runtime sem respeitar CR gates.
-
-### P6-E — Regressão funcional, visual e fechamento
-
-**Objetivo:** provar que todos os gates anteriores coexistem no fluxo integrado.
-
-**Entrada:** P6-A a P6-D concluídos ou exceção explicitamente limitada e registrada.
-
-**Validação obrigatória:** testes unitários/UI pertinentes; Android instrumentado/E2E com ambiente identificado; onboarding/nome/teclado; Home, navegação e configurações/temas; três estados do Jardim, nove posições e progresso; geração de quests/fallback; fonte ampliada, acessibilidade e dia/noite; screenshots com manifesto do dispositivo/configuração; inspeção do diff, logs e workflow pós-commit.
-
-**Saída:** checklist preenchido com links de runs/artefatos; limitações explícitas; `CURRENT_STATE.md` com SHA real; decisão PASS somente quando evidência cobre critérios.
-
-**Bloqueadores:** gate anterior não demonstrado; CI inexistente para testes alegados; evidência histórica apresentada como atual; screenshot sem configuração reprodutível; alterações de runtime/dados fora do escopo sem regressão.
-
-## 7. Protocolo de checkpoints e commits
-
-1. **Congelar baseline:** registrar branch, SHA e CI antes de cada grupo de alterações.
-2. **Mudança vertical pequena:** um contrato/documento ou uma tela/fluxo por checkpoint; evitar misturar inventário, UI, domínio e pipeline num único commit.
-3. **Declarar invariantes afetados:** navegação, tags, persistência, acessibilidade, identidade dos assets e origem de quests.
-4. **Executar a menor verificação útil** e ampliá-la pelo impacto. Commit só documental pode validar links/paths por inspeção; não declarar testes de runtime executados se não foram.
-5. **Inspecionar diff completo:** paths inesperados, conteúdo acidental, arquivos gerados/binários e inconsistências de nomes.
-6. **Atualizar CURRENT_STATE:** status, SHA real e evidência exata.
-7. **Revisar antes de avançar:** não empilhar gate dependente sobre outro bloqueado.
-8. **Rollback:** reverter commit isolado que introduziu a regressão; não apagar recursos antigos como limpeza antes de confirmar consumidores.
-9. **Sem checkpoint inflado:** não misturar causas não relacionadas nem marcar sprint inteira concluída com validação parcial.
-10. **Sem sucesso ficcional:** se uma ferramenta não consegue editar ou validar, registrar a limitação.
-
-## 8. Matriz de evidências
-
-| Alegação | Evidência mínima aceita | Evidência insuficiente |
+**Itens**
+- **F-01 — QA de fluxos completos:** onboarding novo com teclado; conclusão do nome e das tags; Home; sorteio normal/aleatório/game; início, abandono e conclusão de quest; mudança de tema; escala de fonte; jardim vazio, arte, coleção, filtros, descoberta de flor, perfil e backup.
+- **F-02 — Matriz visual:** capturas de Home, onboarding, Quest, Jardim/coleção, Perfil, Configurações e navbar em temas claro/escuro. Incluir escala 1.0 e 1.3 e pelo menos uma condição de tela compacta.
+- **F-03 — Acessibilidade:** verificar áreas clicáveis de pelo menos 48 dp, descrições, estados selecionados, navegação, foco de teclado e contraste; ações importantes não podem depender de imagem semântica.
+- **F-04 — Modelo/fallback:** comprovar caminho sem modelo e, caso E-01 esteja concluído, instalação/carregamento real do modelo. Capturar diagnóstico redigido sem dados pessoais.
+- **F-05 — CI e build:** executar tarefas de assets, build debug/release, testes unitários e instrumentados disponíveis. Não declarar uma tarefa executada sem log/resultado.
+- **F-06 — Documentação de release:** atualizar protocolo, contratos visuais, catálogo e estado corrente com SHA, link da execução CI, resumo de testes, capturas e defeitos remanescentes.
+- **F-07 — Integridade da branch:** garantir que mudanças são incrementais, revisáveis e não alteram main diretamente. Toda mudança de documentação deve corresponder ao código real; nenhuma pendência pode permanecer descrita como resolvida sem evidência.
+
+**Critérios de aceite**
+- Todas as tarefas P1 concluídas e com evidência reproduzível.
+- Todos os P2 concluídos ou explicitamente aceitos como deferred pelo proprietário, com justificativa e impacto documentados.
+- Build de release termina com sucesso a partir do SHA final e os testes relevantes passam.
+- O verificador canônico de assets passa no SHA final.
+- Nenhuma screenshot da matriz contém texto/ícone duplicado, CTA encoberto, clipping de texto essencial ou card cortado.
+- O fluxo de quest mantém autoridade única de domínio e a saída inválida não pode se tornar sucesso.
+- Estado de modelo/LLM é verdadeiro e verificável no APK.
+- Contratos e estado do projeto descrevem o artefato que foi realmente testado.
+
+**Dependências:** P6-A a P6-E. Um item P1 bloqueado, uma fonte de modelo sem confiança ou uma validação visual essencial ausente impede PASS final.
+
+**Risco/rollback:** alto se houver integração em massa. Integrar por commit pequeno, guardar o último APK validado, associar cada evidência ao SHA e reverter a mudança isolada quando uma regressão é introduzida.
+
+## 6. Matriz de priorização por classe
+
+| ID | Prioridade | Problema/resultado requerido | Sprint | Gate |
+|---|---|---|---|---|
+| UI-01 | P1 | Remover ícones/emoji duplicados no card Home; texto respeita área ilustrada | P6-B | B |
+| UI-02 | P1 | Navbar deixa de redesenhar ícones já existentes no PNG; destinos Compose continuam acessíveis | P6-B | B |
+| UI-03 | P1 | Botões principais não têm texto sob a folha/ícone; proporção correta | P6-B | B |
+| GDN-01 | P1 | Cards desconhecidos não duplicam símbolo/rótulo e respeitam proporção | P6-C | C |
+| GDN-02 | P1 | Grade usa apenas espaço restante; navbar não cobre cards | P6-C | C |
+| GDN-03 | P1 | Filtros mostram rótulos completos sem truncamento | P6-C | C |
+| ONB-01 | P1 | CTA acessível com teclado; onboarding de tags sem sobreposição | P6-C | C |
+| QUEST-01 | P1 | Seleção RANDOM usa contexto/histórico válido e não fica presa na primeira categoria | P6-D | D |
+| QUEST-02 | P1 | Fallback procedural tem variedade testável e validação obrigatória | P6-D | D |
+| MODEL-01 | P1 se LLM local continuar requisito V1 | Fonte/distribuição, integridade, instalação, ativação e UX honesta; sem modelo no APK atual | P6-E | E/F |
+| UI-04 | P2 | Proporções atualizadas de temas, empty-garden e outros assets em Compose | P6-B | B |
+| UX-01 | P2 | Escala de fonte e strings longas em telas compactas/tema claro e escuro | P6-C/E | C/E |
+| CAT-01 | P2 | Decisão explícita de mapeamento de todos os nove assets às categorias ou superfície neutra intencional | P6-E | E |
+| TYPE-01 | P2 | MS Boli só após licença/procedência e validação da legibilidade | P6-E | E |
+| DOC-01 | P2 | Documentos refletem a branch, os testes reais e as decisões; nenhum status histórico contraditório | P6-A/F | A/F |
+| QA-01 | P1 para encerramento | Matriz de testes integrada, release e screenshots do SHA final | P6-Final | F |
+
+## 7. Definition of Ready e Definition of Done
+
+### Definition of Ready (DoR)
+
+Uma tarefa pode entrar num sprint quando:
+- o comportamento esperado e a autoridade de estado estão claros;
+- arquivo(s) e consumidor(es) envolvidos estão identificados;
+- há evidência: screenshot, teste que falha, divergência de dimensões ou regra de produto;
+- dependências de arte, licença, modelo, API ou decisão do proprietário estão explícitas;
+- o teste de aceitação descreve um resultado observável;
+- a mudança não exige hardcode específico de aparelho nem um fluxo paralelo.
+
+### Definition of Done (DoD)
+
+Uma tarefa só é DONE quando:
+- o comportamento atende aos critérios de aceite;
+- testes relevantes foram escritos/atualizados e passaram;
+- o verificador de assets, se afetado, passou;
+- os fluxos/temas/escala relevantes foram verificados em runtime e há screenshots ligadas ao SHA;
+- documentação ligada foi atualizada no mesmo incremento ou numa tarefa documental dependente;
+- logs não expõem conteúdo pessoal e não há falso sucesso;
+- o código foi revisto e a branch permanece compilável.
+
+“Compilou” não substitui “visualmente validado”; “screenshot boa” não substitui teste funcional.
+
+## 8. Matriz mínima de testes
+
+| Área | Teste automático | Teste visual/manual | Critério mínimo |
+|---|---|---|---|
+| Assets | :app:verifyCanonicalUiAssets | Inspecionar aliases e dimensões | Arquivos e aliases completos/sem colisão |
+| Build | :app:assembleDebug e release final | Instalar APK ligado ao SHA | Instalação e navegação sem crash |
+| Botões/navbar | Compose click/semantics tests | Home, Settings e barra global dia/noite | Sem duplicação; rótulos legíveis; hit targets acessíveis |
+| Home cards | Layout/screenshot test | Tema dia/noite | Texto não invade arte nem duplica ícones |
+| Garden | Estados hidden/hinted/revealed/collected; filtros | Coleção com nove slots e rolagem | Sem clipping, filtro funcional e itens não cobertos |
+| Onboarding | Teste de nome/tag/CTA | Teclado aberto e tela compacta | Todos os passos acessíveis sem fechar teclado forçadamente |
+| Quest planner | Testes com recentCategories/contexto/filtros | Série de sorteios | Não fica preso na primeira categoria; filtros respeitados |
+| Procedural composer | Testes de variedade com escolha controlada | Revisão humana de 20 gerações | Saídas distintas úteis; sem fixtures de teste ou texto absurdo |
+| LiteRT-LM | Catálogo, hash, download parcial, instalação, runtime/fallback | Aparelho sem modelo e com modelo, se disponível | Sem ativação parcial; estado honesto e fallback funcional |
+| Tipografia | Render/overflow tests onde viável | Escala 1.0/1.3, tema claro/escuro | Texto não cortado; contraste aceitável |
+| Fluxos | Testes unitários/instrumentados existentes | Onboarding → Quest → concluir → jardim; settings/backup | Estado persistido consistente e sem recompensa duplicada |
+
+Comandos mínimos na raiz do checkout:
+
+    ./gradlew :app:verifyCanonicalUiAssets
+    ./gradlew :app:assembleDebug
+    ./gradlew test
+    ./gradlew lint
+
+Para fechamento de release, executar também o build de release e os testes instrumentados disponíveis no ambiente. Registrar exatamente quais comandos foram executados e seus resultados; não relatar testes não executados como PASS.
+
+## 9. Política de distribuição LiteRT-LM
+
+O binário de modelo não deve ser incluído no GitHub apenas para fazer o APK parecer completo. O projeto precisa de uma decisão explícita entre disponibilização separada verificável e outra forma aprovada de distribuição.
+
+Se for usado pacote externo:
+- usar URL imutável/versionada e fonte oficial ou controlada;
+- fornecer manifesto autenticado, com assinatura ou mecanismo equivalente de confiança;
+- validar tamanho, SHA-256 e metadados antes de ativar;
+- baixar para arquivo temporário .part e promover atomicamente após verificação;
+- preservar o modelo anterior até confirmar o novo;
+- mostrar tamanho estimado, licença, estado de instalação, retry e erro;
+- tornar explícito quando a geração usa fallback procedural;
+- executar inferência local, sem enviar conteúdo pessoal de perfil/quests para o servidor do modelo;
+- não aceitar valores do manifesto sem validação nem URL arbitrária controlada por conteúdo não confiável.
+
+Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOCKED. O fallback pode continuar disponível, mas o requisito de LLM local não pode ser declarado satisfeito.
+
+## 10. Estratégia de integração e rollback
+
+- Trabalhar na branch feature/p6-total-ui-refactor e preservar main.
+- Antes de cada sprint, registrar HEAD, status e CI de base.
+- Separar commits por eixo: componente visual, layout/tela, core de geração, distribuição de modelo e documentação.
+- Não alterar vários layouts simultaneamente sem screenshots de regressão.
+- Ao tocar num contrato/alias, atualizar catálogo, mapeamento Gradle, consumidores e testes como uma unidade coerente.
+- Se uma correção visual muda os hit targets, semântica, scroll ou estado de domínio, não considerar apenas estética: executar testes funcionais.
+- Reverter somente a alteração que introduziu regressão; não reduzir gates nem relaxar validações para fazer CI passar.
+- Não criar commits em main automaticamente. Pull request e merge são passos explícitos de integração.
+
+## 11. Estado dos gates nesta revisão
+
+| Gate | Estado na publicação deste protocolo | Motivo / condição de saída |
 |---|---|---|
-| Asset disponível | arquivo real + mapping/verify de build | linha de Markdown apenas |
-| Tela migrada | referência + código consumindo alias + teste/captura | alias existe, consumidor não verificado |
-| Botão funcional | semântica e ação observadas em teste/UI | screenshot do botão |
-| Jardim tem três estados | teste de cada estado/transição + fonte de domínio | grade visual |
-| Tags influenciam quests | teste de fluxo da tag até a saída validada | tag aparece na UI ou apenas no plano |
-| Fallback seguro | teste de indisponibilidade/saída inválida passando pelo mesmo validador | classe de fallback existe |
-| CI cobre instrumentação | workflow/job com comando e resultado identificáveis | workflow green sem examinar steps |
-| P6 fechado | gates, evidências, limitações e SHA registrados | APK compila ou screenshot isolado |
+| P6-A — baseline/assets/docs | **BASELINE DISPONÍVEL; fechamento documental em andamento** | Mapeamento atual e CI recente existem; sincronizar documentos que ainda contêm estados antigos e registrar evidência de verificação do SHA |
+| P6-B — composição visual | **PENDENTE** | Screenshots demonstram ícones/labels sobrepostos; precisa de implementação, teste Compose e capturas antes/depois |
+| P6-C — layouts responsivos | **PENDENTE** | Coleção, filtros, navbar e onboarding têm problemas de acesso/composição confirmados |
+| P6-D — geração diversa | **PENDENTE** | Seleção de categoria e fallback determinístico explicam repetição observada; testes do core ainda precisam comprovar a correção |
+| P6-E — modelo/tipografia/categorias | **PENDENTE / MODEL-01 pode ficar BLOCKED** | Modelo ausente e catálogo de pacote não configurado; tags/arte e MS Boli exigem decisões e validação |
+| P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
-## 9. Checklist de fechamento
+Nenhuma linha deste quadro declara implementação nova neste commit documental.
 
-### P6-A
-- [ ] Inventário corresponde aos arquivos existentes em `BackGround/` e `Button/`.
-- [ ] Fonte de aliases é única; build mapping e documentação não divergem.
-- [ ] `CANONICAL_GRAPHICS.md` não apresenta referências antigas como atuais.
-- [ ] Caminhos, duplicatas e imagens não classificadas possuem decisão explícita.
-- [ ] `verifyCanonicalUiAssets` executado e evidência anexada.
+## 12. Registro de decisões em aberto
 
-### P6-B
-- [ ] Cada tela migrada usa composição com controles reais.
-- [ ] Proporção/recorte dos assets inspecionados em dispositivo ou screenshot reproduzível.
-- [ ] Campo de nome abre teclado e confirma fluxo.
-- [ ] Tema e tamanho de fonte não quebram layout.
-- [ ] Back stack, hitboxes e acessibilidade verificados.
+1. **Distribuição LiteRT-LM:** confirmar a fonte do modelo, licença, tamanho, hash, formato/runtime suportado e mecanismo de confiança. Sem esses dados, não inventar URL nem adicionar binário ao Git.
+2. **MS Boli:** confirmar arquivo legítimo e licença antes de adicionar a fonte.
+3. **Mapeamento de categorias:** aprovar associação de cada arte visual a IDs de domínio; equivalência semântica não pode ser inferida apenas do nome de arquivo.
+4. **Navbar:** confirmar visualmente a posição do rótulo em relação aos ícones incorporados na arte e manter uma única barra global.
+5. **Critério de diversidade:** definir limite aceitável de repetição junto com testes determinísticos, sem requisito impossível de nunca repetir texto.
+6. **Escopo de P6-Final:** se o proprietário deliberadamente retirar o modelo local do requisito V1, documentar a decisão de produto antes de rebaixar MODEL-01.
 
-### P6-C
-- [ ] Jardim vazio, Jardim arte e Coleção têm cobertura de teste.
-- [ ] Nove posições e status das flores vêm do domínio.
-- [ ] Abrir/fechar coleção não modifica progresso ou identidade da coleção.
+## 13. Atualização documental obrigatória ao fim de cada sprint
 
-### P6-D
-- [ ] Repetição tem baseline reproduzível.
-- [ ] Tags/contexto rastreados até o composer.
-- [ ] Modelo/fallback/saída inválida convergem para o mesmo validador.
-- [ ] Origem do resultado é diagnosticável sem expor conteúdo sensível.
+Ao fechar P6-A, B, C, D ou E, registrar:
+- data e sprint;
+- branch e SHA exato;
+- resumo dos arquivos alterados;
+- comandos e testes executados, com resultado literal;
+- execução CI vinculada;
+- screenshots antes/depois e cenário;
+- itens não resolvidos, riscos e gates ainda abertos.
 
-### P6-E
-- [ ] Testes unitários relevantes passaram.
-- [ ] Instrumented/E2E passaram, com links e ambiente registrados.
-- [ ] Dia/noite, fonte ampliada e telas críticas foram inspecionados.
-- [ ] CI após último commit foi revisado.
-- [ ] CURRENT_STATE atualizado e gate decidido por evidência.
+Ao fechar P6-Final, registrar o SHA do APK/release, checks, matriz visual, estado do modelo, decisão de fonte/categorias e aprovação dos gates. O README e o documento de estado só devem ser atualizados depois que esse registro tiver evidência. Nenhum gate se fecha automaticamente porque um sprint seguinte começou.
 
-## 10. Pendências documentais imediatas
+## Referências operacionais
 
-1. Atualizar `CURRENT_STATE.md`: o arquivo lido contém data/branch históricos de `feature/cr-0-runtime-consolidation`. Capturar SHA real da branch no momento da atualização; não usar hash estimado.
-2. Corrigir a contradição de path em `CANONICAL_GRAPHICS.md` e substituir a lista de botões antiga por referência a `ASSET_CATALOG.md` como inventário atual.
-3. Atualizar `Engineering_Genome/00_START_HERE.md` e `02_AUTHORITY_MAP.md` para referenciar este protocolo e distinguir navegação visual atual dos quatro tabs legados descritos em textos de arquitetura.
-4. Verificar nomes/caminhos de imagens em `CANONICAL_GRAPHICS.md` contra arquivos existentes antes de classificá-los como atuais.
-5. Confirmar configuração real do CI no HEAD e comandos executados, sem extrapolar resultados de checkpoints históricos.
-
-## 11. Estado de gate ao publicar este protocolo
-
-Esta é a formalização inicial do protocolo. A leitura documental confirma divergência de nomenclatura/autoridade e defasagem do snapshot operacional. **Isto não declara P6-A..P6-E como PASS.** Validação em código, testes, screenshots e workflow permanece pendente até que a evidência específica seja coletada.
-
-Regra final: **o documento descreve o caminho e os critérios; só a evidência registrada fecha o gate.**
-
-
-## 12. Addendum — pacote gráfico recebido em 2026-10-09
-
-**Estado:** contratos de catálogo/composição/interação atualizados; implementação do build e telas pendente.  
-**Fonte inspecionada:** ZIP local Desing.zip enviado pelo proprietário; 47 PNGs verificados por nome, dimensão, formato e modo de cor. A inspeção do ZIP não prova por si só que o conteúdo publicado no GitHub corresponda byte a byte ao ZIP.
-
-### Descobertas confirmadas no pacote
-
-- Há 10 backgrounds RGB opacos, 27 imagens na pasta Button (incluindo dois arquivos semanticamente classificados como cards e nove artes de categoria), 7 imagens Card e 3 imagens NavBar.
-- Os backgrounds, exceto bg_config_night.png, são 1536×2752. bg_config_night.png mede 784×1342.
-- btn_back.png mede 66×75. Não aplicar upscaling automático sem avaliar o resultado no tamanho-alvo.
-- card_home_day.png mede 612×292 e card_home_night.png 1062×450; a proporção difere.
-- nav_bar_day.png mede 768×181 e nav_bar_night.png 798×167; a proporção difere.
-- Os componentes são RGBA com alfa; os fundos são RGB opacos.
-- card_flower_unknown_day/night ficam fisicamente na pasta Button, mas o catálogo os classifica por função como cards.
-- O proprietário pediu para preservar os nomes gardem e unkw nesta geração, então contratos os registram sem renomeação silenciosa.
-
-### Consequência para P6-A
-
-O ASSET_CATALOG.md, CANONICAL_GRAPHICS.md e P6_UI_UX_INTERACTION_CONTRACT.md foram remodelados para refletir o pacote e distinguir inventário, papel visual e semântica de interação. Isso é trabalho documental, não gate implementado.
-
-O app/build.gradle.kts observado nesta branch ainda lista fontes antigas como ConfigBGDIA.png, JardimArteDia.png, BackButton.png, DayButton.png, TagAnimals.png e não inclui as novas fontes Card/NavBar. A migração não está compilável/validada apenas com a atualização dos contratos: P6-A precisa escolher o caminho canônico real, atualizar o mapa Gradle para os novos nomes, garantir aliases exclusivos e manter verifyCanonicalUiAssets coerente com o inventário.
-
-### Consequência para P6-B
-
-PinhoQuestVisuals.kt ainda usa ContentScale.FillBounds em PinhoGraphicButton e PinhoBackButton. SettingsScreen.kt, OnboardingScreen.kt, QuestScreen.kt, GardenScreen.kt e ProfileScreen.kt ainda apontam para um misto de drawables legados e aliases anteriores. P6-B deve migrar consumidores por fatias de tela, validar proporção natural dos assets e comprovar comportamento, tema dia/noite, escala de fonte, acessibilidade e callbacks reais.
-
-### Regras de evidência e estado
-
-- Os contratos foram atualizados por commit documental; isso não demonstra que Gradle, Kotlin ou testes passaram.
-- P6-A e P6-B continuam sem PASS até a presença dos arquivos na pasta canônica, o mapeamento Gradle, a compilação, os testes e as capturas reproduzíveis serem verificados.
-- CURRENT_STATE.md só deve ser atualizado após registrar SHA real e evidência do próximo checkpoint; não inferir estado do runtime a partir do ZIP.
-
-
-## 13. Atualização de fonte e estado após confirmação dos paths — 2026-10-09
-
-**CONFIRMADO por leitura do tree remoto em `feature/p6-total-ui-refactor`:** os novos PNGs estão publicados em `docs/design/Background/`, `docs/design/Button/`, `docs/design/Card/` e `docs/design/Navbar/`. Os quatro diretórios contêm um arquivo `Null` de 1 byte que não é asset e deve continuar excluído. O build Gradle foi atualizado para os 47 PNGs desses quatro diretórios; isso não equivale a execução bem-sucedida do Gradle.
-
-A configuração `app/build.gradle.kts` foi alterada para criar mapas por grupo, sincronizar esses recursos para `build/generated/p6-canonical-ui-res/drawable-nodpi` e verificar:
-- fontes existentes;
-- saídas geradas;
-- aliases de saída sem duplicação;
-- exatamente 47 mapeamentos.
-
-O diagnóstico de arquivos ausentes foi corrigido para imprimir quebras de linha reais. **PENDENTE:** executar `./gradlew :app:verifyCanonicalUiAssets` e `./gradlew :app:assembleDebug` em ambiente com o checkout atual; não existe resultado de execução associado a esta revisão documental/Gradle.
-
-### Correções derivadas da inspeção visual
-
-- Os backgrounds `bg_start_day/night` fornecidos incluem logotipo PinhoQuest e slogan na composição. O CTA Começar permanece controle Compose separado; não adicionar outro logotipo/slogan sobre a arte, pois duplicaria conteúdo.
-- `bg_gardem_empty_day.png` é byte-a-byte idêntico a `bg_profile_day.png`; `bg_gardem_empty_night.png` é byte-a-byte idêntico a `bg_profile_night.png`. O projeto pode manter aliases/papéis semânticos separados, mas não precisa duplicar os bytes no futuro se uma decisão de composição aprovar compartilhamento de recurso.
-- Os contratos foram ajustados para registrar os paths reais e essa composição de início.
-
-### Estado real dos gates
-
-- **P6-A:** inventário/catalogação e mapa Gradle remodelados e publicados; **BLOCKED/PENDING VALIDATION** até executar o verificador e build e inspecionar os paths/fontes geradas. Nenhum build foi executado por esta integração.
-- **P6-B:** **NOT_STARTED/IN_PROGRESS**. Os consumidores Kotlin ainda usam drawables legados. Os arquivos SettingsScreen.kt, OnboardingScreen.kt, QuestScreen.kt, GardenScreen.kt, ProfileScreen.kt e PinhoQuestVisuals.kt exigem migração por tela e teste.
-- Os aliases de categoria (`category_* `) não foram associados automaticamente aos IDs de Theme/Tag. A semântica permanece pendente de reconciliação com o catálogo de domínio.
-- Não atualizar `CURRENT_STATE.md` para PASS sem SHA/head confirmado e evidências dos gates.
-
-
-## 14. Addendum — padronização de assets e realocação dos cards de flor desconhecida — 2026-10-09
-
-**Confirmado na branch `feature/p6-total-ui-refactor`:** os arquivos `docs/design/Card/card_flower_unknown_day.png` e `docs/design/Card/card_flower_unknown_night.png` existem. Os caminhos antigos em `docs/design/Button/` retornam 404. Os backgrounds publicados foram padronizados para 1080×1920 (9:16), conforme a etapa de uniformização aprovada.
-
-**Divergência ainda presente no código:** `app/build.gradle.kts` ainda inclui `card_flower_unknown_day.png` e `card_flower_unknown_night.png` em `canonicalButtonAssets`, enquanto `canonicalCardAssets` não os lista. Como os arquivos foram movidos para Card, o mapeamento deve ser corrigido para que `syncCanonicalUiAssets` e `verifyCanonicalUiAssets` consultem o diretório correto. Esta atualização documental não altera o Gradle nem comprova execução de build.
-
-**Dimensões:** medidas do ZIP original para botões, cards e navbar estão obsoletas após a padronização. O catálogo passa a sinalizar a necessidade de ler as dimensões dos PNGs publicados antes de definir escala Compose; não inferir que todos os elementos devem ter um único tamanho. Manter proporção, alfa, nomes e papéis semânticos.
-
-**Estado dos gates:** P6-A permanece BLOCKED/PENDING VALIDATION até corrigir o mapa Gradle e executar `./gradlew :app:verifyCanonicalUiAssets` e `./gradlew :app:assembleDebug`, registrando os resultados reais. P6-B continua pendente de migração dos consumidores Kotlin, captura visual e validação de interação. Nenhum PASS é declarado por esta revisão documental.
+- [Branch feature/p6-total-ui-refactor](https://github.com/sasandralean-prog/PinhoQuest/tree/feature/p6-total-ui-refactor)
+- [Execução Android CI #158](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38008684377)
+- [app/build.gradle.kts](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/app/build.gradle.kts)
+- [ASSET_CATALOG.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/ASSET_CATALOG.md)
+- [CANONICAL_GRAPHICS.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/CANONICAL_GRAPHICS.md)
+- [P6_UI_UX_INTERACTION_CONTRACT.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/P6_UI_UX_INTERACTION_CONTRACT.md)
+- [PINHO_QUEST_VISUAL_IDENTITY_GENOME.md](https://github.com/sasandralean-prog/PinhoQuest/blob/main/docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md)
