@@ -367,3 +367,14 @@ O diagnóstico de arquivos ausentes foi corrigido para imprimir quebras de linha
 - **P6-B:** **NOT_STARTED/IN_PROGRESS**. Os consumidores Kotlin ainda usam drawables legados. Os arquivos SettingsScreen.kt, OnboardingScreen.kt, QuestScreen.kt, GardenScreen.kt, ProfileScreen.kt e PinhoQuestVisuals.kt exigem migração por tela e teste.
 - Os aliases de categoria (`category_* `) não foram associados automaticamente aos IDs de Theme/Tag. A semântica permanece pendente de reconciliação com o catálogo de domínio.
 - Não atualizar `CURRENT_STATE.md` para PASS sem SHA/head confirmado e evidências dos gates.
+
+
+## 14. Addendum — padronização de assets e realocação dos cards de flor desconhecida — 2026-10-09
+
+**Confirmado na branch `feature/p6-total-ui-refactor`:** os arquivos `docs/design/Card/card_flower_unknown_day.png` e `docs/design/Card/card_flower_unknown_night.png` existem. Os caminhos antigos em `docs/design/Button/` retornam 404. Os backgrounds publicados foram padronizados para 1080×1920 (9:16), conforme a etapa de uniformização aprovada.
+
+**Divergência ainda presente no código:** `app/build.gradle.kts` ainda inclui `card_flower_unknown_day.png` e `card_flower_unknown_night.png` em `canonicalButtonAssets`, enquanto `canonicalCardAssets` não os lista. Como os arquivos foram movidos para Card, o mapeamento deve ser corrigido para que `syncCanonicalUiAssets` e `verifyCanonicalUiAssets` consultem o diretório correto. Esta atualização documental não altera o Gradle nem comprova execução de build.
+
+**Dimensões:** medidas do ZIP original para botões, cards e navbar estão obsoletas após a padronização. O catálogo passa a sinalizar a necessidade de ler as dimensões dos PNGs publicados antes de definir escala Compose; não inferir que todos os elementos devem ter um único tamanho. Manter proporção, alfa, nomes e papéis semânticos.
+
+**Estado dos gates:** P6-A permanece BLOCKED/PENDING VALIDATION até corrigir o mapa Gradle e executar `./gradlew :app:verifyCanonicalUiAssets` e `./gradlew :app:assembleDebug`, registrando os resultados reais. P6-B continua pendente de migração dos consumidores Kotlin, captura visual e validação de interação. Nenhum PASS é declarado por esta revisão documental.
