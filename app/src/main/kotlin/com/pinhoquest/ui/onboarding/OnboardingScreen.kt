@@ -97,7 +97,7 @@ fun OnboardingScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = maxHeight * 0.31f),
+                            .padding(top = this@BoxWithConstraints.maxHeight * 0.31f),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         androidx.compose.material3.Text(
@@ -184,7 +184,7 @@ fun OnboardingScreen(
                     ) {
                         PinhoBackButton(onClick = { step = 1 })
                     }
-                    Spacer(Modifier.height(maxHeight * 0.28f))
+                    Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.28f))
                     androidx.compose.material3.Text(
                         "O que você gosta?",
                         color = PinhoForest,
