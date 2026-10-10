@@ -21,16 +21,16 @@ Todos são PNG RGB opacos, sem canal alfa. Os dez backgrounds padronizados usam 
 
 | Origem | Dimensões | Alias Android proposto | Papel |
 |---|---:|---|---|
-| Background/bg_config_day.png | 1536×2752 | canonical_bg_config_day | Configurações — dia |
-| Background/bg_config_night.png | 784×1342 | canonical_bg_config_night | Configurações — noite; dimensões diferem do par diurno |
-| Background/bg_gardem_art_day.png | 1536×2752 | canonical_bg_gardem_art_day | Jardim ilustrado — dia |
-| Background/bg_gardem_art_night.png | 1536×2752 | canonical_bg_gardem_art_night | Jardim ilustrado — noite |
-| Background/bg_gardem_empty_day.png | 1536×2752 | canonical_bg_gardem_empty_day | Jardim vazio — dia |
-| Background/bg_gardem_empty_night.png | 1536×2752 | canonical_bg_gardem_empty_night | Jardim vazio — noite |
-| Background/bg_profile_day.png | 1536×2752 | canonical_bg_profile_day | Perfil — dia |
-| Background/bg_profile_night.png | 1536×2752 | canonical_bg_profile_night | Perfil — noite |
-| Background/bg_start_day.png | 1536×2752 | canonical_bg_start_day | Abertura — dia |
-| Background/bg_start_night.png | 1536×2752 | canonical_bg_start_night | Abertura — noite |
+| Background/bg_config_day.png | 1080×1920 | canonical_bg_config_day | Configurações — dia |
+| Background/bg_config_night.png | 1080×1920 | canonical_bg_config_night | Configurações — noite; dimensões diferem do par diurno |
+| Background/bg_gardem_art_day.png | 1080×1920 | canonical_bg_gardem_art_day | Jardim ilustrado — dia |
+| Background/bg_gardem_art_night.png | 1080×1920 | canonical_bg_gardem_art_night | Jardim ilustrado — noite |
+| Background/bg_gardem_empty_day.png | 1080×1920 | canonical_bg_gardem_empty_day | Jardim vazio — dia |
+| Background/bg_gardem_empty_night.png | 1080×1920 | canonical_bg_gardem_empty_night | Jardim vazio — noite |
+| Background/bg_profile_day.png | 1080×1920 | canonical_bg_profile_day | Perfil — dia |
+| Background/bg_profile_night.png | 1080×1920 | canonical_bg_profile_night | Perfil — noite |
+| Background/bg_start_day.png | 1080×1920 | canonical_bg_start_day | Abertura — dia |
+| Background/bg_start_night.png | 1080×1920 | canonical_bg_start_night | Abertura — noite |
 
 ## Botões e artes de categoria
 
@@ -82,13 +82,13 @@ Todos são PNG RGBA com transparência. As medidas do ZIP anterior foram substit
 
 ## Navegação e campo de nome
 
-Todos são PNG RGBA com transparência.
+Todos são PNG RGBA com transparência. As medidas antigas do ZIP foram substituídas pela exportação padronizada; conferir a dimensão atual do PNG antes de definir o tamanho Compose.
 
 | Origem | Dimensões | Alias Android proposto | Papel |
 |---|---:|---|---|
-| NavBar/name_bar.png | dimensão atual do asset publicado | name_bar | Moldura para campo de nome real |
-| NavBar/nav_bar_day.png | dimensão atual do asset publicado | nav_bar_day | Skin/base da navegação inferior — dia |
-| NavBar/nav_bar_night.png | dimensão atual do asset publicado | nav_bar_night | Skin/base da navegação inferior — noite; proporção difere do par diurno |
+| Navbar/name_bar.png | dimensão atual do asset publicado | name_bar | Moldura para campo de nome real |
+| Navbar/nav_bar_day.png | dimensão atual do asset publicado | nav_bar_day | Skin/base da navegação inferior — dia |
+| Navbar/nav_bar_night.png | dimensão atual do asset publicado | nav_bar_night | Skin/base da navegação inferior — noite; proporção difere do par diurno |
 
 ## Regras de consumo
 
