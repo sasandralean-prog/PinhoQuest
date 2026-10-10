@@ -191,8 +191,8 @@ dependencies {
 
 configurations.matching { it.name.endsWith("CompileClasspath") }.configureEach {
     resolutionStrategy.force(
-        "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
-        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.21",
-        "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21",
+        "org.jetbrains.kotlin:kotlin-stdlib:2.2.21",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.21",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.21",
     )
 }
