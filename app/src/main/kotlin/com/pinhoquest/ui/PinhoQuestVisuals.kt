@@ -95,6 +95,7 @@ fun PinhoGraphicButton(
     labelAlignment: Alignment = Alignment.Center,
     labelStartFraction: Float = 0f,
     labelEndFraction: Float = 0f,
+    labelBottomFraction: Float = 0f,
 ) {
     Box(
         modifier = modifier
@@ -126,14 +127,19 @@ fun PinhoGraphicButton(
                 val startFraction = labelStartFraction.coerceIn(0f, 0.8f)
                 val endFraction = labelEndFraction.coerceIn(0f, 0.8f)
                 val availableFraction = (1f - startFraction - endFraction).coerceIn(0.2f, 1f)
-                val labelModifier = if (startFraction > 0f || endFraction > 0f) {
-                    Modifier
+                val bottomLift = -maxHeight * labelBottomFraction.coerceIn(0f, 0.35f)
+                val labelModifier = when {
+                    startFraction > 0f || endFraction > 0f -> Modifier
                         .align(Alignment.CenterStart)
-                        .offset(x = maxWidth * startFraction)
+                        .offset(x = maxWidth * startFraction, y = bottomLift)
                         .fillMaxWidth(availableFraction)
                         .padding(end = 8.dp, top = 3.dp, bottom = 3.dp)
-                } else {
-                    Modifier
+                    labelBottomFraction > 0f -> Modifier
+                        .align(labelAlignment)
+                        .offset(y = bottomLift)
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                    else -> Modifier
                         .align(labelAlignment)
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 4.dp)
@@ -372,15 +378,21 @@ object PinhoQuestBackgrounds {
     val UNKNOWN_FLOWER_CARD_NIGHT = R.drawable.card_flower_unknown_night
 }
 
+/**
+ * Explicit product-approved artwork mapping for the nine visible preferences.
+ * Visual aliases never create or rename semantic domain tags.
+ */
 @DrawableRes
-private fun tagGraphicAsset(tagId: TagId): Int? = when (tagId.value) {
+internal fun tagGraphicAsset(tagId: TagId): Int? = when (tagId.value) {
     "music" -> R.drawable.category_music
     "photography" -> R.drawable.category_photography
     "nature" -> R.drawable.category_nature
     "animals" -> R.drawable.category_animal
     "learning" -> R.drawable.category_learn
-    // No exact category art exists for technology, relax, create, or fantasy.
-    // Those tags use a neutral Compose surface until the owner approves more art.
+    "technology" -> R.drawable.category_science
+    "relax" -> R.drawable.category_appreciation
+    "create" -> R.drawable.category_creativity
+    "fantasy" -> R.drawable.category_games
     else -> null
 }
 

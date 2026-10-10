@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -175,7 +177,8 @@ fun OnboardingScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 18.dp, vertical = 18.dp),
+                        .padding(horizontal = 18.dp, vertical = 18.dp)
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Row(
@@ -184,7 +187,7 @@ fun OnboardingScreen(
                     ) {
                         PinhoBackButton(onClick = { step = 1 })
                     }
-                    Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.28f))
+                    Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.21f))
                     androidx.compose.material3.Text(
                         "O que você gosta?",
                         color = PinhoForest,
@@ -224,7 +227,7 @@ fun OnboardingScreen(
                         Spacer(Modifier.height(8.dp))
                     }
 
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.height(12.dp))
                     PinhoGraphicButton(
                         resource = R.drawable.btn_confirm,
                         contentDescription = "Continuar",

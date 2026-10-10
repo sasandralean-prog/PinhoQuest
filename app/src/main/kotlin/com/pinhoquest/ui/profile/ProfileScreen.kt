@@ -3,6 +3,7 @@ package com.pinhoquest.ui.profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
@@ -88,10 +90,10 @@ fun ProfileScreen(
             }
 
             Spacer(Modifier.height(10.dp))
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(if (dark) 972f / 448f else 996f / 461f),
+                    .aspectRatio(996f / 461f),
             ) {
                 Image(
                     painter = painterResource(
@@ -101,21 +103,31 @@ fun ProfileScreen(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                 )
+                // Leaf crest occupies the top; dynamic copy belongs in the lower parchment plate.
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 22.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.Center,
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(0.72f)
+                        .padding(bottom = maxHeight * 0.10f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        "Jardim de $ownerName",
+                        text = "Jardim de $ownerName",
                         color = PinhoInk,
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                     Text(
-                        "Pequenas preferências, grandes descobertas.",
+                        text = "Pequenas preferências, grandes descobertas.",
                         color = PinhoForest,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
+                        lineHeight = 16.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                 }
             }
@@ -164,7 +176,7 @@ fun ProfileScreen(
 
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Descreva de forma livre o que você gosta e te faz feliz e tornaremos parte das suas quests. ✎",
+                    "Descreva de forma livre o que você gosta e te faz feliz e tornaremos parte das suas quests.",
                     color = PinhoInk,
                     fontSize = 14.sp,
                 )

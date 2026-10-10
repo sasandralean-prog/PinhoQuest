@@ -59,7 +59,7 @@ fun QuestScreen(
     dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             overlayAlpha = 0f,
@@ -89,7 +89,7 @@ fun QuestScreen(
             ) {
                 // The approved start background contains the PinhoQuest wordmark and slogan.
                 // Leave that upper composition unobstructed and start live content below it.
-                Spacer(Modifier.height(205.dp))
+                Spacer(Modifier.height(maxHeight * 0.24f))
                 GardenSummaryCard(
                     ownerName = ownerName,
                     flowerCount = flowerCount,
@@ -213,14 +213,14 @@ private fun GardenSummaryCard(
         Text(
             text = "Jardim de $ownerName",
             color = PinhoInk,
-            fontSize = 18.sp,
-            lineHeight = 20.sp,
+            fontSize = 16.sp,
+            lineHeight = 18.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = maxWidth * 0.035f, y = maxHeight * 0.39f)
-                .fillMaxWidth(0.50f),
+                .fillMaxWidth(0.48f),
         )
         Text(
             text = if (dark) {
@@ -229,14 +229,14 @@ private fun GardenSummaryCard(
                 "Pequenas descobertas, um jardim crescendo."
             },
             color = PinhoInk,
-            fontSize = 11.sp,
-            lineHeight = 13.sp,
+            fontSize = 10.sp,
+            lineHeight = 12.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = maxWidth * 0.035f, y = maxHeight * 0.66f)
-                .fillMaxWidth(0.50f),
+                .fillMaxWidth(0.48f),
         )
     }
 }

@@ -2,6 +2,7 @@ package com.pinhoquest.ui.tags
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +53,7 @@ fun QuestThemeSelectionScreen(
         tags.firstOrNull { it.id == id } ?: SystemTagCatalog.byId(id.value)
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             modifier = Modifier.fillMaxSize(),
@@ -75,7 +76,7 @@ fun QuestThemeSelectionScreen(
             }
 
             // Keep the logo and slogan embedded in the approved background unobstructed.
-            Spacer(Modifier.height(190.dp))
+            Spacer(Modifier.height(maxHeight * 0.23f))
             Text(
                 text = "O que vamos descobrir?",
                 color = if (dark) Color.White else PinhoForest,

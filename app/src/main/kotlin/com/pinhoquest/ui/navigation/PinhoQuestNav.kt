@@ -108,6 +108,7 @@ fun PinhoQuestNav(
                     ownerName = state.ownerName,
                     theme = state.theme,
                     fontScale = state.fontScale,
+                    effectiveDark = dark,
                     onThemeSelected = onThemeSelected,
                     onFontScaleSelected = onFontScaleSelected,
                     onBackup = onBackup,

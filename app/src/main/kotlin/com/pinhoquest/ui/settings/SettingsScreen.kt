@@ -3,6 +3,8 @@ package com.pinhoquest.ui.settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +23,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
+import kotlin.math.abs
 import com.pinhoquest.R
 import com.pinhoquest.data.settings.ThemePreference
 import com.pinhoquest.ui.PinhoForest
@@ -35,6 +39,7 @@ fun SettingsScreen(
     ownerName: String,
     theme: ThemePreference,
     fontScale: Float,
+    effectiveDark: Boolean = theme == ThemePreference.DARK,
     onThemeSelected: (ThemePreference) -> Unit,
     onFontScaleSelected: (Float) -> Unit,
     onInstallCreativeBrain: (() -> Unit)? = null,
@@ -43,7 +48,7 @@ fun SettingsScreen(
     onBack: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val isDark = theme == ThemePreference.DARK
+    val isDark = effectiveDark
     Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (isDark) PinhoQuestBackgrounds.SETTINGS_NIGHT else PinhoQuestBackgrounds.SETTINGS_DAY,
@@ -61,7 +66,7 @@ fun SettingsScreen(
             ) {
                 PinhoBackButton(onClick = onBack)
                 Spacer(Modifier.width(8.dp))
-                Box(
+                BoxWithConstraints(
                     modifier = Modifier
                         .weight(1f)
                         .height(72.dp),
@@ -73,12 +78,31 @@ fun SettingsScreen(
                         contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                         modifier = Modifier.fillMaxSize(),
                     )
-                    Text(
-                        text = "⚙ Configurações",
-                        color = Color(0xFF4A2114),
-                        fontSize = 25.sp,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    )
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(0.82f)
+                            .offset(x = maxWidth * 0.05f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                    ) {
+                        Text(
+                            text = "⚙",
+                            color = Color(0xFF4A2114),
+                            fontSize = 18.sp,
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = "Configurações",
+                            modifier = Modifier.weight(1f),
+                            color = Color(0xFF4A2114),
+                            fontSize = 20.sp,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        )
+                    }
                 }
             }
 
@@ -93,14 +117,15 @@ fun SettingsScreen(
                     resource = R.drawable.btn_theme_day,
                     contentDescription = "Selecionar tema dia",
                     onClick = { onThemeSelected(ThemePreference.LIGHT) },
-                    selected = !isDark,
+                    selected = theme == ThemePreference.LIGHT,
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 300f / 180f,
                     label = "Dia",
                     labelColor = PinhoInk,
-                    labelFontSize = 20.sp,
+                    labelFontSize = 18.sp,
                     labelAlignment = Alignment.BottomCenter,
+                    labelBottomFraction = 0.10f,
                 )
                 PinhoGraphicButton(
                     resource = R.drawable.btn_theme_night,
@@ -112,8 +137,9 @@ fun SettingsScreen(
                     aspectRatio = 300f / 180f,
                     label = "Noite",
                     labelColor = Color(0xFFFFF0BD),
-                    labelFontSize = 20.sp,
+                    labelFontSize = 18.sp,
                     labelAlignment = Alignment.BottomCenter,
+                    labelBottomFraction = 0.10f,
                 )
             }
 
@@ -128,7 +154,7 @@ fun SettingsScreen(
                     resource = R.drawable.btn_font_size,
                     contentDescription = "Tamanho de fonte menor",
                     onClick = { onFontScaleSelected(0.9f) },
-                    selected = fontScale == 0.9f,
+                    selected = abs(fontScale - 0.9f) < 0.001f,
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 224f / 68f,
@@ -140,7 +166,7 @@ fun SettingsScreen(
                     resource = R.drawable.btn_font_size,
                     contentDescription = "Tamanho de fonte médio",
                     onClick = { onFontScaleSelected(1.0f) },
-                    selected = fontScale == 1.0f,
+                    selected = abs(fontScale - 1.0f) < 0.001f,
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 224f / 68f,
@@ -152,7 +178,7 @@ fun SettingsScreen(
                     resource = R.drawable.btn_font_size,
                     contentDescription = "Tamanho de fonte maior",
                     onClick = { onFontScaleSelected(1.15f) },
-                    selected = fontScale == 1.15f,
+                    selected = abs(fontScale - 1.15f) < 0.001f,
                     showSelectionState = true,
                     modifier = Modifier.weight(1f),
                     aspectRatio = 224f / 68f,
