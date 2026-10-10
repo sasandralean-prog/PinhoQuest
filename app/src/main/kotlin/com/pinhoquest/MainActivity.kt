@@ -9,6 +9,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -58,6 +60,7 @@ class MainActivity : ComponentActivity() {
             )
 
             var pendingBackup by remember { mutableStateOf<ByteArray?>(null) }
+            var creativeBrainTermsVisible by remember { mutableStateOf(false) }
             val backupLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
             ) { uri: Uri? ->
@@ -140,6 +143,7 @@ class MainActivity : ComponentActivity() {
                             onTagToggled = viewModel::setTagEnabled,
                             onThemeSelected = viewModel::setTheme,
                             onFontScaleSelected = viewModel::setFontScale,
+                            onInstallCreativeBrain = { creativeBrainTermsVisible = true },
                             onBackup = {
                                 lifecycleScope.launch {
                                     graph.buildBackupBytes()
@@ -157,6 +161,38 @@ class MainActivity : ComponentActivity() {
                                 viewModel.showMessage("O link de apoio será conectado ao destino externo canônico.")
                             },
                         )
+
+                        if (creativeBrainTermsVisible) {
+                            AlertDialog(
+                                onDismissRequest = { creativeBrainTermsVisible = false },
+                                title = { Text("Baixar cérebro criativo?") },
+                                text = {
+                                    Text(
+                                        "O download tem cerca de 285 MB e instala um modelo " +
+                                            "FunctionGemma ajustado para criar quests no aparelho. " +
+                                            "Ao continuar, você reconhece que ele é distribuído sob os " +
+                                            "Termos de Uso Gemma e as restrições de uso correspondentes.",
+                                    )
+                                },
+                                confirmButton = {
+                                    androidx.compose.material3.TextButton(
+                                        onClick = {
+                                            creativeBrainTermsVisible = false
+                                            if (graph.modelInstallCoordinator.enqueue() == null) {
+                                                viewModel.showMessage("O cérebro criativo ainda não está disponível.")
+                                            } else {
+                                                viewModel.showMessage("Download do cérebro criativo iniciado.")
+                                            }
+                                        },
+                                    ) { Text("Aceitar e baixar") }
+                                },
+                                dismissButton = {
+                                    androidx.compose.material3.TextButton(
+                                        onClick = { creativeBrainTermsVisible = false },
+                                    ) { Text("Agora não") }
+                                },
+                            )
+                        }
                     }
                 }
             }

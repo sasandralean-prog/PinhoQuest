@@ -32,6 +32,8 @@ import com.pinhoquest.domain.progression.XpTransactionId
 import com.pinhoquest.domain.reward.RewardOpportunityId
 import com.pinhoquest.inference.AndroidLiteRtLmInferencePort
 import com.pinhoquest.inference.AndroidResourceSnapshotProvider
+import com.pinhoquest.model.Cr74SemanticIsolationModelCatalog
+import com.pinhoquest.model.ModelInstallCoordinator
 import java.io.File
 import java.util.UUID
 
@@ -50,6 +52,10 @@ class PinhoQuestAppGraph(application: Application) {
     val preferencesStore = data.preferencesStore
     val bootstrapper = data.bootstrapper
     val gardenRepository = data.gardenRepository
+    val modelInstallCoordinator = ModelInstallCoordinator(
+        context = appContext,
+        catalog = Cr74SemanticIsolationModelCatalog,
+    )
     private val backupSnapshotBuilder = data.backupSnapshotBuilder
     private val backupCodec = BackupCodec()
 

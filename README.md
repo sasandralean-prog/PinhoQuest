@@ -27,6 +27,16 @@ O **design V1 foi aprovado** e a implementação funcional de Pinho Quest já es
 - Nada de streak, FOMO, lootbox ou retenção punitiva.
 - UX afável, otimista e verdadeira.
 
+## Modelo LiteRT-LM (CR-7.4)
+
+O APK normal contém a runtime JNI LiteRT-LM, mas não contém os 284,7 MB do
+modelo criativo. O pacote CR-7.4 é uma distribuição versionada de release,
+instalada somente após consentimento explícito em **Configurações**. Consulte o
+[registro do artefato CR-7.4](docs/model-artifacts/CR74_SEMANTIC_ISOLATION.md)
+para URL imutável, SHA-256, tamanho, licença, recuperação em checkout limpo e
+limites de validação. Não substitua o pacote por um arquivo de mesmo nome: o
+instalador valida tamanho e SHA-256 antes de ativá-lo.
+
 ## Engenharia do P6
 
 O ponto oficial de continuidade da refatoração visual é
