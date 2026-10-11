@@ -1,9 +1,9 @@
 # Pinho Quest — CURRENT STATE
 
-Date: 2026-10-05
-Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-9 — productive Android JNI/LiteRT-LM integration diagnosis
-Baseline: bdf4956 — feat(p5): harden settings and accessible user feedback
+Date: 2026-10-10 — active checkpoint appended at end of file
+Branch: feature/p6-total-ui-refactor
+CR frontier: CR-9 runtime path previously validated; P6-D generation diversity and truthful fallback observability in progress
+Baseline: bdf4956 — historical P5 baseline; see the latest checkpoint at the end of this file
 
 ## P6 V0.5 — current UI/UX checkpoint
 
@@ -1662,3 +1662,34 @@ verified as 284692656 bytes / SHA-256
   `emulator-5554` reported as connected but rejected shell commands with
   `error: closed`, so staging and executing the instrumentation probe was not
   possible in this recovery checkpoint.
+
+
+## 38. P6-D — generation diversity, persisted history and truthful fallback diagnostics (2026-10-10)
+
+**Status: IMPLEMENTATION IN PROGRESS — CI NOT YET GREEN FOR THE FINAL CHECKPOINT.**
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Code checkpoint before this state-document update:** `ce987220ecee20b601fbeaec1d6201e9e31521c2`  
+**P6 implementation protocol update:** `0d44cead8b59a97b4af79f0c1a62369fd78b5f84`
+
+### Changes published
+
+- `7f55caa` — injectable category choice; RANDOM prefers categories absent from recent history and no longer takes the first unseen category by list order.
+- `f7c1023` — three bounded procedural compositions per category, including distinct CODING angles and game-candidate enforcement.
+- `131d574` — unsatisfiable category filters and missing game candidates return an explicit unavailable result rather than silently changing quest mode.
+- `aebc23c`, `e4d28dd`, `b286d0b`, `718db63`, `24196fc` — recent categories flow from Room-backed persisted quest history into the production generation context.
+- `a0031cb`, `1d730ad`, `ca847f1` — quest state transitions update the state field in place, avoiding a rewrite that would reorder generation history.
+- `4f6f3b5`, `09d09fe` — deterministic tests cover 20 validated RANDOM generations, partial/full history, category filters and procedural variation.
+- `cab428a`, `85299e8`, `d31815f`, `dda9f4e` — composition origin and bounded fallback reasons are exposed by procedural, model and admission-aware composers.
+- `45ca11a`, `d92fc05`, `4744166` — QuestEngine reports mode, category, origin, validation status and enum-like reason; Android logs omit prompts, user text and profile data; invalid model-originated drafts are revalidated through procedural fallback.
+- `bd05a3e` — added user-facing copy for incompatible filters.
+- `9ea2dfc`, `ce98722` — avoid selecting GAMING when no candidate is available if another explicitly allowed category is viable; add regression coverage.
+
+### Validation and known limits
+
+- The run on an earlier code SHA `a0031cbffbb09bc8c1225c79dab4ead830a15225` failed at `:app:compileDebugKotlin`: the new `FILTERS_UNSATISFIABLE` enum branch was missing from `UserFacingCopy.kt`. This was corrected in `bd05a3e35999434025da54c1cadb33a7f50b2f1e`. The older failure is not treated as evidence about the corrected HEAD.
+- Android CI for code SHA `ce987220ecee20b601fbeaec1d6201e9e31521c2` was still in progress when this checkpoint was written. This document update triggers a newer workflow run; consult that run against its exact SHA before claiming PASS.
+- No new device-level E2E or screenshot evidence was produced in this checkpoint. The test suite proves deterministic planner/composer behavior and redacted diagnostic fields, not fresh on-device activation of the CR-7.4 model.
+- The diagnostic event contains only quest mode, category, composition origin, result status and enum-like reason. It deliberately excludes generated title/description/objectives, prompt content and personal profile data.
+- P6-D remains open until the latest CI passes and the integrated production generation path is verified. P6-E typography/category-art gates and P6-Final release matrix remain separate gates.
+
