@@ -7,28 +7,66 @@ import com.pinhoquest.domain.quest.QuestDifficulty
 import com.pinhoquest.domain.quest.QuestDraft
 import com.pinhoquest.domain.quest.QuestObjective
 
+enum class QuestCompositionOrigin {
+    LOCAL_MODEL,
+    PROCEDURAL_FALLBACK,
+    UNKNOWN,
+}
+
+enum class QuestFallbackReason {
+    PROCEDURAL_ONLY,
+    MODEL_NOT_INSTALLED,
+    INFERENCE_BUSY,
+    ADMISSION_DENIED,
+    INFERENCE_FAILED,
+    INVALID_MODEL_OUTPUT,
+}
+
+data class QuestCompositionOutcome(
+    val draft: QuestDraft,
+    val origin: QuestCompositionOrigin,
+    val fallbackReason: QuestFallbackReason? = null,
+)
+
+/**
+ * Implementations may expose a non-sensitive outcome in addition to the draft.
+ * The default keeps older/test composers compatible without pretending to know their origin.
+ */
 fun interface ComposerPort {
     suspend fun compose(plan: QuestGenerationPlan): QuestDraft
+
+    suspend fun composeWithOutcome(plan: QuestGenerationPlan): QuestCompositionOutcome =
+        QuestCompositionOutcome(
+            draft = compose(plan),
+            origin = QuestCompositionOrigin.UNKNOWN,
+        )
 }
 
 class ProceduralComposer : ComposerPort {
-    override suspend fun compose(plan: QuestGenerationPlan): QuestDraft {
+    override suspend fun compose(plan: QuestGenerationPlan): QuestDraft =
+        composeWithOutcome(plan).draft
+
+    override suspend fun composeWithOutcome(plan: QuestGenerationPlan): QuestCompositionOutcome {
         val copy = copyFor(plan)
         val minMinutes = plan.filters.minMinutes ?: 15
         val maxMinutes = plan.filters.maxMinutes ?: maxOf(minMinutes, 30)
-        return QuestDraft(
-            title = copy.title,
-            description = copy.description,
-            objectives = listOf(
-                QuestObjective(
-                    id = ObjectiveId("main-1"),
-                    text = copy.objective,
+        return QuestCompositionOutcome(
+            draft = QuestDraft(
+                title = copy.title,
+                description = copy.description,
+                objectives = listOf(
+                    QuestObjective(
+                        id = ObjectiveId("main-1"),
+                        text = copy.objective,
+                    ),
                 ),
+                category = plan.selectedCategory,
+                environment = plan.selectedEnvironment,
+                estimatedDuration = EstimatedDuration(minMinutes, maxMinutes),
+                difficulty = plan.filters.desiredDifficulty ?: QuestDifficulty.EASY,
             ),
-            category = plan.selectedCategory,
-            environment = plan.selectedEnvironment,
-            estimatedDuration = EstimatedDuration(minMinutes, maxMinutes),
-            difficulty = plan.filters.desiredDifficulty ?: QuestDifficulty.EASY,
+            origin = QuestCompositionOrigin.PROCEDURAL_FALLBACK,
+            fallbackReason = QuestFallbackReason.PROCEDURAL_ONLY,
         )
     }
 
