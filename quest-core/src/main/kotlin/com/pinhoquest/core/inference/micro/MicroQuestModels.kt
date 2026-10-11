@@ -1,5 +1,6 @@
 package com.pinhoquest.core.inference.micro
 
+import com.pinhoquest.core.quest.QuestFallbackReason
 import com.pinhoquest.domain.quest.QuestDraft
 
 data class QuestTextExample(
@@ -35,4 +36,5 @@ enum class MicroQuestOrigin { LOCAL_MODEL, PROCEDURAL_FALLBACK }
 data class RenderedMicroQuest(
     val draft: QuestDraft,
     val origin: MicroQuestOrigin,
+    val fallbackReason: QuestFallbackReason? = null,
 )
