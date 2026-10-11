@@ -21,7 +21,7 @@ interface QuestRepository {
 
 interface QuestSessionRepository {
     suspend fun upsert(session: QuestSession)
-    suspend fun get(sessionId: QuestSessionId): Quest?
+    suspend fun get(sessionId: QuestSessionId): QuestSession?
     suspend fun getByQuestId(questId: QuestId): QuestSession?
     suspend fun active(): QuestSession?
 }
