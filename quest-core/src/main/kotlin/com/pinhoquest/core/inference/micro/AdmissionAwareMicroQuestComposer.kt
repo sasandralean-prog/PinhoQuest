@@ -5,9 +5,11 @@ import com.pinhoquest.core.inference.InferenceAdmissionController
 import com.pinhoquest.core.inference.InferenceModelDescriptor
 import com.pinhoquest.core.inference.InferenceResourceSnapshot
 import com.pinhoquest.core.quest.ComposerPort
+import com.pinhoquest.core.quest.QuestCompositionOrigin
+import com.pinhoquest.core.quest.QuestCompositionOutcome
+import com.pinhoquest.core.quest.QuestFallbackReason
 import com.pinhoquest.core.quest.ProceduralComposer
 import com.pinhoquest.core.quest.QuestGenerationPlan
-import com.pinhoquest.domain.quest.QuestDraft
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -24,29 +26,42 @@ class AdmissionAwareMicroQuestComposer(
 ) : ComposerPort {
     private val inferenceBusy = AtomicBoolean(false)
 
-    override suspend fun compose(plan: QuestGenerationPlan): QuestDraft {
+    override suspend fun compose(plan: QuestGenerationPlan) =
+        composeWithOutcome(plan).draft
+
+    override suspend fun composeWithOutcome(plan: QuestGenerationPlan): QuestCompositionOutcome {
         val model = modelDescriptorProvider()
-            ?: return fallback.compose(plan)
+            ?: return fallbackOutcome(plan, QuestFallbackReason.MODEL_NOT_INSTALLED)
 
         if (inferenceBusy.get()) {
-            return fallback.compose(plan)
+            return fallbackOutcome(plan, QuestFallbackReason.INFERENCE_BUSY)
         }
 
         val snapshot = snapshotProvider()
         return when (admissionController.decide(snapshot, model)) {
             AdmissionDecision.Admit -> {
                 if (!inferenceBusy.compareAndSet(false, true)) {
-                    fallback.compose(plan)
+                    fallbackOutcome(plan, QuestFallbackReason.INFERENCE_BUSY)
                 } else {
                     try {
-                        local.compose(plan)
+                        local.composeWithOutcome(plan)
                     } finally {
                         inferenceBusy.set(false)
                     }
                 }
             }
 
-            is AdmissionDecision.UseFallback -> fallback.compose(plan)
+            is AdmissionDecision.UseFallback ->
+                fallbackOutcome(plan, QuestFallbackReason.ADMISSION_DENIED)
         }
     }
+
+    private suspend fun fallbackOutcome(
+        plan: QuestGenerationPlan,
+        reason: QuestFallbackReason,
+    ): QuestCompositionOutcome =
+        fallback.composeWithOutcome(plan).copy(
+            origin = QuestCompositionOrigin.PROCEDURAL_FALLBACK,
+            fallbackReason = reason,
+        )
 }
