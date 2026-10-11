@@ -40,8 +40,17 @@ class QuestPlanner(
         val affinityWeight = if (request.mode == QuestMode.RANDOM) 0.25 else 1.0
         val selectedCategory = when {
             request.mode == QuestMode.GAME -> QuestCategory.GAMING
-            request.filters.categories.isNotEmpty() ->
-                chooseCategory(request.filters.categories.sortedBy { it.ordinal })
+            request.filters.categories.isNotEmpty() -> {
+                val allowed = request.filters.categories.sortedBy { it.ordinal }
+                // If a game candidate is not available, prefer another explicitly allowed
+                // category rather than selecting GAMING and failing when a valid alternative exists.
+                val viable = if (context.gameCandidate == null && request.mode != QuestMode.GAME) {
+                    allowed.filterNot { it == QuestCategory.GAMING }.ifEmpty { allowed }
+                } else {
+                    allowed
+                }
+                chooseCategory(viable)
+            }
             request.mode == QuestMode.RANDOM -> selectNovelCategory(context)
             else -> selectPreferredCategory(context)
         }
