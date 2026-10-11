@@ -424,7 +424,7 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 | P6-A — baseline/assets/docs | **INVENTÁRIO RECONCILIADO; CI BASE CONCLUÍDO** | O verificador/build do snapshot aceito para P6-B passou em [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398); o documento atual ainda será validado pelo CI após este commit. |
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
 | P6-C — layouts responsivos | **EM ANDAMENTO — CI ATUAL PENDENTE** | Correção do import `dp` publicada no SHA `42426c2f6667c86c3f7c70f99b50ca20543d4f64`; consultar [CI #38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
-| P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido ligado ao contexto; seleção aleatória injetável, variações procedurais e testes adicionados. A execução Android CI do HEAD atual ainda não concluiu; diagnóstico do caminho real LLM/procedural e validação integrada permanecem abertos |
+| P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido, seleção variada, composições procedurais, fallback validado e diagnóstico redigido implementados no código; CI do HEAD mais recente ainda não concluiu e a validação integrada em aparelho permanece aberta |
 | P6-E — modelo/tipografia/categorias | **MODELO PUBLICADO E INTEGRADO; GATE COMPLETO PENDENTE** | CR-7.4 está em GitHub Releases com tamanho/hash fixados e catálogo/instalação explícita; inferência fresca no HEAD atual, mapeamento semântico dos nove assets, MS Boli e escala/contraste ainda exigem validação |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
@@ -440,12 +440,14 @@ Commits published on `feature/p6-total-ui-refactor`:
 - `aebc23c`, `e4d28dd`, `b286d0b`, `718db63`, `24196fc` — persisted recent category history is exposed through the repository, Room DAO and production context provider.
 - `4f6f3b5`, `09d09fe` — deterministic tests cover twenty validated RANDOM generations, recent/fully-covered history, hard filters and three distinct procedural CODING variants.
 - `a0031cb`, `1d730ad`, `ca847f1` — state transitions update quest status without rewriting the persisted generation record, preserving its history ordering.
+- `cab428a`, `85299e8`, `d31815f`, `dda9f4e` — composers expose composition origin and bounded fallback reasons; the admission-aware wrapper reports model absence, busy state and admission denial without logging generated content.
+- `45ca11a`, `d92fc05`, `4744166`, `bd05a3e`, `9ea2dfc`, `ce98722` — the engine emits redacted generation diagnostics, validates a procedural fallback after invalid model-originated drafts, shows an explicit user-facing message for incompatible filters, and tests the diagnostic/fallback path.
 
 ### Current evidence and limitations
 
 - Android CI was triggered for the implementation commits. The latest run must be checked by exact SHA before this sprint can be marked green.
 - No CI result is represented as PASS while its run is queued or in progress.
-- The current automated tests do not yet prove the actual production path selected per request (local model versus procedural fallback) in diagnostic output. Add non-sensitive path/result/reason observability and verify the integrated path before closing P6-D.
+- The core now exposes actual composition origin, result status and enum-like fallback reason through a non-sensitive observer; the Android graph logs only these bounded fields. A deterministic unit test covers invalid model-originated output converging to a validated procedural fallback. Device-level evidence that the current installed CR-7.4 model is used on the production UI path, plus a fresh CI result for the final SHA, remains required before closing P6-D.
 - The 20-generation test is deterministic through an injected choice source; it does not rely on a probabilistic expectation.
 - History is read from persisted quest records. Quest state transitions now update the state column in place so accepting, starting, abandoning or rejecting a quest does not reorder generation history.
 
