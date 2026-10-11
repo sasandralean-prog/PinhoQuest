@@ -9,6 +9,7 @@ enum class GenerationUnavailableReason {
     GAME_CATALOG_NOT_CONFIGURED,
     GAME_CATALOG_UNAVAILABLE,
     GAME_CATALOG_NOT_FRESH,
+    FILTERS_UNSATISFIABLE,
 }
 
 sealed interface QuestGenerationResult {
@@ -27,7 +28,22 @@ class QuestEngine(
         context: QuestContext,
     ): QuestGenerationResult {
         val plan = planner.plan(request, context)
+        if (
+            request.filters.categories.isNotEmpty() &&
+            plan.selectedCategory !in request.filters.categories
+        ) {
+            return QuestGenerationResult.Unavailable(
+                GenerationUnavailableReason.FILTERS_UNSATISFIABLE,
+            )
+        }
         if (request.mode == QuestMode.GAME && plan.gameCandidate == null) {
+            return QuestGenerationResult.Unavailable(
+                GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,
+            )
+        }
+        if (plan.selectedCategory == com.pinhoquest.domain.quest.QuestCategory.GAMING &&
+            plan.gameCandidate == null
+        ) {
             return QuestGenerationResult.Unavailable(
                 GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,
             )
