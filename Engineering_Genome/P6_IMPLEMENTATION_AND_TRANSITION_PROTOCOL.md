@@ -115,7 +115,7 @@ A padronização dos backgrounds para 1080 × 1920 px (9:16) também foi registr
 8. Somente cinco tags visuais têm mapeamento explícito em tagGraphicAsset; quatro usam a superfície neutra. Os outros cinco assets de categoria não devem ser associados por aproximação semântica.
 9. QuestPlanner.selectNovelCategory seleciona a primeira categoria candidata ausente em recentCategories. O contexto de produção observado preenche afinidades mas não fornece histórico recente; por isso, o caminho aleatório pode escolher CODING repetidamente.
 10. ProceduralComposer mapeia cada categoria para uma composição determinística fixa; CODING produz “Frankenstein Digital”. Sem modelo ativo, PinhoQuestAppGraph usa ProceduralComposer.
-11. Existe infraestrutura de instalação do modelo, mas UnconfiguredModelPackageCatalog.current() retorna null. O callback opcional de instalação não é encaminhado pelo PinhoQuestNav para SettingsScreen. O modelo está ausente do APK informado pelo proprietário.
+11. A distribuição CR-7.4 agora usa uma GitHub Release versionada (`cr74-semantic-isolation-v1`), com `model.litertlm` de 284692656 bytes e SHA-256 `e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`; `Cr74SemanticIsolationModelCatalog` está ligado ao coordenador e a Configurações exige consentimento explícito. O modelo fica intencionalmente fora do APK padrão. A execução de inferência no HEAD atual ainda precisa de evidência nova.
 
 Essas observações foram reproduzidas pela inspeção da branch e comparadas com as screenshots. Qualquer hipótese adicional sobre densidade, teclado, tema ou comportamento em outras telas precisa de teste, não deve ser registrada como fato até ser reproduzida.
 
@@ -424,11 +424,30 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 | P6-A — baseline/assets/docs | **INVENTÁRIO RECONCILIADO; CI BASE CONCLUÍDO** | O verificador/build do snapshot aceito para P6-B passou em [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398); o documento atual ainda será validado pelo CI após este commit. |
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
 | P6-C — layouts responsivos | **EM ANDAMENTO — CI ATUAL PENDENTE** | Correção do import `dp` publicada no SHA `42426c2f6667c86c3f7c70f99b50ca20543d4f64`; consultar [CI #38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
-| P6-D — geração diversa | **PENDENTE** | Seleção de categoria e fallback determinístico explicam repetição observada; testes do core ainda precisam comprovar a correção |
-| P6-E — modelo/tipografia/categorias | **PENDENTE / MODEL-01 pode ficar BLOCKED** | Modelo ausente e catálogo de pacote não configurado; tags/arte e MS Boli exigem decisões e validação |
+| P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido ligado ao contexto; seleção aleatória injetável, variações procedurais e testes adicionados. A execução Android CI do HEAD atual ainda não concluiu; diagnóstico do caminho real LLM/procedural e validação integrada permanecem abertos |
+| P6-E — modelo/tipografia/categorias | **MODELO PUBLICADO E INTEGRADO; GATE COMPLETO PENDENTE** | CR-7.4 está em GitHub Releases com tamanho/hash fixados e catálogo/instalação explícita; inferência fresca no HEAD atual, mapeamento semântico dos nove assets, MS Boli e escala/contraste ainda exigem validação |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
 Este quadro distingue aceitação visual provisória de P6-B, implementação ainda em progresso de P6-C e gate final de release; documentação não substitui evidência de runtime.
+
+### P6-D implementation checkpoint — 2026-10-10
+
+Commits published on `feature/p6-total-ui-refactor`:
+
+- `7f55caa` — injected bounded choice source; RANDOM prefers categories absent from persisted recent history and no longer selects the first unseen category by list order.
+- `f7c1023` — three bounded procedural compositions per category, including three distinct CODING angles; the game category still requires a valid game candidate.
+- `131d574` — unsatisfiable category filters and missing game candidates converge to explicit `Unavailable`, not a silently substituted quest.
+- `aebc23c`, `e4d28dd`, `b286d0b`, `718db63`, `24196fc` — persisted recent category history is exposed through the repository, Room DAO and production context provider.
+- `4f6f3b5`, `09d09fe` — deterministic tests cover twenty validated RANDOM generations, recent/fully-covered history, hard filters and three distinct procedural CODING variants.
+- `a0031cb`, `1d730ad`, `ca847f1` — state transitions update quest status without rewriting the persisted generation record, preserving its history ordering.
+
+### Current evidence and limitations
+
+- Android CI was triggered for the implementation commits. The latest run must be checked by exact SHA before this sprint can be marked green.
+- No CI result is represented as PASS while its run is queued or in progress.
+- The current automated tests do not yet prove the actual production path selected per request (local model versus procedural fallback) in diagnostic output. Add non-sensitive path/result/reason observability and verify the integrated path before closing P6-D.
+- The 20-generation test is deterministic through an injected choice source; it does not rely on a probabilistic expectation.
+- History is read from persisted quest records. Quest state transitions now update the state column in place so accepting, starting, abandoning or rejecting a quest does not reorder generation history.
 
 ## 12. Registro de decisões em aberto
 
