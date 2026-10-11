@@ -67,4 +67,9 @@ class RoomQuestRepository(
                 state = QuestState.valueOf(entity.state),
             )
         }
+
+    override suspend fun recentCategories(limit: Int): List<QuestCategory> =
+        dao.recentCategories(limit.coerceAtLeast(0)).mapNotNull { category ->
+            runCatching { QuestCategory.valueOf(category) }.getOrNull()
+        }
 }
