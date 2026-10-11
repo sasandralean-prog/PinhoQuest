@@ -1,6 +1,7 @@
 package com.pinhoquest
 
 import android.app.Application
+import android.util.Log
 import com.pinhoquest.core.backup.BackupCodec
 import com.pinhoquest.core.completion.QuestCompletionService
 import com.pinhoquest.core.garden.FlowerInvestigationService
@@ -14,6 +15,7 @@ import com.pinhoquest.core.inference.micro.MicroQuestComposer
 import com.pinhoquest.core.quest.ProceduralComposer
 import com.pinhoquest.core.quest.QuestContext
 import com.pinhoquest.core.quest.QuestEngine
+import com.pinhoquest.core.quest.QuestGenerationObserver
 import com.pinhoquest.core.quest.QuestPlanner
 import com.pinhoquest.core.quest.QuestValidator
 import com.pinhoquest.core.profile.RandomProfileIdFactory
@@ -116,6 +118,14 @@ class PinhoQuestAppGraph(application: Application) {
             planner = QuestPlanner(),
             composer = productionComposer,
             validator = QuestValidator(),
+            observer = QuestGenerationObserver { diagnostic ->
+                Log.i(
+                    "PinhoQuest.Generation",
+                    "mode=${diagnostic.mode};category=${diagnostic.category};" +
+                        "origin=${diagnostic.origin};status=${diagnostic.status};" +
+                        "reason=${diagnostic.reason ?: "none"}",
+                )
+            },
         ),
         questRepository = questRepository,
         sessionRepository = sessionRepository,
