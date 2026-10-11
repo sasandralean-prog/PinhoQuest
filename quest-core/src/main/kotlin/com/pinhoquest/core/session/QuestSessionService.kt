@@ -51,7 +51,7 @@ class QuestSessionService(
     private val commandMutex = Mutex()
 
     suspend fun generate(request: QuestRequest): SessionCommandResult<Quest> {
-        var selectedGameContext = if (request.mode == QuestMode.GAME) {
+        val selectedGameContext = if (request.mode == QuestMode.GAME) {
             when (val selection = gameQuestGenerationCoordinator?.selectFreshRandomCandidate()) {
                 null -> return SessionCommandResult.GenerationFailed(
                     QuestGenerationResult.Unavailable(
@@ -91,6 +91,7 @@ class QuestSessionService(
             )
         ) {
             is QuestGenerationResult.Success -> {
+                // The generation event is the only operation that inserts a quest into history.
                 questRepository.upsert(result.quest)
                 selectedGameContext?.variant?.let { variant ->
                     gameQuestGenerationCoordinator?.recordUsage(
@@ -134,7 +135,7 @@ class QuestSessionService(
                 createdAtEpochMillis = now,
                 updatedAtEpochMillis = now,
             )
-            questRepository.upsert(quest.copy(state = QuestState.ACCEPTED))
+            questRepository.updateState(questId, QuestState.ACCEPTED)
             sessionRepository.upsert(session)
             SessionCommandResult.Success(session)
         }
@@ -174,7 +175,7 @@ class QuestSessionService(
                 requested = QuestState.REJECTED,
             )
         }
-        questRepository.upsert(quest.copy(state = QuestState.REJECTED))
+        questRepository.updateState(questId, QuestState.REJECTED)
         SessionCommandResult.Success(Unit)
     }
 
@@ -200,9 +201,7 @@ class QuestSessionService(
             updatedAtEpochMillis = nowEpochMillis(),
         )
         sessionRepository.upsert(updated)
-        questRepository.get(current.questId)?.let { quest ->
-            questRepository.upsert(quest.copy(state = target))
-        }
+        questRepository.updateState(current.questId, target)
         return SessionCommandResult.Success(updated)
     }
 }
