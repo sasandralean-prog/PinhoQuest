@@ -95,6 +95,23 @@ class QuestPlannerTest {
     }
 
     @Test
+    fun filteredGameCategoryDoesNotBlockAnotherViableAllowedCategory() {
+        val planner = QuestPlanner(QuestChoiceSource { 0 })
+        val allowed = setOf(QuestCategory.GAMING, QuestCategory.LEARNING)
+
+        val plan = planner.plan(
+            QuestRequest(
+                mode = QuestMode.RANDOM,
+                filters = QuestSessionFilters(categories = allowed),
+            ),
+            QuestContext(),
+        )
+
+        assertEquals(QuestCategory.LEARNING, plan.selectedCategory)
+        assertTrue(plan.selectedCategory in allowed)
+    }
+
+    @Test
     fun gameModeWithIncompatibleCategoryFilterReturnsUnavailable() = runTest {
         val engine = QuestEngine(
             planner = QuestPlanner(QuestChoiceSource { 0 }),
