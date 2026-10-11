@@ -41,7 +41,7 @@ instalador valida tamanho e SHA-256 antes de ativá-lo.
 
 O ponto oficial de continuidade da refatoração visual é
 [`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
-Ele define os gates P6-A..P6-E, a ordem documental, critérios de validação e política de checkpoints. A existência do protocolo não significa que a implementação ou os gates estejam concluídos.
+Ele define os gates P6-A..P6-E e P6-Final, a ordem documental, critérios de validação e política de checkpoints. O P6-D está em implementação; a validação do CI no SHA atual ainda precisa concluir. A existência do protocolo ou de commits publicados não significa que o sprint ou os gates estejam concluídos.
 
 Para referência visual e de implementação, consulte também:
 - [Catálogo canônico de assets](docs/design/ASSET_CATALOG.md)
