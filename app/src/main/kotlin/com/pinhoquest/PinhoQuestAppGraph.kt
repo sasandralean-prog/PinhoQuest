@@ -7,7 +7,6 @@ import com.pinhoquest.core.garden.FlowerInvestigationService
 import com.pinhoquest.core.inference.AppWorkload
 import com.pinhoquest.core.inference.InferenceAdmissionController
 import com.pinhoquest.core.inference.InferenceModelDescriptor
-import com.pinhoquest.core.inference.InferenceResourceSnapshot
 import com.pinhoquest.core.inference.LearnedInferenceProfile
 import com.pinhoquest.core.inference.RuntimeState
 import com.pinhoquest.core.inference.micro.AdmissionAwareMicroQuestComposer
@@ -91,10 +90,13 @@ class PinhoQuestAppGraph(application: Application) {
     private val contextProvider = QuestContextProvider {
         val profile = profileRepository.current()
         if (profile == null) {
-            QuestContext()
+            QuestContext(recentCategories = questRepository.recentCategories())
         } else {
             val tags = tagRepository.list(profile.id)
-            QuestContext(categoryAffinities = SystemTagCatalog.categoryAffinities(tags))
+            QuestContext(
+                categoryAffinities = SystemTagCatalog.categoryAffinities(tags),
+                recentCategories = questRepository.recentCategories(),
+            )
         }
     }
 
