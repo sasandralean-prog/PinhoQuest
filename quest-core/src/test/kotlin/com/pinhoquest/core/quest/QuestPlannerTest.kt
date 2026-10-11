@@ -117,6 +117,38 @@ class QuestPlannerTest {
     }
 
     @Test
+    fun invalidModelDraftUsesValidatedProceduralFallbackAndReportsOnlyEnums() = runTest {
+        val diagnostics = mutableListOf<QuestGenerationDiagnostic>()
+        val localModelComposer = object : ComposerPort {
+            override suspend fun compose(plan: QuestGenerationPlan) =
+                ProceduralComposer().compose(plan).copy(title = "")
+
+            override suspend fun composeWithOutcome(plan: QuestGenerationPlan) =
+                QuestCompositionOutcome(
+                    draft = compose(plan),
+                    origin = QuestCompositionOrigin.LOCAL_MODEL,
+                )
+        }
+        val engine = QuestEngine(
+            planner = QuestPlanner(QuestChoiceSource { 0 }),
+            composer = localModelComposer,
+            validator = QuestValidator(),
+            observer = QuestGenerationObserver { diagnostics += it },
+        )
+
+        val result = engine.generate(
+            QuestRequest(QuestMode.NORMAL),
+            QuestContext(categoryAffinities = mapOf(QuestCategory.CODING to 1.0)),
+        )
+
+        assertTrue(result is QuestGenerationResult.Success)
+        assertEquals(1, diagnostics.size)
+        assertEquals(QuestCompositionOrigin.PROCEDURAL_FALLBACK, diagnostics.single().origin)
+        assertEquals(QuestGenerationStatus.SUCCESS, diagnostics.single().status)
+        assertEquals(QuestFallbackReason.INVALID_MODEL_OUTPUT.name, diagnostics.single().reason)
+    }
+
+    @Test
     fun proceduralComposerHasThreeDistinctCodingAngles() = runTest {
         val titles = (0..2).map { variant ->
             val planner = QuestPlanner(QuestChoiceSource { variant.coerceAtMost(it - 1) })
