@@ -5,6 +5,9 @@ import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.InferenceOutcome
 import com.pinhoquest.core.inference.LocalInferencePort
 import com.pinhoquest.core.quest.ComposerPort
+import com.pinhoquest.core.quest.QuestCompositionOrigin
+import com.pinhoquest.core.quest.QuestCompositionOutcome
+import com.pinhoquest.core.quest.QuestFallbackReason
 import com.pinhoquest.core.quest.ProceduralComposer
 import com.pinhoquest.core.quest.QuestGenerationPlan
 import com.pinhoquest.domain.quest.QuestDraft
@@ -19,7 +22,19 @@ class MicroQuestComposer(
     private val fallback: ComposerPort = ProceduralComposer(),
 ) : ComposerPort {
     override suspend fun compose(plan: QuestGenerationPlan): QuestDraft =
-        composeWithDetails(plan).draft
+        composeWithOutcome(plan).draft
+
+    override suspend fun composeWithOutcome(plan: QuestGenerationPlan): QuestCompositionOutcome {
+        val rendered = composeWithDetails(plan)
+        return QuestCompositionOutcome(
+            draft = rendered.draft,
+            origin = when (rendered.origin) {
+                MicroQuestOrigin.LOCAL_MODEL -> QuestCompositionOrigin.LOCAL_MODEL
+                MicroQuestOrigin.PROCEDURAL_FALLBACK -> QuestCompositionOrigin.PROCEDURAL_FALLBACK
+            },
+            fallbackReason = rendered.fallbackReason,
+        )
+    }
 
     suspend fun composeWithDetails(
         plan: QuestGenerationPlan,
@@ -47,15 +62,17 @@ class MicroQuestComposer(
                     }
                     .getOrElse {
                         RenderedMicroQuest(
-                            draft = fallback.compose(plan),
+                            draft = fallback.composeWithOutcome(plan).draft,
                             origin = MicroQuestOrigin.PROCEDURAL_FALLBACK,
+                            fallbackReason = QuestFallbackReason.INVALID_MODEL_OUTPUT,
                         )
                     }
             }
 
             else -> RenderedMicroQuest(
-                draft = fallback.compose(plan),
+                draft = fallback.composeWithOutcome(plan).draft,
                 origin = MicroQuestOrigin.PROCEDURAL_FALLBACK,
+                fallbackReason = QuestFallbackReason.INFERENCE_FAILED,
             )
         }
     }
