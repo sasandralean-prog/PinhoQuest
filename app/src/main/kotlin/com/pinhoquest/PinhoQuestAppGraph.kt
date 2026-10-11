@@ -1,12 +1,13 @@
 package com.pinhoquest
 
 import android.app.Application
+import android.util.Log
+import com.pinhoquest.core.backup.BackupCodec
 import com.pinhoquest.core.completion.QuestCompletionService
 import com.pinhoquest.core.garden.FlowerInvestigationService
 import com.pinhoquest.core.inference.AppWorkload
 import com.pinhoquest.core.inference.InferenceAdmissionController
 import com.pinhoquest.core.inference.InferenceModelDescriptor
-import com.pinhoquest.core.inference.InferenceResourceSnapshot
 import com.pinhoquest.core.inference.LearnedInferenceProfile
 import com.pinhoquest.core.inference.RuntimeState
 import com.pinhoquest.core.inference.micro.AdmissionAwareMicroQuestComposer
@@ -14,6 +15,7 @@ import com.pinhoquest.core.inference.micro.MicroQuestComposer
 import com.pinhoquest.core.quest.ProceduralComposer
 import com.pinhoquest.core.quest.QuestContext
 import com.pinhoquest.core.quest.QuestEngine
+import com.pinhoquest.core.quest.QuestGenerationObserver
 import com.pinhoquest.core.quest.QuestPlanner
 import com.pinhoquest.core.quest.QuestValidator
 import com.pinhoquest.core.profile.RandomProfileIdFactory
@@ -31,10 +33,13 @@ import com.pinhoquest.domain.progression.XpTransactionId
 import com.pinhoquest.domain.reward.RewardOpportunityId
 import com.pinhoquest.inference.AndroidLiteRtLmInferencePort
 import com.pinhoquest.inference.AndroidResourceSnapshotProvider
+import com.pinhoquest.model.Cr74SemanticIsolationModelCatalog
+import com.pinhoquest.model.ModelInstallCoordinator
 import java.io.File
 import java.util.UUID
 
 class PinhoQuestAppGraph(application: Application) {
+    private val appContext = application.applicationContext
     private val data = AndroidDataGraph(application)
     private val modelStore = AndroidModelStore(File(application.filesDir, "models"))
     private val resourceSnapshotProvider = AndroidResourceSnapshotProvider(application)
@@ -48,6 +53,26 @@ class PinhoQuestAppGraph(application: Application) {
     val preferencesStore = data.preferencesStore
     val bootstrapper = data.bootstrapper
     val gardenRepository = data.gardenRepository
+    val modelInstallCoordinator = ModelInstallCoordinator(
+        context = appContext,
+        catalog = Cr74SemanticIsolationModelCatalog,
+    )
+    private val backupSnapshotBuilder = data.backupSnapshotBuilder
+    private val backupCodec = BackupCodec()
+
+    suspend fun buildBackupBytes(): Result<ByteArray> = runCatching {
+        val appVersion = appContext.packageManager
+            .getPackageInfo(appContext.packageName, 0)
+            .versionName
+            ?.takeIf { it.isNotBlank() }
+            ?: error("App version is unavailable")
+        when (val result = backupSnapshotBuilder.build(appVersion)) {
+            is com.pinhoquest.domain.backup.BackupSnapshotBuildResult.Ready -> backupCodec.encode(result.snapshot)
+            com.pinhoquest.domain.backup.BackupSnapshotBuildResult.NoProfile -> error("Nenhum jardim para copiar ainda.")
+            com.pinhoquest.domain.backup.BackupSnapshotBuildResult.MultipleProfiles -> error("Não foi possível preparar a cópia deste jardim.")
+            is com.pinhoquest.domain.backup.BackupSnapshotBuildResult.InvalidState -> error(result.reason)
+        }
+    }
 
     val investigationService = FlowerInvestigationService(
         store = data.investigationStore,
@@ -67,10 +92,13 @@ class PinhoQuestAppGraph(application: Application) {
     private val contextProvider = QuestContextProvider {
         val profile = profileRepository.current()
         if (profile == null) {
-            QuestContext()
+            QuestContext(recentCategories = questRepository.recentCategories())
         } else {
             val tags = tagRepository.list(profile.id)
-            QuestContext(categoryAffinities = SystemTagCatalog.categoryAffinities(tags))
+            QuestContext(
+                categoryAffinities = SystemTagCatalog.categoryAffinities(tags),
+                recentCategories = questRepository.recentCategories(),
+            )
         }
     }
 
@@ -90,6 +118,14 @@ class PinhoQuestAppGraph(application: Application) {
             planner = QuestPlanner(),
             composer = productionComposer,
             validator = QuestValidator(),
+            observer = QuestGenerationObserver { diagnostic ->
+                Log.i(
+                    "PinhoQuest.Generation",
+                    "mode=${diagnostic.mode};category=${diagnostic.category};" +
+                        "origin=${diagnostic.origin};status=${diagnostic.status};" +
+                        "reason=${diagnostic.reason ?: "none"}",
+                )
+            },
         ),
         questRepository = questRepository,
         sessionRepository = sessionRepository,

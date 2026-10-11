@@ -36,6 +36,9 @@ abstract class QuestDao {
     @Query("SELECT * FROM quests WHERE questId = :questId LIMIT 1")
     abstract suspend fun getWithObjectives(questId: String): QuestWithObjectives?
 
+    @Query("SELECT category FROM quests ORDER BY rowid DESC LIMIT :limit")
+    abstract suspend fun recentCategories(limit: Int): List<String>
+
     @Query("UPDATE quests SET state = :state WHERE questId = :questId")
     abstract suspend fun updateState(questId: String, state: String): Int
 }

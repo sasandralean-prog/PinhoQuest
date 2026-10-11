@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/cr-0-runtime-consolidation
+      - feature/p6-total-ui-refactor
   pull_request:
 
 jobs:
@@ -15,14 +16,16 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          # LiteRT-LM 0.16.1 test classes target Java 21. Android bytecode stays
+          # at the module-configured Java 17 target; this is the CI host JDK.
+          java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
       - name: Verify foundation
         run: |
           chmod +x ./gradlew
-          ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :app:lintDebug :app:assembleDebug
+          ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :litertlm-bridge:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:compileDebugAndroidTestKotlin
       - name: Upload debug APK
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation'
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor'
         uses: actions/upload-artifact@v4
         with:
           name: pinhoquest-v05-debug-apk

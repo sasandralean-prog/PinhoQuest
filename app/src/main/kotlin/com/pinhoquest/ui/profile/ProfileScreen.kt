@@ -1,60 +1,190 @@
 package com.pinhoquest.ui.profile
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
-import com.pinhoquest.ui.reference.ReferenceHotspot
-import com.pinhoquest.ui.reference.ReferenceRect
+import com.pinhoquest.core.tag.SystemTagCatalog
+import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
+import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoParchment
+import com.pinhoquest.ui.PinhoQuestBackground
+import com.pinhoquest.ui.PinhoQuestBackgrounds
+import com.pinhoquest.ui.PinhoTagGraphicButton
+import com.pinhoquest.ui.PinhoVisualTagIds
 
 @Composable
 fun ProfileScreen(
+    ownerName: String,
     tags: List<Tag>,
     onTagToggled: (TagId, Boolean) -> Unit,
     onOpenSettings: () -> Unit,
+    dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(R.drawable.bg_profile),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize(),
+    val foreground = if (dark) Color(0xFFFFF0D0) else PinhoForest
+    androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
+        PinhoQuestBackground(
+            resource = if (dark) PinhoQuestBackgrounds.PROFILE_NIGHT else PinhoQuestBackgrounds.PROFILE_DAY,
+            overlayAlpha = 0f,
         )
 
-        ReferenceHotspot(
-            rect = ReferenceRect(0.84f, 0.015f, 0.13f, 0.10f),
-            contentDescription = "Abrir configurações",
-            onClick = onOpenSettings,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 14.dp, vertical = 16.dp)
+                .padding(bottom = LocalPinhoBottomNavigationInset.current + 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "Perfil",
+                    color = foreground,
+                    fontSize = 34.sp,
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    "⚙",
+                    color = foreground,
+                    fontSize = 34.sp,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .semantics {
+                            contentDescription = "Abrir configurações"
+                            role = Role.Button
+                        }
+                        .clickableProfile(onOpenSettings),
+                )
+            }
 
-        val rects = listOf(
-            ReferenceRect(0.08f, 0.23f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.23f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.23f, 0.27f, 0.09f),
-            ReferenceRect(0.08f, 0.33f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.33f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.33f, 0.27f, 0.09f),
-            ReferenceRect(0.08f, 0.43f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.43f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.43f, 0.27f, 0.09f),
-            ReferenceRect(0.08f, 0.53f, 0.27f, 0.09f),
-            ReferenceRect(0.36f, 0.53f, 0.27f, 0.09f),
-            ReferenceRect(0.65f, 0.53f, 0.27f, 0.09f),
-        )
+            Spacer(Modifier.height(10.dp))
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(996f / 461f),
+            ) {
+                Image(
+                    painter = painterResource(
+                        if (dark) R.drawable.card_profile_night else R.drawable.card_profile_day,
+                    ),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                // Leaf crest occupies the top; dynamic copy belongs in the lower parchment plate.
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(0.72f)
+                        .padding(bottom = maxHeight * 0.10f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "Jardim de $ownerName",
+                        color = PinhoInk,
+                        fontSize = 20.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                    Text(
+                        text = "Pequenas preferências, grandes descobertas.",
+                        color = PinhoForest,
+                        fontSize = 13.sp,
+                        lineHeight = 16.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                }
+            }
 
-        tags.take(rects.size).forEachIndexed { index, tag ->
-            ReferenceHotspot(
-                rect = rects[index],
-                contentDescription = tag.label,
-                onClick = { onTagToggled(tag.id, !tag.enabled) },
-            )
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1304f / 376f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.card_profile_tags),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                Text(
+                    "Suas preferências",
+                    color = PinhoForest,
+                    fontSize = 20.sp,
+                )
+            }
+
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                val canonicalTags = PinhoVisualTagIds.mapNotNull { id ->
+                    tags.firstOrNull { it.id == id } ?: SystemTagCatalog.byId(id.value)
+                }
+                canonicalTags.chunked(3).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        row.forEach { tag ->
+                            PinhoTagGraphicButton(
+                                tagId = tag.id,
+                                contentDescription = tag.label,
+                                selected = tag.enabled,
+                                onClick = { onTagToggled(tag.id, !tag.enabled) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(7.dp))
+                }
+
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Descreva de forma livre o que você gosta e te faz feliz e tornaremos parte das suas quests.",
+                    color = PinhoInk,
+                    fontSize = 14.sp,
+                )
+            }
         }
     }
 }
+
+private fun Modifier.clickableProfile(onClick: () -> Unit): Modifier =
+    clickable(onClick = onClick)

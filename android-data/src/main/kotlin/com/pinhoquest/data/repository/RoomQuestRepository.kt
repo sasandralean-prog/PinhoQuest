@@ -41,6 +41,10 @@ class RoomQuestRepository(
         )
     }
 
+    override suspend fun updateState(questId: QuestId, state: QuestState) {
+        dao.updateState(questId.value, state.name)
+    }
+
     override suspend fun get(questId: QuestId): Quest? =
         dao.getWithObjectives(questId.value)?.let { row ->
             val entity = row.quest
@@ -66,5 +70,10 @@ class RoomQuestRepository(
                 difficulty = QuestDifficulty.valueOf(entity.difficulty),
                 state = QuestState.valueOf(entity.state),
             )
+        }
+
+    override suspend fun recentCategories(limit: Int): List<QuestCategory> =
+        dao.recentCategories(limit.coerceAtLeast(0)).mapNotNull { category ->
+            runCatching { QuestCategory.valueOf(category) }.getOrNull()
         }
 }

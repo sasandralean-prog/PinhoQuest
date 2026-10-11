@@ -20,6 +20,7 @@ data class PinhoQuestUiState(
     val onboardingRequired: Boolean = false,
     val ownerName: String = "",
     val selectedTab: MainTab = MainTab.QUESTS,
+    val questThemeSelectionOpen: Boolean = false,
     val currentQuest: Quest? = null,
     val activeSession: QuestSession? = null,
     val tags: List<Tag> = emptyList(),

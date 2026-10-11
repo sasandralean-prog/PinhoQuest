@@ -1,9 +1,9 @@
 # Pinho Quest — CURRENT STATE
 
-Date: 2026-10-05
-Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-9 — productive Android JNI/LiteRT-LM integration diagnosis
-Baseline: bdf4956 — feat(p5): harden settings and accessible user feedback
+Date: 2026-10-10 — active checkpoint appended at end of file
+Branch: feature/p6-total-ui-refactor
+CR frontier: CR-9 runtime path previously validated; P6-D generation diversity and truthful fallback observability in progress
+Baseline: bdf4956 — historical P5 baseline; see the latest checkpoint at the end of this file
 
 ## P6 V0.5 — current UI/UX checkpoint
 
@@ -1592,3 +1592,104 @@ A consolidated `:app:lintDebug` invocation still reaches the LiteRT-LM bridge an
 - **CR-9 / CR-9.1:** remain closed as previously recorded.
 
 > **P5 closes the application. The remaining lint/toolchain issue is visible, bounded and not allowed to contaminate the runtime contract.**
+
+## P6 documentation authority and transition protocol — 2026-10-09
+
+The official P6 implementation and transition protocol is
+`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`.
+
+### Documentation checkpoint
+
+- Branch: `feature/p6-total-ui-refactor`.
+- This checkpoint changes documentation only: P6 protocol, Engineering Genome entry/authority map, visual registry and contracts, and README pointers.
+- No Kotlin runtime code, binary assets, Gradle/workflow scripts or tests were changed by this documentation checkpoint.
+- The GitHub Contents API confirmed the branch-specific commits for the document and related contract changes. A stable branch HEAD SHA was not independently resolved during this operation, so this note deliberately does not claim a single final HEAD hash.
+- The document distinguishes facts observed in existing docs, hypotheses needing code/runtime reproduction, normative decisions, and gates not yet validated.
+- P6-A through P6-E remain open until their specific implementation and evidence criteria are met. A prior test report is historical evidence for that checkpoint, not a result for the current branch head.
+- Current visual contracts define global bottom-navigation destinations as Início, Jardim and Perfil; historical four-tab wording in Engineering Genome is identified as a documentation conflict to reconcile, not as permission to introduce a second navigation owner.
+
+### Documented issues and remaining work
+
+- `docs/design/CANONICAL_GRAPHICS.md` previously repeated old button filenames and contradicted itself about whether the Button path still had a trailing space. It now points to `ASSET_CATALOG.md` as the sole operational filename/alias inventory and states that any filename must be verified in the target branch.
+- `P6_UI_UX_INTERACTION_CONTRACT.md` and `UI_DESIGN_CONTRACT.md` now link to the protocol while retaining their respective interaction and implementation authority.
+- The legacy date/branch header at the top of this file is not rewritten in this documentation-only checkpoint because the branch HEAD was not independently confirmed. It remains a follow-up item for a dedicated state-snapshot update backed by an exact commit SHA.
+- Runtime consumer migration, three-state Garden behavior, quest repetition root cause, instrumented CI coverage and end-to-end visual validation are not claimed as completed by this documentation change.
+
+## 37. LiteRT-LM artifact recovery and reproducible distribution — 2026-10-10
+
+The canonical CR-7.4 artifact was recovered from the PinhoQuest-owned release
+`p6-local-debug-bundled-cr74-2026-10-06`: its `app-debug.apk` was verified as
+303410971 bytes / SHA-256
+`afb8a489bc34306c95765dcbb687ab0ef0de96c3531e69eede89c20b337e639d`, then
+its `assets/model.litertlm` entry was extracted without transformation and
+verified as 284692656 bytes / SHA-256
+`e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`.
+
+### Distribution and integration decision
+
+- The model is not stored in Git or Git LFS. It exceeds normal GitHub Git blob
+  limits and is distributed as the dedicated `model.litertlm` asset of the
+  `cr74-semantic-isolation-v1` GitHub prerelease. Its SHA-256 is pinned in code
+  and documentation, so a changed or substituted asset is rejected.
+- `docs/model-artifacts/CR74_SEMANTIC_ISOLATION.md` is the current recovery,
+  provenance, license, clean-checkout and validation record. The repository
+  also carries the required Gemma Notice text and ships it beside the release
+  asset.
+- `Cr74SemanticIsolationModelCatalog` is the one production package catalog.
+  It provides the immutable release URL, bytes, hash, CPU backend and context
+  limit to the existing resumable worker / `AndroidModelStore` path.
+- The model is still external to the normal APK. Settings now requires an
+  explicit acknowledgement before it schedules that download; no startup or
+  silent download was added. The installed runtime filename remains
+  `files/models/cr74_semantic_isolation/1/model.litertlm`.
+- Gradle currently resolves `litertlm-android:0.16.1`; its JNI runtime remains
+  packaged for `arm64-v8a` and `x86_64` through the existing `runtimeOnly`
+  dependency. No library or model version was changed in this recovery.
+
+### Validation boundary
+
+- A fresh public-release download passed the committed verification script with
+  the exact expected byte count and SHA-256.
+- A fresh depth-1 clone of `feature/p6-total-ui-refactor` contained the recovery
+  script and verified that download without local model paths or LFS objects.
+- Current-head local Gradle validation passed `:quest-domain:test`,
+  `:quest-core:test`, `:android-data:testDebugUnitTest`,
+  `:litertlm-bridge:test`, `:app:testDebugUnitTest`, `:app:lintDebug`,
+  `:app:assembleDebug` and `:app:compileDebugAndroidTestKotlin` on JDK 21.
+- APK inspection confirmed the two LiteRT-LM JNI libraries and no model asset.
+- CI was updated to use JDK 21 because LiteRT-LM test classes cannot run under
+  the prior JDK 17 host. A current-device inference result is not claimed here:
+  `emulator-5554` reported as connected but rejected shell commands with
+  `error: closed`, so staging and executing the instrumentation probe was not
+  possible in this recovery checkpoint.
+
+
+## 38. P6-D — generation diversity, persisted history and truthful fallback diagnostics (2026-10-10)
+
+**Status: IMPLEMENTATION IN PROGRESS — CI NOT YET GREEN FOR THE FINAL CHECKPOINT.**
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Code checkpoint before this state-document update:** `ce987220ecee20b601fbeaec1d6201e9e31521c2`  
+**P6 implementation protocol update:** `0d44cead8b59a97b4af79f0c1a62369fd78b5f84`
+
+### Changes published
+
+- `7f55caa` — injectable category choice; RANDOM prefers categories absent from recent history and no longer takes the first unseen category by list order.
+- `f7c1023` — three bounded procedural compositions per category, including distinct CODING angles and game-candidate enforcement.
+- `131d574` — unsatisfiable category filters and missing game candidates return an explicit unavailable result rather than silently changing quest mode.
+- `aebc23c`, `e4d28dd`, `b286d0b`, `718db63`, `24196fc` — recent categories flow from Room-backed persisted quest history into the production generation context.
+- `a0031cb`, `1d730ad`, `ca847f1` — quest state transitions update the state field in place, avoiding a rewrite that would reorder generation history.
+- `4f6f3b5`, `09d09fe` — deterministic tests cover 20 validated RANDOM generations, partial/full history, category filters and procedural variation.
+- `cab428a`, `85299e8`, `d31815f`, `dda9f4e` — composition origin and bounded fallback reasons are exposed by procedural, model and admission-aware composers.
+- `45ca11a`, `d92fc05`, `4744166` — QuestEngine reports mode, category, origin, validation status and enum-like reason; Android logs omit prompts, user text and profile data; invalid model-originated drafts are revalidated through procedural fallback.
+- `bd05a3e` — added user-facing copy for incompatible filters.
+- `9ea2dfc`, `ce98722` — avoid selecting GAMING when no candidate is available if another explicitly allowed category is viable; add regression coverage.
+
+### Validation and known limits
+
+- The run on an earlier code SHA `a0031cbffbb09bc8c1225c79dab4ead830a15225` failed at `:app:compileDebugKotlin`: the new `FILTERS_UNSATISFIABLE` enum branch was missing from `UserFacingCopy.kt`. This was corrected in `bd05a3e35999434025da54c1cadb33a7f50b2f1e`. The older failure is not treated as evidence about the corrected HEAD.
+- Android CI for code SHA `ce987220ecee20b601fbeaec1d6201e9e31521c2` was still in progress when this checkpoint was written. This document update triggers a newer workflow run; consult that run against its exact SHA before claiming PASS.
+- No new device-level E2E or screenshot evidence was produced in this checkpoint. The test suite proves deterministic planner/composer behavior and redacted diagnostic fields, not fresh on-device activation of the CR-7.4 model.
+- The diagnostic event contains only quest mode, category, composition origin, result status and enum-like reason. It deliberately excludes generated title/description/objectives, prompt content and personal profile data.
+- P6-D remains open until the latest CI passes and the integrated production generation path is verified. P6-E typography/category-art gates and P6-Final release matrix remain separate gates.
+

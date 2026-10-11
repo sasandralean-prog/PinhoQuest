@@ -1,37 +1,55 @@
 package com.pinhoquest.ui.onboarding
 
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.sp
 import com.pinhoquest.R
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.profile.GardenOwnerName
-import com.pinhoquest.ui.reference.ReferenceHotspot
-import com.pinhoquest.ui.reference.ReferenceRect
+import com.pinhoquest.ui.PinhoCream
+import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoGraphicButton
+import com.pinhoquest.ui.PinhoQuestBackground
+import com.pinhoquest.ui.PinhoQuestBackgrounds
+import com.pinhoquest.ui.PinhoTagGraphicButton
+import com.pinhoquest.ui.PinhoVisualTagIds
+import com.pinhoquest.ui.PinhoBackButton
 
 @Composable
 fun OnboardingScreen(
@@ -43,119 +61,210 @@ fun OnboardingScreen(
     var name by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf(emptySet<String>()) }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         when (step) {
             0 -> {
-                ReferenceBackground(R.drawable.bg_start)
-                ReferenceHotspot(
-                    rect = ReferenceRect(0.23f, 0.82f, 0.54f, 0.12f),
-                    contentDescription = "Começar",
-                    onClick = { step = 1 },
-                )
+                PinhoQuestBackground(PinhoQuestBackgrounds.START)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 34.dp, vertical = 26.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                ) {
+                    PinhoGraphicButton(
+                        resource = R.drawable.btn_confirm,
+                        contentDescription = "Começar",
+                        onClick = { step = 1 },
+                        modifier = Modifier.fillMaxWidth(0.62f),
+                        aspectRatio = 187f / 86f,
+                        label = "Começar",
+                        labelColor = PinhoCream,
+                        labelFontSize = 19.sp,
+                        labelStartFraction = 0.28f
+                    )
+                    Spacer(Modifier.height(76.dp))
+                }
             }
 
             1 -> {
-                ReferenceBackground(R.drawable.bg_onboarding_name)
-
-                val focusRequester = remember { FocusRequester() }
-                val keyboardController = LocalSoftwareKeyboardController.current
-
-                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    BasicTextField(
-                        value = name,
-                        onValueChange = { value ->
-                            if (value.trim().codePointCount(0, value.trim().length) <= GardenOwnerName.MAX_CHARACTERS) {
-                                name = value
-                            }
-                        },
-                        singleLine = true,
-                        textStyle = TextStyle(
-                            color = Color.White,
-                            fontSize = 22.sp,
-                        ),
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .clickable {
-                                focusRequester.requestFocus()
-                                keyboardController?.show()
-                            }
-                            .offset(
-                                x = maxWidth * 0.29f,
-                                y = maxHeight * 0.43f,
-                            )
-                            .size(
-                                width = maxWidth * 0.42f,
-                                height = maxHeight * 0.075f,
-                            )
-                            .padding(horizontal = 14.dp, vertical = 8.dp)
-                            .semantics { contentDescription = "Seu nome" },
+                PinhoQuestBackground(
+                    PinhoQuestBackgrounds.ONBOARDING_NAME_REFERENCE,
+                    overlay = PinhoForest,
+                    overlayAlpha = 0.04f,
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
+                ) {
+                    PinhoBackButton(
+                        onClick = { step = 0 },
+                        modifier = Modifier.padding(top = 16.dp, start = 4.dp).zIndex(1f),
                     )
-                }
 
-                ReferenceHotspot(
-                    rect = ReferenceRect(0.03f, 0.02f, 0.12f, 0.08f),
-                    contentDescription = "Voltar",
-                    onClick = { step = 0 },
-                )
-                ReferenceHotspot(
-                    rect = ReferenceRect(0.27f, 0.72f, 0.46f, 0.11f),
-                    contentDescription = "Confirmar nome",
-                    onClick = {
-                        if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
-                    },
-                )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .imePadding()
+                            .padding(
+                                top = (this@BoxWithConstraints.maxHeight * 0.24f).coerceAtMost(180.dp),
+                                bottom = 20.dp,
+                            ),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        androidx.compose.material3.Text(
+                            text = "Como você quer chamar seu jardim?",
+                            color = PinhoForest,
+                            fontSize = 24.sp,
+                        )
+                        Spacer(Modifier.height(16.dp))
+
+                        Box(
+                            modifier = Modifier.fillMaxWidth(0.86f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.name_bar),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(388f / 124f),
+                                )
+                                BasicTextField(
+                                    value = name,
+                                    onValueChange = { value ->
+                                        if (
+                                            value.trim().codePointCount(0, value.trim().length) <=
+                                            GardenOwnerName.MAX_CHARACTERS
+                                        ) {
+                                            name = value
+                                        }
+                                    },
+                                    singleLine = true,
+                                    textStyle = TextStyle(
+                                        color = androidx.compose.ui.graphics.Color.White,
+                                        fontSize = 22.sp,
+                                    ),
+                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                                        },
+                                    ),
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.72f)
+                                        .height(56.dp)
+                                        .semantics { contentDescription = "Seu nome" },
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(10.dp))
+                        androidx.compose.material3.Text(
+                            text = "Vai aparecer como Jardim de ... 🌷",
+                            color = PinhoInk,
+                            fontSize = 16.sp,
+                        )
+                        Spacer(Modifier.height(24.dp))
+                        PinhoGraphicButton(
+                            resource = R.drawable.btn_confirm,
+                            contentDescription = "Confirmar nome",
+                            onClick = {
+                                if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                            },
+                            modifier = Modifier.fillMaxWidth(0.56f),
+                            aspectRatio = 187f / 86f,
+                            label = "Confirmar",
+                            labelColor = PinhoCream,
+                            labelFontSize = 18.sp,
+                            labelStartFraction = 0.28f
+                        )
+                    }
+                }
             }
 
             else -> {
-                ReferenceBackground(R.drawable.bg_onboarding_tags)
-                val rects = listOf(
-                    ReferenceRect(0.18f, 0.40f, 0.22f, 0.075f),
-                    ReferenceRect(0.40f, 0.40f, 0.22f, 0.075f),
-                    ReferenceRect(0.62f, 0.40f, 0.22f, 0.075f),
-                    ReferenceRect(0.18f, 0.49f, 0.22f, 0.075f),
-                    ReferenceRect(0.40f, 0.49f, 0.22f, 0.075f),
-                    ReferenceRect(0.62f, 0.49f, 0.22f, 0.075f),
-                    ReferenceRect(0.18f, 0.59f, 0.22f, 0.075f),
-                    ReferenceRect(0.40f, 0.59f, 0.22f, 0.075f),
-                    ReferenceRect(0.62f, 0.59f, 0.22f, 0.075f),
-                    ReferenceRect(0.18f, 0.69f, 0.22f, 0.075f),
-                    ReferenceRect(0.40f, 0.69f, 0.22f, 0.075f),
-                    ReferenceRect(0.62f, 0.69f, 0.22f, 0.075f),
+                PinhoQuestBackground(
+                    PinhoQuestBackgrounds.ONBOARDING_TAGS_REFERENCE,
+                    overlay = Color(0xFFFFE7B0),
+                    overlayAlpha = 0.25f,
                 )
-                SystemTagCatalog.all.take(rects.size).forEachIndexed { index, tag ->
-                    ReferenceHotspot(
-                        rect = rects[index],
-                        contentDescription = tag.label,
-                        onClick = {
-                            selected = if (tag.id.value in selected) {
-                                selected - tag.id.value
-                            } else {
-                                selected + tag.id.value
-                            }
-                        },
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 18.dp, vertical = 18.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                    ) {
+                        PinhoBackButton(onClick = { step = 1 })
+                    }
+                    Spacer(Modifier.height(96.dp))
+                    androidx.compose.material3.Text(
+                        "O que você gosta?",
+                        color = PinhoForest,
+                        fontSize = 25.sp,
                     )
+                    androidx.compose.material3.Text(
+                        "Escolha algumas coisas para me contar sobre você.",
+                        color = PinhoForest,
+                        fontSize = 15.sp,
+                    )
+                    Spacer(Modifier.height(18.dp))
+
+                    val tags = PinhoVisualTagIds.mapNotNull { id ->
+                        SystemTagCatalog.byId(id.value)
+                    }
+                    tags.chunked(3).forEachIndexed { rowIndex, row ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            row.forEachIndexed { colIndex, tag ->
+                                PinhoTagGraphicButton(
+                                    tagId = tag.id,
+                                    contentDescription = tag.label,
+                                    selected = tag.id.value in selected,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = {
+                                        selected = if (tag.id.value in selected) {
+                                            selected - tag.id.value
+                                        } else {
+                                            selected + tag.id.value
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+                    PinhoGraphicButton(
+                        resource = R.drawable.btn_confirm,
+                        contentDescription = "Continuar",
+                        onClick = { onComplete(name.trim(), selected) },
+                        modifier = Modifier.fillMaxWidth(0.62f),
+                        aspectRatio = 187f / 86f,
+                        label = "Continuar",
+                        labelColor = PinhoCream,
+                        labelFontSize = 18.sp,
+                        labelStartFraction = 0.28f
+                    )
+                    Spacer(Modifier.height(18.dp))
                 }
-                ReferenceHotspot(
-                    rect = ReferenceRect(0.30f, 0.80f, 0.40f, 0.11f),
-                    contentDescription = "Continuar",
-                    onClick = { onComplete(name.trim(), selected) },
-                )
-                ReferenceHotspot(
-                    rect = ReferenceRect(0.03f, 0.02f, 0.12f, 0.08f),
-                    contentDescription = "Voltar",
-                    onClick = { step = 1 },
-                )
             }
         }
     }
 }
 
-@Composable
-private fun ReferenceBackground(resource: Int) {
-    Image(
-        painter = painterResource(resource),
-        contentDescription = null,
-        contentScale = ContentScale.FillBounds,
-        modifier = Modifier.fillMaxSize(),
-    )
-}
