@@ -12,18 +12,26 @@ import org.junit.Test
 
 class QuestPlannerTest {
     @Test
-    fun twentyRandomPlansWithEmptyHistoryReachMultipleCategories() {
+    fun twentyRandomGenerationsAreValidatedAndReachMultipleCategories() = runTest {
         var choice = 0
-        val planner = QuestPlanner(QuestChoiceSource { bound ->
-            val selected = choice % bound
-            choice += 1
-            selected
-        })
+        val engine = QuestEngine(
+            planner = QuestPlanner(QuestChoiceSource { bound ->
+                val selected = choice % bound
+                choice += 1
+                selected
+            }),
+            composer = ProceduralComposer(),
+            validator = QuestValidator(),
+        )
 
-        val categories = (0 until 20).map {
-            planner.plan(QuestRequest(QuestMode.RANDOM), QuestContext()).selectedCategory
+        val results = (0 until 20).map {
+            engine.generate(QuestRequest(QuestMode.RANDOM), QuestContext())
         }
 
+        assertTrue(results.all { it is QuestGenerationResult.Success })
+        val categories = results.map {
+            (it as QuestGenerationResult.Success).quest.category
+        }
         assertTrue(categories.toSet().size > 1)
         assertTrue(QuestCategory.CODING in categories)
         assertTrue(QuestCategory.CREATIVE in categories)
@@ -84,6 +92,28 @@ class QuestPlannerTest {
         )
 
         assertTrue(plan.selectedCategory in allowed)
+    }
+
+    @Test
+    fun gameModeWithIncompatibleCategoryFilterReturnsUnavailable() = runTest {
+        val engine = QuestEngine(
+            planner = QuestPlanner(QuestChoiceSource { 0 }),
+            composer = ComposerPort { error("Unsatisfiable filters must not compose a quest") },
+            validator = QuestValidator(),
+        )
+
+        val result = engine.generate(
+            QuestRequest(
+                mode = QuestMode.GAME,
+                filters = QuestSessionFilters(categories = setOf(QuestCategory.CODING)),
+            ),
+            QuestContext(),
+        )
+
+        assertEquals(
+            QuestGenerationResult.Unavailable(GenerationUnavailableReason.FILTERS_UNSATISFIABLE),
+            result,
+        )
     }
 
     @Test
