@@ -1,6 +1,8 @@
 package com.pinhoquest
 
 import android.app.Application
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import com.pinhoquest.core.backup.BackupCodec
 import com.pinhoquest.core.completion.QuestCompletionService
@@ -20,13 +22,20 @@ import com.pinhoquest.core.quest.QuestPlanner
 import com.pinhoquest.core.quest.QuestValidator
 import com.pinhoquest.core.profile.RandomProfileIdFactory
 import com.pinhoquest.core.research.GameCatalogCachePolicy
+import com.pinhoquest.core.research.GameCandidateCycleSequence
+import com.pinhoquest.core.research.GameQuestApplicationCoordinator
 import com.pinhoquest.core.research.GameQuestCandidateSelector
 import com.pinhoquest.core.research.GameQuestGenerationCoordinator
+import com.pinhoquest.core.research.GameResearchCoordinator
+import com.pinhoquest.core.research.GameResearchOrchestrator
+import com.pinhoquest.core.research.GameResearchProvider
 import com.pinhoquest.core.reward.RewardEngine
 import com.pinhoquest.core.session.QuestContextProvider
 import com.pinhoquest.core.session.QuestSessionService
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.data.AndroidDataGraph
+import com.pinhoquest.data.research.UrlConnectionResearchHttpTransport
+import com.pinhoquest.data.research.WikipediaGameDiscoveryAdapter
 import com.pinhoquest.data.model.AndroidModelStore
 import com.pinhoquest.domain.progression.CompletionId
 import com.pinhoquest.domain.progression.XpTransactionId
@@ -111,6 +120,35 @@ class PinhoQuestAppGraph(application: Application) {
         nowEpochMillis = System::currentTimeMillis,
     )
 
+    private val gameQuestApplicationCoordinator = GameQuestApplicationCoordinator(
+        researchOrchestrator = GameResearchOrchestrator(
+            catalogStore = data.gameDiscoveryCatalogStore,
+            researchCoordinator = GameResearchCoordinator(
+                providers = listOf(
+                    GameResearchProvider(
+                        id = "wikipedia-game-discovery",
+                        port = WikipediaGameDiscoveryAdapter(
+                            transport = UrlConnectionResearchHttpTransport(),
+                        ),
+                    ),
+                ),
+                nowEpochMillis = System::currentTimeMillis,
+            ),
+            cachePolicy = GameCatalogCachePolicy.DEFAULT,
+            cycleSequence = GameCandidateCycleSequence(),
+            nowEpochMillis = System::currentTimeMillis,
+            online = ::hasInternetConnection,
+        ),
+        generationCoordinator = gameQuestGenerationCoordinator,
+    )
+
+    private fun hasInternetConnection(): Boolean {
+        val connectivity = appContext.getSystemService(ConnectivityManager::class.java) ?: return false
+        val network = connectivity.activeNetwork ?: return false
+        val capabilities = connectivity.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
     private val productionComposer = createProductionComposer(application)
 
     val sessionService = QuestSessionService(
@@ -131,6 +169,7 @@ class PinhoQuestAppGraph(application: Application) {
         sessionRepository = sessionRepository,
         contextProvider = contextProvider,
         gameQuestGenerationCoordinator = gameQuestGenerationCoordinator,
+        gameQuestApplicationCoordinator = gameQuestApplicationCoordinator,
     )
 
     private fun createProductionComposer(application: Application) = run {
