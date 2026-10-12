@@ -75,7 +75,7 @@ class WikipediaGameDiscoveryAdapter(
                 ?: "https://en.wikipedia.org/wiki/${encode(canonicalName)}"
             discoveries += GameDiscovery(
                 canonicalName = canonicalName,
-                platforms = platform?.let(::setOf).orEmpty(),
+                platforms = platform?.let { setOf(it) }.orEmpty(),
                 genres = emptySet(),
                 availability = GameAvailability.UNKNOWN,
                 provenance = setOf(
