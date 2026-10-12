@@ -44,6 +44,7 @@ fun SettingsScreen(
     onThemeSelected: (ThemePreference) -> Unit,
     onFontScaleSelected: (Float) -> Unit,
     onInstallCreativeBrain: (() -> Unit)? = null,
+    onShowModelInstallStatus: (() -> Unit)? = null,
     onBackup: (() -> Unit)? = null,
     onDonate: (() -> Unit)? = null,
     onBack: () -> Unit = {},
@@ -243,6 +244,20 @@ fun SettingsScreen(
                     labelFontSize = 15.sp,
                     labelStartFraction = 0.28f,
                 )
+                onShowModelInstallStatus?.let { showStatus ->
+                    Spacer(Modifier.height(6.dp))
+                    PinhoGraphicButton(
+                        resource = R.drawable.btn_confirm,
+                        contentDescription = "Ver progresso do cérebro criativo",
+                        onClick = showStatus,
+                        modifier = Modifier.fillMaxWidth(0.70f),
+                        aspectRatio = 187f / 86f,
+                        label = "Ver progresso",
+                        labelColor = Color(0xFF4A2114),
+                        labelFontSize = 15.sp,
+                        labelStartFraction = 0.28f,
+                    )
+                }
             }
 
         }
