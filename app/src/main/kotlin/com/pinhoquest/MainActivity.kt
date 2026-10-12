@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -68,8 +69,8 @@ class MainActivity : ComponentActivity() {
 
             var pendingBackup by remember { mutableStateOf<ByteArray?>(null) }
             var creativeBrainTermsVisible by remember { mutableStateOf(false) }
-            var modelInstallWorkId by remember { mutableStateOf<String?>(null) }
-            var modelInstallStatusVisible by remember { mutableStateOf(false) }
+            var modelInstallWorkId by rememberSaveable { mutableStateOf<String?>(null) }
+            var modelInstallStatusVisible by rememberSaveable { mutableStateOf(false) }
             val modelWorkInfo by produceState<WorkInfo?>(initialValue = null, modelInstallWorkId) {
                 val rawId = modelInstallWorkId
                 val id = rawId?.let { runCatching { UUID.fromString(it) }.getOrNull() }
@@ -162,6 +163,7 @@ class MainActivity : ComponentActivity() {
                             onThemeSelected = viewModel::setTheme,
                             onFontScaleSelected = viewModel::setFontScale,
                             onInstallCreativeBrain = { creativeBrainTermsVisible = true },
+                            onShowModelInstallStatus = if (modelInstallWorkId != null) ({ modelInstallStatusVisible = true }) else null,
                             onBackup = {
                                 lifecycleScope.launch {
                                     graph.buildBackupBytes()
