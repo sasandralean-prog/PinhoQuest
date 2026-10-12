@@ -4,6 +4,9 @@ import com.pinhoquest.core.quest.QuestEngine
 import com.pinhoquest.core.quest.QuestGenerationResult
 import com.pinhoquest.core.research.GameQuestCandidateResult
 import com.pinhoquest.core.research.GameQuestGenerationCoordinator
+import com.pinhoquest.core.research.GameQuestApplicationCoordinator
+import com.pinhoquest.core.research.GameQuestApplicationResult
+import com.pinhoquest.core.research.GameResearchRequest
 import com.pinhoquest.domain.quest.Quest
 import com.pinhoquest.domain.quest.QuestId
 import com.pinhoquest.domain.quest.QuestMode
@@ -47,31 +50,46 @@ class QuestSessionService(
     private val sessionIdFactory: QuestSessionIdFactory = QuestSessionIdFactory {
         QuestSessionId(UUID.randomUUID().toString())
     },
+    private val gameQuestApplicationCoordinator: GameQuestApplicationCoordinator? = null,
 ) {
     private val commandMutex = Mutex()
 
     suspend fun generate(request: QuestRequest): SessionCommandResult<Quest> {
         val selectedGameContext = if (request.mode == QuestMode.GAME) {
-            when (val selection = gameQuestGenerationCoordinator?.selectFreshRandomCandidate()) {
-                null -> return SessionCommandResult.GenerationFailed(
-                    QuestGenerationResult.Unavailable(
-                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_NOT_CONFIGURED,
-                    ),
-                )
-
-                is GameQuestCandidateResult.Selected -> selection.context
-                is GameQuestCandidateResult.NoCatalog ->
-                    return generationUnavailable(
-                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_UNAVAILABLE,
+            val applicationCoordinator = gameQuestApplicationCoordinator
+            if (applicationCoordinator != null) {
+                when (val preparation = applicationCoordinator.prepare(GameResearchRequest(query = "video game"))) {
+                    is GameQuestApplicationResult.Selected -> preparation.context
+                    GameQuestApplicationResult.NoUsableCatalog ->
+                        return generationUnavailable(
+                            com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_UNAVAILABLE,
+                        )
+                    is GameQuestApplicationResult.CycleExhausted ->
+                        return generationUnavailable(
+                            com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,
+                        )
+                }
+            } else {
+                when (val selection = gameQuestGenerationCoordinator?.selectFreshRandomCandidate()) {
+                    null -> return SessionCommandResult.GenerationFailed(
+                        QuestGenerationResult.Unavailable(
+                            com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_NOT_CONFIGURED,
+                        ),
                     )
-                is GameQuestCandidateResult.StaleCatalog ->
-                    return generationUnavailable(
-                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_NOT_FRESH,
-                    )
-                is GameQuestCandidateResult.CycleExhausted ->
-                    return generationUnavailable(
-                        com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,
-                    )
+                    is GameQuestCandidateResult.Selected -> selection.context
+                    is GameQuestCandidateResult.NoCatalog ->
+                        return generationUnavailable(
+                            com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_UNAVAILABLE,
+                        )
+                    is GameQuestCandidateResult.StaleCatalog ->
+                        return generationUnavailable(
+                            com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CATALOG_NOT_FRESH,
+                        )
+                    is GameQuestCandidateResult.CycleExhausted ->
+                        return generationUnavailable(
+                            com.pinhoquest.core.quest.GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,
+                        )
+                }
             }
         } else {
             null
