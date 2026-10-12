@@ -10,6 +10,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -18,6 +20,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,6 +39,10 @@ import com.pinhoquest.ui.PinhoShapes
 import com.pinhoquest.ui.navigation.PinhoQuestNav
 import com.pinhoquest.ui.onboarding.OnboardingScreen
 import kotlinx.coroutines.launch
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.getWorkInfoByIdFlow
+import java.util.UUID
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +68,17 @@ class MainActivity : ComponentActivity() {
 
             var pendingBackup by remember { mutableStateOf<ByteArray?>(null) }
             var creativeBrainTermsVisible by remember { mutableStateOf(false) }
+            var modelInstallWorkId by remember { mutableStateOf<String?>(null) }
+            var modelInstallStatusVisible by remember { mutableStateOf(false) }
+            val modelWorkInfo by produceState<WorkInfo?>(initialValue = null, modelInstallWorkId) {
+                val rawId = modelInstallWorkId
+                val id = rawId?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+                if (id == null) {
+                    value = null
+                } else {
+                    WorkManager.getInstance(this@MainActivity).getWorkInfoByIdFlow(id).collect { value = it }
+                }
+            }
             val backupLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
             ) { uri: Uri? ->
@@ -178,10 +196,13 @@ class MainActivity : ComponentActivity() {
                                     androidx.compose.material3.TextButton(
                                         onClick = {
                                             creativeBrainTermsVisible = false
-                                            if (graph.modelInstallCoordinator.enqueue() == null) {
+                                            val workId = graph.modelInstallCoordinator.enqueue()
+                                            if (workId == null) {
                                                 viewModel.showMessage("O cérebro criativo ainda não está disponível.")
                                             } else {
-                                                viewModel.showMessage("Download do cérebro criativo iniciado.")
+                                                modelInstallWorkId = workId.toString()
+                                                modelInstallStatusVisible = true
+                                                viewModel.showMessage("Pedido de download enviado. Você pode acompanhar o progresso aqui.")
                                             }
                                         },
                                     ) { Text("Aceitar e baixar") }
@@ -190,6 +211,65 @@ class MainActivity : ComponentActivity() {
                                     androidx.compose.material3.TextButton(
                                         onClick = { creativeBrainTermsVisible = false },
                                     ) { Text("Agora não") }
+                                },
+                            )
+                        }
+
+                        if (modelInstallStatusVisible) {
+                            val workInfo = modelWorkInfo
+                            val workState = workInfo?.state
+                            val stage = workInfo?.progress?.getString(com.pinhoquest.model.ModelDownloadWorker.KEY_STAGE)
+                            val percent = workInfo?.progress?.getInt(com.pinhoquest.model.ModelDownloadWorker.KEY_PERCENT, 0)?.coerceIn(0, 100) ?: 0
+                            val downloaded = workInfo?.progress?.getLong(com.pinhoquest.model.ModelDownloadWorker.KEY_DOWNLOADED, 0L) ?: 0L
+                            val total = workInfo?.progress?.getLong(com.pinhoquest.model.ModelDownloadWorker.KEY_TOTAL, com.pinhoquest.model.Cr74SemanticIsolationModelCatalog.BYTES) ?: com.pinhoquest.model.Cr74SemanticIsolationModelCatalog.BYTES
+                            val terminal = workState == WorkInfo.State.SUCCEEDED || workState == WorkInfo.State.FAILED || workState == WorkInfo.State.CANCELLED
+                            val statusText = when (workState) {
+                                WorkInfo.State.ENQUEUED -> "Aguardando conexão ou início do download…"
+                                WorkInfo.State.BLOCKED -> "Aguardando a conclusão de outra tarefa…"
+                                WorkInfo.State.RUNNING -> when (stage) {
+                                    com.pinhoquest.model.ModelDownloadWorker.STAGE_VERIFYING -> "Verificando integridade do arquivo…"
+                                    com.pinhoquest.model.ModelDownloadWorker.STAGE_INSTALLING -> "Instalando e ativando o modelo…"
+                                    com.pinhoquest.model.ModelDownloadWorker.STAGE_RETRYING -> "Conexão interrompida. Tentando retomar…"
+                                    else -> "Baixando modelo…"
+                                }
+                                WorkInfo.State.SUCCEEDED -> "Modelo baixado, validado e instalado com sucesso."
+                                WorkInfo.State.FAILED -> "Não foi possível baixar, validar ou instalar o modelo. Você pode tentar novamente."
+                                WorkInfo.State.CANCELLED -> "O download foi cancelado."
+                                else -> "Preparando acompanhamento do download…"
+                            }
+                            AlertDialog(
+                                onDismissRequest = { if (terminal) modelInstallStatusVisible = false },
+                                title = { Text("Cérebro criativo") },
+                                text = {
+                                    androidx.compose.foundation.layout.Column {
+                                        Text(statusText)
+                                        if (!terminal) {
+                                            Spacer(modifier = androidx.compose.ui.Modifier.height(12.dp))
+                                            LinearProgressIndicator(progress = { percent / 100f }, modifier = androidx.compose.ui.Modifier.fillMaxWidth())
+                                            Spacer(modifier = androidx.compose.ui.Modifier.height(6.dp))
+                                            Text(
+                                                if (stage == com.pinhoquest.model.ModelDownloadWorker.STAGE_VERIFYING || stage == com.pinhoquest.model.ModelDownloadWorker.STAGE_INSTALLING) {
+                                                    "Arquivo recebido: " + (total / (1024L * 1024L)) + " MB. Conclusão: " + percent + "%"
+                                                } else {
+                                                    (downloaded / (1024L * 1024L)).toString() + " de " + (total / (1024L * 1024L)) + " MB · " + percent + "%"
+                                                },
+                                            )
+                                            Text("Você pode fechar esta janela; o trabalho continua em segundo plano.")
+                                        } else if (workState == WorkInfo.State.FAILED) {
+                                            Text("O modelo não será usado até que a verificação de integridade termine com sucesso.")
+                                        }
+                                    }
+                                },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = { modelInstallStatusVisible = false },
+                                        enabled = terminal,
+                                    ) { Text("Fechar") }
+                                },
+                                dismissButton = {
+                                    if (!terminal) {
+                                        TextButton(onClick = { modelInstallStatusVisible = false }) { Text("Continuar em segundo plano") }
+                                    }
                                 },
                             )
                         }
