@@ -8,7 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TextButton
@@ -29,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pinhoquest.data.settings.ThemePreference
@@ -42,7 +47,6 @@ import com.pinhoquest.ui.onboarding.OnboardingScreen
 import kotlinx.coroutines.launch
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.getWorkInfoByIdFlow
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
@@ -77,7 +81,12 @@ class MainActivity : ComponentActivity() {
                 if (id == null) {
                     value = null
                 } else {
-                    WorkManager.getInstance(this@MainActivity).getWorkInfoByIdFlow(id).collect { value = it }
+                    val liveData = WorkManager.getInstance(this@MainActivity).getWorkInfoByIdLiveData(id)
+                    val observer = Observer<WorkInfo> { info -> value = info }
+                    liveData.observeForever(observer)
+                    awaitDispose {
+                        liveData.removeObserver(observer)
+                    }
                 }
             }
             val backupLauncher = rememberLauncherForActivityResult(
