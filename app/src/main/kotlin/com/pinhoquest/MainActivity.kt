@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     value = null
                 } else {
                     val liveData = WorkManager.getInstance(this@MainActivity).getWorkInfoByIdLiveData(id)
-                    val observer = Observer<WorkInfo> { info -> value = info }
+                    val observer = Observer<WorkInfo?> { info -> value = info }
                     liveData.observeForever(observer)
                     awaitDispose {
                         liveData.removeObserver(observer)
