@@ -63,7 +63,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 14.dp, vertical = 16.dp)
-                .padding(bottom = LocalPinhoBottomNavigationInset.current + 12.dp),
+                .padding(bottom = LocalPinhoBottomNavigationInset.current + 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
@@ -73,7 +73,9 @@ fun ProfileScreen(
                 Text(
                     "Perfil",
                     color = foreground,
-                    fontSize = 34.sp,
+                    fontSize = 30.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
@@ -109,14 +111,15 @@ fun ProfileScreen(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth(0.72f)
-                        .padding(bottom = maxHeight * 0.10f),
+                        .padding(bottom = maxHeight * 0.04f),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = "Jardim de $ownerName",
                         color = PinhoInk,
-                        fontSize = 20.sp,
+                        fontSize = 17.sp,
+                        lineHeight = 20.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -124,8 +127,8 @@ fun ProfileScreen(
                     Text(
                         text = "Pequenas preferências, grandes descobertas.",
                         color = PinhoForest,
-                        fontSize = 13.sp,
-                        lineHeight = 16.sp,
+                        fontSize = 10.sp,
+                        lineHeight = 12.sp,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -180,6 +183,7 @@ fun ProfileScreen(
                     "Descreva de forma livre o que você gosta e te faz feliz e tornaremos parte das suas quests.",
                     color = PinhoInk,
                     fontSize = 14.sp,
+                    lineHeight = 18.sp,
                 )
             }
         }
