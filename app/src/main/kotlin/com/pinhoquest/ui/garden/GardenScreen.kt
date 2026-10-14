@@ -106,18 +106,54 @@ fun GardenScreen(
             ) {
                 PinhoBackButton(onClick = onBack)
                 Spacer(Modifier.width(12.dp))
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
                     val headerColor = if (isGardenEmpty) PinhoInk else Color.White
-                    Text("🌷 Jardim de ${state.ownerName}", color = headerColor, style = MaterialTheme.typography.headlineSmall)
                     Text(
-                        "${state.lifetimeXp} XP · Nível ${state.level} · ${state.collectedCount} / ${state.totalCount} flores",
-                        color = headerColor.copy(alpha = 0.92f),
-                        fontSize = 14.sp,
+                        text = "🌷 Jardim de ${state.ownerName}",
+                        color = headerColor,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontSize = 20.sp,
+                            lineHeight = 24.sp,
+                        ),
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "${state.lifetimeXp} XP",
+                            color = headerColor.copy(alpha = 0.96f),
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                        )
+                        Text(
+                            "Nível ${state.level}",
+                            color = headerColor.copy(alpha = 0.96f),
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                        )
+                        Text(
+                            "${state.collectedCount} / ${state.totalCount} flores",
+                            color = headerColor.copy(alpha = 0.96f),
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
                     Text(
                         "Descubra, conquiste e veja seu jardim florescer.",
-                        color = headerColor.copy(alpha = 0.92f),
-                        fontSize = 12.sp,
+                        color = headerColor.copy(alpha = 0.96f),
+                        fontSize = 11.sp,
+                        lineHeight = 13.sp,
+                        maxLines = 2,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
                 }
             }
