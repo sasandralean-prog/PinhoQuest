@@ -1,8 +1,8 @@
-"""Generate FunctionGemma SFT fixtures from the canonical Kotlin tool contract.
+"""Generate FunctionGemma SFT fixtures from canonical Kotlin contracts.
 
-The Kotlin MicroQuestToolContract remains the semantic authority. This generator
-derives the declaration and required argument list from that source instead of
-re-declaring the tool schema in Python.
+The Kotlin MicroQuestToolContract defines the native function schema, while
+MicroQuestCategorySeedCatalog defines the same approved category seeds used at
+runtime. Python derives both contracts instead of maintaining duplicate values.
 """
 
 from __future__ import annotations

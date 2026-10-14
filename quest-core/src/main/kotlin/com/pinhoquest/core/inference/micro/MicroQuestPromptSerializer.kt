@@ -2,6 +2,7 @@ package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.prompt.PromptResearchHint
+import com.pinhoquest.domain.quest.QuestEnvironment
 
 class MicroQuestPromptSerializer(
     private val budget: InferenceBudget = InferenceBudget.P3,
@@ -20,7 +21,7 @@ class MicroQuestPromptSerializer(
             append("Categoria=")
             append(envelope.category.name)
             append("; Ambiente=")
-            append(envelope.environment.name)
+            append(formatEnvironment(envelope.environment))
             append("; Dificuldade=")
             append(envelope.difficulty?.name ?: "EASY")
             append("; Tempo=")
@@ -78,7 +79,7 @@ class MicroQuestPromptSerializer(
                 append(it)
             }
             hint.focus?.let {
-                append(", focus=")
+                append(", foco=")
                 append(it)
             }
             append(")")
@@ -98,6 +99,12 @@ class MicroQuestPromptSerializer(
             append(")")
         }
     }
+
+    private fun formatEnvironment(environment: QuestEnvironment): String =
+        when (environment) {
+            QuestEnvironment.ANYWHERE -> "ANY"
+            else -> environment.name
+        }
 
     private fun formatTime(min: Int?, max: Int?): String {
         val effectiveMin = min ?: 15

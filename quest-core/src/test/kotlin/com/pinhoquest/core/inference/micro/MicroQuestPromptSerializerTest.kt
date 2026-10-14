@@ -46,7 +46,10 @@ class MicroQuestPromptSerializerTest {
     fun defaultTimeMatchesDurationShownForAnUnfilteredQuest() {
         val request = MicroQuestCompositionRequest(
             prompt = factsAssembler.assemble(
-                plan = plan(filters = QuestSessionFilters()),
+                plan = plan(
+                    filters = QuestSessionFilters(),
+                    environment = QuestEnvironment.ANYWHERE,
+                ),
                 tags = emptyList(),
                 examples = emptyList(),
             ),
@@ -55,6 +58,8 @@ class MicroQuestPromptSerializerTest {
         val prompt = MicroQuestPromptSerializer().serialize(request)
 
         assertTrue(prompt.contains("Tempo=15-30"))
+        assertTrue(prompt.contains("Ambiente=ANY"))
+        assertFalse(prompt.contains("Ambiente=ANYWHERE"))
         assertFalse(prompt.contains("Tempo=ANY"))
         assertFalse(prompt.contains("Exemplos aprovados"))
     }
@@ -95,11 +100,12 @@ class MicroQuestPromptSerializerTest {
     private fun plan(
         category: QuestCategory = QuestCategory.EXPLORATION,
         filters: QuestSessionFilters = QuestSessionFilters(minMinutes = 10, maxMinutes = 20),
+        environment: QuestEnvironment = QuestEnvironment.OUTDOOR,
     ) = QuestGenerationPlan(
         mode = QuestMode.NORMAL,
         filters = filters,
         selectedCategory = category,
-        selectedEnvironment = QuestEnvironment.OUTDOOR,
+        selectedEnvironment = environment,
         affinityWeight = 1.0,
         gameCandidate = null,
     )

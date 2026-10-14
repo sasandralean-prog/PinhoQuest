@@ -20,6 +20,11 @@ jobs:
           # at the module-configured Java 17 target; this is the CI host JDK.
           java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify FunctionGemma training fixtures
+        run: python -m unittest discover -s tools/p3_training -p 'test_*.py'
       - name: Verify foundation
         run: |
           chmod +x ./gradlew

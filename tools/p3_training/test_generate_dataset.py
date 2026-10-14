@@ -49,15 +49,20 @@ class CanonicalTrainingContractTest(unittest.TestCase):
             set(seeds),
         )
         for category, seed in seeds.items():
-            row = next(
+            pt_row = next(
                 row for row in rows
                 if row["user"].startswith(f"Categoria={category};")
                 and "Idioma=pt-BR." in row["user"]
             )
-            self.assertIn(seed["facts_pt_br"], row["user"])
-            self.assertIn(seed["objective_pt_br"], row["user"])
-            self.assertIn(seed["facts_en_us"], row["prompt"])
-            self.assertIn(seed["objective_en_us"], row["prompt"])
+            en_row = next(
+                row for row in rows
+                if row["user"].startswith(f"Categoria={category};")
+                and "Idioma=en-US." in row["user"]
+            )
+            self.assertIn(seed["facts_pt_br"], pt_row["user"])
+            self.assertIn(seed["objective_pt_br"], pt_row["user"])
+            self.assertIn(seed["facts_en_us"], en_row["completion"])
+            self.assertIn(seed["objective_en_us"], en_row["completion"])
 
     def test_duplicate_declaration_is_rejected(self):
         row = build_rows(self.contract)[0]
