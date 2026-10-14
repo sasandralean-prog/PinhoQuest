@@ -97,6 +97,7 @@ fun PinhoGraphicButton(
     label: String? = null,
     labelColor: Color = Color.White,
     labelFontSize: TextUnit = 16.sp,
+    labelMaxLines: Int = 2,
     labelAlignment: Alignment = Alignment.Center,
     labelStartFraction: Float = 0f,
     labelEndFraction: Float = 0f,
@@ -155,7 +156,9 @@ fun PinhoGraphicButton(
                     color = labelColor,
                     fontSize = labelFontSize,
                     textAlign = TextAlign.Center,
-                    lineHeight = labelFontSize * 1.05f,
+                    lineHeight = labelFontSize * 1.12f,
+                    maxLines = labelMaxLines.coerceAtLeast(1),
+                    softWrap = true,
                     overflow = TextOverflow.Ellipsis,
                     modifier = labelModifier,
                 )
@@ -464,6 +467,9 @@ fun PinhoTagGraphicButton(
             fontSize = 11.sp,
             textAlign = TextAlign.Center,
             lineHeight = 12.sp,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
