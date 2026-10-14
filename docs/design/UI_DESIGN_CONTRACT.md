@@ -185,3 +185,17 @@ Before implementation:
 - do not use a composition reference as a static interactive screen;
 - validate real touch semantics, accessibility, responsive sizing, theme and font scale;
 - report a gate as validated only with the evidence required by the P6 protocol.
+
+
+## 15. P6-E — texto e acessibilidade após revisão de screenshots (2026-10-14)
+
+Os screenshots de runtime revelaram sobreposição de textos que estavam posicionados por offsets percentuais independentes, rótulos sem limite de linhas, quebra ruim do cabeçalho do Jardim e cores sem contraste suficiente no tema noturno das Configurações. As correções iniciais estão registradas em `docs/evidence/p6-e-accessibility-audit-2026-10-14.md`.
+
+Regras de aceite específicas:
+- Copiar e métricas sobre cards devem compor um único fluxo ou regiões explicitamente delimitadas; textos irmãos não podem competir por coordenadas verticais independentes quando podem quebrar linhas.
+- Rótulos sobre botões ilustrados têm limite explícito de linhas e elipse, e devem reservar a zona do ícone já embutido na arte.
+- Cabeçalhos devem usar a largura restante; títulos e métricas precisam de quebra/limite deliberado e o estado semântico deve permanecer no texto acessível.
+- O conteúdo rolável reserva o espaço da barra global e continua acessível até o fim.
+- Tema noturno nunca depende de verde-escuro sobre fundo escuro; verificar contraste de textos sobre arte, pergaminho e botões.
+- Testar escala 1.0 e 1.3, ambos os temas e viewport compacta. Uma compilação de AndroidTest não substitui execução nem evidência em aparelho.
+- MV Boli permanece bloqueada para incorporação até haver licença explícita para apps. Não distribuir a fonte apenas porque o ZIP está presente na pasta de design.
