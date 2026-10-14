@@ -180,6 +180,8 @@ private fun GardenSummaryCard(
             .fillMaxWidth(0.90f)
             .aspectRatio(612f / 292f),
     ) {
+        val cardWidth = maxWidth
+        val cardHeight = maxHeight
         Image(
             painter = painterResource(cardResource),
             contentDescription = null,
@@ -193,14 +195,14 @@ private fun GardenSummaryCard(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = maxWidth * 0.035f, y = maxHeight * 0.105f)
+                .offset(x = cardWidth * 0.035f, y = cardHeight * 0.105f)
                 .fillMaxWidth(0.53f),
             verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = maxWidth * 0.10f),
+                    .padding(start = cardWidth * 0.10f),
                 horizontalArrangement = Arrangement.spacedBy(3.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
