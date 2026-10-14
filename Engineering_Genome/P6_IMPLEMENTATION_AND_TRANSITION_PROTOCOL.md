@@ -2,8 +2,9 @@
 
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
-**Revisão do contrato:** 2026-10-10  
-**HEAD de código revisado antes desta atualização documental:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64  
+**Revisão do contrato:** 2026-10-14 — auditoria visual e de acessibilidade P6-E  
+**SHA histórico de referência do snapshot de 10/10:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64 (superado por checkpoints posteriores)  
+**Último checkpoint de código da auditoria:** GardenScreen/UI — 3963f8ca2caf68535b5a290812d1084522a28575; CI do checkpoint final ainda precisa ser confirmado.  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
 > Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
@@ -271,7 +272,7 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 - **E-03 — Instalação segura:** ligar ModelPackageCatalog e ModelInstallCoordinator ao fluxo real de Settings/Profile, usando WorkManager existente onde apropriado. Validar conectividade, tamanho e hash; baixar para .part; rejeitar truncado; promover atomicamente após validação; preservar modelo anterior até novo modelo válido; mostrar progresso, cancelamento/retry e erros compreensíveis. Não passar dados privados do jardim para um servidor de inferência: geração local é local.
 - **E-04 — UX honesta sem modelo:** oferecer fallback procedural sem quebrar o loop principal. Mostrar que o cérebro criativo não está instalado e permitir instalação explícita com tamanho/licença/fonte antes de iniciar o download. Nunca comunicar “LLM ativo” sem modelo instalado e runtime carregado. Quando a fonte oficial do artefato estiver indefinida, manter o catálogo desconfigurado e registrar esse gate como BLOCKED; não inventar URL ou modelo.
 - **E-05 — Mapeamento visual de categorias (P2):** comparar os nove assets com os IDs de domínio de SystemTagCatalog e documentar associação aprovada. Não mapear appreciation→affection, learn→learning, science→technology nem animal→animals apenas por semelhança lexical. Se não houver arte semanticamente adequada, manter a superfície neutra intencional, com estilo consistente e sem parecer um asset quebrado.
-- **E-06 — MS Boli (P2):** validar procedência, arquivo e licença antes de adicionar a fonte em res/font. Usar apenas nos papéis de display de quests aprovados. Texto funcional, labels, métricas e acessibilidade permanecem legíveis; uma fonte manuscrita não pode substituir layout responsivo.
+- **E-06 — MS Boli (P2): BLOCKED:** o ZIP atual contém `mv-boli.ttf` sem licença/autorização para embutir ou redistribuir a fonte em um app. A documentação oficial da Microsoft informa que as fontes Windows não podem ser redistribuídas e que a permissão de embedding em documentos não autoriza embedding em jogos/apps: https://learn.microsoft.com/en-us/typography/fonts/font-faq. Não adicionar a `res/font` nem ao APK até haver direitos de incorporação/distribuição adequados, ou até o proprietário escolher uma alternativa de licença compatível. Se aprovado legalmente, usar apenas em papéis de display; labels, métricas e controles devem continuar legíveis.
 - **E-07 — Escala de fonte e contraste (P2):** testar densidade e escala do Compose em múltiplos estados; corrigir componentes fixos. Validar contraste sobre arte e pergaminho; os estados não podem depender apenas da cor.
 
 **Arquivos principais:** ModelInstallCoordinator.kt, ModelDownloadWorker.kt, ModelDownloadTransport.kt, UnconfiguredModelPackageCatalog, PinhoQuestAppGraph.kt, SettingsScreen.kt, PinhoQuestNav.kt, PinhoQuestVisuals.kt, catálogo de domínio, MainActivity.kt, recursos de fonte e testes respectivos.
@@ -425,7 +426,7 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
 | P6-C — layouts responsivos | **EM ANDAMENTO — CI ATUAL PENDENTE** | Correção do import `dp` publicada no SHA `42426c2f6667c86c3f7c70f99b50ca20543d4f64`; consultar [CI #38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
 | P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido, seleção variada, composições procedurais, fallback validado e diagnóstico redigido implementados no código; CI do HEAD mais recente ainda não concluiu e a validação integrada em aparelho permanece aberta |
-| P6-E — modelo/tipografia/categorias | **MODELO PUBLICADO E INTEGRADO; GATE COMPLETO PENDENTE** | CR-7.4 está em GitHub Releases com tamanho/hash fixados e catálogo/instalação explícita; inferência fresca no HEAD atual, mapeamento semântico dos nove assets, MS Boli e escala/contraste ainda exigem validação |
+| P6-E — modelo/tipografia/categorias | **AUDITORIA INICIADA; GATE ABERTO** | CR-7.4 tem catálogo/release versionados; ajustes iniciais de layout/contraste foram publicados no checkpoint de 14/10; CI e validação em aparelho permanecem pendentes; MV Boli está bloqueada por licença de app |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
 Este quadro distingue aceitação visual provisória de P6-B, implementação ainda em progresso de P6-C e gate final de release; documentação não substitui evidência de runtime.
@@ -483,3 +484,44 @@ Ao fechar P6-Final, registrar o SHA do APK/release, checks, matriz visual, estad
 - [P6_UI_UX_INTERACTION_CONTRACT.md](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/design/P6_UI_UX_INTERACTION_CONTRACT.md)
 - [P6-A baseline visual e inventário de evidências](https://github.com/sasandralean-prog/PinhoQuest/blob/feature/p6-total-ui-refactor/docs/evidence/p6-a-2026-10-10-baseline.md)
 - [PINHO_QUEST_VISUAL_IDENTITY_GENOME.md](https://github.com/sasandralean-prog/PinhoQuest/blob/main/docs/identity/PINHO_QUEST_VISUAL_IDENTITY_GENOME.md)
+
+
+## 14. P6-E visual accessibility audit checkpoint — 2026-10-14
+
+**Evidence:** four screenshots supplied by Rafa during the conversation on 14/10/2026; APK SHA was not included.  
+**Audit report:** `docs/evidence/p6-e-accessibility-audit-2026-10-14.md`.  
+**Code checkpoint:** initial shared-button, Home, Settings, Profile, Garden and large-font-test edits were published in this working branch. The latest relevant UI commit at the time of this record is `3963f8ca2caf68535b5a290812d1084522a28575`; documentation commits followed. **Do not mark CI PASS until the workflow result for the exact final code SHA is inspected.**
+
+### Confirmed code causes from the screenshots
+
+- Home summary text used independent Y offsets at 16%, 39% and 66% of the card height. These offsets do not respond to the wrapped height of the owner name.
+- The shared graphical button did not bound its label line count, so dynamic font scaling could let labels grow into icon/art zones.
+- The Garden header had a non-weighted text column and a single long metrics phrase; this caused avoidable wrapping in a narrow viewport.
+- Profile plaque copy occupied excessive height and was placed too high by a proportional bottom padding; the end of the profile copy also needs more reserved scroll space above the navbar.
+- Settings section headings used fixed dark-green color in the night theme; model actions used dark-brown copy over a green button.
+- The existing global font-scale multiplier is wired through `LocalDensity`, but responsive layout still has to be validated at the resulting dimensions.
+
+### Published corrections in this checkpoint
+
+- `PinhoGraphicButton` accepts `labelMaxLines`, defaults to two lines and adds bounded wrapping/ellipsis; preference labels are one line.
+- `GardenSummaryCard` uses a single column for metrics/title/tagline rather than independent vertical offsets; the RANDOM/GAME action labels have safer geometry.
+- Garden header has a weighted content column and separate XP, level and flower-count text nodes, preserving the existing semantic strings.
+- Profile title/plaque copy was repositioned and line spacing/bottom reserved area adjusted.
+- Settings uses theme-aware text colors; green model actions use cream labels.
+- `LargeFontLayoutTest` covers the GAME action name and accessibility names of core Settings controls at a larger font scale.
+
+### Remaining acceptance conditions
+
+1. Obtain CI output linked to the exact code SHA; verify unit tests, lint, assemble and AndroidTest compilation.
+2. Run instrumented tests on a device/emulator rather than relying only on AndroidTest compilation.
+3. Capture Home, Garden, Profile and Settings on light/dark themes at text scale 1.0 and 1.3, including long owner name, high counts, and end-of-scroll state. Record APK SHA and viewport.
+4. Revisit the full P6-C matrix: keyboard/IME in onboarding, tag selection on compact viewport, collection filters/grid, long quest copy, safe areas and navbar hit targets.
+5. Keep P6-E open until the evidence above exists. No screenshot-based root-cause assumption is marked as a device-wide guarantee.
+
+### Font distribution decision
+
+The uploaded archive `docs/design/mv-boli-maisfontes.866a.zip` contains only `mv-boli.ttf`; no accompanying license or app-embedding authorization was present. The official typeface page describes MV Boli as copyrighted by Microsoft and available only with Microsoft products/services where applicable: https://learn.microsoft.com/en-us/typography/font-list/mv-boli. The official Font FAQ states that Windows fonts cannot be redistributed and that document embedding rights do not authorize inclusion in an app/game: https://learn.microsoft.com/en-us/typography/fonts/font-faq.
+
+**Decision: do not package MV Boli into the APK until app redistribution/embedding rights are confirmed.** The ZIP is not part of the 47 canonical PNG mappings and Gradle must not include it by default. An appropriately licensed alternative is permitted after Rafa approves the visual choice.
+
+**Gate status:** P6-C OPEN; P6-E IN PROGRESS, MV Boli BLOCKED pending rights; P6-Final BLOCKED.
