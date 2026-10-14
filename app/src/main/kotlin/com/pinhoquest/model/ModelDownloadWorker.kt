@@ -14,9 +14,12 @@ import java.io.IOException
 class ModelDownloadWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val store: ModelStorePort = appContext.modelStore(),
-    private val transport: ModelDownloadTransport = ModelDownloadTransport(),
 ) : CoroutineWorker(appContext, params) {
+    // WorkManager's default WorkerFactory reflectively requires the exact
+    // (Context, WorkerParameters) constructor. Keep dependencies internal to
+    // the worker so Kotlin default parameters cannot hide that constructor.
+    private val store: ModelStorePort = appContext.modelStore()
+    private val transport: ModelDownloadTransport = ModelDownloadTransport()
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val spec = inputSpec() ?: return@withContext Result.failure()
