@@ -129,19 +129,19 @@ fun GardenScreen(
                         Text(
                             "${state.lifetimeXp} XP",
                             color = headerColor.copy(alpha = 0.96f),
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             maxLines = 1,
                         )
                         Text(
                             "Nível ${state.level}",
                             color = headerColor.copy(alpha = 0.96f),
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             maxLines = 1,
                         )
                         Text(
                             "${state.collectedCount} / ${state.totalCount} flores",
                             color = headerColor.copy(alpha = 0.96f),
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             maxLines = 1,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
@@ -150,8 +150,8 @@ fun GardenScreen(
                     Text(
                         "Descubra, conquiste e veja seu jardim florescer.",
                         color = headerColor.copy(alpha = 0.96f),
-                        fontSize = 11.sp,
-                        lineHeight = 13.sp,
+                        fontSize = 12.sp,
+                        lineHeight = 14.sp,
                         maxLines = 2,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
