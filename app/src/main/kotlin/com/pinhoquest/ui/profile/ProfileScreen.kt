@@ -127,8 +127,8 @@ fun ProfileScreen(
                     Text(
                         text = "Pequenas preferências, grandes descobertas.",
                         color = PinhoForest,
-                        fontSize = 10.sp,
-                        lineHeight = 12.sp,
+                        fontSize = 12.sp,
+                        lineHeight = 14.sp,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
