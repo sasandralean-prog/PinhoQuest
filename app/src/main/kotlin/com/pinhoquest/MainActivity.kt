@@ -81,16 +81,17 @@ class MainActivity : ComponentActivity() {
             DisposableEffect(modelInstallWorkId) {
                 val id = modelInstallWorkId
                     ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-                if (id == null) {
-                    onDispose { }
-                } else {
-                    val liveData = WorkManager.getInstance(this@MainActivity)
-                        .getWorkInfoByIdLiveData(id)
-                    val observer = Observer<WorkInfo?> { info ->
-                        modelWorkInfo = info
-                    }
+                val liveData = id?.let {
+                    WorkManager.getInstance(this@MainActivity).getWorkInfoByIdLiveData(it)
+                }
+                val observer = liveData?.let {
+                    Observer<WorkInfo?> { info -> modelWorkInfo = info }
+                }
+                if (liveData != null && observer != null) {
                     liveData.observeForever(observer)
-                    onDispose {
+                }
+                onDispose {
+                    if (liveData != null && observer != null) {
                         liveData.removeObserver(observer)
                     }
                 }
