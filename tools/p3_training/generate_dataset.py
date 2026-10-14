@@ -19,6 +19,12 @@ DEFAULT_CONTRACT = (
     / "quest-core/src/main/kotlin/com/pinhoquest/core/inference/micro/MicroQuestToolContract.kt"
 )
 
+DEFAULT_SEED_CATALOG = (
+    Path(__file__).resolve().parents[2]
+    / "quest-core/src/main/kotlin/com/pinhoquest/core/inference/micro/MicroQuestCategorySeedCatalog.kt"
+)
+TRAINING_CATEGORIES = ("CODING", "GAMING", "EXPLORATION", "LEARNING", "RANDOM", "CREATIVE")
+
 
 class ContractError(ValueError):
     pass
@@ -103,6 +109,28 @@ def load_contract(path: Path = DEFAULT_CONTRACT) -> dict[str, object]:
     }
 
 
+def load_category_seeds(path: Path = DEFAULT_SEED_CATALOG) -> dict[str, dict[str, str]]:
+    source = path.read_text(encoding="utf-8")
+    constants = dict(re.findall(r'const val (\w+) = "([^"]*)"', source))
+    fields = ("facts_pt_br", "objective_pt_br", "facts_en_us", "objective_en_us")
+    suffixes = {
+        "facts_pt_br": "FACTS_PT_BR",
+        "objective_pt_br": "OBJECTIVE_PT_BR",
+        "facts_en_us": "FACTS_EN_US",
+        "objective_en_us": "OBJECTIVE_EN_US",
+    }
+    seeds: dict[str, dict[str, str]] = {}
+    for category in TRAINING_CATEGORIES:
+        category_seed: dict[str, str] = {}
+        for field in fields:
+            constant = f"{category}_{suffixes[field]}"
+            if constant not in constants:
+                raise ContractError(f"Missing Kotlin category seed constant: {constant}")
+            category_seed[field] = constants[constant]
+        seeds[category] = category_seed
+    return seeds
+
+
 def _escape(value: str) -> str:
     return f"<escape>{value}<escape>"
 
@@ -168,22 +196,21 @@ def validate_prompt(prompt: str, contract: dict[str, object]) -> None:
         raise ContractError("prompt must contain the canonical tool declaration")
 
 
-def build_rows(contract: dict[str, object]) -> list[dict[str, str]]:
+def build_rows(
+    contract: dict[str, object],
+    category_seeds: dict[str, dict[str, str]] | None = None,
+) -> list[dict[str, str]]:
+    if category_seeds is None:
+        category_seeds = load_category_seeds()
     fn = str(contract["name"])
     developer = build_developer_turn(contract)
     categories = [
-        ("CODING", "Escolha um detalhe tecnico pequeno e tente entende-lo de um jeito diferente.",
-         "Faca um experimento curto e anote o que descobriu."),
-        ("GAMING", "Experimente por alguns minutos algo que voce normalmente ignoraria nesse jogo.",
-         "Teste uma mecanica, arma, classe ou estrategia diferente."),
-        ("EXPLORATION", "Procure tres coisas ao seu redor que normalmente passariam despercebidas.",
-         "Encontre e registre tres detalhes interessantes."),
-        ("LEARNING", "Escolha uma pergunta pequena que sempre ficou sem resposta.",
-         "Descubra uma resposta e explique com suas proprias palavras."),
-        ("RANDOM", "Faca algo simples que quebre um pouco a rotina dos proximos minutos.",
-         "Escolha uma acao diferente e leve-a ate o fim."),
-        ("CREATIVE", "Pegue tres ideias ou objetos proximos e invente uma conexao entre eles.",
-         "Crie alguma coisa pequena usando essa conexao."),
+        (
+            category,
+            category_seeds[category]["facts_pt_br"],
+            category_seeds[category]["objective_pt_br"],
+        )
+        for category in TRAINING_CATEGORIES
     ]
     envs = ["HOME", "DESKTOP", "OUTDOOR", "PUBLIC", "ANY"]
     diffs = ["EASY", "MEDIUM", "HARD"]
@@ -204,32 +231,17 @@ def build_rows(contract: dict[str, object]) -> list[dict[str, str]]:
         "RANDOM": "Controlled Chaos",
         "CREATIVE": "Three Become One",
     }
-    descriptions_en = {
-        "CODING": "Pick one small technical detail and try to understand it differently.",
-        "GAMING": "Try for a few minutes something you would normally ignore in this game.",
-        "EXPLORATION": "Look for three things around you that normally go unnoticed.",
-        "LEARNING": "Choose one small question that has always gone unanswered.",
-        "RANDOM": "Do something simple that breaks your routine for the next few minutes.",
-        "CREATIVE": "Take three nearby ideas or objects and invent a connection between them.",
-    }
-    objectives_en = {
-        "CODING": "Do a short experiment and note what you discovered.",
-        "GAMING": "Test a different mechanic, weapon, class, or strategy.",
-        "EXPLORATION": "Find and record three interesting details.",
-        "LEARNING": "Find an answer and explain it in your own words.",
-        "RANDOM": "Choose a different action and carry it through.",
-        "CREATIVE": "Create something small using that connection.",
-    }
     rows: list[dict[str, str]] = []
 
     for cat, desc, obj in categories:
+        seed = category_seeds[cat]
         for env in envs:
             for diff in diffs:
                 for lang in langs:
                     time = "10-20" if diff == "EASY" else "15-30" if diff == "MEDIUM" else "20-40"
                     title = titles_en[cat] if lang == "en-US" else titles_pt[cat]
-                    output_description = descriptions_en[cat] if lang == "en-US" else desc
-                    output_objective = objectives_en[cat] if lang == "en-US" else obj
+                    output_description = seed["facts_en_us"] if lang == "en-US" else desc
+                    output_objective = seed["objective_en_us"] if lang == "en-US" else obj
                     user = (
                         f"Categoria={cat}; Ambiente={env}; Dificuldade={diff}; "
                         f"Tempo={time}; Idioma={lang}. Fatos aprovados: {desc} "

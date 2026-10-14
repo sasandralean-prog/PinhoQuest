@@ -24,6 +24,7 @@ import com.pinhoquest.data.model.AndroidModelStore
 import com.pinhoquest.domain.model.ModelManifest
 import java.io.File
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -101,6 +102,16 @@ class CR9ProductionModelE2ETest {
             assertTrue(rendered.draft.title.isNotBlank())
             assertTrue(rendered.draft.description.isNotBlank())
             assertTrue(rendered.draft.objectives.isNotEmpty())
+            assertFalse(
+                "Model output must not expose internal safety instructions",
+                rendered.draft.description.contains("Não invente fatos", ignoreCase = true),
+            )
+            assertFalse(
+                "Model output must not expose output-contract placeholders",
+                rendered.draft.objectives.any {
+                    it.text.contains("textos de 1-120 chars", ignoreCase = true)
+                },
+            )
         }
     }
 }

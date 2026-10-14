@@ -71,7 +71,7 @@ class MicroQuestToolCallDecoder {
             .replace(NON_ALPHANUMERIC, " ")
             .trim()
 
-        return INTERNAL_PROMPT_PHRASES.any(normalized::contains) ||
+        return INTERNAL_PROMPT_PHRASES.any { phrase -> normalized.contains(phrase) } ||
             CONTRACT_RANGE_PATTERN.containsMatchIn(normalized) ||
             OBJECTIVE_COUNT_PATTERN.containsMatchIn(normalized)
     }

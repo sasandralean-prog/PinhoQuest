@@ -2,14 +2,13 @@ package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.prompt.PromptResearchHint
-import com.pinhoquest.domain.quest.QuestCategory
 
 class MicroQuestPromptSerializer(
     private val budget: InferenceBudget = InferenceBudget.P3,
 ) {
     fun serialize(request: MicroQuestCompositionRequest): String {
         val envelope = request.prompt.envelope
-        val seed = categorySeed(envelope.category, request.style.language)
+        val seed = MicroQuestCategorySeedCatalog.forCategory(envelope.category, request.style.language)
         val prompt = buildString {
             append("Crie uma micro-quest concreta, útil e natural a partir dos dados determinísticos abaixo. ")
             append("Use os fatos e o objetivo aprovados como ponto de partida. ")
@@ -66,83 +65,6 @@ class MicroQuestPromptSerializer(
         return prompt
     }
 
-    private fun categorySeed(category: QuestCategory, language: String): CategorySeed {
-        val english = language.equals("en-US", ignoreCase = true)
-        return when (category) {
-            QuestCategory.CODING -> if (english) {
-                CategorySeed(
-                    "Pick one small technical detail and try to understand it differently.",
-                    "Do a short experiment and note what you discovered.",
-                )
-            } else {
-                CategorySeed(
-                    "Escolha um detalhe tecnico pequeno e tente entende-lo de um jeito diferente.",
-                    "Faca um experimento curto e anote o que descobriu.",
-                )
-            }
-
-            QuestCategory.GAMING -> if (english) {
-                CategorySeed(
-                    "Try for a few minutes something you would normally ignore in this game.",
-                    "Test a different mechanic, weapon, class, or strategy.",
-                )
-            } else {
-                CategorySeed(
-                    "Experimente por alguns minutos algo que voce normalmente ignoraria nesse jogo.",
-                    "Teste uma mecanica, arma, classe ou estrategia diferente.",
-                )
-            }
-
-            QuestCategory.EXPLORATION -> if (english) {
-                CategorySeed(
-                    "Look for three things around you that normally go unnoticed.",
-                    "Find and record three interesting details.",
-                )
-            } else {
-                CategorySeed(
-                    "Procure tres coisas ao seu redor que normalmente passariam despercebidas.",
-                    "Encontre e registre tres detalhes interessantes.",
-                )
-            }
-
-            QuestCategory.LEARNING -> if (english) {
-                CategorySeed(
-                    "Choose one small question that has always gone unanswered.",
-                    "Find an answer and explain it in your own words.",
-                )
-            } else {
-                CategorySeed(
-                    "Escolha uma pergunta pequena que sempre ficou sem resposta.",
-                    "Descubra uma resposta e explique com suas proprias palavras.",
-                )
-            }
-
-            QuestCategory.RANDOM -> if (english) {
-                CategorySeed(
-                    "Do something simple that breaks your routine for the next few minutes.",
-                    "Choose a different action and carry it through.",
-                )
-            } else {
-                CategorySeed(
-                    "Faca algo simples que quebre um pouco a rotina dos proximos minutos.",
-                    "Escolha uma acao diferente e leve-a ate o fim.",
-                )
-            }
-
-            QuestCategory.CREATIVE -> if (english) {
-                CategorySeed(
-                    "Take three nearby ideas or objects and invent a connection between them.",
-                    "Create something small using that connection.",
-                )
-            } else {
-                CategorySeed(
-                    "Pegue tres ideias ou objetos proximos e invente uma conexao entre eles.",
-                    "Crie alguma coisa pequena usando essa conexao.",
-                )
-            }
-        }
-    }
-
     private fun serializeHint(hint: PromptResearchHint): String = when (hint) {
         is PromptResearchHint.Game -> buildString {
             append("GAME(name=")
@@ -183,8 +105,4 @@ class MicroQuestPromptSerializer(
         return "$effectiveMin-$effectiveMax"
     }
 
-    private data class CategorySeed(
-        val facts: String,
-        val objective: String,
-    )
 }
