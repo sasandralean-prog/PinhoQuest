@@ -127,9 +127,10 @@ fun QuestScreen(
                         aspectRatio = 165f / 90f,
                         label = "Quest aleatória",
                         labelColor = Color(0xFF4A2114),
-                        labelFontSize = 15.sp,
-                        labelStartFraction = 0.02f,
-                        labelEndFraction = 0.25f,
+                        labelFontSize = 14.sp,
+                        labelMaxLines = 2,
+                        labelStartFraction = 0.03f,
+                        labelEndFraction = 0.23f,
                     )
                     PinhoGraphicButton(
                         resource = R.drawable.btn_quest_game,
@@ -140,8 +141,9 @@ fun QuestScreen(
                         aspectRatio = 174f / 86f,
                         label = "Quest de Jogo",
                         labelColor = Color(0xFF4A2114),
-                        labelFontSize = 15.sp,
-                        labelStartFraction = 0.31f,
+                        labelFontSize = 14.sp,
+                        labelMaxLines = 2,
+                        labelStartFraction = 0.36f,
                     )
                 }
 
@@ -185,60 +187,65 @@ private fun GardenSummaryCard(
             modifier = Modifier.fillMaxSize(),
         )
 
-        // These two figures sit beside the flower/star already drawn into the card.
-        // Keep their text inside the cream left area and do not redraw the decorative icons.
-        Text(
-            text = "$flowerCount flores",
-            color = PinhoInk,
-            fontSize = 10.sp,
-            lineHeight = 11.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        // Keep all dynamic copy in one vertical flow. Independent percentage offsets
+        // let the owner name and tagline collide when the user's font scale increases.
+        // Decorative flower/star symbols remain part of the canonical artwork.
+        Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = maxWidth * 0.145f, y = maxHeight * 0.16f)
-                .fillMaxWidth(0.23f),
-        )
-        Text(
-            text = "$lifetimeXp XP",
-            color = PinhoInk,
-            fontSize = 9.sp,
-            lineHeight = 10.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = maxWidth * 0.405f, y = maxHeight * 0.16f)
-                .fillMaxWidth(0.145f),
-        )
-        Text(
-            text = "Jardim de $ownerName",
-            color = PinhoInk,
-            fontSize = 16.sp,
-            lineHeight = 18.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = maxWidth * 0.035f, y = maxHeight * 0.39f)
-                .fillMaxWidth(0.48f),
-        )
-        Text(
-            text = if (dark) {
-                "Pequenas descobertas sob as estrelas."
-            } else {
-                "Pequenas descobertas, um jardim crescendo."
-            },
-            color = PinhoInk,
-            fontSize = 10.sp,
-            lineHeight = 12.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = maxWidth * 0.035f, y = maxHeight * 0.66f)
-                .fillMaxWidth(0.48f),
-        )
+                .offset(x = maxWidth * 0.035f, y = maxHeight * 0.105f)
+                .fillMaxWidth(0.53f),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = maxWidth * 0.10f),
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "$flowerCount flores",
+                    color = PinhoInk,
+                    fontSize = 9.sp,
+                    lineHeight = 10.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1.05f),
+                )
+                Text(
+                    text = "$lifetimeXp XP",
+                    color = PinhoInk,
+                    fontSize = 9.sp,
+                    lineHeight = 10.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(0.95f),
+                )
+            }
+            Text(
+                text = "Jardim de $ownerName",
+                color = PinhoInk,
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text(
+                text = if (dark) {
+                    "Pequenas descobertas sob as estrelas."
+                } else {
+                    "Pequenas descobertas, um jardim crescendo."
+                },
+                color = PinhoInk,
+                fontSize = 9.sp,
+                lineHeight = 10.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
