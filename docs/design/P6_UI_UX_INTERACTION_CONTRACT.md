@@ -74,6 +74,8 @@ Configurações e seleção de temas são fluxos internos; não criam abas globa
 - Texto mutável, localizável, funcional ou sensível à escala pertence ao Compose.
 - O PNG pode conter lettering apenas quando faz parte decorativa intencional. Esse lettering não substitui label acessível nem dado variável.
 - Contraste, escala de fonte, quebra de linha, rolagem e alvo de toque precisam funcionar em tema claro/escuro e escala ampliada.
+- Texto sobre arte deve usar contraste adequado para o tema atual ou uma superfície/sombra controlada; não usar verde escuro sobre fundos noturnos escuros.
+- Rótulos sobre botões ilustrados precisam de limites de linha explícitos e área de texto separada dos símbolos incorporados na arte.
 - Seleção e estado não dependem somente da cor.
 - A arte não pode interceptar interação nem substituir um campo editável.
 - O valor persistido é autoridade do store/domínio; a UI só representa esse valor.
@@ -97,3 +99,31 @@ Configurações e seleção de temas são fluxos internos; não criam abas globa
 - `P6-Final`: regressão de release ligada ao SHA testado.
 
 **Estado atual:** P6-B aceito como concluído nesta rodada com base na CI verde #38081485398 e na avaliação provisória do proprietário; P6-C permanece em andamento enquanto a nova CI e a validação de runtime em aparelho não forem concluídas. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
+
+
+## 11. Evidência visual P6-E — revisão de 14/10/2026
+
+**Status:** quatro screenshots de runtime fornecidos por Rafa apontaram problemas de texto/contraste. As imagens não vieram associadas ao SHA do APK; tratá-las como observação de sintomas, não como prova de que todos os aparelhos/escala reproduzem exatamente o mesmo resultado.
+
+Achados:
+- Home: métricas, nome do jardim e tagline eram posicionados por offsets verticais independentes; rótulos de Quest Aleatória/Quest de Jogo podiam aproximar-se de ícones embutidos.
+- Jardim: o cabeçalho não reservava a largura restante e uma frase de progresso longa podia deixar “flores” isolado.
+- Perfil: o nome e a descrição da placa ocupavam altura excessiva e subiam para a zona decorativa das folhas; a descrição longa precisa continuar alcançável acima da barra global.
+- Configurações: títulos fixos verde-escuro tinham pouco contraste sobre o fundo noturno; texto marrom sobre botão verde tinha contraste fraco.
+
+Correções iniciais publicadas nesta branch:
+- O cartão Home usa um fluxo vertical compartilhado, em vez de offsets de texto concorrentes.
+- Botões gráficos limitam rótulos a duas linhas por padrão; labels de tags ficam numa linha; GAME foi afastado do ícone incorporado.
+- O cabeçalho do Jardim usa largura flexível e mantém XP, nível e contagem como nós semânticos separados.
+- A placa do Perfil recebeu ajuste vertical, espaçamento e reserva inferior.
+- Configurações usa cores de texto sensíveis ao tema e texto creme nas ações de modelo verdes.
+
+**A validação permanece aberta.** É necessário obter CI ligado ao SHA exato e capturar o APK em escala 1.0 e 1.3, temas claro/escuro e viewport compacta. O workflow atual compila os testes instrumentados mas não os executa; compilação de AndroidTest não fecha o gate P6-C ou P6-E. Consulte `docs/evidence/p6-e-accessibility-audit-2026-10-14.md` para o plano completo.
+
+### Fonte MV Boli
+
+O ZIP enviado contém `mv-boli.ttf` sem arquivo de licença. A página oficial da Microsoft identifica a fonte como copyright Microsoft e a FAQ oficial não autoriza redistribuição/embedding de fontes Windows em apps apenas com permissões de incorporação documental:
+- https://learn.microsoft.com/en-us/typography/font-list/mv-boli
+- https://learn.microsoft.com/en-us/typography/fonts/font-faq
+
+Não adicionar a fonte a `res/font` nem ao APK até confirmar direitos expressos de embedding e redistribuição em aplicativo. A fonte não é um dos 47 assets PNG canônicos e não deve ser incluída por padrão no Gradle. Uma alternativa com licença apropriada exige aprovação visual explícita de Rafa.
