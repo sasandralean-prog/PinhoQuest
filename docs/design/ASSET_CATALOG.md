@@ -114,3 +114,14 @@ Os dois assets de navbar já contêm os desenhos de casa, flor e livro. Não des
 - **Dimensões:** registradas a partir da padronização dos pacotes e confrontadas com os assets publicados em amostras rastreáveis. Antes de uma mudança de arte, repetir a leitura do PNG efetivamente versionado.
 - **Build/runtime:** o catálogo, por si só, não prova comportamento em aparelho. A CI do SHA base passou; o commit documental desta revisão precisa ser acompanhado pela execução do CI no SHA resultante.
 - **P6-B/C:** continuam responsáveis por corrigir os parâmetros de proporção, composição, safe areas, textos e navegação observados nas screenshots.
+
+
+## Arquivo de fonte enviado — não é asset canônico
+
+`docs/design/mv-boli-maisfontes.866a.zip` foi adicionado como arquivo de referência durante a auditoria de 14/10/2026. Ele contém somente `mv-boli.ttf`, não inclui licença/autorização e não pertence aos 47 mapeamentos PNG. O arquivo não deve ser sincronizado para recursos Android nem embutido no APK por padrão.
+
+A página oficial da fonte identifica copyright Microsoft e disponibilidade dentro de produtos/serviços Microsoft quando aplicável; a FAQ oficial não autoriza redistribuição/embedding em apps com base apenas em permissões de embedding documental:
+- https://learn.microsoft.com/en-us/typography/font-list/mv-boli
+- https://learn.microsoft.com/en-us/typography/fonts/font-faq
+
+**Estado:** BLOCKED para distribuição em APK até que direitos adequados de incorporação/redistribuição sejam comprovados, ou o proprietário aprove uma fonte com licença compatível.
