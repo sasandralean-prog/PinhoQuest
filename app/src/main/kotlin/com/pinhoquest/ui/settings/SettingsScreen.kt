@@ -51,6 +51,9 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val isDark = effectiveDark
+    // Section headings must remain readable over the illustrated night background.
+    val sectionTitleColor = if (isDark) PinhoCream else PinhoForest
+    val helperTextColor = if (isDark) PinhoCream else PinhoInk
     Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (isDark) PinhoQuestBackgrounds.SETTINGS_NIGHT else PinhoQuestBackgrounds.SETTINGS_DAY,
@@ -110,7 +113,7 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(18.dp))
-            Text("Tema", color = PinhoForest, fontSize = 23.sp)
+            Text("Tema", color = sectionTitleColor, fontSize = 23.sp)
             Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -149,7 +152,7 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(20.dp))
-            Text("Tamanho da fonte", color = PinhoForest, fontSize = 23.sp)
+            Text("Tamanho da fonte", color = sectionTitleColor, fontSize = 23.sp)
             Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -230,7 +233,7 @@ fun SettingsScreen(
                 Spacer(Modifier.height(12.dp))
                 Text(
                     "O cérebro criativo pode continuar aqui sem mudar o jeito que o jardim funciona.",
-                    color = PinhoInk,
+                    color = helperTextColor,
                     fontSize = 13.sp,
                 )
                 PinhoGraphicButton(
@@ -240,7 +243,7 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(0.70f),
                     aspectRatio = 187f / 86f,
                     label = "Baixar cérebro criativo",
-                    labelColor = Color(0xFF4A2114),
+                    labelColor = PinhoCream,
                     labelFontSize = 15.sp,
                     labelStartFraction = 0.28f,
                 )
@@ -253,7 +256,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(0.70f),
                         aspectRatio = 187f / 86f,
                         label = "Ver progresso",
-                        labelColor = Color(0xFF4A2114),
+                        labelColor = PinhoCream,
                         labelFontSize = 15.sp,
                         labelStartFraction = 0.28f,
                     )
