@@ -1,9 +1,9 @@
 # Pinho Quest — CURRENT STATE
 
-Date: 2026-10-10 — active checkpoint appended at end of file
+Date: 2026-10-14 — current checkpoint is documented in section 39
 Branch: feature/p6-total-ui-refactor
-CR frontier: CR-9 runtime path previously validated; P6-D generation diversity and truthful fallback observability in progress
-Baseline: bdf4956 — historical P5 baseline; see the latest checkpoint at the end of this file
+Current frontier: P6-C runtime layout validation remains open; P6-E visual/accessibility audit is in progress; model-semantic refinements are documented in section 39
+Baseline: bdf4956 is historical P5 baseline only; later checkpoints below supersede stale summaries in earlier sections
 
 ## P6 V0.5 — current UI/UX checkpoint
 
@@ -15,22 +15,27 @@ The artwork is presentation-only; existing Compose controls and domain callbacks
 Next visual refinement: extract reusable button assets and define normal/pressed/disabled/selected states.
 ## 1. Current project state
 
-Pinho Quest remains a governed Android-first micro-adventure generator.
-
-Production quest generation is still deterministic/procedural:
+Pinho Quest remains a governed Android-first micro-adventure generator. The canonical flow is:
 
 QuestRequest
 -> QuestSessionService
 -> QuestContextProvider
 -> QuestPlanner
 -> QuestGenerationPlan
--> ProceduralComposer
+-> ComposerPort (local model when admitted, otherwise procedural)
+-> QuestDraft
 -> QuestValidator
 -> Room
 
-FunctionGemma is NOT wired into PinhoQuestAppGraph production.
+The CR-7.4 LiteRT-LM model is catalogued for production and Rafa reported downloading, installing and using it on the device. The 2026-10-14 evidence checkpoint records improvement after prompt/decoder hardening, but broad semantic quality is not yet proven; invalid model output must still converge to the validated procedural fallback.
 
-The P3 FunctionGemma work remains experimental and is being consolidated before any production wiring.
+Current visual/quality gates:
+- P6-B is accepted for the previous composition pass.
+- P6-C remains OPEN pending device validation of keyboard/IME, compact layouts, safe areas, collection and font scales.
+- P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
+- P6-E is under visual/accessibility audit. Home card text flow, illustrated button labels, garden header wrapping, profile plaque text positioning and night-theme settings contrast received initial code corrections. MV Boli embedding remains blocked until app embedding/redistribution rights are confirmed.
+
+Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Section 39 is the newest operational checkpoint.
 
 ## 2. P3 experimental state
 
@@ -1693,3 +1698,38 @@ verified as 284692656 bytes / SHA-256
 - The diagnostic event contains only quest mode, category, composition origin, result status and enum-like reason. It deliberately excludes generated title/description/objectives, prompt content and personal profile data.
 - P6-D remains open until the latest CI passes and the integrated production generation path is verified. P6-E typography/category-art gates and P6-Final release matrix remain separate gates.
 
+
+
+## 39. P6-E — Visual accessibility audit and initial correction pass (2026-10-14)
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Audit report:** `docs/evidence/p6-e-accessibility-audit-2026-10-14.md`  
+**Evidence source:** four runtime screenshots supplied by Rafa in the conversation; no APK SHA was supplied with them.  
+**Status:** initial corrections committed; latest CI and real-device validation still required. This checkpoint does not close P6-C, P6-E or P6-Final.
+
+### Findings and code changes
+
+- Home: `GardenSummaryCard` used independent percentage offsets for metrics, garden owner name and tagline. The copy was changed to one vertical layout flow, with metrics arranged in a row. The game/random button labels were moved away from embedded artwork icons and use bounded line counts.
+- Shared graphical controls: `PinhoGraphicButton` now supports a maximum label line count (two by default); tag labels are single-line with ellipsis.
+- Garden: the header column uses the remaining width. XP, level and flower count remain separate semantic text nodes in one row, while title and subtitle have explicit line bounds. This preserves existing Compose accessibility labels and tests.
+- Profile: the banner copy was moved lower into the lower plaque; title size and bottom spacing were adjusted; more bottom scroll space and body line spacing were added.
+- Settings: section heading/helper colors now respond to night theme. Model-download/progress actions use cream text on the green button surface.
+- UI regression test: `LargeFontLayoutTest` now checks the game action semantics and that Settings controls retain accessible names under a larger local font scale.
+
+### Validation boundary
+
+These edits were made through the GitHub connector. A passing CI result for the final source SHA is not yet recorded in this checkpoint. The repository's current workflow compiles AndroidTest sources but does not run `connectedDebugAndroidTest`; therefore tests compiling is not evidence of in-device layout correctness. Do not close P6-C until keyboard/IME, safe areas, collection filters, long text and 1.0/1.3 text scales are observed on the device and screenshots are linked to the exact APK SHA.
+
+### MV Boli font decision
+
+The uploaded `docs/design/mv-boli-maisfontes.866a.zip` contains `mv-boli.ttf` only and has no license/authorization file. Official Microsoft documentation identifies MV Boli as copyrighted and says Windows fonts cannot be redistributed or embedded in an app/game without appropriate additional rights. See:
+- https://learn.microsoft.com/en-us/typography/font-list/mv-boli
+- https://learn.microsoft.com/en-us/typography/fonts/font-faq
+
+The font has **not** been added to Android resources or the APK. Its integration is BLOCKED pending a license explicitly allowing app embedding/redistribution, or Rafa's decision to use a suitably licensed alternative. Presence in a ZIP is not proof of distribution rights.
+
+### Gate state
+
+- P6-C: **OPEN**, device evidence pending.
+- P6-E: **IN PROGRESS**, initial UI corrections present; CI/runtime matrix pending; MV Boli blocked by license.
+- P6-Final: **BLOCKED** until all required P1 gates have evidence.
