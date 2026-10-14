@@ -82,9 +82,9 @@ class MicroQuestToolCallDecoder {
     private companion object {
         val DIACRITICS = Regex("\\p{Mn}+")
         val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
-        val CONTRACT_RANGE_PATTERN = Regex("""\\b\\d+\\s+\\d+\\s+(?:chars?|caracteres)\\b""")
+        val CONTRACT_RANGE_PATTERN = Regex("""\b\d+\s+\d+\s+(?:chars?|caracteres)\b""")
         val OBJECTIVE_COUNT_PATTERN = Regex(
-            """\\b\\d+\\s+\\d+\\s+textos?\\s+de\\s+\\d+\\s+\\d+\\s+chars?\\b""",
+            """\b\d+\s+\d+\s+textos?\s+de\s+\d+\s+\d+\s+chars?\b""",
         )
         val INTERNAL_PROMPT_PHRASES = listOf(
             "nao invente fatos",
