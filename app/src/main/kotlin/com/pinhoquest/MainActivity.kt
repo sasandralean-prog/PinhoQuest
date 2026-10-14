@@ -76,11 +76,13 @@ class MainActivity : ComponentActivity() {
             var modelInstallWorkId by rememberSaveable { mutableStateOf<String?>(null) }
             var modelInstallStatusVisible by rememberSaveable { mutableStateOf(false) }
             val modelWorkInfo by produceState<WorkInfo?>(initialValue = null, modelInstallWorkId) {
+                // Clear any prior work item immediately when the observed ID changes.
+                // Keeping this assignment in the producer body also makes the state
+                // initialization explicit to Compose lint.
+                value = null
                 val rawId = modelInstallWorkId
                 val id = rawId?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-                if (id == null) {
-                    value = null
-                } else {
+                if (id != null) {
                     val liveData = WorkManager.getInstance(this@MainActivity).getWorkInfoByIdLiveData(id)
                     val observer = Observer<WorkInfo?> { info -> value = info }
                     liveData.observeForever(observer)
