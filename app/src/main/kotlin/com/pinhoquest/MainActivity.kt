@@ -21,9 +21,9 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -75,18 +75,22 @@ class MainActivity : ComponentActivity() {
             var creativeBrainTermsVisible by remember { mutableStateOf(false) }
             var modelInstallWorkId by rememberSaveable { mutableStateOf<String?>(null) }
             var modelInstallStatusVisible by rememberSaveable { mutableStateOf(false) }
-            val modelWorkInfo by produceState<WorkInfo?>(initialValue = null, modelInstallWorkId) {
-                // Clear any prior work item immediately when the observed ID changes.
-                // Keeping this assignment in the producer body also makes the state
-                // initialization explicit to Compose lint.
-                value = null
-                val rawId = modelInstallWorkId
-                val id = rawId?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-                if (id != null) {
-                    val liveData = WorkManager.getInstance(this@MainActivity).getWorkInfoByIdLiveData(id)
-                    val observer = Observer<WorkInfo?> { info -> value = info }
+            var modelWorkInfo by remember(modelInstallWorkId) {
+                mutableStateOf<WorkInfo?>(null)
+            }
+            DisposableEffect(modelInstallWorkId) {
+                val id = modelInstallWorkId
+                    ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+                if (id == null) {
+                    onDispose { }
+                } else {
+                    val liveData = WorkManager.getInstance(this@MainActivity)
+                        .getWorkInfoByIdLiveData(id)
+                    val observer = Observer<WorkInfo?> { info ->
+                        modelWorkInfo = info
+                    }
                     liveData.observeForever(observer)
-                    awaitDispose {
+                    onDispose {
                         liveData.removeObserver(observer)
                     }
                 }
