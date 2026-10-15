@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -44,6 +45,7 @@ import com.pinhoquest.domain.profile.GardenOwnerName
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
@@ -109,83 +111,96 @@ fun OnboardingScreen(
                             .verticalScroll(rememberScrollState())
                             .imePadding()
                             .padding(
-                                top = (this@BoxWithConstraints.maxHeight * 0.24f).coerceAtMost(180.dp),
+                                top = (this@BoxWithConstraints.maxHeight * 0.26f).coerceAtMost(196.dp),
                                 bottom = 20.dp,
                             ),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        androidx.compose.material3.Text(
-                            text = "Como você quer chamar seu jardim?",
-                            color = PinhoForest,
-                            fontSize = 24.sp,
-                        )
-                        Spacer(Modifier.height(16.dp))
+                        // Keep onboarding copy and its input on a stable parchment surface.
+                        // The illustrated background remains visible without competing with labels.
+                        PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                            androidx.compose.material3.Text(
+                                text = "Como você quer chamar seu jardim?",
+                                color = PinhoForest,
+                                fontSize = 24.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            Spacer(Modifier.height(16.dp))
 
-                        Box(
-                            modifier = Modifier.fillMaxWidth(0.86f),
-                            contentAlignment = Alignment.Center,
-                        ) {
                             Box(
                                 modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Image(
-                                    painter = painterResource(R.drawable.name_bar),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(388f / 124f),
-                                )
-                                BasicTextField(
-                                    value = name,
-                                    onValueChange = { value ->
-                                        if (
-                                            value.trim().codePointCount(0, value.trim().length) <=
-                                            GardenOwnerName.MAX_CHARACTERS
-                                        ) {
-                                            name = value
-                                        }
-                                    },
-                                    singleLine = true,
-                                    textStyle = TextStyle(
-                                        color = androidx.compose.ui.graphics.Color.White,
-                                        fontSize = 22.sp,
-                                    ),
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                    keyboardActions = KeyboardActions(
-                                        onDone = {
-                                            if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(0.88f),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Image(
+                                        painter = painterResource(R.drawable.name_bar),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(388f / 124f),
+                                    )
+                                    BasicTextField(
+                                        value = name,
+                                        onValueChange = { value ->
+                                            if (
+                                                value.trim().codePointCount(0, value.trim().length) <=
+                                                GardenOwnerName.MAX_CHARACTERS
+                                            ) {
+                                                name = value
+                                            }
                                         },
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.72f)
-                                        .height(56.dp)
-                                        .semantics { contentDescription = "Seu nome" },
+                                        singleLine = true,
+                                        textStyle = TextStyle(
+                                            color = androidx.compose.ui.graphics.Color.White,
+                                            fontSize = 22.sp,
+                                        ),
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                                            },
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.72f)
+                                            .height(56.dp)
+                                            .semantics { contentDescription = "Seu nome" },
+                                    )
+                                }
+                            }
+
+                            Spacer(Modifier.height(10.dp))
+                            androidx.compose.material3.Text(
+                                text = "Vai aparecer como Jardim de ... 🌷",
+                                color = PinhoInk,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            Spacer(Modifier.height(18.dp))
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                PinhoGraphicButton(
+                                    resource = R.drawable.btn_confirm,
+                                    contentDescription = "Confirmar nome",
+                                    onClick = {
+                                        if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
+                                    },
+                                    modifier = Modifier.fillMaxWidth(0.64f),
+                                    aspectRatio = 187f / 86f,
+                                    label = "Confirmar",
+                                    labelColor = PinhoCream,
+                                    labelFontSize = 18.sp,
+                                    labelStartFraction = 0.28f,
                                 )
                             }
                         }
-
-                        Spacer(Modifier.height(10.dp))
-                        androidx.compose.material3.Text(
-                            text = "Vai aparecer como Jardim de ... 🌷",
-                            color = PinhoInk,
-                            fontSize = 16.sp,
-                        )
-                        Spacer(Modifier.height(24.dp))
-                        PinhoGraphicButton(
-                            resource = R.drawable.btn_confirm,
-                            contentDescription = "Confirmar nome",
-                            onClick = {
-                                if (GardenOwnerName.create(name.trim()).isSuccess) step = 2
-                            },
-                            modifier = Modifier.fillMaxWidth(0.56f),
-                            aspectRatio = 187f / 86f,
-                            label = "Confirmar",
-                            labelColor = PinhoCream,
-                            labelFontSize = 18.sp,
-                            labelStartFraction = 0.28f
-                        )
                     }
                 }
             }
