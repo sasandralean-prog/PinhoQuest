@@ -36,6 +36,7 @@ import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoDisplayFontFamily
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoQuestBackground
@@ -75,6 +76,7 @@ fun ProfileScreen(
                     "Perfil",
                     color = foreground,
                     style = MaterialTheme.typography.headlineMedium.copy(
+                        fontFamily = PinhoDisplayFontFamily,
                         fontSize = 30.sp,
                         lineHeight = 34.sp,
                     ),
@@ -123,6 +125,7 @@ fun ProfileScreen(
                         text = "Jardim de $ownerName",
                         color = PinhoInk,
                         style = MaterialTheme.typography.titleLarge.copy(
+                            fontFamily = PinhoDisplayFontFamily,
                             fontSize = 17.sp,
                             lineHeight = 20.sp,
                         ),
