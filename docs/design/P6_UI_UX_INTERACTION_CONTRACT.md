@@ -157,4 +157,4 @@ Os novos screenshots mostram texto dinâmico competindo com arte em Home, Jardim
 - Seleção de temas mantém o mesmo estado persistido e callbacks; apenas hierarquia vertical, tonalização e superfícies de texto foram ajustadas.
 - Settings ganhou uma superfície de alto contraste para texto auxiliar. A ação de backup e o fluxo de instalação do modelo não foram alterados.
 
-**Estado de gate:** requer CI no último SHA e nova validação em aparelho. Compilar AndroidTest é evidência de compilação, não de posicionamento em runtime. Manter P6-C/P6-E abertos até comparar o APK atual em temas claro/escuro, escalas 1.0/1.3, viewport compacta e onboarding com teclado.
+**Evidência de CI:** [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440` (`BUILD SUCCESSFUL`, 0 erros/38 avisos). A execução inclui compilação de AndroidTest, mas não a execução instrumentada no aparelho. Manter P6-C/P6-E abertos até comparar o APK desse SHA em temas claro/escuro, escalas 1.0/1.3, viewport compacta e onboarding com teclado.
