@@ -98,7 +98,7 @@ Configurações e seleção de temas são fluxos internos; não criam abas globa
 - `P6-E`: distribuição segura do modelo, mapeamento semântico de categoria, fonte e acessibilidade.
 - `P6-Final`: regressão de release ligada ao SHA testado.
 
-**Estado atual:** P6-B aceito como concluído nesta rodada com base na CI verde #38081485398 e na avaliação provisória do proprietário; P6-C permanece em andamento enquanto a nova CI e a validação de runtime em aparelho não forem concluídas. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
+**Estado atual (2026-10-15):** P6-B permanece aceito; P6-C e P6-E seguem abertos. A falha de compilação do teste `LargeFontLayoutTest.kt` foi corrigida; a fonte Ihlimia foi integrada ao build para teste nos títulos decorativos aprovados. Isso ainda não fecha nenhum gate: falta CI verde no SHA exato, validação em dispositivo e registro da licença de incorporação/distribuição da fonte. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
 
 
 ## 11. Evidência visual P6-E — revisão de 14/10/2026
@@ -120,10 +120,27 @@ Correções iniciais publicadas nesta branch:
 
 **A validação permanece aberta.** É necessário obter CI ligado ao SHA exato e capturar o APK em escala 1.0 e 1.3, temas claro/escuro e viewport compacta. O workflow atual compila os testes instrumentados mas não os executa; compilação de AndroidTest não fecha o gate P6-C ou P6-E. Consulte `docs/evidence/p6-e-accessibility-audit-2026-10-14.md` para o plano completo.
 
-### Fonte MV Boli
+### Histórico da fonte anterior — MV Boli
 
-O ZIP enviado contém `mv-boli.ttf` sem arquivo de licença. A página oficial da Microsoft identifica a fonte como copyright Microsoft e a FAQ oficial não autoriza redistribuição/embedding de fontes Windows em apps apenas com permissões de incorporação documental:
+A decisão anterior de não embutir `mv-boli.ttf` continua válida para aquele arquivo: o ZIP não tinha licença, e a documentação Microsoft restringe redistribuição de fontes Windows em apps:
 - https://learn.microsoft.com/en-us/typography/font-list/mv-boli
 - https://learn.microsoft.com/en-us/typography/fonts/font-faq
 
-Não adicionar a fonte a `res/font` nem ao APK até confirmar direitos expressos de embedding e redistribuição em aplicativo. A fonte não é um dos 47 assets PNG canônicos e não deve ser incluída por padrão no Gradle. Uma alternativa com licença apropriada exige aprovação visual explícita de Rafa.
+Essa decisão histórica não bloqueia por si só a alternativa selecionada abaixo.
+
+### Fonte de display atual — Ihlimia
+
+- Fonte selecionada por Rafa: `docs/design/ihlimia-maisfontes.8b4f.zip`.
+- O ZIP contém `ihlimia.ttf` e não inclui licença/README. Rafa identifica a fonte como de licença livre; o arquivo enviado, isoladamente, não comprova quais direitos de redistribuição e incorporação em APK são concedidos. Guardar a licença/autorização do autor ou da fonte oficial antes de release público.
+- `app/build.gradle.kts` extrai somente `ihlimia.ttf` para `build/generated/p6-display-font-res/font/`; o ZIP não é empacotado como recurso.
+- A família `PinhoDisplayFontFamily` é aplicada a headings curtos do Início, Jardim e Perfil. Texto do corpo, quests geradas, métricas, rótulos de navegação e controles continuam nas famílias anteriores, para não trocar legibilidade por ornamentação.
+- A fonte deve ser validada com nomes longos, escalas de fonte, temas claro/escuro e layouts compactos antes de fechar P6-E.
+
+
+## 12. Follow-up P6-E — correção da CI e legibilidade (2026-10-15)
+
+A execução [#38603677089, job #115988990661](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38603677089/job/115988990661) falhou em `:app:compileDebugAndroidTestKotlin`: o teste importava `assertExists` não disponível na versão Compose UI Test configurada e usava `onNodeWithText` sem import. `LargeFontLayoutTest.kt` foi alterado para usar `onAllNodesWithText`/`onAllNodesWithContentDescription` com `assertCountEquals`.
+
+A legibilidade recebeu ajustes: as métricas do cartão Home passaram de 10sp para 11sp com line-height correspondente; o botão de backup usa rótulo 16sp, no máximo duas linhas. A fonte manuscrita não foi aplicada a botões/controles porque os textos funcionais precisam continuar fáceis de ler.
+
+**Pendências:** confirmar CI verde no SHA atual, validar no aparelho o APK dessa mesma revisão e registrar a licença de Ihlimia que permita incorporação/distribuição em app. P6-C e P6-E permanecem abertos.
