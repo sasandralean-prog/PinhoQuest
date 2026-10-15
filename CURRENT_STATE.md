@@ -33,7 +33,7 @@ Current visual/quality gates:
 - P6-B is accepted for the previous composition pass.
 - P6-C remains OPEN pending device validation of keyboard/IME, compact layouts, safe areas, collection and font scales.
 - P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
-- P6-E follow-up (2026-10-15): fixed the LargeFontLayoutTest Compose test API imports that caused the latest reported CI failure, added build-time extraction of the selected Ihlimia display font from docs/design/ihlimia-maisfontes.8b4f.zip, and limited that font to short decorative headings. Home metrics and the backup-button label were also adjusted for readability. Android CI #38684219225 passed for code checkpoint `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; on-device screenshots and accessibility validation are still required. The ZIP contains only ihlimia.ttf, not its license; preserve the release gate until the exact app-embedding/redistribution terms are recorded.
+- P6-E follow-up (2026-10-15): the CI/test compile issue is fixed, Ihlimia is extracted from the design ZIP only into generated font resources, and the initial contrast/layout pass is complete. Rafa validated that checkpoint and supplied a second set of screenshots showing remaining issues in the navbar, Home cards, garden art text, Profile plaque, onboarding name step and theme selector. These fixes are now published in the working branch; the new CI is running. Keep P6-C/P6-E open until the exact code checkpoint passes CI and the device matrix is repeated. The font ZIP still contains no license file.
 
 Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Section 39 is the newest operational checkpoint.
 
@@ -1762,3 +1762,22 @@ The test now uses `onAllNodesWithText` / `onAllNodesWithContentDescription` with
 - Install the APK from that SHA and compare Home, Garden, Profile and Settings in light/dark themes and font scales 1.0/1.3.
 - Recheck long owner names, large XP/flower counts, labels on illustrated buttons, all touch targets and content above the global navbar.
 - P6-C remains OPEN until compact layout, IME, collection scrolling and safe areas are observed on-device. P6-E remains OPEN until CI, the visual/accessibility matrix and font redistribution provenance are recorded.
+
+
+## 41. P6-C/P6-E — follow-up from visual validation screenshots (2026-10-15)
+
+**Evidence source:** seven new runtime screenshots supplied by Rafa after the first P6-E build checkpoint. They show the existing test build on a real device; this evidence is stronger than compilation alone but does not represent the newly changed code until a new APK is installed and captured.
+
+### Findings and changes published
+
+- **Global bottom navigation:** tab captions still used the default sans family and sat too close to the illustration row. The captions now use `PinhoDisplayFontFamily`, remain horizontally centered in each equal-width destination, and use reduced bottom padding so they sit lower in the caption band. Semantic names, selected-state descriptions, destinations and click behavior are unchanged.
+- **Home / garden summary card:** increased the card from 90% of its available width to the full column width; the Home column now uses 16dp rather than 22dp side padding. Because the source art includes flower/star details underneath the dynamic text, a compact parchment inset now isolates flower count, XP, garden name and tagline.
+- **Home / game quest card:** the game button is taller (`174:100` aspect ratio instead of `174:86`), gets more usable row width and uses 15sp label text beginning before the former text anchor, while still leaving the embedded gamepad art visible.
+- **Garden art state:** heading and collected/XP text now sit on a parchment surface; the collection action has a separate cream surface and border. Both avoid relying on the current background pixel colors for contrast.
+- **Profile plaque:** the dynamic garden name no longer uses the script/display font inside the foliage-adjacent plaque. It uses readable serif type at 16sp, a wider 82% text region, and smaller bottom inset to place the title/subtitle lower in the intended panel.
+- **Onboarding — garden name:** moved the form slightly lower, placed title/input/preview/confirmation in one parchment panel, centered the helper line and centered the confirmation button independently. The actual editable `BasicTextField`, name validation, IME Done behavior and callback remain unchanged.
+- **Quest theme selection:** pushed the heading down from the logo area, applied a subtle theme-dependent tint to the illustrated backdrop, and put heading/helper copy plus selected-theme status on parchment surfaces for readable contrast.
+
+### Validation state
+
+The new code checkpoint requires a fresh Android CI run before it may be called green. The existing P6-C/P6-E device matrix must then be repeated against the APK built from that exact code: light/dark theme, system font scales 1.0/1.3, compact viewport, longer garden name, the largest expected flower/XP values, scrolling, nav safe area and onboarding with the keyboard visible. No claim of visual PASS is made by this source update alone.
