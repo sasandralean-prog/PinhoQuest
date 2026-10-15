@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import com.pinhoquest.R
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.domain.tag.Tag
@@ -28,6 +29,7 @@ import com.pinhoquest.ui.PinhoBackButton
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoTagGraphicButton
@@ -57,7 +59,8 @@ fun QuestThemeSelectionScreen(
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             modifier = Modifier.fillMaxSize(),
-            overlayAlpha = 0f,
+            overlay = if (dark) Color(0xFF102D55) else PinhoCream,
+            overlayAlpha = if (dark) 0.10f else 0.12f,
         )
 
         Column(
@@ -76,17 +79,24 @@ fun QuestThemeSelectionScreen(
             }
 
             // Keep the logo and slogan embedded in the approved background unobstructed.
-            Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.23f))
-            Text(
-                text = "O que vamos descobrir?",
-                color = if (dark) Color.White else PinhoForest,
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            Text(
-                text = "Escolha um ou vários temas. Você pode combinar todos.",
-                color = if (dark) Color.White.copy(alpha = 0.92f) else PinhoInk,
-                fontSize = 15.sp,
-            )
+            Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.29f))
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "O que vamos descobrir?",
+                    color = PinhoForest,
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Escolha um ou vários temas. Você pode combinar todos.",
+                    color = PinhoInk,
+                    fontSize = 15.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
             Spacer(Modifier.height(18.dp))
 
@@ -110,15 +120,19 @@ fun QuestThemeSelectionScreen(
 
             Spacer(Modifier.height(12.dp))
             val selectedCount = canonicalTags.count { it.enabled }
-            Text(
-                text = if (selectedCount == 0) {
-                    "Nenhum tema selecionado — vou escolher por você."
-                } else {
-                    "$selectedCount temas selecionados. Essa escolha fica salva para a próxima vez."
-                },
-                color = if (dark) Color.White else PinhoInk,
-                fontSize = 14.sp,
-            )
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = if (selectedCount == 0) {
+                        "Nenhum tema selecionado — vou escolher por você."
+                    } else {
+                        "$selectedCount temas selecionados. Essa escolha fica salva para a próxima vez."
+                    },
+                    color = PinhoInk,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
             PinhoGraphicButton(
