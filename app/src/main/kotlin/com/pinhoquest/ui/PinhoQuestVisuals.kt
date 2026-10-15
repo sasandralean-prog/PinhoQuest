@@ -288,13 +288,19 @@ private fun PinhoNavItem(
         Text(
             text = label,
             color = if (selected) PinhoGold else if (dark) PinhoCream else PinhoInk,
-            fontSize = 14.sp,
+            style = androidx.compose.material3.MaterialTheme.typography.labelLarge.copy(
+                fontFamily = PinhoDisplayFontFamily,
+                fontSize = 15.sp,
+                lineHeight = 18.sp,
+            ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp, vertical = 6.dp),
+                .padding(horizontal = 2.dp)
+                // The PNG owns the icon row; keep captions in the lower caption band.
+                .padding(bottom = 2.dp),
         )
     }
 }
