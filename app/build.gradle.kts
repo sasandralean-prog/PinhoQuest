@@ -86,9 +86,41 @@ val syncCanonicalUiAssets = tasks.register<Copy>("syncCanonicalUiAssets") {
     into(layout.buildDirectory.dir("generated/p6-canonical-ui-res/drawable-nodpi"))
 }
 
+/*
+ * The font ZIP is the source asset supplied for the P6 display typography.
+ * Extract only the expected TTF into generated Android resources so the ZIP,
+ * other files, and documentation remain outside the APK.
+ */
+val displayFontArchive = rootProject.file("docs/design/ihlimia-maisfontes.8b4f.zip")
+val generatedDisplayFontRes = layout.buildDirectory.dir("generated/p6-display-font-res")
+val syncDisplayFont = tasks.register<Copy>("syncDisplayFont") {
+    inputs.file(displayFontArchive)
+    from(zipTree(displayFontArchive)) {
+        include("ihlimia.ttf")
+        into("font")
+    }
+    into(generatedDisplayFontRes)
+    doFirst {
+        check(displayFontArchive.isFile) {
+            "Missing P6 display font archive: ${displayFontArchive.relativeTo(rootProject.projectDir)}"
+        }
+        val bundledFonts = zipTree(displayFontArchive).matching { include("ihlimia.ttf") }.files
+        check(bundledFonts.size == 1) {
+            "Expected exactly one ihlimia.ttf in the P6 display font archive."
+        }
+    }
+    doLast {
+        val extractedFont = generatedDisplayFontRes.get().file("font/ihlimia.ttf").asFile
+        check(extractedFont.isFile && extractedFont.length() > 100_000L) {
+            "The generated P6 display font is missing or unexpectedly small."
+        }
+    }
+}
+
 android {
     namespace = "com.pinhoquest"
     sourceSets["main"].res.srcDir(layout.buildDirectory.dir("generated/p6-canonical-ui-res"))
+    sourceSets["main"].res.srcDir(generatedDisplayFontRes)
 
     compileSdk = 35
 
@@ -151,7 +183,7 @@ val verifyCanonicalUiAssets = tasks.register("verifyCanonicalUiAssets") {
 }
 
 tasks.named("preBuild") {
-    dependsOn(verifyCanonicalUiAssets)
+    dependsOn(verifyCanonicalUiAssets, syncDisplayFont)
 }
 
 dependencies {
