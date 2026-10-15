@@ -48,7 +48,6 @@ import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoCreamSoft
 import com.pinhoquest.ui.PinhoForest
-import com.pinhoquest.ui.PinhoDisplayFontFamily
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoParchment
@@ -116,7 +115,6 @@ fun GardenScreen(
                         text = "🌷 Jardim de ${state.ownerName}",
                         color = headerColor,
                         style = MaterialTheme.typography.headlineSmall.copy(
-                            fontFamily = PinhoDisplayFontFamily,
                             fontSize = 20.sp,
                             lineHeight = 24.sp,
                         ),
