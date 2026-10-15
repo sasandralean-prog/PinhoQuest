@@ -3,9 +3,11 @@ package com.pinhoquest.ui
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.Density
 import com.pinhoquest.data.settings.ThemePreference
@@ -95,10 +97,10 @@ class LargeFontLayoutTest {
             }
         }
 
-        composeRule.onNodeWithText("Tema").assertExists()
-        composeRule.onNodeWithText("Tamanho da fonte").assertExists()
-        composeRule.onNodeWithContentDescription("Selecionar tema noite").assertExists()
-        composeRule.onNodeWithContentDescription("Guardar uma cópia do seu jardim").assertExists()
-        composeRule.onNodeWithContentDescription("Baixar cérebro criativo").assertExists()
+        composeRule.onAllNodesWithText("Tema").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Tamanho da fonte").assertCountEquals(1)
+        composeRule.onAllNodesWithContentDescription("Selecionar tema noite").assertCountEquals(1)
+        composeRule.onAllNodesWithContentDescription("Guardar uma cópia do seu jardim").assertCountEquals(1)
+        composeRule.onAllNodesWithContentDescription("Baixar cérebro criativo").assertCountEquals(1)
     }
 }
