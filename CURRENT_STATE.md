@@ -33,7 +33,7 @@ Current visual/quality gates:
 - P6-B is accepted for the previous composition pass.
 - P6-C remains OPEN pending device validation of keyboard/IME, compact layouts, safe areas, collection and font scales.
 - P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
-- P6-E is under visual/accessibility audit. Home card text flow, illustrated button labels, garden header wrapping, profile plaque text positioning and night-theme settings contrast received initial code corrections. MV Boli embedding remains blocked until app embedding/redistribution rights are confirmed.
+- P6-E follow-up (2026-10-15): fixed the LargeFontLayoutTest Compose test API imports that caused the latest reported CI failure, added build-time extraction of the selected Ihlimia display font from docs/design/ihlimia-maisfontes.8b4f.zip, and limited that font to short decorative headings. Home metrics and the backup-button label were also adjusted for readability. CI for the resulting checkpoint and device screenshots are still required. The ZIP contains only ihlimia.ttf, not its license; preserve the release gate until the exact app-embedding/redistribution terms are recorded.
 
 Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Section 39 is the newest operational checkpoint.
 
@@ -1733,3 +1733,32 @@ The font has **not** been added to Android resources or the APK. Its integration
 - P6-C: **OPEN**, device evidence pending.
 - P6-E: **IN PROGRESS**, initial UI corrections present; CI/runtime matrix pending; MV Boli blocked by license.
 - P6-Final: **BLOCKED** until all required P1 gates have evidence.
+
+
+## 40. P6-E follow-up — display font and CI correction (2026-10-15)
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Source failure:** [Android CI run #38603677089, verify job](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38603677089/job/115988990661).  
+**Status:** fixes published to the working branch; latest CI and real-device layout evidence must still be checked before closing P6-C/P6-E.
+
+### CI root cause and correction
+
+The failed `:app:compileDebugAndroidTestKotlin` task reported:
+- `LargeFontLayoutTest.kt:6`: unresolved `assertExists` extension/import for the configured Compose UI-test version.
+- `LargeFontLayoutTest.kt:98-99`: `onNodeWithText` was used without its import.
+
+The test now uses `onAllNodesWithText` / `onAllNodesWithContentDescription` with `assertCountEquals`, and imports the supported collection APIs. This repairs the reported source-level cause; only a new green run can establish validation.
+
+### Ihlimia display font
+
+- Source archive: `docs/design/ihlimia-maisfontes.8b4f.zip`; archive inspection found one payload, `ihlimia.ttf` (413,348 uncompressed bytes) and no bundled license/readme.
+- Gradle's `syncDisplayFont` extracts only `ihlimia.ttf` to a generated `res/font` directory. The compressed ZIP and any unrelated files are not packaged as resources.
+- `PinhoDisplayFontFamily` is used for short decorative headings only (home garden name, garden heading and profile headings). Body copy, buttons, metrics, navigation labels and generated quest text retain their existing readable families.
+- Rafa identified this as the free-license replacement for MV Boli. Secondary font-directory listings describe Ihlimia as available for professional/commercial use ([Fontmirror](https://www.fontmirror.com/ihlimia), [Befonts](https://befonts.com/ihlimia-romantic-script-font.html)), but the uploaded ZIP itself does not contain the license, and commercial use is not automatically the same as permission to redistribute the font binary in an APK. Record the author/source license or explicit permission before a public release. This is a release-provenance caveat, not a reason to revert the UI fixes.
+
+### Remaining evidence
+
+- Confirm the new CI result against the exact branch SHA and resolve any additional build findings.
+- Install the APK from that SHA and compare Home, Garden, Profile and Settings in light/dark themes and font scales 1.0/1.3.
+- Recheck long owner names, large XP/flower counts, labels on illustrated buttons, all touch targets and content above the global navbar.
+- P6-C remains OPEN until compact layout, IME, collection scrolling and safe areas are observed on-device. P6-E remains OPEN until CI, the visual/accessibility matrix and font redistribution provenance are recorded.
