@@ -87,12 +87,12 @@ fun QuestScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(start = 22.dp, top = 0.dp, end = 22.dp, bottom = bottomNavigationInset + 12.dp),
+                    .padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = bottomNavigationInset + 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // The approved start background contains the PinhoQuest wordmark and slogan.
                 // Leave that upper composition unobstructed and start live content below it.
-                Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.24f))
+                Spacer(Modifier.height(this@BoxWithConstraints.maxHeight * 0.22f))
                 GardenSummaryCard(
                     ownerName = ownerName,
                     flowerCount = flowerCount,
@@ -117,7 +117,7 @@ fun QuestScreen(
                 Spacer(Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     PinhoGraphicButton(
                         resource = R.drawable.btn_quest_random,
@@ -139,12 +139,12 @@ fun QuestScreen(
                         onClick = { onGenerateQuest(QuestMode.GAME) },
                         enabled = !loading,
                         modifier = Modifier.weight(1f),
-                        aspectRatio = 174f / 86f,
+                        aspectRatio = 174f / 100f,
                         label = "Quest de Jogo",
                         labelColor = Color(0xFF4A2114),
-                        labelFontSize = 14.sp,
+                        labelFontSize = 15.sp,
                         labelMaxLines = 2,
-                        labelStartFraction = 0.36f,
+                        labelStartFraction = 0.30f,
                     )
                 }
 
@@ -178,7 +178,7 @@ private fun GardenSummaryCard(
     val cardResource = if (dark) R.drawable.card_home_night else R.drawable.card_home_day
     BoxWithConstraints(
         modifier = Modifier
-            .fillMaxWidth(0.90f)
+            .fillMaxWidth()
             .aspectRatio(612f / 292f),
     ) {
         val cardWidth = maxWidth
@@ -190,21 +190,17 @@ private fun GardenSummaryCard(
             modifier = Modifier.fillMaxSize(),
         )
 
-        // Keep all dynamic copy in one vertical flow. Independent percentage offsets
-        // let the owner name and tagline collide when the user's font scale increases.
-        // Decorative flower/star symbols remain part of the canonical artwork.
-        Column(
+        // The illustration has decorative flower/star marks in its text region.
+        // A parchment inset isolates dynamic text from those marks and from scenery.
+        PinhoParchment(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(x = cardWidth * 0.035f, y = cardHeight * 0.105f)
-                .fillMaxWidth(0.53f),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+                .offset(x = cardWidth * 0.025f, y = cardHeight * 0.12f)
+                .fillMaxWidth(0.62f),
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = cardWidth * 0.10f),
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -226,6 +222,7 @@ private fun GardenSummaryCard(
                     modifier = Modifier.weight(0.95f),
                 )
             }
+            Spacer(Modifier.height(3.dp))
             Text(
                 text = "Jardim de $ownerName",
                 color = PinhoInk,
@@ -238,6 +235,7 @@ private fun GardenSummaryCard(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),
             )
+            Spacer(Modifier.height(3.dp))
             Text(
                 text = if (dark) {
                     "Pequenas descobertas sob as estrelas."
