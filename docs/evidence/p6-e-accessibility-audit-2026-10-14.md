@@ -1,7 +1,7 @@
 # P6-E — Auditoria visual, tipografia e acessibilidade (2026-10-14)
 
 **Branch de trabalho:** `feature/p6-total-ui-refactor`  
-**Status:** correções iniciais e follow-up de tipografia publicados; CI do checkpoint atual e validação de runtime ainda pendentes.  
+**Status:** CI verde no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; validação de runtime em aparelho e proveniência da licença de fonte ainda pendentes.  
 **Gate:** P6-E continua aberto. P6-C também continua aberto até validação em aparelho. Follow-up de 2026-10-15 registrado na seção 7.  
 **Fonte de observação:** quatro screenshots fornecidas por Rafa em 14/10/2026. Os screenshots não vieram associados a um SHA de APK, portanto mostram sintomas reais, mas não identificam por si só o commit instalado.
 
@@ -87,7 +87,7 @@ A execução [#38603677089, job #115988990661](https://github.com/sasandralean-p
 - `assertExists` era importado/usado, mas não estava disponível na versão Compose UI Test configurada.
 - `onNodeWithText` era chamado sem o import correspondente.
 
-Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNodesWithText` e `onAllNodesWithContentDescription`, com `assertCountEquals`. A [Android CI #38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083) passou no checkpoint de código `84cae019736055f4f1f4fee1bd1f768e3203939c`, incluindo a compilação dos testes instrumentados. Depois dele, o heading do Jardim foi devolvido à família legível anterior; CI para o SHA atual ainda precisa passar.
+Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNodesWithText` e `onAllNodesWithContentDescription`, com `assertCountEquals`. A [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passou no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; `syncDisplayFont`, compilação de AndroidTest, build do APK e lint concluíram com sucesso (0 erros, 38 avisos). Essa CI compila os testes instrumentados, mas não os executa em dispositivo.
 
 ### Fonte selecionada e aplicação
 
@@ -100,7 +100,7 @@ Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNod
 
 ### Evidência ainda obrigatória
 
-1. Verificar a CI mais recente no SHA exato; a CI #38683573083 passou no checkpoint `84ca...`, mas não cobre a alteração subsequente do heading de Jardim.
+1. A CI #38684219225 passou no checkpoint de código `f67ea...`; ainda falta validação visual/funcional em aparelho em escala 1.0/1.3, temas claro/escuro, viewport compacta e fluxo IME.
 2. Testar o APK dessa mesma revisão em tela compacta, tema claro/escuro e escalas 1.0/1.3.
 3. Conferir nomes longos, métricas altas, alvos de toque, scroll, barra de navegação, e onboarding com IME aberto.
 4. Manter P6-C, P6-E e P6-Final abertos até haver essa evidência.
