@@ -210,7 +210,8 @@ fun SettingsScreen(
                     aspectRatio = 682f / 160f,
                     label = "Guardar uma cópia do seu jardim",
                     labelColor = Color(0xFF4A2114),
-                    labelFontSize = 18.sp,
+                    labelFontSize = 16.sp,
+                    labelMaxLines = 2,
                     labelStartFraction = 0.20f,
                 )
             }
