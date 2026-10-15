@@ -37,6 +37,7 @@ import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.quest.QuestSession
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoCream
+import com.pinhoquest.ui.PinhoDisplayFontFamily
 import com.pinhoquest.ui.PinhoForest
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
@@ -229,6 +230,7 @@ private fun GardenSummaryCard(
                 text = "Jardim de $ownerName",
                 color = PinhoInk,
                 style = MaterialTheme.typography.titleLarge.copy(
+                    fontFamily = PinhoDisplayFontFamily,
                     fontSize = 15.sp,
                     lineHeight = 17.sp,
                 ),
