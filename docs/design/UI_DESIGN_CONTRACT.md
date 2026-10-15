@@ -218,4 +218,4 @@ O proprietário validou o primeiro APK visualmente e enviou sete novos prints. O
 - **Seleção de temas:** o título começa abaixo do wordmark e o título/helper/contador usam superfícies próprias. O fundo ganha tonalização sutil dependente do tema.
 - **Settings:** a explicação do cérebro criativo usa painel próprio para se separar da arte desfocada.
 
-**Gate:** código atualizado publicado; a CI do novo SHA e a matriz visual no aparelho ainda precisam ser confirmadas. A CI anterior `#38684219225` não valida essas mudanças. P6-C/P6-E permanecem abertos até APK do SHA atual, escalas 1.0/1.3, temas claro/escuro, viewport compacta, scroll e IME serem observados em runtime.
+**Gate:** a CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou para o checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440` (build OK, 0 erros/38 avisos). A validação visual ainda está pendente: P6-C/P6-E só fecham depois de instalar esse APK e observar escalas 1.0/1.3, temas claro/escuro, viewport compacta, scroll e IME em runtime.
