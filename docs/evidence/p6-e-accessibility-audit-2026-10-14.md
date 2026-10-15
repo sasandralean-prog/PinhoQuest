@@ -1,8 +1,8 @@
 # P6-E — Auditoria visual, tipografia e acessibilidade (2026-10-14)
 
 **Branch de trabalho:** `feature/p6-total-ui-refactor`  
-**Status:** correções iniciais publicadas; CI e validação de runtime ainda pendentes.  
-**Gate:** P6-E continua aberto. P6-C também continua aberto até validação em aparelho.  
+**Status:** correções iniciais e follow-up de tipografia publicados; CI do checkpoint atual e validação de runtime ainda pendentes.  
+**Gate:** P6-E continua aberto. P6-C também continua aberto até validação em aparelho. Follow-up de 2026-10-15 registrado na seção 7.  
 **Fonte de observação:** quatro screenshots fornecidas por Rafa em 14/10/2026. Os screenshots não vieram associados a um SHA de APK, portanto mostram sintomas reais, mas não identificam por si só o commit instalado.
 
 ## 1. Resumo executivo
@@ -73,7 +73,34 @@ A FAQ oficial de fontes da Microsoft declara que as fontes Windows não podem se
 | P6-B — composição visual | Aceito na rodada anterior | Não reabrir sem regressão reproduzível |
 | P6-C — responsividade, IME e safe areas | **ABERTO** | Validação no aparelho em tela compacta, teclado, escalas e temas |
 | P6-D — geração/fallback | Separado desta auditoria | Preservar a qualidade de modelo/fallback já documentada |
-| P6-E — tipografia/acessibilidade/distribuição | **EM ANDAMENTO; MV Boli bloqueada por licença** | CI + validação em aparelho + licença de fonte compatível |
+| P6-E — tipografia/acessibilidade/distribuição | **EM ANDAMENTO; Ihlimia integrada para teste; CI/runtime/licença pendentes** | CI + validação em aparelho + licença de fonte compatível |
 | P6-Final | **BLOCKED** | Matriz de regressão e evidência final ligadas ao SHA |
 
 Nenhum gate é declarado concluído por esta auditoria.
+
+
+## 7. Follow-up — Ihlimia e correção da CI (2026-10-15)
+
+### Falha reproduzida no log
+
+A execução [#38603677089, job #115988990661](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38603677089/job/115988990661) falhou ao compilar `:app:compileDebugAndroidTestKotlin`:
+- `assertExists` era importado/usado, mas não estava disponível na versão Compose UI Test configurada.
+- `onNodeWithText` era chamado sem o import correspondente.
+
+Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNodesWithText` e `onAllNodesWithContentDescription`, com `assertCountEquals`. Isso corrige a causa de compilação observada; somente uma CI nova, ligada ao SHA atual, confirma o resultado.
+
+### Fonte selecionada e aplicação
+
+- Arquivo fonte: `docs/design/ihlimia-maisfontes.8b4f.zip`.
+- Inspeção do ZIP encontrou somente `ihlimia.ttf` (413.348 bytes descompactados), sem licença/readme.
+- `app/build.gradle.kts` extrai o TTF sozinho para uma pasta gerada de recursos Android; o ZIP não é copiado como recurso.
+- A família `PinhoDisplayFontFamily` é aplicada apenas a títulos decorativos curtos no Início, Jardim e Perfil. Métricas, corpo de texto, quests geradas, botões e navegação mantêm as famílias anteriores.
+- Ajustes de legibilidade adicionais: métricas do cartão Home aumentaram de 10sp para 11sp (line-height 13sp); rótulo do botão de backup reduziu de 18sp para 16sp e ganhou limite de duas linhas.
+- Rafa identificou a fonte como livre. Como o ZIP não inclui licença, manter pendente a captura do texto de licença oficial/autor que permita explicitamente incorporar e redistribuir o arquivo binário num APK público. Uso comercial permitido por um diretório de fontes não prova necessariamente direito de redistribuir o TTF.
+
+### Evidência ainda obrigatória
+
+1. Verificar a CI mais recente no SHA exato; não inferir resultado a partir do run antigo.
+2. Testar o APK dessa mesma revisão em tela compacta, tema claro/escuro e escalas 1.0/1.3.
+3. Conferir nomes longos, métricas altas, alvos de toque, scroll, barra de navegação, e onboarding com IME aberto.
+4. Manter P6-C, P6-E e P6-Final abertos até haver essa evidência.
