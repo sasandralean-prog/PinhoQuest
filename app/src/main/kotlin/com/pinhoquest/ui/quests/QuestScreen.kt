@@ -210,8 +210,8 @@ private fun GardenSummaryCard(
                 Text(
                     text = "$flowerCount flores",
                     color = PinhoInk,
-                    fontSize = 10.sp,
-                    lineHeight = 11.sp,
+                    fontSize = 11.sp,
+                    lineHeight = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1.05f),
@@ -219,8 +219,8 @@ private fun GardenSummaryCard(
                 Text(
                     text = "$lifetimeXp XP",
                     color = PinhoInk,
-                    fontSize = 10.sp,
-                    lineHeight = 11.sp,
+                    fontSize = 11.sp,
+                    lineHeight = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(0.95f),
