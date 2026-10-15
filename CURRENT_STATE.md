@@ -33,7 +33,7 @@ Current visual/quality gates:
 - P6-B is accepted for the previous composition pass.
 - P6-C remains OPEN pending device validation of keyboard/IME, compact layouts, safe areas, collection and font scales.
 - P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
-- P6-E follow-up (2026-10-15): fixed the LargeFontLayoutTest Compose test API imports that caused the latest reported CI failure, added build-time extraction of the selected Ihlimia display font from docs/design/ihlimia-maisfontes.8b4f.zip, and limited that font to short decorative headings. Home metrics and the backup-button label were also adjusted for readability. CI for the resulting checkpoint and device screenshots are still required. The ZIP contains only ihlimia.ttf, not its license; preserve the release gate until the exact app-embedding/redistribution terms are recorded.
+- P6-E follow-up (2026-10-15): fixed the LargeFontLayoutTest Compose test API imports that caused the latest reported CI failure, added build-time extraction of the selected Ihlimia display font from docs/design/ihlimia-maisfontes.8b4f.zip, and limited that font to short decorative headings. Home metrics and the backup-button label were also adjusted for readability. Android CI #38684219225 passed for code checkpoint `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; on-device screenshots and accessibility validation are still required. The ZIP contains only ihlimia.ttf, not its license; preserve the release gate until the exact app-embedding/redistribution terms are recorded.
 
 Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Section 39 is the newest operational checkpoint.
 
@@ -1758,7 +1758,7 @@ The test now uses `onAllNodesWithText` / `onAllNodesWithContentDescription` with
 
 ### Remaining evidence
 
-- A previous code checkpoint at `84cae019736055f4f1f4fee1bd1f768e3203939c` passed Android CI run [#38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083), including `:app:compileDebugAndroidTestKotlin`. The Garden heading was subsequently returned to the existing readable family; CI for the latest code SHA must pass before claiming current PASS.
+- Android CI [#38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passed for code checkpoint `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`, including `:app:syncDisplayFont`, `:app:compileDebugAndroidTestKotlin`, unit tests, lint and APK assembly. Lint reported 0 errors and 38 warnings. The workflow compiles AndroidTest sources but does not execute `connectedDebugAndroidTest`; P6-C/P6-E remain open for on-device layout and interaction evidence.
 - Install the APK from that SHA and compare Home, Garden, Profile and Settings in light/dark themes and font scales 1.0/1.3.
 - Recheck long owner names, large XP/flower counts, labels on illustrated buttons, all touch targets and content above the global navbar.
 - P6-C remains OPEN until compact layout, IME, collection scrolling and safe areas are observed on-device. P6-E remains OPEN until CI, the visual/accessibility matrix and font redistribution provenance are recorded.
