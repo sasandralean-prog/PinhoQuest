@@ -198,4 +198,9 @@ Regras de aceite específicas:
 - O conteúdo rolável reserva o espaço da barra global e continua acessível até o fim.
 - Tema noturno nunca depende de verde-escuro sobre fundo escuro; verificar contraste de textos sobre arte, pergaminho e botões.
 - Testar escala 1.0 e 1.3, ambos os temas e viewport compacta. Uma compilação de AndroidTest não substitui execução nem evidência em aparelho.
-- MV Boli permanece bloqueada para incorporação até haver licença explícita para apps. Não distribuir a fonte apenas porque o ZIP está presente na pasta de design.
+- A fonte de display atual é Ihlimia, extraída do ZIP fornecido para um recurso `res/font` gerado durante o build e usada somente em headings curtos. O ZIP não inclui licença; apesar da indicação do proprietário de que ela é livre, registrar a fonte oficial dos termos de incorporação/redistribuição antes do release. Texto funcional, métricas e controles não usam a fonte manuscrita.
+
+
+## 16. P6-E follow-up (2026-10-15)
+
+A auditoria e o plano de correção foram atualizados após a CI #38603677089. O defeito de compilação dos testes instrumentados (uso de `assertExists` e ausência de import de `onNodeWithText`) foi corrigido em `LargeFontLayoutTest.kt`. O build agora extrai `ihlimia.ttf` de `docs/design/ihlimia-maisfontes.8b4f.zip`; o uso é restrito a títulos decorativos curtos. Home metrics e rótulo de backup também receberam ajustes de legibilidade. P6-C/P6-E continuam abertos até CI verde no SHA atual, teste visual em aparelho e registro da licença de redistribuição.
