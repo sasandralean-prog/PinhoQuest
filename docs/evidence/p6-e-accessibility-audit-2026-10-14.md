@@ -1,7 +1,7 @@
 # P6-E — Auditoria visual, tipografia e acessibilidade (2026-10-14)
 
 **Branch de trabalho:** `feature/p6-total-ui-refactor`  
-**Status:** a rodada de screenshots de 15/10 originou novas correções no working branch; a CI referente ao último conjunto e a validação de runtime em aparelho ainda precisam ser confirmadas. A CI verde anterior `#38684219225` cobre um checkpoint anterior e não deve ser usada para atribuir PASS ao código novo.  
+**Status:** a rodada de screenshots de 15/10 foi implementada no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440`, validado por [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) (BUILD SUCCESSFUL, 0 erros/38 avisos). A validação de runtime em aparelho ainda está pendente.  
 **Gate:** P6-E continua aberto. P6-C também continua aberto até validação em aparelho. Follow-up de 2026-10-15 registrado na seção 7.  
 **Fonte de observação:** quatro screenshots fornecidas por Rafa em 14/10/2026. Os screenshots não vieram associados a um SHA de APK, portanto mostram sintomas reais, mas não identificam por si só o commit instalado.
 
@@ -132,7 +132,7 @@ Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNod
 
 ### Critérios de validação
 
-- A CI anterior não prova a compilação deste conjunto. Confirmar o último workflow no SHA exato, revendo lint sem ocultar avisos.
+- A CI #38690256884 passou no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440`, incluindo `syncDisplayFont`, testes unitários, lint, APK debug e compilação de AndroidTest. O log registrou 0 erros/38 avisos. Essa CI compila AndroidTest, mas não executa `connectedDebugAndroidTest`.
 - Instalar o APK daquele SHA e recapturar Home, Garden, Profile, Settings, seleção de temas e onboarding.
 - Repetir em tema claro/escuro, escala 1.0/1.3 e viewport compacta; incluir nome comprido, métricas grandes, área do teclado aberta e rolagem total.
 - P6-C/P6-E continuam abertos até a execução visual/funcional no aparelho e o registro da licença de incorporação/redistribuição da Ihlimia antes do release.
