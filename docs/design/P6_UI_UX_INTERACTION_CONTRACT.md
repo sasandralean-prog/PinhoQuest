@@ -98,7 +98,7 @@ Configurações e seleção de temas são fluxos internos; não criam abas globa
 - `P6-E`: distribuição segura do modelo, mapeamento semântico de categoria, fonte e acessibilidade.
 - `P6-Final`: regressão de release ligada ao SHA testado.
 
-**Estado atual (2026-10-15):** P6-B permanece aceito; P6-C e P6-E seguem abertos. A falha de compilação do teste `LargeFontLayoutTest.kt` foi corrigida; a fonte Ihlimia foi integrada ao build para teste nos títulos decorativos aprovados. Isso ainda não fecha nenhum gate: falta CI verde no SHA exato, validação em dispositivo e registro da licença de incorporação/distribuição da fonte. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
+**Estado atual (2026-10-15):** P6-B permanece aceito; P6-C e P6-E seguem abertos. A correção de `LargeFontLayoutTest.kt` e a extração de Ihlimia foram validadas pela [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; a execução concluiu com `BUILD SUCCESSFUL`, 0 erros e 38 avisos de lint. A CI compila testes instrumentados, mas não os executa no aparelho. Falta validação visual/funcional real e registro da licença de incorporação/distribuição antes de fechar gates. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
 
 
 ## 11. Evidência visual P6-E — revisão de 14/10/2026
@@ -143,4 +143,4 @@ A execução [#38603677089, job #115988990661](https://github.com/sasandralean-p
 
 A legibilidade recebeu ajustes: as métricas do cartão Home passaram de 10sp para 11sp com line-height correspondente; o botão de backup usa rótulo 16sp, no máximo duas linhas. A fonte manuscrita não foi aplicada a botões/controles porque os textos funcionais precisam continuar fáceis de ler.
 
-**Evidência CI:** o checkpoint de código `84cae019736055f4f1f4fee1bd1f768e3203939c` passou na [Android CI #38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083), incluindo compilação dos testes instrumentados. Depois dele, o heading do Jardim foi devolvido à família tipográfica anterior; CI para o SHA atual está pendente. Também é necessário validar no aparelho o APK da mesma revisão e registrar a licença de Ihlimia que permita incorporação/distribuição em app. P6-C e P6-E permanecem abertos.
+**Evidência CI:** a [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passou no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`, incluindo `syncDisplayFont` e compilação de AndroidTest. O heading do Jardim permanece na família legível anterior. A validação no aparelho e o registro da licença de Ihlimia para incorporação/distribuição em app continuam pendentes. P6-C e P6-E permanecem abertos.
