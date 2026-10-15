@@ -133,7 +133,7 @@ Essa decisão histórica não bloqueia por si só a alternativa selecionada abai
 - Fonte selecionada por Rafa: `docs/design/ihlimia-maisfontes.8b4f.zip`.
 - O ZIP contém `ihlimia.ttf` e não inclui licença/README. Rafa identifica a fonte como de licença livre; o arquivo enviado, isoladamente, não comprova quais direitos de redistribuição e incorporação em APK são concedidos. Guardar a licença/autorização do autor ou da fonte oficial antes de release público.
 - `app/build.gradle.kts` extrai somente `ihlimia.ttf` para `build/generated/p6-display-font-res/font/`; o ZIP não é empacotado como recurso.
-- A família `PinhoDisplayFontFamily` é aplicada a headings curtos do Início, Jardim e Perfil. Texto do corpo, quests geradas, métricas, rótulos de navegação e controles continuam nas famílias anteriores, para não trocar legibilidade por ornamentação.
+- A família `PinhoDisplayFontFamily` é aplicada apenas a headings curtos do Início e Perfil (nome do jardim e título Perfil). O título do Jardim permanece na família anterior para priorizar legibilidade com nomes longos. Texto do corpo, quests geradas, métricas, rótulos de navegação e controles continuam nas famílias anteriores, para não trocar legibilidade por ornamentação.
 - A fonte deve ser validada com nomes longos, escalas de fonte, temas claro/escuro e layouts compactos antes de fechar P6-E.
 
 
@@ -143,4 +143,4 @@ A execução [#38603677089, job #115988990661](https://github.com/sasandralean-p
 
 A legibilidade recebeu ajustes: as métricas do cartão Home passaram de 10sp para 11sp com line-height correspondente; o botão de backup usa rótulo 16sp, no máximo duas linhas. A fonte manuscrita não foi aplicada a botões/controles porque os textos funcionais precisam continuar fáceis de ler.
 
-**Pendências:** confirmar CI verde no SHA atual, validar no aparelho o APK dessa mesma revisão e registrar a licença de Ihlimia que permita incorporação/distribuição em app. P6-C e P6-E permanecem abertos.
+**Evidência CI:** o checkpoint de código `84cae019736055f4f1f4fee1bd1f768e3203939c` passou na [Android CI #38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083), incluindo compilação dos testes instrumentados. Depois dele, o heading do Jardim foi devolvido à família tipográfica anterior; CI para o SHA atual está pendente. Também é necessário validar no aparelho o APK da mesma revisão e registrar a licença de Ihlimia que permita incorporação/distribuição em app. P6-C e P6-E permanecem abertos.
