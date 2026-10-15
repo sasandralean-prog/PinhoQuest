@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -73,7 +74,10 @@ fun ProfileScreen(
                 Text(
                     "Perfil",
                     color = foreground,
-                    fontSize = 30.sp,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontSize = 30.sp,
+                        lineHeight = 34.sp,
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -118,8 +122,10 @@ fun ProfileScreen(
                     Text(
                         text = "Jardim de $ownerName",
                         color = PinhoInk,
-                        fontSize = 17.sp,
-                        lineHeight = 20.sp,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 17.sp,
+                            lineHeight = 20.sp,
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
