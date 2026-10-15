@@ -1,7 +1,7 @@
 # P6-E — Auditoria visual, tipografia e acessibilidade (2026-10-14)
 
 **Branch de trabalho:** `feature/p6-total-ui-refactor`  
-**Status:** CI verde no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; validação de runtime em aparelho e proveniência da licença de fonte ainda pendentes.  
+**Status:** a rodada de screenshots de 15/10 originou novas correções no working branch; a CI referente ao último conjunto e a validação de runtime em aparelho ainda precisam ser confirmadas. A CI verde anterior `#38684219225` cobre um checkpoint anterior e não deve ser usada para atribuir PASS ao código novo.  
 **Gate:** P6-E continua aberto. P6-C também continua aberto até validação em aparelho. Follow-up de 2026-10-15 registrado na seção 7.  
 **Fonte de observação:** quatro screenshots fornecidas por Rafa em 14/10/2026. Os screenshots não vieram associados a um SHA de APK, portanto mostram sintomas reais, mas não identificam por si só o commit instalado.
 
@@ -104,3 +104,35 @@ Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNod
 2. Testar o APK dessa mesma revisão em tela compacta, tema claro/escuro e escalas 1.0/1.3.
 3. Conferir nomes longos, métricas altas, alvos de toque, scroll, barra de navegação, e onboarding com IME aberto.
 4. Manter P6-C, P6-E e P6-Final abertos até haver essa evidência.
+
+
+## 8. Segunda rodada visual — navbar, cards e superfícies de texto (2026-10-15)
+
+**Fonte:** sete novos screenshots enviados por Rafa após a primeira correção de tipografia. A validação visual indica melhoria geral, mas ainda mostra competição entre texto dinâmico e a arte de fundo.
+
+### Observações dos screenshots
+
+- **Navbar:** o texto ainda estava em fonte sans, ficava muito próximo da área de ilustração e o item selecionado usava dourado também em fundo claro, reduzindo o contraste.
+- **Início:** o cartão do jardim não tinha espaço suficiente para métricas/nome/descrição; a arte incorporada incluía pequenas marcas decorativas sob o texto. O card de Quest de Jogo estava visualmente mais baixo/menor que o card adjacente.
+- **Jardim:** mensagem de florescimento, XP e ação Abrir coleção estavam diretamente sobre o cenário; as cores competiam com regiões claras e escuras da ilustração conforme o tema.
+- **Perfil:** o nome do jardim em fonte script ultrapassava visualmente a região inferior da placa e subia para a folhagem. A família manuscrita foi removida especificamente desse título; continua permitida em títulos curtos decorativos e na navbar conforme o requisito do proprietário.
+- **Onboarding:** título, input, preview e botão estavam distribuídos sobre a paisagem sem uma superfície estável, e a posição do conteúdo aproximava o título da marca do fundo.
+- **Seleção de temas:** o título “O que vamos descobrir?” invadia a área do wordmark, e a mensagem de temas selecionados aparecia sobre as flores.
+
+### Alterações na branch
+
+- Navbar: Ihlimia aplicada aos rótulos, alinhamento horizontal central preservado por destino e menor padding inferior para acomodar as legendas abaixo da ilustração. No tema claro, o item selecionado usa verde-escuro; no tema escuro, conserva o dourado.
+- Início: o cartão do jardim agora ocupa toda a largura disponível da coluna e inclui inset de pergaminho para isolar métricas, nome e descrição. A coluna da Home reduziu margens horizontais de 22dp para 16dp. A proporção do botão de Quest de Jogo mudou de 174:86 para 174:100 e o rótulo aumentou para 15sp.
+- Jardim: mensagem e métricas estão num painel de pergaminho; Abrir coleção ganhou uma superfície creme com contorno para não depender da cor do cenário.
+- Perfil: título da placa usa serif legível a 16sp, 82% da largura útil e menor inset inferior.
+- Onboarding: painel de pergaminho agrupa título, input, preview e confirmação; o conteúdo desceu levemente, o preview está centralizado e o botão fica centralizado independentemente.
+- Seleção de temas: leve tonalização dependente do tema, título/helper em pergaminho e estado de seleção num segundo painel.
+- Configurações: texto explicativo do cérebro criativo agora tem fundo de pergaminho; isso evita texto verde sobre detalhes do fundo desfocado.
+- Todos os comportamentos de domínio, callbacks, validação do nome, IME Done e semântica de navegação foram preservados intencionalmente.
+
+### Critérios de validação
+
+- A CI anterior não prova a compilação deste conjunto. Confirmar o último workflow no SHA exato, revendo lint sem ocultar avisos.
+- Instalar o APK daquele SHA e recapturar Home, Garden, Profile, Settings, seleção de temas e onboarding.
+- Repetir em tema claro/escuro, escala 1.0/1.3 e viewport compacta; incluir nome comprido, métricas grandes, área do teclado aberta e rolagem total.
+- P6-C/P6-E continuam abertos até a execução visual/funcional no aparelho e o registro da licença de incorporação/redistribuição da Ihlimia antes do release.
