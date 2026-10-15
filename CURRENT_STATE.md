@@ -31,9 +31,9 @@ The CR-7.4 LiteRT-LM model is catalogued for production and Rafa reported downlo
 
 Current visual/quality gates:
 - P6-B is accepted for the previous composition pass.
-- P6-C remains OPEN pending device validation of keyboard/IME, compact layouts, safe areas, collection and font scales.
+- P6-C was explicitly APPROVED by Rafa after visual review on 2026-10-15 (screenshot at 19:01 local time). Remaining minor spacing/allocation imperfections are accepted for this phase and consolidated into one later polish pass; no extra micro-fixes should be split out before that pass.
 - P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
-- P6-E follow-up (2026-10-15): the CI/test compile issue is fixed, Ihlimia is extracted from the design ZIP only into generated font resources, and the initial contrast/layout pass is complete. Rafa validated that checkpoint and supplied a second set of screenshots showing remaining issues in the navbar, Home cards, garden art text, Profile plaque, onboarding name step and theme selector. These fixes are published in the working branch. Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passed for code checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440`; P6-C/P6-E remain open until the new APK is visually validated on-device. The font ZIP still contains no license file.
+- P6-E was explicitly APPROVED by Rafa after visual review on 2026-10-15 (screenshot at 19:01 local time), with minor text-spacing imperfections deferred to a single polish pass. The second visual code pass is validated by Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) at `c2e8d05adaf0cff34e58ea81d88718ba74412440` (BUILD SUCCESSFUL; 0 lint errors, 38 warnings). This approval closes the P6-C/P6-E acceptance gates for the current iteration. Separate release-provenance requirement: the Ihlimia ZIP contains no license/README, so the exact permission to embed and redistribute the font still needs to be recorded before a public release.
 
 Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Section 39 is the newest operational checkpoint.
 
@@ -1730,8 +1730,8 @@ The font has **not** been added to Android resources or the APK. Its integration
 
 ### Gate state
 
-- P6-C: **OPEN**, device evidence pending.
-- P6-E: **IN PROGRESS**, initial UI corrections present; CI/runtime matrix pending; MV Boli blocked by license.
+- P6-C: **APPROVED BY RAFA (2026-10-15)**; remaining minor geometry/spacing concerns deferred to one consolidated polish pass.
+- P6-E: **APPROVED BY RAFA (2026-10-15)** for current UI, typography and contrast iteration; font license provenance remains a release checklist item, not a blocker for this iteration's acceptance.
 - P6-Final: **BLOCKED** until all required P1 gates have evidence.
 
 
@@ -1781,4 +1781,16 @@ The test now uses `onAllNodesWithText` / `onAllNodesWithContentDescription` with
 
 ### Validation state
 
-Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passed for code checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440`; its log confirms `BUILD SUCCESSFUL`, 0 lint errors and 38 warnings. The existing P6-C/P6-E device matrix must still be repeated against the APK built from that exact code: light/dark theme, system font scales 1.0/1.3, compact viewport, longer garden name, the largest expected flower/XP values, scrolling, nav safe area and onboarding with the keyboard visible. No claim of visual PASS is made by this source update alone.
+Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passed for code checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440`; its log confirms `BUILD SUCCESSFUL`, 0 lint errors and 38 warnings. Rafa reviewed the post-fix APK visually on-device and explicitly approved P6-C and P6-E on 2026-10-15. Small remaining spacing/allocation issues, including the onboarding name/preview region, are intentionally consolidated into one later polish pass instead of reopening these gates. Keep the font redistribution license/provenance as a separate release checklist item.
+
+
+## 42. P6-C/P6-E acceptance decision — owner approval (2026-10-15)
+
+**Decision maker:** Rafa, project owner.  
+**Evidence:** latest on-device screenshot supplied on 2026-10-15 at 19:01 local time, following the second visual correction pass; code CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passed on `c2e8d05adaf0cff34e58ea81d88718ba74412440` with `BUILD SUCCESSFUL`, 0 lint errors and 38 warnings.
+
+- **P6-C — APPROVED for this iteration.** Responsive layouts, navigation positioning, text surfaces and main screen flows are accepted by the owner. Remaining minor spacing/allocation imperfections are acknowledged and deferred to one consolidated polish pass.
+- **P6-E — APPROVED for this iteration.** Typography, contrast surfaces and screenshot-driven accessibility corrections are accepted by the owner. Do not create separate micro-fix rounds for the remaining cosmetic spacing issues.
+- **Polish scope:** revisit onboarding title/input/preview spacing, input baseline inside the wooden name plate, line break/centering of “Vai aparecer como Jardim de …”, and any navbar/card spacing revealed by a final side-by-side screenshot pass. Preserve callbacks, state, validation, semantics and canonical artwork.
+- **Release caveat kept separate:** the Ihlimia archive has no embedded license/README. Record the original license or explicit app-embedding/redistribution permission before a public APK release. This does not revoke the owner's approval of P6-C/P6-E for the current iteration.
+- **P6-Final remains governed by its own release criteria.** This approval closes the current iteration's P6-C/P6-E acceptance gates but is not an automatic release approval.
