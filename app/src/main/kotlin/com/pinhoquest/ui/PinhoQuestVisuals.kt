@@ -287,7 +287,7 @@ private fun PinhoNavItem(
     ) {
         Text(
             text = label,
-            color = if (selected) PinhoGold else if (dark) PinhoCream else PinhoInk,
+            color = if (selected && dark) PinhoGold else if (selected) PinhoForest else if (dark) PinhoCream else PinhoInk,
             style = androidx.compose.material3.MaterialTheme.typography.labelLarge.copy(
                 fontFamily = PinhoDisplayFontFamily,
                 fontSize = 15.sp,
