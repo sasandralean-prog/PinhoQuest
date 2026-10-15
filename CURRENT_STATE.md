@@ -1758,7 +1758,7 @@ The test now uses `onAllNodesWithText` / `onAllNodesWithContentDescription` with
 
 ### Remaining evidence
 
-- Confirm the new CI result against the exact branch SHA and resolve any additional build findings.
+- A previous code checkpoint at `84cae019736055f4f1f4fee1bd1f768e3203939c` passed Android CI run [#38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083), including `:app:compileDebugAndroidTestKotlin`. The Garden heading was subsequently returned to the existing readable family; CI for the latest code SHA must pass before claiming current PASS.
 - Install the APK from that SHA and compare Home, Garden, Profile and Settings in light/dark themes and font scales 1.0/1.3.
 - Recheck long owner names, large XP/flower counts, labels on illustrated buttons, all touch targets and content above the global navbar.
 - P6-C remains OPEN until compact layout, IME, collection scrolling and safe areas are observed on-device. P6-E remains OPEN until CI, the visual/accessibility matrix and font redistribution provenance are recorded.
