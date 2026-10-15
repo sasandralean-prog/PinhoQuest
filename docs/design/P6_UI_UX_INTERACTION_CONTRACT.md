@@ -144,3 +144,17 @@ A execução [#38603677089, job #115988990661](https://github.com/sasandralean-p
 A legibilidade recebeu ajustes: as métricas do cartão Home passaram de 10sp para 11sp com line-height correspondente; o botão de backup usa rótulo 16sp, no máximo duas linhas. A fonte manuscrita não foi aplicada a botões/controles porque os textos funcionais precisam continuar fáceis de ler.
 
 **Evidência CI:** a [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passou no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`, incluindo `syncDisplayFont` e compilação de AndroidTest. O heading do Jardim permanece na família legível anterior. A validação no aparelho e o registro da licença de Ihlimia para incorporação/distribuição em app continuam pendentes. P6-C e P6-E permanecem abertos.
+
+
+## 13. Segunda rodada de legibilidade — 2026-10-15
+
+Os novos screenshots mostram texto dinâmico competindo com arte em Home, Jardim, Perfil, Settings, onboarding e seleção de temas. Os ajustes publicados preservam as regras de interação:
+
+- Navbar continua expondo exatamente os destinos Início/Jardim/Perfil, os mesmos content descriptions, estado selecionado e callbacks. Agora os rótulos usam a fonte de display, ficam centralizados na respectiva coluna e são posicionados abaixo da ilustração; a cor selecionada muda conforme o tema para manter contraste.
+- O Home card e o cartão de Quest de Jogo aumentaram; métricas e nome do jardim ficam em um inset de pergaminho. O restante das ações conserva os callbacks e os modos QuestMode existentes.
+- Mensagem de florescimento e Abrir coleção no Jardim ganharam superfícies próprias, mantendo o mesmo callback de abrir a coleção.
+- Placa do nome no Perfil usa serif legível e uma região mais larga; onboarding agrupa rótulos, input e confirmação em superfície contrastante sem alterar validação `GardenOwnerName`, limites de caracteres nem IME Done.
+- Seleção de temas mantém o mesmo estado persistido e callbacks; apenas hierarquia vertical, tonalização e superfícies de texto foram ajustadas.
+- Settings ganhou uma superfície de alto contraste para texto auxiliar. A ação de backup e o fluxo de instalação do modelo não foram alterados.
+
+**Estado de gate:** requer CI no último SHA e nova validação em aparelho. Compilar AndroidTest é evidência de compilação, não de posicionamento em runtime. Manter P6-C/P6-E abertos até comparar o APK atual em temas claro/escuro, escalas 1.0/1.3, viewport compacta e onboarding com teclado.
