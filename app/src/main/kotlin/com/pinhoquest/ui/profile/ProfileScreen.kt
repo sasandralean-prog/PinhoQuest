@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontFamily
 import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
@@ -116,8 +117,8 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .fillMaxWidth(0.72f)
-                        .padding(bottom = maxHeight * 0.04f),
+                        .fillMaxWidth(0.82f)
+                        .padding(bottom = maxHeight * 0.01f),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -125,9 +126,9 @@ fun ProfileScreen(
                         text = "Jardim de $ownerName",
                         color = PinhoInk,
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontFamily = PinhoDisplayFontFamily,
-                            fontSize = 17.sp,
-                            lineHeight = 20.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 16.sp,
+                            lineHeight = 19.sp,
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
