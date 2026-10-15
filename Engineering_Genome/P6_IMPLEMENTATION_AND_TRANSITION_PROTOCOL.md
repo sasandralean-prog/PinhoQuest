@@ -4,7 +4,7 @@
 **Branch de trabalho:** feature/p6-total-ui-refactor  
 **Revisão do contrato:** 2026-10-15 — follow-up de tipografia e CI P6-E  
 **SHA histórico de referência do snapshot de 10/10:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64 (superado por checkpoints posteriores)  
-**Último checkpoint de código da auditoria:** GardenScreen/UI — 3963f8ca2caf68535b5a290812d1084522a28575; CI do checkpoint final ainda precisa ser confirmado.  
+**Último checkpoint de código da auditoria:** GardenScreen/UI — `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) está em andamento no momento deste registro.  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
 > Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
@@ -426,7 +426,7 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
 | P6-C — layouts responsivos | **EM ANDAMENTO — CI ATUAL PENDENTE** | Correção do import `dp` publicada no SHA `42426c2f6667c86c3f7c70f99b50ca20543d4f64`; consultar [CI #38093650095](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38093650095) e validar IME, escala 1.0/1.3, temas e safe areas em aparelho antes do PASS. |
 | P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido, seleção variada, composições procedurais, fallback validado e diagnóstico redigido implementados no código; CI do HEAD mais recente ainda não concluiu e a validação integrada em aparelho permanece aberta |
-| P6-E — modelo/tipografia/categorias | **AUDITORIA INICIADA; GATE ABERTO** | CR-7.4 tem catálogo/release versionados; ajustes iniciais de layout/contraste foram publicados no checkpoint de 14/10; CI e validação em aparelho permanecem pendentes; MV Boli está bloqueada por licença de app |
+| P6-E — modelo/tipografia/categorias | **EM ANDAMENTO — CI/VALIDAÇÃO VISUAL PENDENTES** | Ihlimia está ligada ao build e limitada a headings curtos em Home/Profile; os ajustes de contraste, métricas e botão de backup estão publicados. O ZIP não contém licença; registrar os direitos de incorporação antes do release. Validar a nova CI e a matriz visual em aparelho. |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
 Este quadro distingue aceitação visual provisória de P6-B, implementação ainda em progresso de P6-C e gate final de release; documentação não substitui evidência de runtime.
