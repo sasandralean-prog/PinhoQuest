@@ -2,7 +2,7 @@
 
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
-**Revisão do contrato:** 2026-10-14 — auditoria visual e de acessibilidade P6-E  
+**Revisão do contrato:** 2026-10-15 — follow-up de tipografia e CI P6-E  
 **SHA histórico de referência do snapshot de 10/10:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64 (superado por checkpoints posteriores)  
 **Último checkpoint de código da auditoria:** GardenScreen/UI — 3963f8ca2caf68535b5a290812d1084522a28575; CI do checkpoint final ainda precisa ser confirmado.  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
@@ -23,7 +23,7 @@ P6 não é somente uma troca de PNGs. O trabalho inclui o encaixe real entre ass
 - Corrigir a seleção de categoria e a diversidade do compositor procedural.
 - Definir e implementar um caminho seguro e verificável para disponibilizar LiteRT-LM, caso continue sendo requisito de produto V1.
 - Completar a associação visual das categorias somente após validar IDs semânticos no catálogo de domínio.
-- Integrar MS Boli somente após verificar procedência e licença; manter o texto funcional legível e responsivo.
+- Integrar a fonte de display escolhida somente em papéis curtos e decorativos, após registrar licença que permita incorporação/distribuição; manter texto funcional legível e responsivo.
 - Testes automatizados, revisão em aparelho, screenshots comparativas, build e atualização do estado documental.
 
 ### Fora de escopo, salvo decisão explícita
@@ -336,7 +336,7 @@ A sequência abaixo substitui cronogramas históricos com apenas três marcos. P
 | UI-04 | P2 | Proporções atualizadas de temas, empty-garden e outros assets em Compose | P6-B | B |
 | UX-01 | P2 | Escala de fonte e strings longas em telas compactas/tema claro e escuro | P6-C/E | C/E |
 | CAT-01 | P2 | Decisão explícita de mapeamento de todos os nove assets às categorias ou superfície neutra intencional | P6-E | E |
-| TYPE-01 | P2 | MS Boli só após licença/procedência e validação da legibilidade | P6-E | E |
+| TYPE-01 | P2 | Fonte de display limitada a headings; procedência e licença de incorporação comprovadas antes de release | P6-E | E |
 | DOC-01 | P2 | Documentos refletem a branch, os testes reais e as decisões; nenhum status histórico contraditório | P6-A/F | A/F |
 | QA-01 | P1 para encerramento | Matriz de testes integrada, release e screenshots do SHA final | P6-Final | F |
 
@@ -455,7 +455,7 @@ Commits published on `feature/p6-total-ui-refactor`:
 ## 12. Registro de decisões em aberto
 
 1. **Distribuição LiteRT-LM:** confirmar a fonte do modelo, licença, tamanho, hash, formato/runtime suportado e mecanismo de confiança. Sem esses dados, não inventar URL nem adicionar binário ao Git.
-2. **MS Boli:** confirmar arquivo legítimo e licença antes de adicionar a fonte.
+2. **Licença da fonte de display:** registrar licença/autorização de incorporação e distribuição do Ihlimia antes de qualquer release público; o ZIP atual contém apenas o TTF.
 3. **Mapeamento visual de categorias:** resolvido visualmente pelo proprietário; os nove aliases estão documentados em `CANONICAL_GRAPHICS.md` e `P6_UI_UX_INTERACTION_CONTRACT.md`. Os IDs e afinidades de domínio não foram alterados.
 4. **Navbar:** confirmar visualmente a posição do rótulo em relação aos ícones incorporados na arte e manter uma única barra global.
 5. **Critério de diversidade:** definir limite aceitável de repetição junto com testes determinísticos, sem requisito impossível de nunca repetir texto.
@@ -525,3 +525,15 @@ The uploaded archive `docs/design/mv-boli-maisfontes.866a.zip` contains only `mv
 **Decision: do not package MV Boli into the APK until app redistribution/embedding rights are confirmed.** The ZIP is not part of the 47 canonical PNG mappings and Gradle must not include it by default. An appropriately licensed alternative is permitted after Rafa approves the visual choice.
 
 **Gate status:** P6-C OPEN; P6-E IN PROGRESS, MV Boli BLOCKED pending rights; P6-Final BLOCKED.
+
+
+## 14. P6-E follow-up — font integration and test-compilation correction (2026-10-15)
+
+**Status:** code changes published; P6-C/P6-E remain open pending the new CI result and device evidence.
+
+- Run [#38603677089, job #115988990661](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38603677089/job/115988990661) failed at `:app:compileDebugAndroidTestKotlin`: `assertExists` was not available through the configured Compose Test API, and `onNodeWithText` lacked an import. `LargeFontLayoutTest` now uses collection queries and `assertCountEquals`.
+- `app/build.gradle.kts` adds `syncDisplayFont`, extracts only `ihlimia.ttf` from `docs/design/ihlimia-maisfontes.8b4f.zip` into a generated `res/font` directory, and makes the generated resources a build input. The ZIP itself is not copied into the APK.
+- The selected font is applied only to short display headings in Home, Garden and Profile. Body copy, generated quest titles, navigation labels, numeric metrics and controls retain the prior typography to avoid a global readability regression.
+- Home metric labels were increased from 10sp to 11sp with matching line-height; the backup button label was reduced from 18sp to 16sp with a two-line limit to avoid running into the illustration border.
+- The ZIP contains one `ihlimia.ttf` payload and no license/readme. Rafa identified it as the freely licensed replacement. Secondary directory listings describe professional/commercial use ([Fontmirror](https://www.fontmirror.com/ihlimia), [Befonts](https://befonts.com/ihlimia-romantic-script-font.html)), but the uploaded archive is not itself license evidence and the exact app-embedding/redistribution terms still need to be recorded before public release.
+- Do not mark CI green based on the older run or on commits alone. The CI result must be verified against the exact new branch SHA; then install that APK and test compact viewport, theme light/dark, font scale 1.0/1.3, long owner names, scrolling, navigation safe area and touch semantics.
