@@ -2,9 +2,9 @@
 
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
-**Revisão do contrato:** 2026-10-15 — follow-up de tipografia e CI P6-E  
+**Revisão do contrato:** 2026-10-15 — segunda rodada de layout, contraste e navbar P6-C/P6-E  
 **SHA histórico de referência do snapshot de 10/10:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64 (superado por checkpoints posteriores)  
-**Último checkpoint de código da auditoria:** GardenScreen/UI — `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) está em andamento no momento deste registro.  
+**Último checkpoint de código da auditoria:** segunda rodada visual — `c2e8d05adaf0cff34e58ea81d88718ba74412440`; [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou (BUILD SUCCESSFUL; 0 erros/38 avisos).  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
 
 > Esta revisão substitui as distribuições de sprint e os estados técnicos contraditórios registrados nas notas históricas deste arquivo. Histórico continua útil como contexto, mas o estado vigente deve ser lido nas seções 1–5 e no quadro de sprints abaixo. Código, CI e evidências reproduzíveis prevalecem sobre README antigo, relato histórico, intenção e screenshot isolado.
@@ -424,9 +424,9 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 |---|---|---|
 | P6-A — baseline/assets/docs | **INVENTÁRIO RECONCILIADO; CI BASE CONCLUÍDO** | O verificador/build do snapshot aceito para P6-B passou em [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398); o documento atual ainda será validado pelo CI após este commit. |
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
-| P6-C — layouts responsivos | **CI VERDE; VALIDAÇÃO EM APARELHO PENDENTE** | [CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passou no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`, incluindo compilação AndroidTest; ainda falta validar IME, escala 1.0/1.3, temas, coleção e safe areas em aparelho. |
+| P6-C — layouts responsivos | **CI VERDE; VALIDAÇÃO EM APARELHO PENDENTE** | A segunda rodada passou na [CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) no checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440`, incluindo compilação AndroidTest; ainda falta validar IME, escala 1.0/1.3, temas, coleção e safe areas em aparelho. |
 | P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido, seleção variada, composições procedurais, fallback validado e diagnóstico redigido implementados no código; CI do HEAD mais recente ainda não concluiu e a validação integrada em aparelho permanece aberta |
-| P6-E — modelo/tipografia/categorias | **CI VERDE; VALIDAÇÃO VISUAL/LICENÇA PENDENTES** | A mesma [CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passou com `syncDisplayFont`, build, testes unitários, lint e compilação AndroidTest; lint: 0 erros/38 avisos. Ihlimia fica limitada a headings curtos; obter evidência visual em aparelho e registrar os direitos de embedding/redistribuição antes do release. |
+| P6-E — modelo/tipografia/categorias | **CI VERDE; VALIDAÇÃO VISUAL/LICENÇA PENDENTES** | [CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou com `syncDisplayFont`, testes unitários, lint, APK debug e compilação AndroidTest; lint: 0 erros/38 avisos. Ihlimia permanece restrita a títulos de display curtos e legendas da navbar; validar em aparelho e registrar os direitos de embedding/redistribuição antes do release. |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
 Este quadro distingue aceitação visual provisória de P6-B, implementação ainda em progresso de P6-C e gate final de release; documentação não substitui evidência de runtime.
@@ -537,3 +537,23 @@ The uploaded archive `docs/design/mv-boli-maisfontes.866a.zip` contains only `mv
 - Home metric labels were increased from 10sp to 11sp with matching line-height; the backup button label was reduced from 18sp to 16sp with a two-line limit to avoid running into the illustration border.
 - The ZIP contains one `ihlimia.ttf` payload and no license/readme. Rafa identified it as the freely licensed replacement. Secondary directory listings describe professional/commercial use ([Fontmirror](https://www.fontmirror.com/ihlimia), [Befonts](https://befonts.com/ihlimia-romantic-script-font.html)), but the uploaded archive is not itself license evidence and the exact app-embedding/redistribution terms still need to be recorded before public release.
 - Android CI [#38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passed for code checkpoint `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`. The log confirms `:app:syncDisplayFont`, `:app:compileDebugAndroidTestKotlin`, `BUILD SUCCESSFUL`, 0 lint errors and 38 warnings. The Garden heading remains in the readable existing family. The workflow compiles AndroidTest but does not execute `connectedDebugAndroidTest`; install this APK and test compact viewport, theme light/dark, font scale 1.0/1.3, long owner names, scrolling, navigation safe area and touch semantics.
+
+## 15. P6-C/P6-E — second visual refinement round (2026-10-15)
+
+**Code checkpoint:** `c2e8d05adaf0cff34e58ea81d88718ba74412440`  
+**CI:** [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) — `BUILD SUCCESSFUL`; `syncDisplayFont`, unit tests, `lintDebug`, `assembleDebug` and `compileDebugAndroidTestKotlin` completed. Lint: 0 errors, 38 warnings. This CI builds AndroidTest sources but does not execute `connectedDebugAndroidTest`.
+
+### Screenshot-driven changes
+- Navbar captions now use Ihlimia, remain centered within equal-width items and sit lower beneath the art. The selected color is PinhoForest on the light theme and PinhoGold on the dark theme to avoid gold-on-cream low contrast.
+- Home's garden summary card fills the available column width and uses an inset parchment surface for metrics, owner name and tagline. Home side padding went from 22dp to 16dp. Quest de Jogo is taller (aspect ratio 174:100) with a 15sp label and a reserved area for its gamepad illustration.
+- Garden's flowering status and XP metrics use a parchment panel; Abrir coleção gets its own cream surface and border.
+- Profile's garden name is 16sp serif in a wider/lower caption area so the script no longer touches the leaf crest. The display family remains on the short Profile heading.
+- Onboarding groups heading, editable name field, preview and confirmation into one parchment surface; name validation, character limit and IME Done path are retained.
+- Quest theme selection moves the title away from the wordmark, adds mild theme tinting and puts heading/helper and selected count on parchment surfaces.
+- Settings' creative-brain helper copy now sits on a high-contrast parchment panel.
+
+### Acceptance boundary
+- Android CI is green for the exact code checkpoint above.
+- P6-C/P6-E remain OPEN until the APK from the tested revision is installed and the second screenshot matrix is repeated in light/dark themes, font scales 1.0/1.3, compact viewport, long names, large metrics, scrolling and IME behavior.
+- The user-uploaded Ihlimia ZIP still contains no license/README. Preserve the release provenance task until an original license or explicit permission to embed and redistribute the font binary in an APK is recorded.
+- Do not treat CI success or this document update as device-level visual PASS.
