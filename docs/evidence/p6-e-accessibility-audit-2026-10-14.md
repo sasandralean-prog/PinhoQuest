@@ -87,7 +87,7 @@ A execução [#38603677089, job #115988990661](https://github.com/sasandralean-p
 - `assertExists` era importado/usado, mas não estava disponível na versão Compose UI Test configurada.
 - `onNodeWithText` era chamado sem o import correspondente.
 
-Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNodesWithText` e `onAllNodesWithContentDescription`, com `assertCountEquals`. Isso corrige a causa de compilação observada; somente uma CI nova, ligada ao SHA atual, confirma o resultado.
+Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNodesWithText` e `onAllNodesWithContentDescription`, com `assertCountEquals`. A [Android CI #38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083) passou no checkpoint de código `84cae019736055f4f1f4fee1bd1f768e3203939c`, incluindo a compilação dos testes instrumentados. Depois dele, o heading do Jardim foi devolvido à família legível anterior; CI para o SHA atual ainda precisa passar.
 
 ### Fonte selecionada e aplicação
 
@@ -100,7 +100,7 @@ Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNod
 
 ### Evidência ainda obrigatória
 
-1. Verificar a CI mais recente no SHA exato; não inferir resultado a partir do run antigo.
+1. Verificar a CI mais recente no SHA exato; a CI #38683573083 passou no checkpoint `84ca...`, mas não cobre a alteração subsequente do heading de Jardim.
 2. Testar o APK dessa mesma revisão em tela compacta, tema claro/escuro e escalas 1.0/1.3.
 3. Conferir nomes longos, métricas altas, alvos de toque, scroll, barra de navegação, e onboarding com IME aberto.
 4. Manter P6-C, P6-E e P6-Final abertos até haver essa evidência.
