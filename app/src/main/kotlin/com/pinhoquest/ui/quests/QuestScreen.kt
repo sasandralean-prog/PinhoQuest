@@ -228,8 +228,10 @@ private fun GardenSummaryCard(
             Text(
                 text = "Jardim de $ownerName",
                 color = PinhoInk,
-                fontSize = 15.sp,
-                lineHeight = 17.sp,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 15.sp,
+                    lineHeight = 17.sp,
+                ),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),
