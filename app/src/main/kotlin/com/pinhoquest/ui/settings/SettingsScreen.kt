@@ -35,6 +35,7 @@ import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
 import com.pinhoquest.ui.PinhoInk
+import com.pinhoquest.ui.PinhoParchment
 
 @Composable
 fun SettingsScreen(
@@ -54,7 +55,6 @@ fun SettingsScreen(
     val isDark = effectiveDark
     // Section headings must remain readable over the illustrated night background.
     val sectionTitleColor = if (isDark) PinhoCream else PinhoForest
-    val helperTextColor = if (isDark) PinhoCream else PinhoInk
     Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (isDark) PinhoQuestBackgrounds.SETTINGS_NIGHT else PinhoQuestBackgrounds.SETTINGS_DAY,
@@ -233,11 +233,16 @@ fun SettingsScreen(
 
             onInstallCreativeBrain?.let { install ->
                 Spacer(Modifier.height(12.dp))
-                Text(
-                    "O cérebro criativo pode continuar aqui sem mudar o jeito que o jardim funciona.",
-                    color = helperTextColor,
-                    fontSize = 13.sp,
-                )
+                PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "O cérebro criativo pode continuar aqui sem mudar o jeito que o jardim funciona.",
+                        color = PinhoInk,
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 PinhoGraphicButton(
                     resource = R.drawable.btn_confirm,
                     contentDescription = "Baixar cérebro criativo",
