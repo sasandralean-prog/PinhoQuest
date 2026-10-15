@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
 import com.pinhoquest.R
@@ -369,27 +370,35 @@ private fun GardenArtState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            "Seu jardim está florescendo!",
-            color = if (dark) PinhoCream else PinhoForest,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            "${state.collectedCount} flores coletadas · ${state.lifetimeXp} XP",
-            color = if (dark) PinhoCream else PinhoInk,
-            fontSize = 16.sp,
-        )
+        PinhoParchment(modifier = Modifier.fillMaxWidth(0.96f)) {
+            Text(
+                "Seu jardim está florescendo!",
+                color = PinhoForest,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "${state.collectedCount} flores coletadas · ${state.lifetimeXp} XP",
+                color = PinhoInk,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         Spacer(Modifier.height(18.dp))
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.96f)
+                .background(PinhoCream.copy(alpha = 0.96f), RoundedCornerShape(22.dp))
+                .border(2.dp, Color(0xFFB99162), RoundedCornerShape(22.dp))
                 .clickable(
                     role = Role.Button,
                     onClickLabel = "Abrir coleção do jardim",
                     onClick = onOpenCollection,
                 )
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -402,7 +411,7 @@ private fun GardenArtState(
             Spacer(Modifier.width(10.dp))
             Text(
                 "Abrir coleção",
-                color = if (dark) PinhoCream else PinhoForest,
+                color = PinhoForest,
                 style = MaterialTheme.typography.titleLarge,
             )
         }
