@@ -175,7 +175,6 @@ fun GardenScreen(
                 !showCollection -> {
                     GardenArtState(
                         state = state,
-                        dark = dark,
                         onOpenCollection = { showCollection = true },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -359,7 +358,6 @@ private fun EmptyGardenState(
 @Composable
 private fun GardenArtState(
     state: GardenUiState,
-    dark: Boolean,
     onOpenCollection: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
