@@ -30,7 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,6 +50,8 @@ import kotlinx.coroutines.launch
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import java.util.UUID
+
+private val PinhoDisplayFontFamily = FontFamily(Font(R.font.ihlimia, FontWeight.Normal))
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -140,10 +144,12 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     typography = Typography().copy(
-                        headlineLarge = Typography().headlineLarge.copy(fontFamily = FontFamily.Serif),
-                        headlineMedium = Typography().headlineMedium.copy(fontFamily = FontFamily.Serif),
-                        headlineSmall = Typography().headlineSmall.copy(fontFamily = FontFamily.Serif),
-                        titleLarge = Typography().titleLarge.copy(fontFamily = FontFamily.Serif),
+                        // Script typography is reserved for short display headings.
+                        // Body copy, labels, navigation, metrics and controls stay legible.
+                        headlineLarge = Typography().headlineLarge.copy(fontFamily = PinhoDisplayFontFamily),
+                        headlineMedium = Typography().headlineMedium.copy(fontFamily = PinhoDisplayFontFamily),
+                        headlineSmall = Typography().headlineSmall.copy(fontFamily = PinhoDisplayFontFamily),
+                        titleLarge = Typography().titleLarge.copy(fontFamily = PinhoDisplayFontFamily),
                         titleMedium = Typography().titleMedium.copy(fontFamily = FontFamily.Serif),
                     ),
                     shapes = PinhoShapes,
