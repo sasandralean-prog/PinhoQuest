@@ -204,3 +204,18 @@ Regras de aceite específicas:
 ## 16. P6-E follow-up (2026-10-15)
 
 A auditoria e o plano de correção foram atualizados após a CI #38603677089. O defeito de compilação dos testes instrumentados (uso de `assertExists` e ausência de import de `onNodeWithText`) foi corrigido em `LargeFontLayoutTest.kt`. O build agora extrai `ihlimia.ttf` de `docs/design/ihlimia-maisfontes.8b4f.zip`; o uso é restrito a títulos decorativos curtos. Home metrics e rótulo de backup também receberam ajustes de legibilidade. P6-C/P6-E continuam abertos até CI verde no SHA atual, teste visual em aparelho e registro da licença de redistribuição.
+
+
+## 17. Segunda rodada P6-C/P6-E — screenshots de 15/10/2026
+
+O proprietário validou o primeiro APK visualmente e enviou sete novos prints. O refino subsequente deve preservar a arte canônica e resolver sobreposições com fluxo de layout e superfícies com contraste, não com coordenadas independentes.
+
+- **Navbar:** legenda em `PinhoDisplayFontFamily`, centrada em cada destino igualitário e posicionada mais abaixo que a região de ícone/arte. No tema claro, a aba selecionada usa PinhoForest para contraste; no escuro, PinhoGold continua como destaque.
+- **Home:** GardenSummaryCard utiliza toda a largura disponível e um inset PinhoParchment para texto e métricas. O cartão de jogo usa aspecto mais alto (174:100) e rótulo 15sp com reserva à esquerda para o gamepad da arte.
+- **Garden:** mensagens e contagem sobre a arte são agrupadas em pergaminho; Abrir coleção usa fundo creme e contorno próprios.
+- **Profile:** a placa do nome usa serif legível, largura de texto de 82% e menor padding inferior para que o nome não suba até as folhas. A fonte de display permanece no título breve “Perfil”.
+- **Onboarding:** superfície PinhoParchment une título, nome, preview e confirmação, sem alterar o BasicTextField nem o caminho IME Done.
+- **Seleção de temas:** o título começa abaixo do wordmark e o título/helper/contador usam superfícies próprias. O fundo ganha tonalização sutil dependente do tema.
+- **Settings:** a explicação do cérebro criativo usa painel próprio para se separar da arte desfocada.
+
+**Gate:** código atualizado publicado; a CI do novo SHA e a matriz visual no aparelho ainda precisam ser confirmadas. A CI anterior `#38684219225` não valida essas mudanças. P6-C/P6-E permanecem abertos até APK do SHA atual, escalas 1.0/1.3, temas claro/escuro, viewport compacta, scroll e IME serem observados em runtime.
