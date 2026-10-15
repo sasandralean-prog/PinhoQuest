@@ -41,7 +41,7 @@ instalador valida tamanho e SHA-256 antes de ativá-lo.
 
 O ponto oficial de continuidade da refatoração visual é
 [`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
-Ele define os gates P6-A..P6-E e P6-Final, a ordem documental, critérios de validação e política de checkpoints. O P6-D está em implementação; a validação do CI no SHA atual ainda precisa concluir. A existência do protocolo ou de commits publicados não significa que o sprint ou os gates estejam concluídos.
+Ele define os gates P6-A..P6-E e P6-Final, a ordem documental, critérios de validação e política de checkpoints. P6-C continua aberto para validação de layout/IME em aparelho; P6-E está em correção de tipografia e acessibilidade. O checkpoint de código `84cae019736055f4f1f4fee1bd1f768e3203939c` passou na [Android CI #38683573083](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38683573083), incluindo compilação de AndroidTest; uma nova CI do ajuste do cabeçalho do Jardim está em andamento. O status mais recente e as pendências ficam em `CURRENT_STATE.md` e no protocolo P6. CI verde não substitui validação visual/funcional no aparelho nem encerra gates automaticamente.
 
 Para referência visual e de implementação, consulte também:
 - [Catálogo canônico de assets](docs/design/ASSET_CATALOG.md)
