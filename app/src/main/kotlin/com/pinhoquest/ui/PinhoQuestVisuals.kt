@@ -40,6 +40,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import com.pinhoquest.domain.tag.TagId
 import androidx.compose.ui.unit.dp
@@ -54,6 +57,9 @@ val PinhoCreamSoft = Color(0xFFF7E9C9)
 val PinhoWood = Color(0xFF8A5A32)
 val PinhoInk = Color(0xFF24452F)
 val PinhoGold = Color(0xFFFFD86B)
+
+/** Licensed display font, reserved for short decorative headings; never use for body copy or controls. */
+val PinhoDisplayFontFamily = FontFamily(Font(R.font.ihlimia, FontWeight.Normal))
 
 /** Measured global navbar plus system inset; backgrounds remain full-screen. */
 val LocalPinhoBottomNavigationInset = staticCompositionLocalOf { 0.dp }
