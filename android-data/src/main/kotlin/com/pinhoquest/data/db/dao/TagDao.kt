@@ -17,11 +17,11 @@ interface TagDao {
     @Query("SELECT COUNT(*) FROM tags WHERE profileId = :profileId AND source = 'USER'")
     suspend fun countUserTags(profileId: String): Int
 
-    @Query("SELECT COUNT(*) FROM tags WHERE profileId = :profileId AND source = 'USER' AND label = :label COLLATE NOCASE AND tagId != :excludingTagId")
-    suspend fun countUserTagsWithLabel(profileId: String, label: String, excludingTagId: String): Int
+    @Query("SELECT COUNT(*) FROM tags WHERE profileId = :profileId AND label = :label COLLATE NOCASE")
+    suspend fun countTagsWithLabel(profileId: String, label: String): Int
 
-    @Query("SELECT COUNT(*) FROM tags WHERE profileId = :profileId AND source = 'USER' AND label = :label COLLATE NOCASE")
-    suspend fun countUserTagsWithLabel(profileId: String, label: String): Int
+    @Query("SELECT COUNT(*) FROM tags WHERE profileId = :profileId AND label = :label COLLATE NOCASE AND tagId != :excludingTagId")
+    suspend fun countTagsWithLabelExcluding(profileId: String, label: String, excludingTagId: String): Int
 
     @Query("DELETE FROM tags WHERE profileId = :profileId AND tagId = :tagId AND source = 'USER'")
     suspend fun deleteUserTag(profileId: String, tagId: String): Int
