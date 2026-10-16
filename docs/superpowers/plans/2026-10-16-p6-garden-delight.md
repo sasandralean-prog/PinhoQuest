@@ -23,11 +23,11 @@ Base: `feature/p6-total-ui-refactor` (P6-C/P6-E owner-approved checkpoint)
 
 ### A. Garden video backdrop
 
-- The current repository contains static drawable backgrounds but no matching video asset at the branch tip. Add the owner's video to a tracked app asset path before implementing playback.
-- Use a lifecycle-aware player, muted video, repeat mode, crop/fit behavior documented for the supplied 496×864 vertical clip, and release the player when the screen is no longer active.
-- Keep a static image fallback when video decoding fails or reduced-motion is enabled.
-- Do not bundle the music into the video; soundtrack playback is a separate decision after the music file is supplied.
-- Verify battery/thermal behavior and APK size on a low-memory Android phone.
+- Added `app/src/main/assets/videos/garden_loop.mp4`, compact H.264 silent loop, 160×280 at 8 fps, 8,054 bytes, SHA-256 `a09b9266a4373c68055f740ef24d3f92f762afa295100bd0b691227a4de63d73`.
+- Added a Media3 ExoPlayer background composable bound to lifecycle, muted and looped. Night theme uses the video; day theme retains its approved static artwork. Missing/corrupt/mismatched asset falls back to the static background.
+- The runtime verifies the exact packaged asset SHA-256 before copying it to cache for playback.
+- Do not bundle the music into the video; soundtrack playback remains separate until the music file is supplied.
+- Device performance and battery/thermal checks are still pending.
 
 ### B. Flower photo-to-sprite pipeline
 
@@ -69,3 +69,23 @@ Base: `feature/p6-total-ui-refactor` (P6-C/P6-E owner-approved checkpoint)
 - Generated art never replaces a valid flower identity with an unverified claim.
 - Fireflies and video are presentation-only; they must not alter quest/garden state.
 - The soundtrack remains optional and separate from the video.
+
+
+## Implementation checkpoint — video + persistent tags + provenance (2026-10-16)
+
+### Night garden video
+- Binary added at `app/src/main/assets/videos/garden_loop.mp4` (8,054 bytes; SHA-256 `a09b9266a4373c68055f740ef24d3f92f762afa295100bd0b691227a4de63d73`).
+- Original user-supplied video SHA-256: `26d6a82fd79e897b241d05388bc4c6ec94083d5684652612ac591c4fe0f10a43` (2,007,561 bytes; 496×864; ~6.04 s). Compact encoded variant has separate SHA-256 and does not retain audio.
+- Playback uses AndroidX Media3, mute=0, repeat-one, crop/zoom, lifecycle pause/resume, release on dispose, and SHA-256 verification. It is used on the night-theme Garden; day mode preserves the approved daytime art.
+- Rights caveat: the video was supplied by the project owner, but ownership/license allowing public APK redistribution has not been independently established. See `docs/design/video_sources/garden-loop-provenance.json`; release remains blocked on confirmation.
+
+### Custom tags
+- Extended the existing Room-backed `tags` table, no new persistence store and no schema migration.
+- USER-created tags support create/rename/delete, stable UUID-based IDs, label trim/validation (1–24 chars), case-insensitive profile-wide uniqueness, and a hard UI/repository cap of 10 USER tags. Built-in SYSTEM tags are unaffected.
+- Profile UI shows the current count and handles adding/editing/removing. Persistence is through the existing canonical `RoomTagRepository`.
+- Tests/CI still need to validate repository concurrency, backup round trip, process recreation and on-device UX. These custom labels are persisted and displayed, but their effect on quest ranking/generation should be considered a distinct follow-up unless covered by a future validated affinity mapping.
+
+### Photo/sprite source register
+- Documented the discovery → license gate → exact-byte hashing → metadata sidecar → background removal → deterministic pixelization → QA → derived-art hash → catalog registration pipeline in `docs/superpowers/plans/2026-10-16-flower-photo-sprite-engine.md`.
+- Registered one Wikimedia Commons candidate in `docs/design/flora_sources/records/34f1bf5a9bf54d8000a01cec5b248a2e044129d5.json`: “Flower photograph.jpg”, credited to Anandha abirami Govindan, declared CC BY-SA 4.0, file page revision oldid 1255310682. The provider page exposes SHA-1 `34f1bf5a9bf54d8000a01cec5b248a2e044129d5`, not a SHA-256.
+- **Explicit blocker:** the source photo bytes could not be fetched into the build workspace during this pass, so no project-computed SHA-256, stored original, processed derivative or sprite hash is claimed. The record is marked candidate/pending and release-disabled; do not treat it as an admitted sprite. Before processing, fetch the exact original bytes, compute SHA-256 locally, store the immutable original if redistribution permits, update the sidecar/registry, verify taxonomy, then transform.
