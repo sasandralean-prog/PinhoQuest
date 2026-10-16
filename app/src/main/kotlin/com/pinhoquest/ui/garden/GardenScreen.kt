@@ -95,7 +95,7 @@ fun GardenScreen(
             },
             overlayAlpha = 0f,
         )
-        if (!isGardenEmpty) {
+        if (dark) {
             GardenVideoBackground(modifier = Modifier.fillMaxSize())
         }
         PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 14)
