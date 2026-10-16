@@ -45,6 +45,8 @@ fun PinhoQuestNav(
     onDismissCompletion: () -> Unit,
     onOpenGardenFromCompletion: () -> Unit,
     onTagToggled: (TagId, Boolean) -> Unit,
+    onCreateCustomTag: (String) -> Unit = {},
+    onDeleteCustomTag: (TagId) -> Unit = {},
     onThemeSelected: (ThemePreference) -> Unit,
     onFontScaleSelected: (Float) -> Unit,
     onInstallCreativeBrain: (() -> Unit)? = null,
@@ -119,6 +121,8 @@ fun PinhoQuestNav(
                     ownerName = state.ownerName,
                     tags = state.tags,
                     onTagToggled = onTagToggled,
+                    onCreateCustomTag = onCreateCustomTag,
+                    onDeleteCustomTag = onDeleteCustomTag,
                     onOpenSettings = { onTabSelected(MainTab.SETTINGS) },
                     dark = dark,
                 )
