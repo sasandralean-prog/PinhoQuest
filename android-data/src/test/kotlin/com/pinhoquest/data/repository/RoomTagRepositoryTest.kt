@@ -123,7 +123,7 @@ class RoomTagRepositoryTest {
         override suspend fun listByProfile(profileId: String): List<TagEntity> =
             rows.values
                 .filter { it.profileId == profileId }
-                .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label }.thenBy { it.tagId })
+                .sortedWith(compareBy<TagEntity> { it.label.lowercase() }.thenBy { it.tagId })
 
         override suspend fun countUserTags(profileId: String): Int =
             rows.values.count { it.profileId == profileId && it.source == TagSource.USER.name }
