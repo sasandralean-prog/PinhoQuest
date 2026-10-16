@@ -181,6 +181,8 @@ class MainActivity : ComponentActivity() {
                             onDismissCompletion = viewModel::dismissCompletion,
                             onOpenGardenFromCompletion = viewModel::openGardenFromCompletion,
                             onTagToggled = viewModel::setTagEnabled,
+                            onCreateCustomTag = viewModel::createCustomTag,
+                            onDeleteCustomTag = viewModel::deleteCustomTag,
                             onThemeSelected = viewModel::setTheme,
                             onFontScaleSelected = viewModel::setFontScale,
                             onInstallCreativeBrain = { creativeBrainTermsVisible = true },
