@@ -152,6 +152,9 @@ fun PinhoQuestNav(
                     tags = state.tags,
                     onTagToggled = onTagToggled,
                     onOpenSettings = { onTabSelected(MainTab.SETTINGS) },
+                    onCreateCustomTag = onCreateCustomTag,
+                    onRenameCustomTag = onRenameCustomTag,
+                    onDeleteCustomTag = onDeleteCustomTag,
                     dark = dark,
                 )
             }
