@@ -37,6 +37,7 @@ import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoFireflies
 import com.pinhoquest.ui.PinhoDisplayFontFamily
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
@@ -60,6 +61,7 @@ fun ProfileScreen(
             resource = if (dark) PinhoQuestBackgrounds.PROFILE_NIGHT else PinhoQuestBackgrounds.PROFILE_DAY,
             overlayAlpha = 0f,
         )
+        PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 10)
 
         Column(
             modifier = Modifier
