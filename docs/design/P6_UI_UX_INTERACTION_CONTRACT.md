@@ -98,7 +98,7 @@ Configurações e seleção de temas são fluxos internos; não criam abas globa
 - `P6-E`: distribuição segura do modelo, mapeamento semântico de categoria, fonte e acessibilidade.
 - `P6-Final`: regressão de release ligada ao SHA testado.
 
-**Estado atual (2026-10-15):** P6-B permanece aceito; P6-C e P6-E seguem abertos. A correção de `LargeFontLayoutTest.kt` e a extração de Ihlimia foram validadas pela [Android CI #38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) no checkpoint de código `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`; a execução concluiu com `BUILD SUCCESSFUL`, 0 erros e 38 avisos de lint. A CI compila testes instrumentados, mas não os executa no aparelho. Falta validação visual/funcional real e registro da licença de incorporação/distribuição antes de fechar gates. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
+**Estado atual (2026-10-15):** P6-B permanece aceito. Rafa aprovou explicitamente P6-C e P6-E após validar o APK no aparelho, com os pequenos desalinhamentos restantes aceitos e adiados para uma única etapa de polimento. A segunda rodada passou na [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) no checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440` (BUILD SUCCESSFUL, 0 erros/38 avisos). A licença de incorporação/redistribuição da Ihlimia continua como item separado antes de release público. Os gates de release P6-Final continuam separados. Os gates são governados por `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`. Documento atualizado não significa runtime corrigido.
 
 
 ## 11. Evidência visual P6-E — revisão de 14/10/2026
@@ -157,4 +157,9 @@ Os novos screenshots mostram texto dinâmico competindo com arte em Home, Jardim
 - Seleção de temas mantém o mesmo estado persistido e callbacks; apenas hierarquia vertical, tonalização e superfícies de texto foram ajustadas.
 - Settings ganhou uma superfície de alto contraste para texto auxiliar. A ação de backup e o fluxo de instalação do modelo não foram alterados.
 
-**Evidência de CI:** [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440` (`BUILD SUCCESSFUL`, 0 erros/38 avisos). A execução inclui compilação de AndroidTest, mas não a execução instrumentada no aparelho. Manter P6-C/P6-E abertos até comparar o APK desse SHA em temas claro/escuro, escalas 1.0/1.3, viewport compacta e onboarding com teclado.
+**Evidência de CI e decisão:** [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou no checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440` (BUILD SUCCESSFUL, 0 erros/38 avisos). Rafa aprovou P6-C/P6-E para esta iteração após validação visual em aparelho. Os erros cosméticos menores serão agrupados num único polimento posterior; a aprovação não elimina a exigência de registrar a licença de redistribuição da fonte antes do release público.
+
+
+## 14. Decisão do responsável — aprovação de P6-C/P6-E (2026-10-15)
+
+Rafa aprovou ambos os gates após a última captura real de tela. A aprovação é válida para o checkpoint visual atual, mesmo com pequenos ajustes de alocação ainda reconhecidos; não abrir uma sequência de microcorreções. Consolidar numa única etapa futura: alinhamento vertical do título/input/preview no onboarding, quebra e centralização de “Vai aparecer como Jardim de …”, e equilíbrio final de margens nos cartões e na navbar. Preservar callbacks, estado, validação, semântica, arte canônica e fluxo de teclado. A licença da Ihlimia fica no checklist de release, não reabre a aprovação visual de P6-E.
