@@ -1,11 +1,18 @@
 package com.pinhoquest.ui
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
 import com.pinhoquest.ui.garden.GardenFlowerUi
@@ -114,4 +121,42 @@ class GardenFlowTest {
         questTitle = if (state == FlowerDiscoveryState.COLLECTED) "Quest de Teste" else null,
         investigationCost = investigationCost,
     )
+    @Test
+    fun collectionFiltersRemainAccessibleAtCompactWidth() {
+        val state = GardenUiState(
+            ownerName = "Rafa",
+            lifetimeXp = 120,
+            spendableXp = 20,
+            level = 2,
+            collectedCount = 1,
+            totalCount = 4,
+            flowers = listOf(
+                flower("hidden-filter", "Flor Oculta", FlowerDiscoveryState.HIDDEN, FlowerRarity.UNKNOWN),
+                flower("hinted-filter", "Flor Pesquisada", FlowerDiscoveryState.HINTED, FlowerRarity.RARE),
+                flower("revealed-filter", "Flor Revelada", FlowerDiscoveryState.REVEALED, FlowerRarity.UNCOMMON),
+                flower("collected-filter", "Flor Coletada", FlowerDiscoveryState.COLLECTED, FlowerRarity.COMMON, 40),
+            ),
+        )
+
+        composeRule.setContent {
+            MaterialTheme {
+                Box(Modifier.width(360.dp).height(720.dp)) {
+                    GardenScreen(
+                        state = state,
+                        onFlowerSelected = {},
+                        onInvestigate = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Abrir coleção").performClick()
+        listOf("Todas", "Coletadas", "Pesquisadas", "Desconhecidas").forEach { label ->
+            composeRule.onNodeWithContentDescription(label).assertIsDisplayed()
+        }
+        composeRule.onNodeWithContentDescription("Desconhecidas").performClick()
+        composeRule.onNodeWithTag("flower-card-hidden-filter").assertIsDisplayed()
+    }
+
 }

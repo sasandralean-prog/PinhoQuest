@@ -14,7 +14,11 @@ class ModelDownloadTransport(
     private val readTimeoutMs: Int = 30_000,
     private val connectionFactory: (String, Long) -> HttpURLConnection = { url, offset -> openConnection(url, offset, connectTimeoutMs, readTimeoutMs) },
 ) {
-    suspend fun download(spec: ModelDownloadSpec, partial: File) {
+    suspend fun download(
+        spec: ModelDownloadSpec,
+        partial: File,
+        onProgress: suspend (downloadedBytes: Long, totalBytes: Long) -> Unit = { _, _ -> },
+    ) {
         var offset = if (partial.exists()) partial.length() else 0L
         if (offset > spec.bytes) {
             partial.delete()
@@ -34,11 +38,18 @@ class ModelDownloadTransport(
             BufferedInputStream(connection.inputStream).use { input ->
                 FileOutputStream(partial, offset > 0L).use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var downloaded = offset
+                    var lastReported = offset
                     while (true) {
                         currentCoroutineContext().ensureActive()
                         val read = input.read(buffer)
                         if (read < 0) break
                         output.write(buffer, 0, read)
+                        downloaded += read
+                        if (downloaded - lastReported >= PROGRESS_UPDATE_BYTES || downloaded == spec.bytes) {
+                            onProgress(downloaded.coerceAtMost(spec.bytes), spec.bytes)
+                            lastReported = downloaded
+                        }
                     }
                 }
             }
@@ -49,6 +60,7 @@ class ModelDownloadTransport(
     }
 
     companion object {
+        private const val PROGRESS_UPDATE_BYTES = 512L * 1024L
         private fun openConnection(urlString: String, offset: Long, connectTimeoutMs: Int, readTimeoutMs: Int): HttpURLConnection {
             val connection = URL(urlString).openConnection() as HttpURLConnection
             connection.connectTimeout = connectTimeoutMs

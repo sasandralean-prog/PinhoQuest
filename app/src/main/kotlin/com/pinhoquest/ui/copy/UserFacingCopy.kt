@@ -44,6 +44,8 @@ object UserFacingCopy {
                 is QuestGenerationResult.Unavailable -> when (generation.reason) {
                     GenerationUnavailableReason.GAME_CATALOG_NOT_FRESH ->
                         "Ainda não tenho um catálogo fresquinho de jogos para sortear. Vamos tentar mais tarde."
+                    GenerationUnavailableReason.FILTERS_UNSATISFIABLE ->
+                        "Esses filtros não combinam com o modo escolhido. Ajuste os filtros ou escolha outra modalidade."
                     GenerationUnavailableReason.GAME_CATALOG_UNAVAILABLE,
                     GenerationUnavailableReason.GAME_CATALOG_NOT_CONFIGURED,
                     GenerationUnavailableReason.GAME_CANDIDATE_REQUIRED,

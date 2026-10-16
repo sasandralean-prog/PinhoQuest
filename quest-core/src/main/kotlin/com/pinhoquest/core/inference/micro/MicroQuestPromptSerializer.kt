@@ -2,40 +2,51 @@ package com.pinhoquest.core.inference.micro
 
 import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.prompt.PromptResearchHint
+import com.pinhoquest.domain.quest.QuestEnvironment
 
 class MicroQuestPromptSerializer(
     private val budget: InferenceBudget = InferenceBudget.P3,
 ) {
     fun serialize(request: MicroQuestCompositionRequest): String {
         val envelope = request.prompt.envelope
+        val seed = MicroQuestCategorySeedCatalog.forCategory(envelope.category, request.style.language)
         val prompt = buildString {
-            append("Escreva apenas o texto de uma quest. ")
-            append("Nao invente fatos, XP, recompensa ou regras. ")
-            append("Nao repita instrucoes ou marcadores. ")
-            append("Idioma: ")
+            append("Crie uma micro-quest concreta, útil e natural a partir dos dados determinísticos abaixo. ")
+            append("Use os fatos e o objetivo aprovados como ponto de partida. ")
+            append("Chame exatamente ")
+            append(MicroQuestToolContract.NAME)
+            append(" uma vez. Não copie instruções, nomes de campos ou limites do contrato. ")
+            append("Não invente fatos, XP, recompensas ou metadados.\n")
+
+            append("Categoria=")
+            append(envelope.category.name)
+            append("; Ambiente=")
+            append(formatEnvironment(envelope.environment))
+            append("; Dificuldade=")
+            append(envelope.difficulty?.name ?: "EASY")
+            append("; Tempo=")
+            append(formatTime(envelope.minMinutes, envelope.maxMinutes))
+            append("; Idioma=")
             append(request.style.language)
-            append(". Tom: ")
-            append(request.style.tone)
             append(".\n")
 
-            append("TAREFA=compose_quest_text\n")
-            append("CATEGORIA=")
-            append(envelope.category.name)
-            append("\nAMBIENTE=")
-            append(envelope.environment.name)
-            append("\nDIFICULDADE=")
-            append(envelope.difficulty?.name ?: "EASY")
-            append("\nTEMPO=")
-            append(formatTime(envelope.minMinutes, envelope.maxMinutes))
-            append("\nTAGS=")
-            append(envelope.selectedTags.joinToString(", ") { it.label }.ifEmpty { "-" })
-            append("\nFATOS_APROVADOS=")
-            append(envelope.researchHints.joinToString("; ") { serializeHint(it) }.ifEmpty { "-" })
-            append("\n\nEXEMPLOS_APROVADOS:\n")
+            append("Fatos aprovados: ")
+            append(seed.facts)
+            append(" Objetivo aprovado: ")
+            append(seed.objective)
 
-            if (request.prompt.examples.isEmpty()) {
-                append("- nenhum")
-            } else {
+            if (envelope.selectedTags.isNotEmpty()) {
+                append(" Tags selecionadas: ")
+                append(envelope.selectedTags.joinToString(", ") { it.label })
+            }
+
+            if (envelope.researchHints.isNotEmpty()) {
+                append(" Pistas factuais aprovadas: ")
+                append(envelope.researchHints.joinToString("; ") { serializeHint(it) })
+            }
+
+            if (request.prompt.examples.isNotEmpty()) {
+                append("\nExemplos aprovados (referência de estilo; não copie literalmente):\n")
                 request.prompt.examples.forEachIndexed { index, example ->
                     append(index + 1)
                     append(". ")
@@ -47,34 +58,6 @@ class MicroQuestPromptSerializer(
                     append("\n")
                 }
             }
-
-            append("\nRETORNO=chame a funcao ")
-            append(MicroQuestToolContract.NAME)
-            append(" com ")
-            append(MicroQuestToolContract.REQUIRED_ARGUMENTS.joinToString(", "))
-            append(".\n")
-            append(MicroQuestToolContract.TITLE)
-            append(": ")
-            append(MicroQuestToolContract.MIN_TITLE_LENGTH)
-            append("-")
-            append(MicroQuestToolContract.MAX_TITLE_LENGTH)
-            append(" chars; ")
-            append(MicroQuestToolContract.DESCRIPTION_FIELD)
-            append(": ")
-            append(MicroQuestToolContract.MIN_DESCRIPTION_LENGTH)
-            append("-")
-            append(MicroQuestToolContract.MAX_DESCRIPTION_LENGTH)
-            append(" chars; ")
-            append(MicroQuestToolContract.OBJECTIVES)
-            append(": ")
-            append(MicroQuestToolContract.MIN_OBJECTIVES)
-            append("-")
-            append(MicroQuestToolContract.MAX_OBJECTIVES)
-            append(" textos de ")
-            append(MicroQuestToolContract.MIN_OBJECTIVE_LENGTH)
-            append("-")
-            append(MicroQuestToolContract.MAX_OBJECTIVE_LENGTH)
-            append(" chars.")
         }.trim()
 
         require(prompt.length <= budget.maxPromptCharacters) {
@@ -117,11 +100,16 @@ class MicroQuestPromptSerializer(
         }
     }
 
-    private fun formatTime(min: Int?, max: Int?): String =
-        when {
-            min != null && max != null -> "$min-$max"
-            min != null -> "$min+"
-            max != null -> "0-$max"
-            else -> "ANY"
+    private fun formatEnvironment(environment: QuestEnvironment): String =
+        when (environment) {
+            QuestEnvironment.ANYWHERE -> "ANY"
+            else -> environment.name
         }
+
+    private fun formatTime(min: Int?, max: Int?): String {
+        val effectiveMin = min ?: 15
+        val effectiveMax = max ?: maxOf(effectiveMin, 30)
+        return "$effectiveMin-$effectiveMax"
+    }
+
 }

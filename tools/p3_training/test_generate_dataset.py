@@ -7,6 +7,7 @@ from generate_dataset import (
     build_developer_turn,
     build_rows,
     load_contract,
+    load_category_seeds,
     validate_completion,
     validate_prompt,
 )
@@ -38,6 +39,30 @@ class CanonicalTrainingContractTest(unittest.TestCase):
             validate_prompt(row["prompt"], self.contract)
             validate_completion(row["completion"], self.contract)
             self.assertEqual(self.contract["name"], row["fn"])
+
+    def test_training_uses_the_same_kotlin_seed_catalog_as_runtime(self):
+        seeds = load_category_seeds()
+        rows = build_rows(self.contract, seeds)
+
+        self.assertEqual(
+            {"CODING", "GAMING", "EXPLORATION", "LEARNING", "RANDOM", "CREATIVE"},
+            set(seeds),
+        )
+        for category, seed in seeds.items():
+            pt_row = next(
+                row for row in rows
+                if row["user"].startswith(f"Categoria={category};")
+                and "Idioma=pt-BR." in row["user"]
+            )
+            en_row = next(
+                row for row in rows
+                if row["user"].startswith(f"Categoria={category};")
+                and "Idioma=en-US." in row["user"]
+            )
+            self.assertIn(seed["facts_pt_br"], pt_row["user"])
+            self.assertIn(seed["objective_pt_br"], pt_row["user"])
+            self.assertIn(seed["facts_en_us"], en_row["completion"])
+            self.assertIn(seed["objective_en_us"], en_row["completion"])
 
     def test_duplicate_declaration_is_rejected(self):
         row = build_rows(self.contract)[0]

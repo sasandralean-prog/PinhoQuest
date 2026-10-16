@@ -71,3 +71,17 @@ The CR sprint family (CR-0 onward) governs the convergence of the local Function
 ## Current application frontier — 2026-10-05
 
 P5 is **CLOSED at the functional application gate** after CR-9/CR-9.1 productive Android evidence and the P5 UI suite passed 10/10 on Pixel_4_API_33 / Android 13. A known LiteRT-LM/Kotlin metadata limitation remains bounded at lint analysis; it is not being hidden by runtime changes.
+
+## P6 visual implementation and transition protocol
+
+Before any P6 UI, asset, garden-state, quest-generation-diagnostic or navigation change, read:
+
+- `Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md` — official P6 scope, document authority, confirmed findings vs hypotheses, gates P6-A through P6-E, evidence requirements, checkpoint and rollback protocol.
+- `docs/design/ASSET_CATALOG.md` — asset filenames and generated Android resource aliases.
+- `docs/design/CANONICAL_GRAPHICS.md` — classified visual compositions and reference roles.
+- `docs/design/UI_DESIGN_CONTRACT.md` — implementation/accessibility boundary.
+- `docs/design/P6_UI_UX_INTERACTION_CONTRACT.md` — product interaction decisions.
+
+The three global bottom-navigation destinations in the current P6 visual contract are **Início, Jardim and Perfil**. Settings, onboarding, tag selection and flower details are internal destinations/flows unless the product authority is explicitly changed. The historical four-tab statement elsewhere in this file is legacy wording and must not be used to override the current P6 contracts; reconcile it during the documentation gate.
+
+A protocol or a green build does not close a P6 gate. Record the actual branch, HEAD SHA, test command, result and linked evidence in `CURRENT_STATE.md`.

@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/cr-0-runtime-consolidation
+      - feature/p6-total-ui-refactor
   pull_request:
 
 jobs:
@@ -15,14 +16,35 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          # LiteRT-LM 0.16.1 test classes target Java 21. Android bytecode stays
+          # at the module-configured Java 17 target; this is the CI host JDK.
+          java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify FunctionGemma training fixtures
+        run: python -m unittest discover -s tools/p3_training -p 'test_*.py'
       - name: Verify foundation
         run: |
           chmod +x ./gradlew
-          ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :app:lintDebug :app:assembleDebug
+          ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :litertlm-bridge:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:compileDebugAndroidTestKotlin
+      - name: Print Android Lint findings
+        if: always()
+        shell: bash
+        run: |
+          report="app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt"
+          if [ -f "$report" ]; then
+            echo "=== Android Lint finding locations and summaries ==="
+            grep -E '^(app/|[[:space:]]*[0-9]+ errors?, [0-9]+ warnings?)' "$report" || cat "$report"
+          elif [ -f "app/build/reports/lint-results-debug.txt" ]; then
+            echo "=== Android Lint finding locations and summaries ==="
+            grep -E '^(app/|[[:space:]]*[0-9]+ errors?, [0-9]+ warnings?)' app/build/reports/lint-results-debug.txt || cat app/build/reports/lint-results-debug.txt
+          else
+            echo "Android Lint text report was not generated."
+          fi
       - name: Upload debug APK
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation'
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor'
         uses: actions/upload-artifact@v4
         with:
           name: pinhoquest-v05-debug-apk

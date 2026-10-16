@@ -26,3 +26,25 @@ O **design V1 foi aprovado** e a implementação funcional de Pinho Quest já es
 - Backups privados e públicos como snapshots.
 - Nada de streak, FOMO, lootbox ou retenção punitiva.
 - UX afável, otimista e verdadeira.
+
+## Modelo LiteRT-LM (CR-7.4)
+
+O APK normal contém a runtime JNI LiteRT-LM, mas não contém os 284,7 MB do
+modelo criativo. O pacote CR-7.4 é uma distribuição versionada de release,
+instalada somente após consentimento explícito em **Configurações**. Consulte o
+[registro do artefato CR-7.4](docs/model-artifacts/CR74_SEMANTIC_ISOLATION.md)
+para URL imutável, SHA-256, tamanho, licença, recuperação em checkout limpo e
+limites de validação. Não substitua o pacote por um arquivo de mesmo nome: o
+instalador valida tamanho e SHA-256 antes de ativá-lo.
+
+## Engenharia do P6
+
+O ponto oficial de continuidade da refatoração visual é
+[`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`](Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md).
+Ele define os gates P6-A..P6-E e P6-Final, a ordem documental, critérios de validação e política de checkpoints. P6-C e P6-E foram explicitamente aprovados por Rafa em 2026-10-15 após validação visual no aparelho. A segunda rodada corrigiu a posição da navbar, aumentou os cards de Home, separou mensagens da arte com superfícies de pergaminho e melhorou a placa do Perfil e o formulário de onboarding. A CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440` (`BUILD SUCCESSFUL`, 0 erros e 38 avisos). Pequenas imperfeições de alocação continuam aceitas nesta iteração e serão resolvidas numa única etapa futura de polimento, em vez de várias microcorreções. A autorização/licença de incorporação e redistribuição da fonte Ihlimia permanece como item separado do checklist para lançamento público. O status detalhado fica em `CURRENT_STATE.md` e no protocolo P6.
+
+Para referência visual e de implementação, consulte também:
+- [Catálogo canônico de assets](docs/design/ASSET_CATALOG.md)
+- [Registry de referências visuais](docs/design/CANONICAL_GRAPHICS.md)
+- [Contrato visual de implementação](docs/design/UI_DESIGN_CONTRACT.md)
+- [Contrato de interação P6](docs/design/P6_UI_UX_INTERACTION_CONTRACT.md)

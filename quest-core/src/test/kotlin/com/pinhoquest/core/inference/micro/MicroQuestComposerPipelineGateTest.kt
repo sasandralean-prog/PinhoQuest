@@ -5,6 +5,7 @@ import com.pinhoquest.core.inference.InferenceBudget
 import com.pinhoquest.core.inference.InferenceOutcome
 import com.pinhoquest.core.inference.LocalInferencePort
 import com.pinhoquest.core.quest.QuestContext
+import com.pinhoquest.core.quest.QuestFallbackReason
 import com.pinhoquest.core.quest.QuestGenerationPlan
 import com.pinhoquest.core.quest.QuestPlanner
 import com.pinhoquest.core.quest.QuestValidationResult
@@ -58,6 +59,29 @@ class MicroQuestComposerPipelineGateTest {
 
         assertEquals(MicroQuestOrigin.PROCEDURAL_FALLBACK, rendered.origin)
         assertTrue(validated is QuestValidationResult.Valid)
+    }
+
+    @Test
+    fun promptEchoConvergesToProceduralFallbackInsteadOfUserFacingQuestText() = runTest {
+        val inference = LocalInferencePort {
+            InferenceOutcome.ToolCall(
+                name = MicroQuestToolContract.NAME,
+                arguments = mapOf(
+                    MicroQuestToolContract.TITLE to "Pequeno desvio",
+                    MicroQuestToolContract.DESCRIPTION_FIELD to
+                        "Não invente fatos, XP, recompensa ou regras. Não repita instruções ou marcadores.",
+                    MicroQuestToolContract.OBJECTIVES to listOf("1-4 textos de 1-120 chars."),
+                ),
+            )
+        }
+
+        val rendered = MicroQuestComposer(inference).composeWithDetails(plan)
+        val validated = QuestValidator().validate(rendered.draft)
+
+        assertEquals(MicroQuestOrigin.PROCEDURAL_FALLBACK, rendered.origin)
+        assertEquals(QuestFallbackReason.INVALID_MODEL_OUTPUT, rendered.fallbackReason)
+        assertTrue(validated is QuestValidationResult.Valid)
+        assertTrue(!rendered.draft.description.contains("Não invente fatos"))
     }
 
     @Test

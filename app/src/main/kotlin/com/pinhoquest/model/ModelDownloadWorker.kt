@@ -14,9 +14,12 @@ import java.io.IOException
 class ModelDownloadWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val store: ModelStorePort = appContext.modelStore(),
-    private val transport: ModelDownloadTransport = ModelDownloadTransport(),
 ) : CoroutineWorker(appContext, params) {
+    // WorkManager's default WorkerFactory reflectively requires the exact
+    // (Context, WorkerParameters) constructor. Keep dependencies internal to
+    // the worker so Kotlin default parameters cannot hide that constructor.
+    private val store: ModelStorePort = appContext.modelStore()
+    private val transport: ModelDownloadTransport = ModelDownloadTransport()
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val spec = inputSpec() ?: return@withContext Result.failure()
@@ -25,20 +28,45 @@ class ModelDownloadWorker(
         val partial = File(root, spec.modelId + "-" + spec.version + ".part")
         val staged = File(root, spec.modelId + "-" + spec.version + ".ready")
         return@withContext try {
-            transport.download(spec, partial)
+            publishProgress(STAGE_DOWNLOADING, 0, partial.length(), spec.bytes)
+            transport.download(spec, partial) { downloaded, total ->
+                val percent = ((downloaded * 100L) / total.coerceAtLeast(1L)).toInt().coerceIn(0, 99)
+                publishProgress(STAGE_DOWNLOADING, percent, downloaded, total)
+            }
+            publishProgress(STAGE_VERIFYING, 99, spec.bytes, spec.bytes)
             if (staged.exists()) staged.delete()
             if (!partial.renameTo(staged)) throw IOException("could not stage completed model")
+            publishProgress(STAGE_INSTALLING, 99, spec.bytes, spec.bytes)
             when (store.install(staged, spec.toManifest())) {
-                is ModelInstallResult.Installed -> { staged.delete(); Result.success() }
-                is ModelInstallResult.Rejected -> { staged.delete(); Result.failure() }
+                is ModelInstallResult.Installed -> {
+                    staged.delete()
+                    publishProgress(STAGE_INSTALLED, 100, spec.bytes, spec.bytes)
+                    Result.success()
+                }
+                is ModelInstallResult.Rejected -> {
+                    staged.delete()
+                    Result.failure(androidx.work.workDataOf(KEY_ERROR to "validation_failed"))
+                }
             }
         } catch (e: IOException) {
             Log.w(TAG, "Creative model download will be retried", e)
+            setProgress(androidx.work.workDataOf(KEY_STAGE to STAGE_RETRYING, KEY_ERROR to "network_or_io"))
             Result.retry()
         } catch (e: Exception) {
             Log.w(TAG, "Creative model installation failed", e)
-            Result.failure()
+            Result.failure(androidx.work.workDataOf(KEY_ERROR to "installation_failed"))
         }
+    }
+
+    private suspend fun publishProgress(stage: String, percent: Int, downloaded: Long, total: Long) {
+        setProgress(
+            androidx.work.workDataOf(
+                KEY_STAGE to stage,
+                KEY_PERCENT to percent,
+                KEY_DOWNLOADED to downloaded,
+                KEY_TOTAL to total,
+            ),
+        )
     }
 
     private fun inputSpec(): ModelDownloadSpec? = runCatching {
@@ -56,7 +84,19 @@ class ModelDownloadWorker(
         )
     }.getOrNull()
 
-    companion object { private const val TAG = "PinhoQuestModel" }
+    companion object {
+        private const val TAG = "PinhoQuestModel"
+        const val KEY_STAGE = "model_install_stage"
+        const val KEY_PERCENT = "model_install_percent"
+        const val KEY_DOWNLOADED = "model_install_downloaded_bytes"
+        const val KEY_TOTAL = "model_install_total_bytes"
+        const val KEY_ERROR = "model_install_error"
+        const val STAGE_DOWNLOADING = "downloading"
+        const val STAGE_VERIFYING = "verifying"
+        const val STAGE_INSTALLING = "installing"
+        const val STAGE_INSTALLED = "installed"
+        const val STAGE_RETRYING = "retrying"
+    }
 }
 
 private fun Context.modelStore(): ModelStorePort =

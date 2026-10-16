@@ -41,6 +41,6 @@ class GardenLargeFontTest {
         }
 
         composeRule.onNodeWithText("🌷 Jardim de Rafa").assertIsDisplayed()
-        composeRule.onNodeWithText("Seu jardim ainda está quietinho.").assertIsDisplayed()
+        composeRule.onNodeWithText("Ainda há espaço para crescer.").assertIsDisplayed()
     }
 }

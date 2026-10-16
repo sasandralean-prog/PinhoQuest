@@ -28,6 +28,24 @@ class GameQuestGenerationCoordinator(
     }
 
     /**
+     * Selects a random candidate from a catalog already resolved by the research
+     * orchestrator. Freshness policy belongs to that orchestration boundary.
+     */
+    suspend fun selectRandomCandidate(): GameQuestCandidateResult {
+        val snapshot = catalogStore.read()
+            ?: return GameQuestCandidateResult.NoCatalog
+
+        val usedIdentityKeys = usageStore.usedIdentityKeys(snapshot.cycleId)
+        val context = candidateSelector.selectRandom(snapshot, usedIdentityKeys)
+            ?: return exhausted(snapshot, usedIdentityKeys)
+
+        return GameQuestCandidateResult.Selected(
+            context = context,
+            seed = GameQuestSeed.from(context),
+        )
+    }
+
+    /**
      * GAME button boundary: only consumes a fresh persisted catalog.
      * It never invokes research or invents a query.
      */

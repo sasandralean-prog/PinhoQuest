@@ -2,30 +2,41 @@ package com.pinhoquest.core.tag
 
 import com.pinhoquest.domain.quest.QuestCategory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SystemTagCatalogTest {
     @Test
-    fun enabledSystemTagsProduceQuestCategoryAffinities() {
-        val coding = SystemTagCatalog.all.first { it.id.value == "coding" }.copy(enabled = true)
-        val learning = SystemTagCatalog.all.first { it.id.value == "learning" }.copy(enabled = true)
-
-        val affinities = SystemTagCatalog.categoryAffinities(listOf(coding, learning))
-
+    fun canonicalThemes_match_visualOrder() {
         assertEquals(
-            mapOf(
-                QuestCategory.CODING to 0.8,
-                QuestCategory.LEARNING to 0.8,
+            listOf(
+                "Jogos",
+                "Criatividade",
+                "Aprender",
+                "Música",
+                "Fotografia",
+                "Natureza",
+                "Tecnologia",
+                "Animais",
+                "Aventuras",
+                "Relaxar",
+                "Criar",
+                "Fantasia",
             ),
-            affinities,
+            SystemTagCatalog.all.map { it.label },
         )
     }
 
     @Test
-    fun disabledAndNonQuestTagsDoNotInfluenceQuestCategories() {
-        val coding = SystemTagCatalog.all.first { it.id.value == "coding" }.copy(enabled = false)
-        val music = SystemTagCatalog.all.first { it.id.value == "music" }.copy(enabled = true)
+    fun enabledThemes_accumulate_governed_category_affinities() {
+        val enabled = SystemTagCatalog.all
+            .filter { it.id.value in setOf("creative", "music", "nature") }
+            .map { it.copy(enabled = true) }
 
-        assertEquals(emptyMap<QuestCategory, Double>(), SystemTagCatalog.categoryAffinities(listOf(coding, music)))
+        val affinities = SystemTagCatalog.categoryAffinities(enabled)
+
+        assertEquals(1.6, affinities[QuestCategory.CREATIVE])
+        assertEquals(0.8, affinities[QuestCategory.EXPLORATION])
+        assertTrue(affinities.keys.size == 2)
     }
 }

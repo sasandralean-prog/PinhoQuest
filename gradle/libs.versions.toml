@@ -1,7 +1,7 @@
 [versions]
 agp = "8.6.1"
-kotlin = "2.1.21"
-ksp = "2.1.21-2.0.1"
+kotlin = "2.2.21"
+ksp = "2.2.21-2.0.5"
 composeBom = "2024.10.01"
 coreKtx = "1.13.1"
 activityCompose = "1.9.3"
@@ -17,7 +17,7 @@ androidxJunit = "1.2.1"
 testRunner = "1.6.2"
 testOrchestrator = "1.5.1"
 espresso = "3.6.1"
-litertLm = "0.17.1"
+litertLm = "0.16.1"
 
 [libraries]
 junit = { module = "junit:junit", version.ref = "junit" }

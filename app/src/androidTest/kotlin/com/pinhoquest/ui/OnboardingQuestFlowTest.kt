@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.ui.navigation.MainTab
@@ -39,6 +40,20 @@ class OnboardingQuestFlowTest {
     }
 
     @Test
+    fun onboardingImeDoneAdvancesToTagsAfterValidName() {
+        composeRule.setContent {
+            MaterialTheme {
+                OnboardingScreen(onComplete = { _, _ -> })
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Começar").performClick()
+        composeRule.onNodeWithContentDescription("Seu nome").performTextInput("Rafa")
+        composeRule.onNodeWithContentDescription("Seu nome").performImeAction()
+        composeRule.onNodeWithContentDescription("Continuar").assertIsDisplayed()
+    }
+
+    @Test
     fun onboardingRejectsNamesLongerThanTwentyCharacters() {
         var completed = false
         composeRule.setContent {
@@ -64,6 +79,9 @@ class OnboardingQuestFlowTest {
                     state = PinhoQuestUiState.ready(ownerName = "Rafa"),
                     onTabSelected = {},
                     onGenerateQuest = { modes += it },
+                    onOpenQuestThemeSelection = {},
+                    onCloseQuestThemeSelection = {},
+                    onGenerateQuestFromThemeSelection = {},
                     onStartQuest = {},
                     onCompleteQuest = {},
                     onAbandonQuest = {},
@@ -93,6 +111,9 @@ class OnboardingQuestFlowTest {
                     state = PinhoQuestUiState.ready(ownerName = "Rafa", selectedTab = selected),
                     onTabSelected = { selected = it },
                     onGenerateQuest = {},
+                    onOpenQuestThemeSelection = {},
+                    onCloseQuestThemeSelection = {},
+                    onGenerateQuestFromThemeSelection = {},
                     onStartQuest = {},
                     onCompleteQuest = {},
                     onAbandonQuest = {},

@@ -6,6 +6,7 @@ import com.pinhoquest.domain.quest.QuestEnvironment
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.quest.QuestSessionFilters
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -13,7 +14,7 @@ class MicroQuestPromptSerializerTest {
     private val factsAssembler = MicroQuestPromptFactsAssembler()
 
     @Test
-    fun keepsApprovedExamplesAndTrustedFieldsButNoGovernedRewards() {
+    fun keepsApprovedExamplesAndProvidesCategorySpecificTaskSeed() {
         val request = MicroQuestCompositionRequest(
             prompt = factsAssembler.assemble(
                 plan = plan(),
@@ -30,12 +31,57 @@ class MicroQuestPromptSerializerTest {
 
         val prompt = MicroQuestPromptSerializer().serialize(request)
 
-        assertTrue(prompt.contains("CATEGORIA=EXPLORATION"))
-        assertTrue(prompt.contains("EXEMPLOS_APROVADOS"))
+        assertTrue(prompt.contains("Categoria=EXPLORATION"))
+        assertTrue(prompt.contains("Exemplos aprovados"))
         assertTrue(prompt.contains("Perto daqui"))
-        assertTrue(prompt.contains("RETORNO=chame a funcao compose_quest_text"))
-        assertTrue(!prompt.contains("XP="))
-        assertTrue(!prompt.contains("RECOMPENSA="))
+        assertTrue(prompt.contains("Fatos aprovados: Procure tres coisas ao seu redor"))
+        assertTrue(prompt.contains("Objetivo aprovado: Encontre e registre tres detalhes interessantes."))
+        assertTrue(prompt.contains("Tempo=10-20"))
+        assertFalse(prompt.contains("RETORNO="))
+        assertFalse(prompt.contains("XP="))
+        assertFalse(prompt.contains("RECOMPENSA="))
+    }
+
+    @Test
+    fun defaultTimeMatchesDurationShownForAnUnfilteredQuest() {
+        val request = MicroQuestCompositionRequest(
+            prompt = factsAssembler.assemble(
+                plan = plan(
+                    filters = QuestSessionFilters(),
+                    environment = QuestEnvironment.ANYWHERE,
+                ),
+                tags = emptyList(),
+                examples = emptyList(),
+            ),
+        )
+
+        val prompt = MicroQuestPromptSerializer().serialize(request)
+
+        assertTrue(prompt.contains("Tempo=15-30"))
+        assertTrue(prompt.contains("Ambiente=ANY"))
+        assertFalse(prompt.contains("Ambiente=ANYWHERE"))
+        assertFalse(prompt.contains("Tempo=ANY"))
+        assertFalse(prompt.contains("Exemplos aprovados"))
+    }
+
+    @Test
+    fun everySupportedCategoryHasApprovedFactsAndAnActionableSeedObjective() {
+        val serializer = MicroQuestPromptSerializer()
+
+        QuestCategory.entries.forEach { category ->
+            val prompt = serializer.serialize(
+                MicroQuestCompositionRequest(
+                    prompt = factsAssembler.assemble(
+                        plan = plan(category = category),
+                        tags = emptyList(),
+                        examples = emptyList(),
+                    ),
+                ),
+            )
+
+            assertTrue("$category must include category facts", prompt.contains("Fatos aprovados: "))
+            assertTrue("$category must include a seed objective", prompt.contains("Objetivo aprovado: "))
+        }
     }
 
     @Test
@@ -51,11 +97,15 @@ class MicroQuestPromptSerializerTest {
         assertEquals(serializer.serialize(request), serializer.serialize(request))
     }
 
-    private fun plan() = QuestGenerationPlan(
+    private fun plan(
+        category: QuestCategory = QuestCategory.EXPLORATION,
+        filters: QuestSessionFilters = QuestSessionFilters(minMinutes = 10, maxMinutes = 20),
+        environment: QuestEnvironment = QuestEnvironment.OUTDOOR,
+    ) = QuestGenerationPlan(
         mode = QuestMode.NORMAL,
-        filters = QuestSessionFilters(minMinutes = 10, maxMinutes = 20),
-        selectedCategory = QuestCategory.EXPLORATION,
-        selectedEnvironment = QuestEnvironment.OUTDOOR,
+        filters = filters,
+        selectedCategory = category,
+        selectedEnvironment = environment,
         affinityWeight = 1.0,
         gameCandidate = null,
     )

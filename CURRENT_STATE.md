@@ -1,9 +1,9 @@
 # Pinho Quest — CURRENT STATE
 
-Date: 2026-10-05
-Branch: feature/cr-0-runtime-consolidation
-CR frontier: CR-9 — productive Android JNI/LiteRT-LM integration diagnosis
-Baseline: bdf4956 — feat(p5): harden settings and accessible user feedback
+Date: 2026-10-14 — current checkpoint is documented in section 39
+Branch: feature/p6-total-ui-refactor
+Current frontier: P6-C runtime layout validation remains open; P6-E visual/accessibility audit is in progress; model-semantic refinements are documented in section 39
+Baseline: bdf4956 is historical P5 baseline only; later checkpoints below supersede stale summaries in earlier sections
 
 ## P6 V0.5 — current UI/UX checkpoint
 
@@ -15,22 +15,27 @@ The artwork is presentation-only; existing Compose controls and domain callbacks
 Next visual refinement: extract reusable button assets and define normal/pressed/disabled/selected states.
 ## 1. Current project state
 
-Pinho Quest remains a governed Android-first micro-adventure generator.
-
-Production quest generation is still deterministic/procedural:
+Pinho Quest remains a governed Android-first micro-adventure generator. The canonical flow is:
 
 QuestRequest
 -> QuestSessionService
 -> QuestContextProvider
 -> QuestPlanner
 -> QuestGenerationPlan
--> ProceduralComposer
+-> ComposerPort (local model when admitted, otherwise procedural)
+-> QuestDraft
 -> QuestValidator
 -> Room
 
-FunctionGemma is NOT wired into PinhoQuestAppGraph production.
+The CR-7.4 LiteRT-LM model is catalogued for production and Rafa reported downloading, installing and using it on the device. The 2026-10-14 evidence checkpoint records improvement after prompt/decoder hardening, but broad semantic quality is not yet proven; invalid model output must still converge to the validated procedural fallback.
 
-The P3 FunctionGemma work remains experimental and is being consolidated before any production wiring.
+Current visual/quality gates:
+- P6-B is accepted for the previous composition pass.
+- P6-C was explicitly APPROVED by Rafa after visual review on 2026-10-15 (screenshot at 19:01 local time). Remaining minor spacing/allocation imperfections are accepted for this phase and consolidated into one later polish pass; no extra micro-fixes should be split out before that pass.
+- P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
+- P6-E was explicitly APPROVED by Rafa after visual review on 2026-10-15 (screenshot at 19:01 local time), with minor text-spacing imperfections deferred to a single polish pass. The second visual code pass is validated by Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) at `c2e8d05adaf0cff34e58ea81d88718ba74412440` (BUILD SUCCESSFUL; 0 lint errors, 38 warnings). This approval closes the P6-C/P6-E acceptance gates for the current iteration. Separate release-provenance requirement: the Ihlimia ZIP contains no license/README, so the exact permission to embed and redistribute the font still needs to be recorded before a public release.
+
+Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Sections 40–42 contain the newest operational checkpoints; section 42 records the owner's approval of P6-C/P6-E.
 
 ## 2. P3 experimental state
 
@@ -1592,3 +1597,200 @@ A consolidated `:app:lintDebug` invocation still reaches the LiteRT-LM bridge an
 - **CR-9 / CR-9.1:** remain closed as previously recorded.
 
 > **P5 closes the application. The remaining lint/toolchain issue is visible, bounded and not allowed to contaminate the runtime contract.**
+
+## P6 documentation authority and transition protocol — 2026-10-09
+
+The official P6 implementation and transition protocol is
+`Engineering_Genome/P6_IMPLEMENTATION_AND_TRANSITION_PROTOCOL.md`.
+
+### Documentation checkpoint
+
+- Branch: `feature/p6-total-ui-refactor`.
+- This checkpoint changes documentation only: P6 protocol, Engineering Genome entry/authority map, visual registry and contracts, and README pointers.
+- No Kotlin runtime code, binary assets, Gradle/workflow scripts or tests were changed by this documentation checkpoint.
+- The GitHub Contents API confirmed the branch-specific commits for the document and related contract changes. A stable branch HEAD SHA was not independently resolved during this operation, so this note deliberately does not claim a single final HEAD hash.
+- The document distinguishes facts observed in existing docs, hypotheses needing code/runtime reproduction, normative decisions, and gates not yet validated.
+- P6-A through P6-E remain open until their specific implementation and evidence criteria are met. A prior test report is historical evidence for that checkpoint, not a result for the current branch head.
+- Current visual contracts define global bottom-navigation destinations as Início, Jardim and Perfil; historical four-tab wording in Engineering Genome is identified as a documentation conflict to reconcile, not as permission to introduce a second navigation owner.
+
+### Documented issues and remaining work
+
+- `docs/design/CANONICAL_GRAPHICS.md` previously repeated old button filenames and contradicted itself about whether the Button path still had a trailing space. It now points to `ASSET_CATALOG.md` as the sole operational filename/alias inventory and states that any filename must be verified in the target branch.
+- `P6_UI_UX_INTERACTION_CONTRACT.md` and `UI_DESIGN_CONTRACT.md` now link to the protocol while retaining their respective interaction and implementation authority.
+- The legacy date/branch header at the top of this file is not rewritten in this documentation-only checkpoint because the branch HEAD was not independently confirmed. It remains a follow-up item for a dedicated state-snapshot update backed by an exact commit SHA.
+- Runtime consumer migration, three-state Garden behavior, quest repetition root cause, instrumented CI coverage and end-to-end visual validation are not claimed as completed by this documentation change.
+
+## 37. LiteRT-LM artifact recovery and reproducible distribution — 2026-10-10
+
+The canonical CR-7.4 artifact was recovered from the PinhoQuest-owned release
+`p6-local-debug-bundled-cr74-2026-10-06`: its `app-debug.apk` was verified as
+303410971 bytes / SHA-256
+`afb8a489bc34306c95765dcbb687ab0ef0de96c3531e69eede89c20b337e639d`, then
+its `assets/model.litertlm` entry was extracted without transformation and
+verified as 284692656 bytes / SHA-256
+`e815c8ddb5400d777e2a0653a057692b25f6b7e0a9d9197992dc423ec9d67dfb`.
+
+### Distribution and integration decision
+
+- The model is not stored in Git or Git LFS. It exceeds normal GitHub Git blob
+  limits and is distributed as the dedicated `model.litertlm` asset of the
+  `cr74-semantic-isolation-v1` GitHub prerelease. Its SHA-256 is pinned in code
+  and documentation, so a changed or substituted asset is rejected.
+- `docs/model-artifacts/CR74_SEMANTIC_ISOLATION.md` is the current recovery,
+  provenance, license, clean-checkout and validation record. The repository
+  also carries the required Gemma Notice text and ships it beside the release
+  asset.
+- `Cr74SemanticIsolationModelCatalog` is the one production package catalog.
+  It provides the immutable release URL, bytes, hash, CPU backend and context
+  limit to the existing resumable worker / `AndroidModelStore` path.
+- The model is still external to the normal APK. Settings now requires an
+  explicit acknowledgement before it schedules that download; no startup or
+  silent download was added. The installed runtime filename remains
+  `files/models/cr74_semantic_isolation/1/model.litertlm`.
+- Gradle currently resolves `litertlm-android:0.16.1`; its JNI runtime remains
+  packaged for `arm64-v8a` and `x86_64` through the existing `runtimeOnly`
+  dependency. No library or model version was changed in this recovery.
+
+### Validation boundary
+
+- A fresh public-release download passed the committed verification script with
+  the exact expected byte count and SHA-256.
+- A fresh depth-1 clone of `feature/p6-total-ui-refactor` contained the recovery
+  script and verified that download without local model paths or LFS objects.
+- Current-head local Gradle validation passed `:quest-domain:test`,
+  `:quest-core:test`, `:android-data:testDebugUnitTest`,
+  `:litertlm-bridge:test`, `:app:testDebugUnitTest`, `:app:lintDebug`,
+  `:app:assembleDebug` and `:app:compileDebugAndroidTestKotlin` on JDK 21.
+- APK inspection confirmed the two LiteRT-LM JNI libraries and no model asset.
+- CI was updated to use JDK 21 because LiteRT-LM test classes cannot run under
+  the prior JDK 17 host. A current-device inference result is not claimed here:
+  `emulator-5554` reported as connected but rejected shell commands with
+  `error: closed`, so staging and executing the instrumentation probe was not
+  possible in this recovery checkpoint.
+
+
+## 38. P6-D — generation diversity, persisted history and truthful fallback diagnostics (2026-10-10)
+
+**Status: IMPLEMENTATION IN PROGRESS — CI NOT YET GREEN FOR THE FINAL CHECKPOINT.**
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Code checkpoint before this state-document update:** `ce987220ecee20b601fbeaec1d6201e9e31521c2`  
+**P6 implementation protocol update:** `0d44cead8b59a97b4af79f0c1a62369fd78b5f84`
+
+### Changes published
+
+- `7f55caa` — injectable category choice; RANDOM prefers categories absent from recent history and no longer takes the first unseen category by list order.
+- `f7c1023` — three bounded procedural compositions per category, including distinct CODING angles and game-candidate enforcement.
+- `131d574` — unsatisfiable category filters and missing game candidates return an explicit unavailable result rather than silently changing quest mode.
+- `aebc23c`, `e4d28dd`, `b286d0b`, `718db63`, `24196fc` — recent categories flow from Room-backed persisted quest history into the production generation context.
+- `a0031cb`, `1d730ad`, `ca847f1` — quest state transitions update the state field in place, avoiding a rewrite that would reorder generation history.
+- `4f6f3b5`, `09d09fe` — deterministic tests cover 20 validated RANDOM generations, partial/full history, category filters and procedural variation.
+- `cab428a`, `85299e8`, `d31815f`, `dda9f4e` — composition origin and bounded fallback reasons are exposed by procedural, model and admission-aware composers.
+- `45ca11a`, `d92fc05`, `4744166` — QuestEngine reports mode, category, origin, validation status and enum-like reason; Android logs omit prompts, user text and profile data; invalid model-originated drafts are revalidated through procedural fallback.
+- `bd05a3e` — added user-facing copy for incompatible filters.
+- `9ea2dfc`, `ce98722` — avoid selecting GAMING when no candidate is available if another explicitly allowed category is viable; add regression coverage.
+
+### Validation and known limits
+
+- The run on an earlier code SHA `a0031cbffbb09bc8c1225c79dab4ead830a15225` failed at `:app:compileDebugKotlin`: the new `FILTERS_UNSATISFIABLE` enum branch was missing from `UserFacingCopy.kt`. This was corrected in `bd05a3e35999434025da54c1cadb33a7f50b2f1e`. The older failure is not treated as evidence about the corrected HEAD.
+- Android CI for code SHA `ce987220ecee20b601fbeaec1d6201e9e31521c2` was still in progress when this checkpoint was written. This document update triggers a newer workflow run; consult that run against its exact SHA before claiming PASS.
+- No new device-level E2E or screenshot evidence was produced in this checkpoint. The test suite proves deterministic planner/composer behavior and redacted diagnostic fields, not fresh on-device activation of the CR-7.4 model.
+- The diagnostic event contains only quest mode, category, composition origin, result status and enum-like reason. It deliberately excludes generated title/description/objectives, prompt content and personal profile data.
+- P6-D remains open until the latest CI passes and the integrated production generation path is verified. P6-E typography/category-art gates and P6-Final release matrix remain separate gates.
+
+
+
+## 39. P6-E — Visual accessibility audit and initial correction pass (2026-10-14)
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Audit report:** `docs/evidence/p6-e-accessibility-audit-2026-10-14.md`  
+**Evidence source:** four runtime screenshots supplied by Rafa in the conversation; no APK SHA was supplied with them.  
+**Status:** initial corrections committed; latest CI and real-device validation still required. This checkpoint does not close P6-C, P6-E or P6-Final.
+
+### Findings and code changes
+
+- Home: `GardenSummaryCard` used independent percentage offsets for metrics, garden owner name and tagline. The copy was changed to one vertical layout flow, with metrics arranged in a row. The game/random button labels were moved away from embedded artwork icons and use bounded line counts.
+- Shared graphical controls: `PinhoGraphicButton` now supports a maximum label line count (two by default); tag labels are single-line with ellipsis.
+- Garden: the header column uses the remaining width. XP, level and flower count remain separate semantic text nodes in one row, while title and subtitle have explicit line bounds. This preserves existing Compose accessibility labels and tests.
+- Profile: the banner copy was moved lower into the lower plaque; title size and bottom spacing were adjusted; more bottom scroll space and body line spacing were added.
+- Settings: section heading/helper colors now respond to night theme. Model-download/progress actions use cream text on the green button surface.
+- UI regression test: `LargeFontLayoutTest` now checks the game action semantics and that Settings controls retain accessible names under a larger local font scale.
+
+### Validation boundary
+
+These edits were made through the GitHub connector. A passing CI result for the final source SHA is not yet recorded in this checkpoint. The repository's current workflow compiles AndroidTest sources but does not run `connectedDebugAndroidTest`; therefore tests compiling is not evidence of in-device layout correctness. Do not close P6-C until keyboard/IME, safe areas, collection filters, long text and 1.0/1.3 text scales are observed on the device and screenshots are linked to the exact APK SHA.
+
+### MV Boli font decision
+
+The uploaded `docs/design/mv-boli-maisfontes.866a.zip` contains `mv-boli.ttf` only and has no license/authorization file. Official Microsoft documentation identifies MV Boli as copyrighted and says Windows fonts cannot be redistributed or embedded in an app/game without appropriate additional rights. See:
+- https://learn.microsoft.com/en-us/typography/font-list/mv-boli
+- https://learn.microsoft.com/en-us/typography/fonts/font-faq
+
+The font has **not** been added to Android resources or the APK. Its integration is BLOCKED pending a license explicitly allowing app embedding/redistribution, or Rafa's decision to use a suitably licensed alternative. Presence in a ZIP is not proof of distribution rights.
+
+### Gate state
+
+- P6-C: **APPROVED BY RAFA (2026-10-15)**; remaining minor geometry/spacing concerns deferred to one consolidated polish pass.
+- P6-E: **APPROVED BY RAFA (2026-10-15)** for current UI, typography and contrast iteration; font license provenance remains a release checklist item, not a blocker for this iteration's acceptance.
+- P6-Final: **BLOCKED** until all required P1 gates have evidence.
+
+
+## 40. P6-E follow-up — display font and CI correction (2026-10-15)
+
+**Branch:** `feature/p6-total-ui-refactor`  
+**Source failure:** [Android CI run #38603677089, verify job](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38603677089/job/115988990661).  
+**Status:** fixes published to the working branch; latest CI and real-device layout evidence must still be checked before closing P6-C/P6-E.
+
+### CI root cause and correction
+
+The failed `:app:compileDebugAndroidTestKotlin` task reported:
+- `LargeFontLayoutTest.kt:6`: unresolved `assertExists` extension/import for the configured Compose UI-test version.
+- `LargeFontLayoutTest.kt:98-99`: `onNodeWithText` was used without its import.
+
+The test now uses `onAllNodesWithText` / `onAllNodesWithContentDescription` with `assertCountEquals`, and imports the supported collection APIs. This repairs the reported source-level cause; only a new green run can establish validation.
+
+### Ihlimia display font
+
+- Source archive: `docs/design/ihlimia-maisfontes.8b4f.zip`; archive inspection found one payload, `ihlimia.ttf` (413,348 uncompressed bytes) and no bundled license/readme.
+- Gradle's `syncDisplayFont` extracts only `ihlimia.ttf` to a generated `res/font` directory. The compressed ZIP and any unrelated files are not packaged as resources.
+- `PinhoDisplayFontFamily` is used for short decorative headings only (home garden name, garden heading and profile headings). Body copy, buttons, metrics, navigation labels and generated quest text retain their existing readable families.
+- Rafa identified this as the free-license replacement for MV Boli. Secondary font-directory listings describe Ihlimia as available for professional/commercial use ([Fontmirror](https://www.fontmirror.com/ihlimia), [Befonts](https://befonts.com/ihlimia-romantic-script-font.html)), but the uploaded ZIP itself does not contain the license, and commercial use is not automatically the same as permission to redistribute the font binary in an APK. Record the author/source license or explicit permission before a public release. This is a release-provenance caveat, not a reason to revert the UI fixes.
+
+### Remaining evidence
+
+- Android CI [#38684219225](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38684219225) passed for code checkpoint `f67ea6501dfe657b9c3f9f421413a98d5a84eb07`, including `:app:syncDisplayFont`, `:app:compileDebugAndroidTestKotlin`, unit tests, lint and APK assembly. Lint reported 0 errors and 38 warnings. The workflow compiles AndroidTest sources but does not execute `connectedDebugAndroidTest`; P6-C/P6-E remain open for on-device layout and interaction evidence.
+- Install the APK from that SHA and compare Home, Garden, Profile and Settings in light/dark themes and font scales 1.0/1.3.
+- Recheck long owner names, large XP/flower counts, labels on illustrated buttons, all touch targets and content above the global navbar.
+- P6-C remains OPEN until compact layout, IME, collection scrolling and safe areas are observed on-device. P6-E remains OPEN until CI, the visual/accessibility matrix and font redistribution provenance are recorded.
+
+
+## 41. P6-C/P6-E — follow-up from visual validation screenshots (2026-10-15)
+
+**Evidence source:** seven new runtime screenshots supplied by Rafa after the first P6-E build checkpoint. They show the existing test build on a real device; this evidence is stronger than compilation alone but does not represent the newly changed code until a new APK is installed and captured.
+
+### Findings and changes published
+
+- **Global bottom navigation:** tab captions use `PinhoDisplayFontFamily`, remain horizontally centered in each equal-width destination, and use reduced bottom padding so they sit lower in the caption band. Selected labels use PinhoForest in the light theme and PinhoGold in the dark theme. Semantic names, selected-state descriptions, destinations and click behavior are unchanged.
+- **Home / garden summary card:** increased the card from 90% of its available width to the full column width; the Home column now uses 16dp rather than 22dp side padding. Because the source art includes flower/star details underneath the dynamic text, a compact parchment inset now isolates flower count, XP, garden name and tagline.
+- **Home / game quest card:** the game button is taller (`174:100` aspect ratio instead of `174:86`), gets more usable row width and uses 15sp label text beginning before the former text anchor, while still leaving the embedded gamepad art visible.
+- **Garden art state:** heading and collected/XP text now sit on a parchment surface; the collection action has a separate cream surface and border. Both avoid relying on the current background pixel colors for contrast.
+- **Settings:** the explanatory copy for the creative-brain installation now sits on a parchment surface for consistent contrast.
+- **Profile plaque:** the dynamic garden name no longer uses the script/display font inside the foliage-adjacent plaque. It uses readable serif type at 16sp, a wider 82% text region, and smaller bottom inset to place the title/subtitle lower in the intended panel.
+- **Onboarding — garden name:** moved the form slightly lower, placed title/input/preview/confirmation in one parchment panel, centered the helper line and centered the confirmation button independently. The actual editable `BasicTextField`, name validation, IME Done behavior and callback remain unchanged.
+- **Quest theme selection:** pushed the heading down from the logo area, applied a subtle theme-dependent tint to the illustrated backdrop, and put heading/helper copy plus selected-theme status on parchment surfaces for readable contrast.
+
+### Validation state
+
+Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passed for code checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440`; its log confirms `BUILD SUCCESSFUL`, 0 lint errors and 38 warnings. Rafa reviewed the post-fix APK visually on-device and explicitly approved P6-C and P6-E on 2026-10-15. Small remaining spacing/allocation issues, including the onboarding name/preview region, are intentionally consolidated into one later polish pass instead of reopening these gates. Keep the font redistribution license/provenance as a separate release checklist item.
+
+
+## 42. P6-C/P6-E acceptance decision — owner approval (2026-10-15)
+
+**Decision maker:** Rafa, project owner.  
+**Evidence:** latest on-device screenshot supplied on 2026-10-15 at 19:01 local time, following the second visual correction pass; code CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passed on `c2e8d05adaf0cff34e58ea81d88718ba74412440` with `BUILD SUCCESSFUL`, 0 lint errors and 38 warnings.
+
+- **P6-C — APPROVED for this iteration.** Responsive layouts, navigation positioning, text surfaces and main screen flows are accepted by the owner. Remaining minor spacing/allocation imperfections are acknowledged and deferred to one consolidated polish pass.
+- **P6-E — APPROVED for this iteration.** Typography, contrast surfaces and screenshot-driven accessibility corrections are accepted by the owner. Do not create separate micro-fix rounds for the remaining cosmetic spacing issues.
+- **Polish scope:** revisit onboarding title/input/preview spacing, input baseline inside the wooden name plate, line break/centering of “Vai aparecer como Jardim de …”, and any navbar/card spacing revealed by a final side-by-side screenshot pass. Preserve callbacks, state, validation, semantics and canonical artwork.
+- **Release caveat kept separate:** the Ihlimia archive has no embedded license/README. Record the original license or explicit app-embedding/redistribution permission before a public APK release. This does not revoke the owner's approval of P6-C/P6-E for the current iteration.
+- **P6-Final remains governed by its own release criteria.** This approval closes the current iteration's P6-C/P6-E acceptance gates but is not an automatic release approval.

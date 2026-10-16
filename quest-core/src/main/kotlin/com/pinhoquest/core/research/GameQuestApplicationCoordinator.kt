@@ -21,7 +21,7 @@ class GameQuestApplicationCoordinator(
     private suspend fun selectCandidate(
         snapshot: GameCatalogSnapshot,
     ): GameQuestApplicationResult =
-        when (val candidate = generationCoordinator.selectCandidate()) {
+        when (val candidate = generationCoordinator.selectRandomCandidate()) {
             GameQuestCandidateResult.NoCatalog ->
                 GameQuestApplicationResult.NoUsableCatalog
 
