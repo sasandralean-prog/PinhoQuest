@@ -18,7 +18,7 @@ testRunner = "1.6.2"
 testOrchestrator = "1.5.1"
 espresso = "3.6.1"
 litertLm = "0.16.1"
-media3 = "1.11.1"
+media3 = "1.5.1"
 
 [libraries]
 junit = { module = "junit:junit", version.ref = "junit" }
