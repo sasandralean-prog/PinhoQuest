@@ -1,8 +1,8 @@
 # P6-E — Auditoria visual, tipografia e acessibilidade (2026-10-14)
 
 **Branch de trabalho:** `feature/p6-total-ui-refactor`  
-**Status:** a rodada de screenshots de 15/10 foi implementada no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440`, validado por [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) (BUILD SUCCESSFUL, 0 erros/38 avisos). A validação de runtime em aparelho ainda está pendente.  
-**Gate:** P6-E continua aberto. P6-C também continua aberto até validação em aparelho. Follow-up de 2026-10-15 registrado na seção 7.  
+**Status:** Rafa aprovou P6-C/P6-E após validar em aparelho a rodada de screenshots de 15/10. A revisão de código `c2e8d05adaf0cff34e58ea81d88718ba74412440` passou na [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) (BUILD SUCCESSFUL, 0 erros/38 avisos). Pequenos desalinhamentos restantes estão aceitos para uma única etapa futura de polimento; a proveniência da licença da fonte continua item separado de release.  
+**Gate:** P6-C e P6-E **APROVADOS PELO RESPONSÁVEL** para esta iteração (2026-10-15). Os desalinhamentos cosméticos restantes serão tratados numa única rodada de polimento; a licença de redistribuição da fonte continua no checklist de release.  
 **Fonte de observação:** quatro screenshots fornecidas por Rafa em 14/10/2026. Os screenshots não vieram associados a um SHA de APK, portanto mostram sintomas reais, mas não identificam por si só o commit instalado.
 
 ## 1. Resumo executivo
@@ -71,9 +71,9 @@ A FAQ oficial de fontes da Microsoft declara que as fontes Windows não podem se
 | Gate | Estado | Próxima evidência necessária |
 |---|---|---|
 | P6-B — composição visual | Aceito na rodada anterior | Não reabrir sem regressão reproduzível |
-| P6-C — responsividade, IME e safe areas | **ABERTO** | Validação no aparelho em tela compacta, teclado, escalas e temas |
+| P6-C — responsividade, IME e safe areas | **APROVADO PELO RESPONSÁVEL (2026-10-15)** | Pequenos ajustes cosméticos restantes foram aceitos e serão consolidados numa etapa futura de polimento |
 | P6-D — geração/fallback | Separado desta auditoria | Preservar a qualidade de modelo/fallback já documentada |
-| P6-E — tipografia/acessibilidade/distribuição | **EM ANDAMENTO; Ihlimia integrada para teste; CI/runtime/licença pendentes** | CI + validação em aparelho + licença de fonte compatível |
+| P6-E — tipografia/acessibilidade/distribuição | **APROVADO PELO RESPONSÁVEL (2026-10-15)** | UI/contraste/fonte aprovados nesta iteração; manter a licença de incorporação/redistribuição da Ihlimia como item do checklist de release |
 | P6-Final | **BLOCKED** | Matriz de regressão e evidência final ligadas ao SHA |
 
 Nenhum gate é declarado concluído por esta auditoria.
@@ -135,4 +135,9 @@ Correção publicada em `LargeFontLayoutTest.kt`: queries de coleção `onAllNod
 - A CI #38690256884 passou no checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440`, incluindo `syncDisplayFont`, testes unitários, lint, APK debug e compilação de AndroidTest. O log registrou 0 erros/38 avisos. Essa CI compila AndroidTest, mas não executa `connectedDebugAndroidTest`.
 - Instalar o APK daquele SHA e recapturar Home, Garden, Profile, Settings, seleção de temas e onboarding.
 - Repetir em tema claro/escuro, escala 1.0/1.3 e viewport compacta; incluir nome comprido, métricas grandes, área do teclado aberta e rolagem total.
-- P6-C/P6-E continuam abertos até a execução visual/funcional no aparelho e o registro da licença de incorporação/redistribuição da Ihlimia antes do release.
+- Rafa aprovou explicitamente P6-C/P6-E após validar o APK em aparelho. Pequenos problemas de posicionamento foram reconhecidos, mas aceitos para esta iteração e adiados para uma única etapa de polimento. O registro da licença de incorporação/redistribuição da Ihlimia continua sendo condição separada antes de release público.
+
+
+## 9. Decisão de aceite do responsável — 2026-10-15
+
+Rafa declara P6-C e P6-E aprovados para a iteração atual. Os pequenos problemas de alocação visíveis no último screenshot — alinhamento do campo/preview e espaçamento de textos — não bloqueiam o aceite; devem ser reunidos em uma única rodada de polimento mais à frente. A aprovação visual se apoia no teste de runtime do proprietário e na CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884). A fonte Ihlimia continua requerendo prova documental de direitos de incorporação e redistribuição antes de release público; esse ponto não reabre o gate visual aprovado.
