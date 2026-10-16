@@ -13,4 +13,10 @@ interface TagDao {
 
     @Query("SELECT * FROM tags WHERE profileId = :profileId ORDER BY label COLLATE NOCASE, tagId")
     suspend fun listByProfile(profileId: String): List<TagEntity>
+
+    @Query("SELECT COUNT(*) FROM tags WHERE profileId = :profileId AND source = 'USER'")
+    suspend fun countUserTags(profileId: String): Int
+
+    @Query("DELETE FROM tags WHERE profileId = :profileId AND tagId = :tagId AND source = 'USER'")
+    suspend fun deleteUserTag(profileId: String, tagId: String): Int
 }
