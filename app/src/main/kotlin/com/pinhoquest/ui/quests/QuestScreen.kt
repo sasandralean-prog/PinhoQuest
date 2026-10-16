@@ -44,6 +44,7 @@ import com.pinhoquest.ui.PinhoParchment
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoGraphicButton
+import com.pinhoquest.ui.PinhoFireflies
 
 @Composable
 fun QuestScreen(
@@ -67,6 +68,7 @@ fun QuestScreen(
             resource = if (dark) PinhoQuestBackgrounds.HOME_NIGHT else PinhoQuestBackgrounds.HOME_DAY,
             overlayAlpha = 0f,
         )
+        PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 12)
 
         if (activeSession != null && currentQuest != null) {
             ActiveQuestContent(
