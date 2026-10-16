@@ -1,6 +1,7 @@
 package com.pinhoquest
 
 import android.net.Uri
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -48,6 +49,8 @@ import kotlinx.coroutines.launch
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import java.util.UUID
+
+private const val PINHOQUEST_SUPPORT_URL = "https://buy.stripe.com/5kQ00i75X64v9So31QcV201"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -196,7 +199,18 @@ class MainActivity : ComponentActivity() {
                             },
                             dark = useDark,
                             onDonate = {
-                                viewModel.showMessage("O link de apoio será conectado ao destino externo canônico.")
+                                runCatching {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(PINHOQUEST_SUPPORT_URL),
+                                        ),
+                                    )
+                                }.onFailure {
+                                    viewModel.showMessage(
+                                        "Não consegui abrir a página de apoio. Tente novamente pelo navegador.",
+                                    )
+                                }
                             },
                         )
 
