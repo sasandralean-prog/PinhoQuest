@@ -2,7 +2,7 @@
 
 **Projeto:** PinhoQuest  
 **Branch de trabalho:** feature/p6-total-ui-refactor  
-**Revisão do contrato:** 2026-10-15 — segunda rodada de layout, contraste e navbar P6-C/P6-E  
+**Revisão do contrato:** 2026-10-15 — owner acceptance de P6-C/P6-E, polimento consolidado pendente  
 **SHA histórico de referência do snapshot de 10/10:** 42426c2f6667c86c3f7c70f99b50ca20543d4f64 (superado por checkpoints posteriores)  
 **Último checkpoint de código da auditoria:** segunda rodada visual — `c2e8d05adaf0cff34e58ea81d88718ba74412440`; [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou (BUILD SUCCESSFUL; 0 erros/38 avisos).  
 **Estado deste documento:** contrato de execução e critérios de gate; não é declaração de que todos os gates estejam fechados.
@@ -424,9 +424,9 @@ Se ainda não houver artefato, licença ou origem confiável, MODEL-01 fica BLOC
 |---|---|---|
 | P6-A — baseline/assets/docs | **INVENTÁRIO RECONCILIADO; CI BASE CONCLUÍDO** | O verificador/build do snapshot aceito para P6-B passou em [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398); o documento atual ainda será validado pelo CI após este commit. |
 | P6-B — composição visual | **CONCLUÍDO NESTA RODADA** | Aceitação provisória do proprietário e [CI #38081485398](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38081485398) verde no SHA `ee42ea2748e3b8e79d46d9d37983153619b83d8f`; polimento e matriz de release continuam pendentes. |
-| P6-C — layouts responsivos | **CI VERDE; VALIDAÇÃO EM APARELHO PENDENTE** | A segunda rodada passou na [CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) no checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440`, incluindo compilação AndroidTest; ainda falta validar IME, escala 1.0/1.3, temas, coleção e safe areas em aparelho. |
+| P6-C — layouts responsivos | **APROVADO PELO RESPONSÁVEL (2026-10-15)** | Rafa aprovou visualmente o checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440` após teste no dispositivo. Pequenas imperfeições de espaçamento são explicitamente aceitas e ficam reunidas numa única etapa futura de polimento; não abrir microcorreções isoladas. |
 | P6-D — geração diversa | **EM ANDAMENTO — CI PENDENTE** | Histórico persistido, seleção variada, composições procedurais, fallback validado e diagnóstico redigido implementados no código; CI do HEAD mais recente ainda não concluiu e a validação integrada em aparelho permanece aberta |
-| P6-E — modelo/tipografia/categorias | **CI VERDE; VALIDAÇÃO VISUAL/LICENÇA PENDENTES** | [CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou com `syncDisplayFont`, testes unitários, lint, APK debug e compilação AndroidTest; lint: 0 erros/38 avisos. Ihlimia permanece restrita a títulos de display curtos e legendas da navbar; validar em aparelho e registrar os direitos de embedding/redistribuição antes do release. |
+| P6-E — modelo/tipografia/categorias | **APROVADO PELO RESPONSÁVEL (2026-10-15)** | A revisão visual e a [CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) foram aceitas pelo responsável. A Ihlimia está limitada aos papéis de display aprovados. Registrar os direitos de incorporação/redistribuição continua sendo um item separado do checklist de release, não uma pendência para a aceitação visual desta iteração. |
 | P6-Final — release | **BLOCKED até todos os P1 passarem** | Exige build de release e evidência visual/funcional ligados ao SHA final |
 
 Este quadro distingue aceitação visual provisória de P6-B, implementação ainda em progresso de P6-C e gate final de release; documentação não substitui evidência de runtime.
@@ -554,6 +554,19 @@ The uploaded archive `docs/design/mv-boli-maisfontes.866a.zip` contains only `mv
 
 ### Acceptance boundary
 - Android CI is green for the exact code checkpoint above.
-- P6-C/P6-E remain OPEN until the APK from the tested revision is installed and the second screenshot matrix is repeated in light/dark themes, font scales 1.0/1.3, compact viewport, long names, large metrics, scrolling and IME behavior.
+- Rafa subsequently inspected the updated APK on the device and explicitly approved P6-C/P6-E on 2026-10-15. The owner approval supersedes this earlier checkpoint's open-gate recommendation for the current iteration; the previously identified small spacing issues are deferred to a single later polish pass.
 - The user-uploaded Ihlimia ZIP still contains no license/README. Preserve the release provenance task until an original license or explicit permission to embed and redistribute the font binary in an APK is recorded.
-- Do not treat CI success or this document update as device-level visual PASS.
+- Do not treat CI success alone as device-level visual PASS; the explicit owner approval above is the acceptance decision for this iteration.
+
+
+## 16. P6-C/P6-E — owner acceptance and consolidated polish decision (2026-10-15)
+
+**Decision:** Rafa explicitly approved both P6-C and P6-E after reviewing the latest device screenshot on 2026-10-15 at 19:01 local time.
+
+- **P6-C — ACCEPTED for this iteration.** The owner accepts the current responsive layout/navigation/content allocation. Minor remaining spacing differences do not reopen the gate.
+- **P6-E — ACCEPTED for this iteration.** The owner accepts the current typography, contrast, and screenshot-driven accessibility changes.
+- **Polish work is consolidated:** one later pass should review the onboarding title/input/preview spacing, input baseline inside the wooden name plate, line wrapping/centering of “Vai aparecer como Jardim de …”, and any navbar/Home-card spacing revealed by the final screenshot comparison. No separate micro-fix commits for these cosmetic issues before that planned pass unless a new functional/accessibility regression appears.
+- **Preserve behavior:** do not change state, validation, navigation semantics, callbacks, persistence, canonical artwork mappings, or the onboarding IME flow during visual polish without explicit test coverage.
+- **CI evidence:** code checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440` passed [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884), including APK assembly and compilation of AndroidTest sources (0 lint errors, 38 warnings).
+- **Separate release requirement:** the Ihlimia ZIP contains no license/readme. Record the original license or explicit permission to embed and redistribute the TTF before public APK release. This provenance item does not override the owner's P6-E visual acceptance.
+- **P6-Final remains separate** and requires its own release criteria; P6-C/P6-E acceptance is not blanket release approval.
