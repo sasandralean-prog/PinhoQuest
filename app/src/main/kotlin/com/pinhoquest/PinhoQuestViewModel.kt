@@ -16,7 +16,9 @@ import com.pinhoquest.domain.profile.UserProfile
 import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.quest.QuestRequest
 import com.pinhoquest.domain.reward.RewardResolution
+import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.domain.tag.TagSource
 import com.pinhoquest.ui.copy.UserFacingCopy
 import com.pinhoquest.ui.garden.GardenFlowerUi
 import com.pinhoquest.ui.garden.GardenUiState
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class PinhoQuestViewModel(
     private val graph: PinhoQuestAppGraph,
@@ -303,6 +306,64 @@ class PinhoQuestViewModel(
                 )
             }
         }
+    }
+
+    fun createCustomTag(rawLabel: String) {
+        val label = rawLabel.trim().replace(Regex("\\s+"), " ")
+        if (label.isBlank()) {
+            showMessage("Dê um nome ao tema antes de adicionar.")
+            return
+        }
+        if (label.codePointCount(0, label.length) > 28) {
+            showMessage("Use no máximo 28 caracteres por tema.")
+            return
+        }
+        viewModelScope.launch {
+            val profile = graph.profileRepository.current() ?: return@launch
+            val stored = graph.tagRepository.list(profile.id)
+            if (stored.count { it.source == TagSource.USER } >= MAX_CUSTOM_TAGS) {
+                _state.update { it.copy(message = "Você já tem 10 temas personalizados. Remova um para adicionar outro.") }
+                return@launch
+            }
+            if (stored.any { it.label.equals(label, ignoreCase = true) }) {
+                _state.update { it.copy(message = "Esse tema já existe no seu perfil.") }
+                return@launch
+            }
+            val tag = Tag(
+                id = TagId("user-${UUID.randomUUID()}"),
+                label = label,
+                source = TagSource.USER,
+                affinity = 0.5,
+                enabled = true,
+            )
+            graph.tagRepository.upsert(profile.id, tag)
+            _state.update { state ->
+                state.copy(
+                    tags = (state.tags.filterNot { it.id == tag.id } + tag),
+                    message = "Tema \"${label}\" adicionado ao seu perfil.",
+                )
+            }
+        }
+    }
+
+    fun deleteCustomTag(tagId: TagId) {
+        viewModelScope.launch {
+            val profile = graph.profileRepository.current() ?: return@launch
+            val tag = _state.value.tags.firstOrNull { it.id == tagId && it.source == TagSource.USER }
+                ?: return@launch
+            if (graph.tagRepository.deleteUserTag(profile.id, tag.id)) {
+                _state.update { state ->
+                    state.copy(
+                        tags = state.tags.filterNot { it.id == tag.id },
+                        message = "Tema \"${tag.label}\" removido.",
+                    )
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val MAX_CUSTOM_TAGS = 10
     }
 
     fun setTheme(theme: ThemePreference) {
