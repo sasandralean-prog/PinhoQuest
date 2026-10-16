@@ -2,7 +2,6 @@ package com.pinhoquest.ui.garden
 
 import android.content.Context
 import android.net.Uri
-import android.util.Base64
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
