@@ -40,7 +40,7 @@ private class GardenLoopTextureView(context: Context) : TextureView(context), Te
 
     init {
         surfaceTextureListener = this
-        isOpaque = true
+        isOpaque = false
     }
 
     fun setPlaybackEnabled(enabled: Boolean) {
@@ -101,12 +101,14 @@ private class GardenLoopTextureView(context: Context) : TextureView(context), Te
 
     private fun releasePlayer() {
         prepared = false
-        player?.runCatching {
-            setOnPreparedListener(null)
-            setOnErrorListener(null)
-            if (isPlaying) pause()
-            stop()
-            release()
+        player?.let { activePlayer ->
+            runCatching {
+                activePlayer.setOnPreparedListener(null)
+                activePlayer.setOnErrorListener(null)
+                if (activePlayer.isPlaying) activePlayer.pause()
+                activePlayer.stop()
+                activePlayer.release()
+            }
         }
         player = null
         outputSurface?.release()
