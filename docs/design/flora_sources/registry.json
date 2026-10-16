@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-10-16T00:00:00Z",
+  "policy": "Only records with verified metadata and releaseAllowed=true may be included in a public APK. SHA-256 is integrity identity, not proof of copyright or license.",
+  "records": []
+}
