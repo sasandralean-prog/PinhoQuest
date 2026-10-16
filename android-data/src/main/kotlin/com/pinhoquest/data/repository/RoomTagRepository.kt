@@ -33,4 +33,10 @@ class RoomTagRepository(
                 enabled = entity.enabled,
             )
         }
+
+    suspend fun countUserTags(profileId: ProfileId): Int =
+        dao.countUserTags(profileId.value)
+
+    suspend fun deleteUserTag(profileId: ProfileId, tagId: TagId): Boolean =
+        dao.deleteUserTag(profileId.value, tagId.value) > 0
 }
