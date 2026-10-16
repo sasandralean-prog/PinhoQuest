@@ -46,6 +46,7 @@ import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
 import com.pinhoquest.R
 import com.pinhoquest.ui.PinhoGraphicButton
+import com.pinhoquest.ui.PinhoFireflies
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoCreamSoft
 import com.pinhoquest.ui.PinhoForest
@@ -93,6 +94,7 @@ fun GardenScreen(
             },
             overlayAlpha = 0f,
         )
+        PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 14)
 
         Column(
             modifier = Modifier
