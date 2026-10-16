@@ -203,6 +203,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
     implementation(project(":litertlm-bridge"))
     // The production app does not compile against LiteRT-LM APIs, but it must package
     // the JNI runtime as an application dependency so NativeLibraryLoader can load it.
