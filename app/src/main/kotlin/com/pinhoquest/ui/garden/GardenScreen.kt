@@ -46,6 +46,7 @@ import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
 import com.pinhoquest.R
 import com.pinhoquest.ui.PinhoGraphicButton
+import com.pinhoquest.ui.PinhoGardenVideoBackground
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoCreamSoft
 import com.pinhoquest.ui.PinhoForest
@@ -92,6 +93,11 @@ fun GardenScreen(
                 else -> PinhoQuestBackgrounds.GARDEN_ART_DAY
             },
             overlayAlpha = 0f,
+        )
+
+        PinhoGardenVideoBackground(
+            modifier = Modifier.fillMaxSize(),
+            enabled = true,
         )
 
         Column(
