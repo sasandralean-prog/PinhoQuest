@@ -98,4 +98,4 @@ private fun sha256(bytes: ByteArray): String =
         .digest(bytes)
         .joinToString("") { byte -> "%02x".format(byte) }
 
-private const val GARDEN_VIDEO_SHA256 = "25ed47f10d0fda6f0de8d5a7cb02c207dd5ad9f247e5ac331163e520e539173d"
+private const val GARDEN_VIDEO_SHA256 = "a09b9266a4373c68055f740ef24d3f92f762afa295100bd0b691227a4de63d73"
