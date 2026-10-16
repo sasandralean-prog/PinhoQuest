@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
@@ -27,6 +28,7 @@ import java.security.MessageDigest
  * Its SHA-256 must match GARDEN_VIDEO_SHA256 before it is copied into app cache
  * and played; missing or invalid assets simply leave the static background visible.
  */
+@OptIn(UnstableApi::class)
 @Composable
 internal fun GardenVideoBackground(
     modifier: Modifier = Modifier,
