@@ -16,8 +16,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -34,6 +40,7 @@ import androidx.compose.ui.text.font.FontFamily
 import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.domain.tag.TagSource
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoForest
@@ -50,6 +57,8 @@ fun ProfileScreen(
     ownerName: String,
     tags: List<Tag>,
     onTagToggled: (TagId, Boolean) -> Unit,
+    onCreateCustomTag: (String) -> Unit = {},
+    onDeleteCustomTag: (TagId) -> Unit = {},
     onOpenSettings: () -> Unit,
     dark: Boolean = false,
     modifier: Modifier = Modifier,
@@ -195,6 +204,58 @@ fun ProfileScreen(
                     fontSize = 14.sp,
                     lineHeight = 18.sp,
                 )
+
+                Spacer(Modifier.height(12.dp))
+                val customTags = tags.filter { it.source == TagSource.USER }
+                var customTagDraft by rememberSaveable { mutableStateOf("") }
+                Text(
+                    "Seus temas personalizados (${customTags.size}/10)",
+                    color = PinhoForest,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    "Crie até 10 temas com nomes de até 28 caracteres.",
+                    color = PinhoInk,
+                    fontSize = 12.sp,
+                )
+                OutlinedTextField(
+                    value = customTagDraft,
+                    onValueChange = { value ->
+                        if (value.codePointCount(0, value.length) <= 28) customTagDraft = value
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text("Novo tema") },
+                    placeholder = { Text("Ex.: astronomia, jardinagem…") },
+                )
+                TextButton(
+                    onClick = {
+                        val label = customTagDraft.trim()
+                        if (label.isNotEmpty() && customTags.size < 10) {
+                            onCreateCustomTag(label)
+                            customTagDraft = ""
+                        }
+                    },
+                    enabled = customTagDraft.isNotBlank() && customTags.size < 10,
+                ) {
+                    Text(if (customTags.size >= 10) "Limite atingido" else "Adicionar tema")
+                }
+                customTags.forEach { customTag ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = customTag.label,
+                            color = PinhoInk,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = { onDeleteCustomTag(customTag.id) }) {
+                            Text("Remover")
+                        }
+                    }
+                }
             }
         }
     }
