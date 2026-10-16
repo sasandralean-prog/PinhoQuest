@@ -35,7 +35,7 @@ Current visual/quality gates:
 - P6-D received planner/fallback and semantic-prompt hardening, but do not infer a final gate closure from historical reports; consult the exact latest CI/runtime evidence.
 - P6-E was explicitly APPROVED by Rafa after visual review on 2026-10-15 (screenshot at 19:01 local time), with minor text-spacing imperfections deferred to a single polish pass. The second visual code pass is validated by Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) at `c2e8d05adaf0cff34e58ea81d88718ba74412440` (BUILD SUCCESSFUL; 0 lint errors, 38 warnings). This approval closes the P6-C/P6-E acceptance gates for the current iteration. Separate release-provenance requirement: the Ihlimia ZIP contains no license/README, so the exact permission to embed and redistribute the font still needs to be recorded before a public release.
 
-Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Section 39 is the newest operational checkpoint.
+Sections describing the early P3 FunctionGemma experiments below are historical diagnostics and must not be read as the current production status. Sections 40–42 contain the newest operational checkpoints; section 42 records the owner's approval of P6-C/P6-E.
 
 ## 2. P3 experimental state
 
