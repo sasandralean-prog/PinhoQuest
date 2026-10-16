@@ -53,7 +53,7 @@ class RoomTagRepository(
         if (dao.countUserTags(profileId.value) >= MAX_CUSTOM_TAGS) {
             return CustomTagWriteResult.LimitReached
         }
-        if (dao.countUserTagsWithLabel(profileId.value, label) > 0) {
+        if (dao.countTagsWithLabel(profileId.value, label) > 0) {
             return CustomTagWriteResult.DuplicateLabel
         }
         val tag = Tag(
@@ -74,7 +74,7 @@ class RoomTagRepository(
             .firstOrNull { it.tagId == tagId.value && it.source == TagSource.USER.name }
             ?: return CustomTagWriteResult.NotFound
         val label = normalizeCustomLabel(rawLabel) ?: return CustomTagWriteResult.InvalidLabel
-        if (dao.countUserTagsWithLabel(profileId.value, label, tagId.value) > 0) {
+        if (dao.countTagsWithLabelExcluding(profileId.value, label, tagId.value) > 0) {
             return CustomTagWriteResult.DuplicateLabel
         }
         val renamed = Tag(
