@@ -1,0 +1,40 @@
+{
+  "recordVersion": 1,
+  "assetId": "garden-loop-video",
+  "suppliedBy": "Project owner via conversation attachment on 2026-10-16",
+  "original": {
+    "originalFileName": "output.mp4",
+    "sha256": "26d6a82fd79e897b241d05388bc4c6ec94083d5684652612ac591c4fe0f10a43",
+    "sizeBytes": 2007561,
+    "dimensions": [
+      496,
+      864
+    ],
+    "durationSeconds": 6.041667,
+    "relativePath": "docs/design/video_sources/originals/output.mp4",
+    "status": "USER_SUPPLIED_SOURCE"
+  },
+  "packagedVariant": {
+    "originalFileName": "pinho_garden_loop.mp4",
+    "sha256": "25ed47f10d0fda6f0de8d5a7cb02c207dd5ad9f247e5ac331163e520e539173d",
+    "sizeBytes": 23900,
+    "dimensions": [
+      248,
+      432
+    ],
+    "durationSeconds": 6,
+    "codec": "H.264",
+    "relativePath": "app/src/main/assets/videos/garden_loop.mp4",
+    "status": "EXPECTED_BY_CODE_BUT_BINARY_NOT_COMMITTED"
+  },
+  "rights": {
+    "copyrightOwner": "UNKNOWN",
+    "licenseIdentifier": null,
+    "sourceUrl": null,
+    "permissionStatus": "OWNER_SUPPLIED_BUT_DISTRIBUTION_RIGHTS_NOT_CONFIRMED",
+    "releaseAllowed": false,
+    "releaseBlockers": [
+      "Confirm the owner holds or has permission to redistribute the video in the public APK."
+    ]
+  }
+}
