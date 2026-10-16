@@ -219,3 +219,12 @@ O proprietário validou o primeiro APK visualmente e enviou sete novos prints. O
 - **Settings:** a explicação do cérebro criativo usa painel próprio para se separar da arte desfocada.
 
 **Gate:** a CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884) passou para o checkpoint de código `c2e8d05adaf0cff34e58ea81d88718ba74412440` (build OK, 0 erros/38 avisos). A validação visual ainda está pendente: P6-C/P6-E só fecham depois de instalar esse APK e observar escalas 1.0/1.3, temas claro/escuro, viewport compacta, scroll e IME em runtime.
+
+
+## 18. Aceite do responsável — P6-C/P6-E (2026-10-15)
+
+Rafa revisou o APK no aparelho e aprovou explicitamente P6-C e P6-E para a iteração atual. As pequenas imperfeições que ainda aparecem no posicionamento de textos são aceitas temporariamente e ficam agrupadas numa única etapa futura de polimento: baseline do campo de nome, distância entre título/input/prévia no onboarding, quebra/centralização da frase “Vai aparecer como Jardim de …” e equilíbrio final da navbar/cards.
+
+Não devem ser abertas microcorreções isoladas para esses itens antes da etapa combinada, salvo se surgir nova regressão funcional ou de acessibilidade. A etapa de polimento deve preservar arte canônica, estado, validação, semântica, navegação, callbacks e fluxo IME.
+
+A fonte Ihlimia está visualmente aprovada para os papéis integrados. A falta de licença/README dentro do ZIP continua sendo um item documental de release: registrar a licença original ou autorização explícita para incorporar e redistribuir o TTF em APK público. Esse item não reabre a aprovação visual de P6-E.
