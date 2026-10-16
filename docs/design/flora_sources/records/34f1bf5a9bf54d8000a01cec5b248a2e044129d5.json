@@ -1,0 +1,63 @@
+{
+  "recordVersion": 1,
+  "recordStatus": "CANDIDATE_PENDING_LOCAL_ORIGINAL_HASH",
+  "sourceSha256": null,
+  "sourceProviderChecksum": {
+    "algorithm": "SHA-1",
+    "value": "34f1bf5a9bf54d8000a01cec5b248a2e044129d5"
+  },
+  "sourceKind": "wikimedia-commons",
+  "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:Flower_photograph.jpg",
+  "originalFileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Flower_photograph.jpg",
+  "originalFileName": "Flower photograph.jpg",
+  "originalRelativePath": null,
+  "verifiedMetadataAtUtc": "2026-10-16",
+  "providerMetadataRevision": "https://commons.wikimedia.org/w/index.php?title=File:Flower_photograph.jpg&oldid=1255310682",
+  "providerClaimedSizeBytes": 74222,
+  "dimensions": [
+    1600,
+    800
+  ],
+  "mediaType": "image/jpeg",
+  "creator": "Anandha abirami Govindan",
+  "creditLine": "Anandha abirami Govindan, “Flower photograph.jpg”, Wikimedia Commons, CC BY-SA 4.0. Source: https://commons.wikimedia.org/wiki/File:Flower_photograph.jpg. Modified for PinhoQuest if processed; any derivative distribution must comply with CC BY-SA 4.0.",
+  "license": {
+    "identifier": "CC-BY-SA-4.0",
+    "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "reviewStatus": "METADATA_SEEN_NEEDS_ASSET_REVIEW",
+    "conditions": [
+      "ATTRIBUTION",
+      "SHARE_ALIKE"
+    ],
+    "sourceDeclaration": "Commons file page identifies uploader as copyright holder and declares CC BY-SA 4.0."
+  },
+  "botanical": {
+    "acceptedScientificName": null,
+    "commonNamePtBr": null,
+    "taxonSourceUrl": null,
+    "identityStatus": "UNVERIFIED_CANDIDATE",
+    "note": "Commons categories list Mimosa/Fabaceae context, but the file caption is generic. Do not assign the image to a flower species until identity is confirmed."
+  },
+  "transform": {
+    "pipelineVersion": "flower-sprite-v0",
+    "backgroundRemovalModel": null,
+    "pixelizerVersion": null,
+    "normalizedPngSha256": null,
+    "spritePngSha256": null,
+    "spriteRelativePath": null,
+    "reviewStatus": "NOT_RUN"
+  },
+  "distribution": {
+    "redistributableOriginal": "LICENSE_APPEARS_TO_ALLOW_WITH_ATTRIBUTION_AND_SHARE_ALIKE",
+    "redistributableDerivedSprite": "CONDITIONAL_ON_SHARE_ALIKE_AND_REVIEW",
+    "attributionRequired": true,
+    "releaseAllowed": false,
+    "releaseBlockers": [
+      "Original bytes have not been fetched into the working environment; project-owned SHA-256 is pending.",
+      "Botanical identity is unverified.",
+      "Transform and derivative have not been generated or reviewed.",
+      "Share-alike compliance must be confirmed for the distribution model."
+    ]
+  }
+}

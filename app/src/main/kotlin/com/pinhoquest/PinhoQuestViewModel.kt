@@ -24,6 +24,7 @@ import com.pinhoquest.ui.navigation.MainTab
 import com.pinhoquest.ui.navigation.PinhoQuestUiState
 import com.pinhoquest.ui.quests.QuestCompletionUi
 import com.pinhoquest.core.tag.SystemTagCatalog
+import com.pinhoquest.data.repository.CustomTagWriteResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -301,6 +302,77 @@ class PinhoQuestViewModel(
                         if (it.id == tagId) it.copy(enabled = enabled) else it
                     },
                 )
+            }
+        }
+    }
+
+    fun createCustomTag(rawLabel: String) {
+        viewModelScope.launch {
+            val profile = graph.profileRepository.current() ?: return@launch
+            when (val result = graph.tagRepository.createCustomTag(profile.id, rawLabel)) {
+                is CustomTagWriteResult.Saved -> _state.update { state ->
+                    state.copy(
+                        tags = (state.tags.filterNot { it.id == result.tag.id } + result.tag)
+                            .sortedWith(compareBy({ it.source.name }, { it.label.lowercase() })),
+                        message = "Tema personalizado salvo neste jardim.",
+                    )
+                }
+                CustomTagWriteResult.InvalidLabel -> _state.update {
+                    it.copy(message = "O tema precisa ter entre 1 e 24 caracteres.")
+                }
+                CustomTagWriteResult.LimitReached -> _state.update {
+                    it.copy(message = "Você já criou os 10 temas personalizados.")
+                }
+                CustomTagWriteResult.DuplicateLabel -> _state.update {
+                    it.copy(message = "Já existe um tema com esse nome.")
+                }
+                CustomTagWriteResult.NotFound -> _state.update {
+                    it.copy(message = "Não encontrei esse tema para salvar.")
+                }
+            }
+        }
+    }
+
+    fun renameCustomTag(tagId: TagId, rawLabel: String) {
+        viewModelScope.launch {
+            val profile = graph.profileRepository.current() ?: return@launch
+            when (val result = graph.tagRepository.renameCustomTag(profile.id, tagId, rawLabel)) {
+                is CustomTagWriteResult.Saved -> _state.update { state ->
+                    state.copy(
+                        tags = state.tags.map { if (it.id == tagId) result.tag else it }
+                            .sortedWith(compareBy({ it.source.name }, { it.label.lowercase() })),
+                        message = "Tema renomeado.",
+                    )
+                }
+                CustomTagWriteResult.InvalidLabel -> _state.update {
+                    it.copy(message = "O tema precisa ter entre 1 e 24 caracteres.")
+                }
+                CustomTagWriteResult.LimitReached -> _state.update {
+                    it.copy(message = "Você já criou os 10 temas personalizados.")
+                }
+                CustomTagWriteResult.DuplicateLabel -> _state.update {
+                    it.copy(message = "Já existe um tema com esse nome.")
+                }
+                CustomTagWriteResult.NotFound -> _state.update {
+                    it.copy(message = "Não encontrei esse tema para renomear.")
+                }
+            }
+        }
+    }
+
+    fun deleteCustomTag(tagId: TagId) {
+        viewModelScope.launch {
+            val profile = graph.profileRepository.current() ?: return@launch
+            val deleted = graph.tagRepository.deleteCustomTag(profile.id, tagId)
+            if (deleted) {
+                _state.update { state ->
+                    state.copy(
+                        tags = state.tags.filterNot { it.id == tagId },
+                        message = "Tema removido das preferências.",
+                    )
+                }
+            } else {
+                _state.update { it.copy(message = "Não consegui remover esse tema.") }
             }
         }
     }

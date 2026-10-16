@@ -1,5 +1,6 @@
 package com.pinhoquest
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -178,6 +179,9 @@ class MainActivity : ComponentActivity() {
                             onDismissCompletion = viewModel::dismissCompletion,
                             onOpenGardenFromCompletion = viewModel::openGardenFromCompletion,
                             onTagToggled = viewModel::setTagEnabled,
+                            onCreateCustomTag = viewModel::createCustomTag,
+                            onRenameCustomTag = viewModel::renameCustomTag,
+                            onDeleteCustomTag = viewModel::deleteCustomTag,
                             onThemeSelected = viewModel::setTheme,
                             onFontScaleSelected = viewModel::setFontScale,
                             onInstallCreativeBrain = { creativeBrainTermsVisible = true },
@@ -196,7 +200,12 @@ class MainActivity : ComponentActivity() {
                             },
                             dark = useDark,
                             onDonate = {
-                                viewModel.showMessage("O link de apoio será conectado ao destino externo canônico.")
+                                val supportUri = Uri.parse("https://buy.stripe.com/5kQ00i75X64v9So31QcV201")
+                                runCatching {
+                                    startActivity(Intent(Intent.ACTION_VIEW, supportUri))
+                                }.onFailure {
+                                    viewModel.showMessage("Não consegui abrir a página de apoio. Tente novamente quando houver um navegador disponível.")
+                                }
                             },
                         )
 

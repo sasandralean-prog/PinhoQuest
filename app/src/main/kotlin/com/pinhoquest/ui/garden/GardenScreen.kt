@@ -46,6 +46,7 @@ import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
 import com.pinhoquest.R
 import com.pinhoquest.ui.PinhoGraphicButton
+import com.pinhoquest.ui.PinhoFireflies
 import com.pinhoquest.ui.PinhoCream
 import com.pinhoquest.ui.PinhoCreamSoft
 import com.pinhoquest.ui.PinhoForest
@@ -56,6 +57,7 @@ import com.pinhoquest.ui.pinhoSelectedGlow
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
+import com.pinhoquest.ui.PinhoFireflies
 
 @Composable
 fun GardenScreen(
@@ -93,6 +95,10 @@ fun GardenScreen(
             },
             overlayAlpha = 0f,
         )
+        if (dark) {
+            GardenVideoBackground(modifier = Modifier.fillMaxSize())
+        }
+        PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 14)
 
         Column(
             modifier = Modifier

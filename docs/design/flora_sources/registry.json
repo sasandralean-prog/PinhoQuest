@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-10-16T00:00:00Z",
+  "policy": "Only records with verified metadata and releaseAllowed=true may be included in a public APK. SHA-256 is integrity identity, not proof of copyright or license.",
+  "records": [
+    {
+      "recordPath": "docs/design/flora_sources/records/34f1bf5a9bf54d8000a01cec5b248a2e044129d5.json",
+      "sourceSha256": null,
+      "providerSha1": "34f1bf5a9bf54d8000a01cec5b248a2e044129d5",
+      "sourcePageUrl": "https://commons.wikimedia.org/wiki/File:Flower_photograph.jpg",
+      "creator": "Anandha abirami Govindan",
+      "license": "CC BY-SA 4.0",
+      "status": "CANDIDATE_PENDING_LOCAL_ORIGINAL_HASH",
+      "releaseAllowed": false
+    }
+  ]
+}

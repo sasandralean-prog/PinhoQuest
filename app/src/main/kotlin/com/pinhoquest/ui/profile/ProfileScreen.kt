@@ -15,9 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -34,9 +43,11 @@ import androidx.compose.ui.text.font.FontFamily
 import com.pinhoquest.R
 import com.pinhoquest.domain.tag.Tag
 import com.pinhoquest.domain.tag.TagId
+import com.pinhoquest.domain.tag.TagSource
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoForest
+import com.pinhoquest.ui.PinhoFireflies
 import com.pinhoquest.ui.PinhoDisplayFontFamily
 import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoParchment
@@ -51,15 +62,24 @@ fun ProfileScreen(
     tags: List<Tag>,
     onTagToggled: (TagId, Boolean) -> Unit,
     onOpenSettings: () -> Unit,
+    onCreateCustomTag: (String) -> Unit = {},
+    onRenameCustomTag: (TagId, String) -> Unit = { _, _ -> },
+    onDeleteCustomTag: (TagId) -> Unit = {},
     dark: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val foreground = if (dark) Color(0xFFFFF0D0) else PinhoForest
+    val customTags = tags.filter { it.source == TagSource.USER }
+    var customEditorVisible by remember { mutableStateOf(false) }
+    var customEditorTagId by remember { mutableStateOf<TagId?>(null) }
+    var customEditorLabel by remember { mutableStateOf("") }
+    var pendingDeleteTag by remember { mutableStateOf<Tag?>(null) }
     androidx.compose.foundation.layout.Box(modifier = modifier.fillMaxSize()) {
         PinhoQuestBackground(
             resource = if (dark) PinhoQuestBackgrounds.PROFILE_NIGHT else PinhoQuestBackgrounds.PROFILE_DAY,
             overlayAlpha = 0f,
         )
+        PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 10)
 
         Column(
             modifier = Modifier
@@ -196,6 +216,120 @@ fun ProfileScreen(
                     lineHeight = 18.sp,
                 )
             }
+
+            Spacer(Modifier.height(12.dp))
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "Temas personalizados",
+                    color = PinhoForest,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Text(
+                    "${customTags.size}/10 temas criados. Eles ficam salvos neste jardim.",
+                    color = PinhoInk,
+                    fontSize = 13.sp,
+                )
+                if (customTags.isEmpty()) {
+                    Text(
+                        "Crie seus próprios temas para expressar interesses que não aparecem nas categorias prontas.",
+                        color = PinhoInk,
+                        fontSize = 13.sp,
+                    )
+                } else {
+                    customTags.forEach { tag ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            FilterChip(
+                                selected = tag.enabled,
+                                onClick = { onTagToggled(tag.id, !tag.enabled) },
+                                label = { Text(tag.label) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            TextButton(
+                                onClick = {
+                                    customEditorTagId = tag.id
+                                    customEditorLabel = tag.label
+                                    customEditorVisible = true
+                                },
+                            ) { Text("Editar") }
+                            TextButton(onClick = { pendingDeleteTag = tag }) { Text("Excluir") }
+                        }
+                    }
+                }
+                Button(
+                    onClick = {
+                        customEditorTagId = null
+                        customEditorLabel = ""
+                        customEditorVisible = true
+                    },
+                    enabled = customTags.size < 10,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(if (customTags.size < 10) "Adicionar tema" else "Limite de 10 temas atingido")
+                }
+            }
+        }
+
+        if (customEditorVisible) {
+            AlertDialog(
+                onDismissRequest = { customEditorVisible = false },
+                title = {
+                    Text(if (customEditorTagId == null) "Novo tema" else "Renomear tema")
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        OutlinedTextField(
+                            value = customEditorLabel,
+                            onValueChange = { value ->
+                                if (value.length <= 24) customEditorLabel = value
+                            },
+                            label = { Text("Nome do tema") },
+                            singleLine = true,
+                        )
+                        Text(
+                            "${customEditorLabel.length}/24",
+                            color = PinhoInk,
+                            fontSize = 12.sp,
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val id = customEditorTagId
+                            if (id == null) onCreateCustomTag(customEditorLabel)
+                            else onRenameCustomTag(id, customEditorLabel)
+                            customEditorVisible = false
+                        },
+                        enabled = customEditorLabel.trim().isNotEmpty(),
+                    ) { Text("Salvar") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { customEditorVisible = false }) { Text("Cancelar") }
+                },
+            )
+        }
+
+        pendingDeleteTag?.let { tag ->
+            AlertDialog(
+                onDismissRequest = { pendingDeleteTag = null },
+                title = { Text("Excluir tema?") },
+                text = { Text("O tema '${tag.label}' será removido das preferências deste jardim.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onDeleteCustomTag(tag.id)
+                            pendingDeleteTag = null
+                        },
+                    ) { Text("Excluir") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingDeleteTag = null }) { Text("Cancelar") }
+                },
+            )
         }
     }
 }

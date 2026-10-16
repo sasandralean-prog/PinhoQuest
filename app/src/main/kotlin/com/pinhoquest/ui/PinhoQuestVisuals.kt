@@ -2,6 +2,7 @@ package com.pinhoquest.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -487,5 +495,56 @@ fun PinhoTagGraphicButton(
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp, vertical = 4.dp),
         )
+    }
+}
+
+
+/**
+ * Lightweight decorative fireflies for the home, garden and profile scenes.
+ * Drawn in Compose rather than as individual composables so it stays cheap on
+ * lower-memory phones. The overlay is visual-only and must not intercept taps.
+ */
+@Composable
+fun PinhoFireflies(
+    modifier: Modifier = Modifier,
+    count: Int = 12,
+) {
+    val transition = rememberInfiniteTransition(label = "pinho-fireflies")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 11000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "firefly-rise",
+    )
+
+    Canvas(modifier = modifier) {
+        val safeCount = count.coerceIn(0, 24)
+        repeat(safeCount) { index ->
+            val seed = index + 1
+            val baseX = ((seed * 37) % 97) / 100f
+            val speed = 0.045f + (seed % 4) * 0.018f
+            val startY = ((seed * 29) % 100) / 100f
+            val yFraction = (startY - progress * speed * 10f + 1f) % 1f
+            val drift = kotlin.math.sin((progress * 6.28318f) + seed * 1.7f) * 0.018f
+            val radius = (1.4f + (seed % 3) * 0.55f) * density
+            val alpha = (0.35f + 0.45f * (0.5f + 0.5f * kotlin.math.sin(progress * 12f + seed))).coerceIn(0.15f, 0.9f)
+            val center = androidx.compose.ui.geometry.Offset(
+                x = ((baseX + drift).coerceIn(0.02f, 0.98f)) * size.width,
+                y = yFraction * size.height,
+            )
+            drawCircle(
+                color = Color(0xFFFFE89A).copy(alpha = alpha * 0.28f),
+                radius = radius * 2.8f,
+                center = center,
+            )
+            drawCircle(
+                color = Color(0xFFFFF4BC).copy(alpha = alpha),
+                radius = radius,
+                center = center,
+            )
+        }
     }
 }
