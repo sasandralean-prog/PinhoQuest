@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -241,9 +242,10 @@ fun ProfileScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            Text(
-                                tag.label,
-                                color = PinhoInk,
+                            FilterChip(
+                                selected = tag.enabled,
+                                onClick = { onTagToggled(tag.id, !tag.enabled) },
+                                label = { Text(tag.label) },
                                 modifier = Modifier.weight(1f),
                             )
                             TextButton(
