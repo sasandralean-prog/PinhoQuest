@@ -19,6 +19,7 @@ import com.pinhoquest.domain.quest.QuestMode
 import com.pinhoquest.domain.tag.TagId
 import com.pinhoquest.ui.LocalPinhoBottomNavigationInset
 import com.pinhoquest.ui.PinhoBottomNavigation
+import com.pinhoquest.ui.PinhoFireflyOverlay
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.garden.GardenScreen
@@ -153,6 +154,23 @@ fun PinhoQuestNav(
                     dark = dark,
                 )
             }
+        }
+
+        if (
+            !state.questThemeSelectionOpen &&
+            state.selectedTab in setOf(MainTab.QUESTS, MainTab.GARDEN, MainTab.PROFILE, MainTab.TAGS)
+        ) {
+            PinhoFireflyOverlay(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (reservedNavigationSpace > 0.dp) {
+                            Modifier.padding(bottom = reservedNavigationSpace)
+                        } else {
+                            Modifier
+                        },
+                    ),
+            )
         }
 
         if (!state.questThemeSelectionOpen) PinhoBottomNavigation(
