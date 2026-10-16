@@ -15,17 +15,19 @@
     "status": "USER_SUPPLIED_SOURCE"
   },
   "packagedVariant": {
-    "originalFileName": "pinho_garden_loop.mp4",
-    "sha256": "25ed47f10d0fda6f0de8d5a7cb02c207dd5ad9f247e5ac331163e520e539173d",
-    "sizeBytes": 23900,
+    "originalFileName": "pinho_garden_loop_small.mp4",
+    "sha256": "a09b9266a4373c68055f740ef24d3f92f762afa295100bd0b691227a4de63d73",
+    "sizeBytes": 8054,
     "dimensions": [
-      248,
-      432
+      160,
+      280
     ],
     "durationSeconds": 6,
+    "frameRate": 8,
     "codec": "H.264",
     "relativePath": "app/src/main/assets/videos/garden_loop.mp4",
-    "status": "EXPECTED_BY_CODE_BUT_BINARY_NOT_COMMITTED"
+    "status": "COMMITTED",
+    "compressionNotes": "Low-bitrate pixel-art-friendly version generated from the supplied original; audio stripped. Runtime validates SHA-256 before playback."
   },
   "rights": {
     "copyrightOwner": "UNKNOWN",
