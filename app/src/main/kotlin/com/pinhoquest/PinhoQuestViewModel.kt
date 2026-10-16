@@ -312,7 +312,7 @@ class PinhoQuestViewModel(
             when (val result = graph.tagRepository.createCustomTag(profile.id, rawLabel)) {
                 is CustomTagWriteResult.Saved -> _state.update { state ->
                     state.copy(
-                        tags = (state.tags.filterNot { it.id == result.tag.id } + result.tag }
+                        tags = (state.tags.filterNot { it.id == result.tag.id } + result.tag)
                             .sortedWith(compareBy({ it.source.name }, { it.label.lowercase() })),
                         message = "Tema personalizado salvo neste jardim.",
                     )
