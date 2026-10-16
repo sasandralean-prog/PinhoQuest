@@ -57,6 +57,7 @@ import com.pinhoquest.ui.pinhoSelectedGlow
 import com.pinhoquest.ui.PinhoQuestBackground
 import com.pinhoquest.ui.PinhoQuestBackgrounds
 import com.pinhoquest.ui.PinhoBackButton
+import com.pinhoquest.ui.PinhoFireflies
 
 @Composable
 fun GardenScreen(
@@ -94,6 +95,9 @@ fun GardenScreen(
             },
             overlayAlpha = 0f,
         )
+        if (!isGardenEmpty) {
+            GardenVideoBackground(modifier = Modifier.fillMaxSize())
+        }
         PinhoFireflies(modifier = Modifier.fillMaxSize(), count = 14)
 
         Column(
