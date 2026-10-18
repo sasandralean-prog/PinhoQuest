@@ -44,16 +44,27 @@ import com.pinhoquest.inference.AndroidLiteRtLmInferencePort
 import com.pinhoquest.inference.AndroidResourceSnapshotProvider
 import com.pinhoquest.model.Cr74SemanticIsolationModelCatalog
 import com.pinhoquest.model.ModelInstallCoordinator
+import com.pinhoquest.flora.FlowerSpriteRequest
+import com.pinhoquest.flora.FlowerSpriteScheduler
 import java.io.File
 import java.util.UUID
 
 class PinhoQuestAppGraph(application: Application) {
     private val appContext = application.applicationContext
+    private val flowerSpriteScheduler = FlowerSpriteScheduler(appContext)
     private val data = AndroidDataGraph(application)
     private val modelStore = AndroidModelStore(File(application.filesDir, "models"))
     private val resourceSnapshotProvider = AndroidResourceSnapshotProvider(application)
 
     val profileIdFactory = RandomProfileIdFactory
+
+    /**
+     * Schedules one idempotent background photo-to-sprite lookup per flower taxon
+     * and records the deterministic hash of the current flower collection.
+     */
+    fun scheduleFlowerCollection(flowers: List<FlowerSpriteRequest>): String =
+        flowerSpriteScheduler.scheduleCollection(flowers)
+
 
     val profileRepository = data.profileRepository
     val tagRepository = data.tagRepository
