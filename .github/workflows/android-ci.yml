@@ -29,17 +29,18 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :litertlm-bridge:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:compileDebugAndroidTestKotlin
-      - name: Print Android Lint findings
+      - name: Print complete Android Lint report
         if: always()
         shell: bash
         run: |
           report="app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt"
+          fallback="app/build/reports/lint-results-debug.txt"
           if [ -f "$report" ]; then
-            echo "=== Android Lint finding locations and summaries ==="
-            grep -E '^(app/|[[:space:]]*[0-9]+ errors?, [0-9]+ warnings?)' "$report" || cat "$report"
-          elif [ -f "app/build/reports/lint-results-debug.txt" ]; then
-            echo "=== Android Lint finding locations and summaries ==="
-            grep -E '^(app/|[[:space:]]*[0-9]+ errors?, [0-9]+ warnings?)' app/build/reports/lint-results-debug.txt || cat app/build/reports/lint-results-debug.txt
+            echo "=== Complete Android Lint report (all errors and warnings) ==="
+            cat "$report"
+          elif [ -f "$fallback" ]; then
+            echo "=== Complete Android Lint report (all errors and warnings) ==="
+            cat "$fallback"
           else
             echo "Android Lint text report was not generated."
           fi
