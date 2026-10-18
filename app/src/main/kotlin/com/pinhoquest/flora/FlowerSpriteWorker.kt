@@ -7,7 +7,6 @@ import java.io.File
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
-import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -100,7 +99,7 @@ class FlowerSpriteWorker(
                 .put("commonName", commonName)
                 .put("identityAlgorithm", "SHA-256 of 'pinhoquest:flower-taxonomy:v1\\n' plus normalized scientific name")
                 .put("collectionSha256AtDiscovery", collectionSha)
-                .put("retrievedAtUtc", Instant.now().toString())
+                .put("retrievedAtUtc", FlowerSpriteIdentity.utcNowIso8601())
                 .put("provider", "Wikimedia Commons Action API")
                 .put(
                     "originalPhoto",
