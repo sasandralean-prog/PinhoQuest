@@ -77,6 +77,13 @@ class PinhoQuestViewModel(
         _state.update { it.copy(message = message) }
     }
 
+    fun refreshAfterRestore() {
+        viewModelScope.launch {
+            loadCanonicalState()
+            _state.update { it.copy(message = "Progresso importado e carregado com sucesso.") }
+        }
+    }
+
     fun openQuestThemeSelection() {
         _state.update { it.copy(questThemeSelectionOpen = true, message = null) }
     }
