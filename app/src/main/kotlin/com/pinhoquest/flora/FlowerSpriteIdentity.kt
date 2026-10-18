@@ -4,6 +4,9 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.text.Normalizer
 import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
 /**
  * Stable identity contract for generated flower artwork.
@@ -46,6 +49,11 @@ object FlowerSpriteIdentity {
     fun collectionShaFromScientificNames(scientificNames: Iterable<String>): String =
         collectionSha256(scientificNames
             .mapNotNull { name -> name.trim().takeIf(String::isNotBlank)?.let(::flowerSha256) })
+
+    fun utcNowIso8601(): String =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
 
     fun sha256(value: String): String = sha256(value.toByteArray(StandardCharsets.UTF_8))
 
