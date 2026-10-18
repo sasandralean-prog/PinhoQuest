@@ -25,6 +25,26 @@ jobs:
           python-version: "3.12"
       - name: Verify FunctionGemma training fixtures
         run: python -m unittest discover -s tools/p3_training -p 'test_*.py'
+      - name: Configure stable debug signing key (optional)
+        shell: bash
+        env:
+          PINHOQUEST_DEBUG_KEYSTORE_BASE64: ${{ secrets.PINHOQUEST_DEBUG_KEYSTORE_BASE64 }}
+          PINHOQUEST_DEBUG_KEYSTORE_PASSWORD: ${{ secrets.PINHOQUEST_DEBUG_KEYSTORE_PASSWORD }}
+          PINHOQUEST_DEBUG_KEY_ALIAS: ${{ secrets.PINHOQUEST_DEBUG_KEY_ALIAS }}
+          PINHOQUEST_DEBUG_KEY_PASSWORD: ${{ secrets.PINHOQUEST_DEBUG_KEY_PASSWORD }}
+        run: |
+          if [ -n "$PINHOQUEST_DEBUG_KEYSTORE_BASE64" ] && [ -n "$PINHOQUEST_DEBUG_KEYSTORE_PASSWORD" ] && [ -n "$PINHOQUEST_DEBUG_KEY_ALIAS" ] && [ -n "$PINHOQUEST_DEBUG_KEY_PASSWORD" ]; then
+            key_path="$RUNNER_TEMP/pinhoquest-debug.keystore"
+            printf '%s' "$PINHOQUEST_DEBUG_KEYSTORE_BASE64" | base64 --decode > "$key_path"
+            chmod 600 "$key_path"
+            echo "PINHOQUEST_DEBUG_KEYSTORE_PATH=$key_path" >> "$GITHUB_ENV"
+            echo "PINHOQUEST_DEBUG_KEYSTORE_PASSWORD=$PINHOQUEST_DEBUG_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "PINHOQUEST_DEBUG_KEY_ALIAS=$PINHOQUEST_DEBUG_KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "PINHOQUEST_DEBUG_KEY_PASSWORD=$PINHOQUEST_DEBUG_KEY_PASSWORD" >> "$GITHUB_ENV"
+            echo "Stable debug signing configured."
+          else
+            echo "::warning::Stable debug signing secrets are not configured. This CI artifact uses a runner-generated debug key and may not install as an update over a previous CI APK."
+          fi
       - name: Verify foundation
         run: |
           chmod +x ./gradlew
@@ -44,10 +64,17 @@ jobs:
           else
             echo "Android Lint text report was not generated."
           fi
-      - name: Upload debug APK
+      - name: Write APK SHA-256 checksum
+        if: success()
+        shell: bash
+        run: |
+          sha256sum app/build/outputs/apk/debug/app-debug.apk | tee app/build/outputs/apk/debug/app-debug.apk.sha256
+      - name: Upload debug APK and checksum
         if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor'
         uses: actions/upload-artifact@v4
         with:
           name: pinhoquest-v05-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/app-debug.apk.sha256
           retention-days: 7
