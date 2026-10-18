@@ -14,6 +14,7 @@ data class GardenFlowerUi(
     val acquiredAtEpochMillis: Long? = null,
     val questTitle: String? = null,
     val investigationCost: Int? = null,
+    val flowerSha256: String = "",
 )
 
 data class GardenUiState(
@@ -25,6 +26,7 @@ data class GardenUiState(
     val totalCount: Int,
     val flowers: List<GardenFlowerUi>,
     val selectedFlowerId: String? = null,
+    val collectionSha256: String = "",
 ) {
     val selectedFlower: GardenFlowerUi?
         get() = flowers.firstOrNull { it.id == selectedFlowerId }
