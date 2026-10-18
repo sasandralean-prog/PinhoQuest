@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -17,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.garden.FlowerDiscoveryState
-import com.pinhoquest.flora.FlowerArtworkAttribution
 import com.pinhoquest.flora.FlowerArtworkAttribution
 
 @Composable
@@ -67,15 +63,6 @@ fun FlowerDetailScreen(
                         flower.questTitle?.let { Text("Conquistada com: " + it) }
                         Text(flower.description)
                     }
-                }
-
-                if (
-                    flower.discoveryState in setOf(
-                        FlowerDiscoveryState.REVEALED,
-                        FlowerDiscoveryState.COLLECTED,
-                    ) && flower.flowerSha256.isNotBlank()
-                ) {
-                    FlowerArtworkAttribution(flowerSha256 = flower.flowerSha256)
                 }
 
                 if (
