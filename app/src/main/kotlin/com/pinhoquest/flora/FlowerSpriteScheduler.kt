@@ -35,7 +35,7 @@ class FlowerSpriteScheduler(context: Context) {
         val collectionSha = FlowerSpriteIdentity.collectionSha256(flowerShas)
         writeCollectionManifest(collectionSha, validFlowers, flowerShas)
 
-        validFlowers.forEach { flower ->
+        validFlowers.forEachIndexed { index, flower ->
             val flowerSha = FlowerSpriteIdentity.flowerSha256(flower.scientificName)
             val folder = File(appContext.filesDir, "flora-sprites/$flowerSha")
             if (hasValidSprite(folder, flowerSha) || hasFreshNegativeCache(folder)) return@forEach
@@ -55,6 +55,7 @@ class FlowerSpriteScheduler(context: Context) {
                         .build(),
                 )
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20, TimeUnit.SECONDS)
+                .setInitialDelay((index * 3L).coerceAtMost(60L), TimeUnit.SECONDS)
                 .addTag(FlowerSpriteWorker.TAG)
                 .build()
             WorkManager.getInstance(appContext).enqueueUniqueWork(
@@ -72,8 +73,10 @@ class FlowerSpriteScheduler(context: Context) {
         if (!sprite.isFile || sprite.length() <= 0L || !metadata.isFile) return false
         return runCatching {
             val json = JSONObject(metadata.readText(StandardCharsets.UTF_8))
+            val spriteSha = json.optJSONObject("sprite")?.optString("sha256").orEmpty()
             json.optString("flowerSha256") == flowerSha &&
-                json.optJSONObject("sprite")?.optString("sha256").orEmpty().isNotBlank()
+                spriteSha.isNotBlank() &&
+                spriteSha == FlowerSpriteIdentity.sha256(sprite.readBytes())
         }.getOrDefault(false)
     }
 
@@ -115,7 +118,7 @@ class FlowerSpriteScheduler(context: Context) {
                     }
                 },
             )
-            .put("createdAtUtc", java.time.Instant.now().toString())
+            .put("createdAtUtc", FlowerSpriteIdentity.utcNowIso8601())
         val temporary = File(directory, "$collectionSha.json.part")
         temporary.writeText(json.toString(2), StandardCharsets.UTF_8)
         if (!temporary.renameTo(target)) {
