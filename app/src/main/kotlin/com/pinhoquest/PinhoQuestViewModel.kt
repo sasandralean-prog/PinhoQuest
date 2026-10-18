@@ -25,6 +25,8 @@ import com.pinhoquest.ui.navigation.PinhoQuestUiState
 import com.pinhoquest.ui.quests.QuestCompletionUi
 import com.pinhoquest.core.tag.SystemTagCatalog
 import com.pinhoquest.data.repository.CustomTagWriteResult
+import com.pinhoquest.flora.FlowerSpriteIdentity
+import com.pinhoquest.flora.FlowerSpriteRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -441,6 +443,7 @@ class PinhoQuestViewModel(
                 id = flower.definition.id.value,
                 commonName = flower.definition.commonName,
                 scientificName = flower.definition.scientificName,
+                flowerSha256 = FlowerSpriteIdentity.flowerSha256(flower.definition.scientificName),
                 description = flower.definition.description,
                 rarity = flower.definition.rarity,
                 discoveryState = flower.discoveryState,
@@ -457,6 +460,9 @@ class PinhoQuestViewModel(
                 },
             )
         }
+        val collectionSha256 = graph.scheduleFlowerCollection(
+            flowers.map { flower -> FlowerSpriteRequest(flower.scientificName, flower.commonName) },
+        )
         return GardenUiState(
             ownerName = ownerName,
             lifetimeXp = lifetimeXp,
@@ -468,6 +474,7 @@ class PinhoQuestViewModel(
             totalCount = flowers.size,
             flowers = flowers,
             selectedFlowerId = selected,
+            collectionSha256 = collectionSha256,
         )
     }
 
