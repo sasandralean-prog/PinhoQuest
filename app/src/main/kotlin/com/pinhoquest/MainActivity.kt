@@ -48,9 +48,14 @@ import com.pinhoquest.ui.onboarding.OnboardingScreen
 import kotlinx.coroutines.launch
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import java.io.ByteArrayOutputStream
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
+    private companion object {
+        const val MAX_IMPORT_BACKUP_BYTES = 32 * 1024 * 1024
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val graph = (application as PinhoQuestApplication).graph
@@ -73,6 +78,8 @@ class MainActivity : ComponentActivity() {
             )
 
             var pendingBackup by remember { mutableStateOf<ByteArray?>(null) }
+            var pendingRestoreBackup by remember { mutableStateOf<ByteArray?>(null) }
+            var restoreConfirmationVisible by remember { mutableStateOf(false) }
             var creativeBrainTermsVisible by remember { mutableStateOf(false) }
             var modelInstallWorkId by rememberSaveable { mutableStateOf<String?>(null) }
             var modelInstallStatusVisible by rememberSaveable { mutableStateOf(false) }
@@ -115,6 +122,36 @@ class MainActivity : ComponentActivity() {
                         viewModel.showMessage("Cópia do seu jardim guardada.")
                     }.onFailure {
                         viewModel.showMessage("Não consegui guardar a cópia desta vez.")
+                    }
+                }
+            }
+
+            val restoreBackupLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.OpenDocument(),
+            ) { uri: Uri? ->
+                if (uri == null) return@rememberLauncherForActivityResult
+                lifecycleScope.launch {
+                    runCatching {
+                        contentResolver.openInputStream(uri)?.use { input ->
+                            val output = ByteArrayOutputStream()
+                            val buffer = ByteArray(8 * 1024)
+                            var totalBytes = 0
+                            while (true) {
+                                val count = input.read(buffer)
+                                if (count < 0) break
+                                totalBytes += count
+                                require(totalBytes <= MAX_IMPORT_BACKUP_BYTES) {
+                                    "O arquivo excede o limite de 32 MiB."
+                                }
+                                output.write(buffer, 0, count)
+                            }
+                            output.toByteArray()
+                        } ?: error("Não consegui ler o arquivo selecionado.")
+                    }.onSuccess { bytes ->
+                        pendingRestoreBackup = bytes
+                        restoreConfirmationVisible = true
+                    }.onFailure { error ->
+                        viewModel.showMessage(error.message ?: "Não consegui ler essa cópia.")
                     }
                 }
             }
@@ -198,6 +235,9 @@ class MainActivity : ComponentActivity() {
                                         }
                                 }
                             },
+                            onImportBackup = {
+                                restoreBackupLauncher.launch(arrayOf("*/*"))
+                            },
                             dark = useDark,
                             onDonate = {
                                 val supportUri = Uri.parse("https://buy.stripe.com/5kQ00i75X64v9So31QcV201")
@@ -208,6 +248,52 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                         )
+
+                        if (restoreConfirmationVisible) {
+                            AlertDialog(
+                                onDismissRequest = {
+                                    restoreConfirmationVisible = false
+                                    pendingRestoreBackup = null
+                                },
+                                title = { Text("Importar progresso?") },
+                                text = {
+                                    Text(
+                                        "A cópia será validada antes da restauração. Se confirmada, ela substituirá " +
+                                            "o progresso atual deste aparelho; não é uma mesclagem. " +
+                                            "Recomendamos guardar uma cópia atual antes de continuar.",
+                                    )
+                                },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            val bytes = pendingRestoreBackup
+                                            pendingRestoreBackup = null
+                                            restoreConfirmationVisible = false
+                                            if (bytes != null) {
+                                                lifecycleScope.launch {
+                                                    graph.restoreBackupBytes(bytes)
+                                                        .onSuccess { viewModel.refreshAfterRestore() }
+                                                        .onFailure { error ->
+                                                            viewModel.showMessage(
+                                                                error.message ?: "Não foi possível importar essa cópia.",
+                                                            )
+                                                        }
+                                                }
+                                            }
+                                        },
+                                        enabled = pendingRestoreBackup != null,
+                                    ) { Text("Substituir progresso") }
+                                },
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = {
+                                            restoreConfirmationVisible = false
+                                            pendingRestoreBackup = null
+                                        },
+                                    ) { Text("Cancelar") }
+                                },
+                            )
+                        }
 
                         if (creativeBrainTermsVisible) {
                             AlertDialog(
