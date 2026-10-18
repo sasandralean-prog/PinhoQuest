@@ -227,7 +227,7 @@ class FlowerSpriteWorker(
             .put("scientificName", scientificName)
             .put("status", status)
             .put("detail", detail)
-            .put("updatedAtUtc", Instant.now().toString())
+            .put("updatedAtUtc", FlowerSpriteIdentity.utcNowIso8601())
             .put("retryAfterEpochMillis", System.currentTimeMillis() + retryAfterMillis)
         sourceSha256?.let { marker.put("sourceSha256", it) }
         sourcePageUrl?.let { marker.put("sourcePageUrl", it) }
