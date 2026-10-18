@@ -5,6 +5,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.pinhoquest.core.backup.BackupCodec
+import com.pinhoquest.domain.backup.BackupReadResult
+import com.pinhoquest.data.backup.RoomRestoreResult
 import com.pinhoquest.core.completion.QuestCompletionService
 import com.pinhoquest.core.garden.FlowerInvestigationService
 import com.pinhoquest.core.inference.AppWorkload
@@ -79,6 +81,23 @@ class PinhoQuestAppGraph(application: Application) {
     )
     private val backupSnapshotBuilder = data.backupSnapshotBuilder
     private val backupCodec = BackupCodec()
+
+    /**
+     * Validates the archive/JSON integrity before asking RoomRestoreService to
+     * replace the current progress. Restore is replacement, not a merge.
+     */
+    suspend fun restoreBackupBytes(bytes: ByteArray): Result<Unit> = runCatching {
+        require(bytes.isNotEmpty()) { "O arquivo está vazio." }
+        require(bytes.size <= 32 * 1024 * 1024) { "O arquivo excede o limite de 32 MiB." }
+        when (val decoded = backupCodec.decode(bytes)) {
+            is BackupReadResult.InvalidBackup -> error("Cópia inválida: ${decoded.reason}")
+            is BackupReadResult.Valid -> when (val restored = data.restoreService.restore(decoded)) {
+                RoomRestoreResult.Restored -> Unit
+                is RoomRestoreResult.Invalid -> error("Cópia incompatível: ${restored.reason}")
+                is RoomRestoreResult.Failed -> error("A restauração falhou: ${restored.reason}")
+            }
+        }
+    }
 
     suspend fun buildBackupBytes(): Result<ByteArray> = runCatching {
         val appVersion = appContext.packageManager
