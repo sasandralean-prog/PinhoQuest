@@ -53,6 +53,7 @@ fun PinhoQuestNav(
     onInstallCreativeBrain: (() -> Unit)? = null,
     onShowModelInstallStatus: (() -> Unit)? = null,
     onBackup: (() -> Unit)? = null,
+    onImportBackup: (() -> Unit)? = null,
     onDonate: (() -> Unit)? = null,
     dark: Boolean = false,
     modifier: Modifier = Modifier,
@@ -141,6 +142,7 @@ fun PinhoQuestNav(
                     onInstallCreativeBrain = onInstallCreativeBrain,
                     onShowModelInstallStatus = onShowModelInstallStatus,
                     onBackup = onBackup,
+                    onImportBackup = onImportBackup,
                     onDonate = onDonate,
                     onBack = { onTabSelected(MainTab.PROFILE) },
                 )
