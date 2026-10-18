@@ -1,8 +1,7 @@
-@file:OptIn(androidx.media3.common.util.UnstableApi::class)
-
 package com.pinhoquest.ui.garden
 
 import android.content.Context
+import androidx.annotation.OptIn
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
