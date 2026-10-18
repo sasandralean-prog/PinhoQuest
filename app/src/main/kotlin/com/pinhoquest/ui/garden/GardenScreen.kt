@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
+import com.pinhoquest.flora.FlowerSpriteImageOrPlaceholder
 import com.pinhoquest.R
 import com.pinhoquest.ui.PinhoGraphicButton
 import com.pinhoquest.ui.PinhoFireflies
@@ -469,7 +471,22 @@ private fun GardenFlowerCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(icon, fontSize = 42.sp)
+                if (
+                    flower.discoveryState in setOf(
+                        FlowerDiscoveryState.REVEALED,
+                        FlowerDiscoveryState.COLLECTED,
+                    ) && flower.flowerSha256.isNotBlank()
+                ) {
+                    FlowerSpriteImageOrPlaceholder(
+                        flowerSha256 = flower.flowerSha256,
+                        placeholder = icon,
+                        contentDescription = "Pixel art de ${flower.commonName}",
+                        modifier = Modifier.size(64.dp),
+                        placeholderFontSize = 42.sp,
+                    )
+                } else {
+                    Text(icon, fontSize = 42.sp)
+                }
                 Spacer(Modifier.height(2.dp))
                 when (flower.discoveryState) {
                     FlowerDiscoveryState.HIDDEN -> Unit
