@@ -3,7 +3,6 @@ package com.pinhoquest.flora
 import android.content.Context
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
-import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -13,7 +12,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.util.Date
 import java.util.concurrent.TimeUnit
 
 data class FlowerSpriteRequest(
@@ -73,7 +71,7 @@ class FlowerSpriteScheduler(context: Context) {
         val metadata = File(folder, FlowerSpriteWorker.METADATA_FILE)
         if (!sprite.isFile || sprite.length() <= 0L || !metadata.isFile) return false
         return runCatching {
-            val json = JSONObject(metadata.readText(StandardCharsets.UTF_8.name()))
+            val json = JSONObject(metadata.readText(StandardCharsets.UTF_8))
             json.optString("flowerSha256") == flowerSha &&
                 json.optJSONObject("sprite")?.optString("sha256").orEmpty().isNotBlank()
         }.getOrDefault(false)
@@ -83,7 +81,7 @@ class FlowerSpriteScheduler(context: Context) {
         val marker = File(folder, FlowerSpriteWorker.STATUS_FILE)
         if (!marker.isFile) return false
         return runCatching {
-            JSONObject(marker.readText(StandardCharsets.UTF_8.name()))
+            JSONObject(marker.readText(StandardCharsets.UTF_8))
                 .optLong("retryAfterEpochMillis", 0L) > System.currentTimeMillis()
         }.getOrDefault(false)
     }
@@ -119,7 +117,7 @@ class FlowerSpriteScheduler(context: Context) {
             )
             .put("createdAtUtc", java.time.Instant.now().toString())
         val temporary = File(directory, "$collectionSha.json.part")
-        temporary.writeText(json.toString(2), StandardCharsets.UTF_8.name())
+        temporary.writeText(json.toString(2), StandardCharsets.UTF_8)
         if (!temporary.renameTo(target)) {
             temporary.copyTo(target, overwrite = true)
             temporary.delete()
