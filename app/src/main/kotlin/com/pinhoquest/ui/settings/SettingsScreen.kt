@@ -48,6 +48,7 @@ fun SettingsScreen(
     onInstallCreativeBrain: (() -> Unit)? = null,
     onShowModelInstallStatus: (() -> Unit)? = null,
     onBackup: (() -> Unit)? = null,
+    onImportBackup: (() -> Unit)? = null,
     onDonate: (() -> Unit)? = null,
     onBack: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -212,6 +213,22 @@ fun SettingsScreen(
                     labelColor = Color(0xFF4A2114),
                     labelFontSize = 16.sp,
                     labelMaxLines = 2,
+                    labelStartFraction = 0.20f,
+                )
+            }
+
+            onImportBackup?.let {
+                Spacer(Modifier.height(8.dp))
+                PinhoGraphicButton(
+                    resource = R.drawable.btn_garden_backup,
+                    contentDescription = "Importar progresso de uma cópia anterior",
+                    onClick = it,
+                    modifier = Modifier.fillMaxWidth(),
+                    aspectRatio = 682f / 160f,
+                    label = "Importar progresso",
+                    labelColor = Color(0xFF4A2114),
+                    labelFontSize = 16.sp,
+                    labelMaxLines = 1,
                     labelStartFraction = 0.20f,
                 )
             }
