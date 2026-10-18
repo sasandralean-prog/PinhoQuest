@@ -38,7 +38,7 @@ class FlowerSpriteScheduler(context: Context) {
         validFlowers.forEachIndexed { index, flower ->
             val flowerSha = FlowerSpriteIdentity.flowerSha256(flower.scientificName)
             val folder = File(appContext.filesDir, "flora-sprites/$flowerSha")
-            if (hasValidSprite(folder, flowerSha) || hasFreshNegativeCache(folder)) return@forEach
+            if (hasValidSprite(folder, flowerSha) || hasFreshNegativeCache(folder)) return@forEachIndexed
 
             val request = OneTimeWorkRequestBuilder<FlowerSpriteWorker>()
                 .setInputData(
