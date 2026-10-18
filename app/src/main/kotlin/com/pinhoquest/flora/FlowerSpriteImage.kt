@@ -6,7 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.matchParentSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -83,7 +83,7 @@ fun FlowerSpriteImageOrPlaceholder(
                 contentDescription = contentDescription,
                 contentScale = ContentScale.Fit,
                 filterQuality = FilterQuality.None,
-                modifier = Modifier.matchParentSize(),
+                modifier = Modifier.fillMaxSize(),
             )
         } else {
             Text(
