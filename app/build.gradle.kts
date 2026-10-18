@@ -93,6 +93,35 @@ val syncCanonicalUiAssets = tasks.register<Copy>("syncCanonicalUiAssets") {
  */
 val displayFontArchive = rootProject.file("docs/design/ihlimia-maisfontes.8b4f.zip")
 val generatedDisplayFontRes = layout.buildDirectory.dir("generated/p6-display-font-res")
+val canonicalLauncherIcon = rootProject.file("docs/design/PinhoQuestIcon.jpg")
+val generatedCanonicalResRoot = layout.buildDirectory.dir("generated/p6-canonical-ui-res")
+val syncCanonicalLauncherIcon = tasks.register<Copy>("syncCanonicalLauncherIcon") {
+    inputs.file(canonicalLauncherIcon)
+    from(canonicalLauncherIcon) {
+        rename { "pinhoquest_launcher.jpg" }
+        into("drawable-nodpi")
+    }
+    into(generatedCanonicalResRoot)
+    doFirst {
+        check(canonicalLauncherIcon.isFile) {
+            "Missing canonical PinhoQuest icon: docs/design/PinhoQuestIcon.jpg"
+        }
+    }
+}
+
+val stableDebugStorePath = providers.environmentVariable("PINHOQUEST_DEBUG_KEYSTORE_PATH").orNull
+val stableDebugStorePassword = providers.environmentVariable("PINHOQUEST_DEBUG_KEYSTORE_PASSWORD").orNull
+val stableDebugKeyAlias = providers.environmentVariable("PINHOQUEST_DEBUG_KEY_ALIAS").orNull
+val stableDebugKeyPassword = providers.environmentVariable("PINHOQUEST_DEBUG_KEY_PASSWORD").orNull
+val useStableDebugSigning = !stableDebugStorePath.isNullOrBlank() &&
+    !stableDebugStorePassword.isNullOrBlank() &&
+    !stableDebugKeyAlias.isNullOrBlank() &&
+    !stableDebugKeyPassword.isNullOrBlank() &&
+    file(stableDebugStorePath).isFile
+val configuredVersionCode = providers.environmentVariable("PINHOQUEST_VERSION_CODE").orNull?.toIntOrNull()
+    ?: providers.environmentVariable("GITHUB_RUN_NUMBER").orNull?.toIntOrNull()
+    ?: 1
+
 val syncDisplayFont = tasks.register<Copy>("syncDisplayFont") {
     inputs.file(displayFontArchive)
     from(zipTree(displayFontArchive)) {
@@ -119,6 +148,26 @@ val syncDisplayFont = tasks.register<Copy>("syncDisplayFont") {
 
 android {
     namespace = "com.pinhoquest"
+
+    signingConfigs {
+        if (useStableDebugSigning) {
+            create("stableDebug") {
+                storeFile = file(stableDebugStorePath!!)
+                storePassword = stableDebugStorePassword!!
+                keyAlias = stableDebugKeyAlias!!
+                keyPassword = stableDebugKeyPassword!!
+                storeType = "JKS"
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            if (useStableDebugSigning) {
+                signingConfig = signingConfigs.getByName("stableDebug")
+            }
+        }
+    }
     sourceSets["main"].res.srcDir(layout.buildDirectory.dir("generated/p6-canonical-ui-res"))
     sourceSets["main"].res.srcDir(generatedDisplayFontRes)
 
@@ -128,7 +177,7 @@ android {
         applicationId = "com.pinhoquest"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
+        versionCode = configuredVersionCode
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
@@ -183,7 +232,7 @@ val verifyCanonicalUiAssets = tasks.register("verifyCanonicalUiAssets") {
 }
 
 tasks.named("preBuild") {
-    dependsOn(verifyCanonicalUiAssets, syncDisplayFont)
+    dependsOn(verifyCanonicalUiAssets, syncDisplayFont, syncCanonicalLauncherIcon)
 }
 
 dependencies {
