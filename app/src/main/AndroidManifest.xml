@@ -4,6 +4,8 @@
         android:name=".PinhoQuestApplication"
         android:allowBackup="true"
         android:label="Pinho Quest"
+        android:icon="@drawable/pinhoquest_launcher"
+        android:roundIcon="@drawable/pinhoquest_launcher"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
