@@ -95,17 +95,22 @@ val displayFontArchive = rootProject.file("docs/design/ihlimia-maisfontes.8b4f.z
 val generatedDisplayFontRes = layout.buildDirectory.dir("generated/p6-display-font-res")
 val canonicalLauncherIcon = rootProject.file("docs/design/PinhoQuestIcon.jpg")
 val generatedCanonicalResRoot = layout.buildDirectory.dir("generated/p6-canonical-ui-res")
-val syncCanonicalLauncherIcon = tasks.register<Copy>("syncCanonicalLauncherIcon") {
+val launcherIconOutput = generatedCanonicalResRoot.map {
+    it.file("drawable-nodpi/pinhoquest_launcher.jpg")
+}
+val syncCanonicalLauncherIcon = tasks.register("syncCanonicalLauncherIcon") {
     inputs.file(canonicalLauncherIcon)
-    from(canonicalLauncherIcon) {
-        rename { "pinhoquest_launcher.jpg" }
-        into("drawable-nodpi")
-    }
-    into(generatedCanonicalResRoot)
-    doFirst {
+    outputs.file(launcherIconOutput)
+    doLast {
+        // Do not use Copy's @SkipWhenEmpty behavior here: if the canonical source
+        // is missing, fail with the actionable message below instead of silently
+        // skipping the task and letting AAPT fail later during resource linking.
         check(canonicalLauncherIcon.isFile) {
             "Missing canonical PinhoQuest icon: docs/design/PinhoQuestIcon.jpg"
         }
+        val output = launcherIconOutput.get().asFile
+        output.parentFile.mkdirs()
+        canonicalLauncherIcon.copyTo(output, overwrite = true)
     }
 }
 

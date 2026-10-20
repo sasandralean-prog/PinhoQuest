@@ -7,6 +7,7 @@
 ## Autoridade e mecanismo de build
 
 - A fonte canônica dos assets do APK nesta branch é `docs/design/`. O repositório de imagens externo está desatualizado e não é fonte de verdade para esta revisão.
+- O ícone original do launcher é `docs/design/PinhoQuestIcon.jpg` (1254 × 1254 px). A tarefa `:app:syncCanonicalLauncherIcon` o copia para `build/generated/p6-canonical-ui-res/drawable-nodpi/pinhoquest_launcher.jpg`, referenciado por `@drawable/pinhoquest_launcher` no manifesto. A tarefa verifica explicitamente se a fonte existe para que uma ausência gere uma mensagem direta, em vez de deixar o AAPT falhar depois.
 - `app/build.gradle.kts` define quatro mapas: `canonicalBackgroundAssets`, `canonicalButtonAssets`, `canonicalCardAssets` e `canonicalNavBarAssets`.
 - O Gradle sincroniza os arquivos para `app/build/generated/p6-canonical-ui-res/drawable-nodpi`. Backgrounds recebem aliases `canonical_bg_*`; os outros grupos usam seus nomes Android-safe já existentes.
 - O verificador `:app:verifyCanonicalUiAssets` é dependência de `preBuild` e verifica fontes requeridas, saídas geradas, nomes de saída duplicados e o total esperado de 47 mapeamentos. O sucesso da verificação não certifica proporção, legibilidade ou composição em runtime.
