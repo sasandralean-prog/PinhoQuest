@@ -74,7 +74,10 @@ class FlowerSpriteScheduler(context: Context) {
         return runCatching {
             val json = JSONObject(metadata.readText(StandardCharsets.UTF_8))
             val spriteSha = json.optJSONObject("sprite")?.optString("sha256").orEmpty()
+            val pipelineVersion = json.optJSONObject("transform")
+                ?.optString("pipelineVersion").orEmpty()
             json.optString("flowerSha256") == flowerSha &&
+                pipelineVersion == FlowerPixelArtProcessor.PIPELINE_VERSION &&
                 spriteSha.isNotBlank() &&
                 spriteSha == FlowerSpriteIdentity.sha256(sprite.readBytes())
         }.getOrDefault(false)
@@ -84,8 +87,9 @@ class FlowerSpriteScheduler(context: Context) {
         val marker = File(folder, FlowerSpriteWorker.STATUS_FILE)
         if (!marker.isFile) return false
         return runCatching {
-            JSONObject(marker.readText(StandardCharsets.UTF_8))
-                .optLong("retryAfterEpochMillis", 0L) > System.currentTimeMillis()
+            val record = JSONObject(marker.readText(StandardCharsets.UTF_8))
+            record.optString("pipelineVersion") == FlowerPixelArtProcessor.PIPELINE_VERSION &&
+                record.optLong("retryAfterEpochMillis", 0L) > System.currentTimeMillis()
         }.getOrDefault(false)
     }
 

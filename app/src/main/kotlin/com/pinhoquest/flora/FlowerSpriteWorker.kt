@@ -136,8 +136,8 @@ class FlowerSpriteWorker(
                     "transform",
                     JSONObject()
                         .put("pipelineVersion", FlowerPixelArtProcessor.PIPELINE_VERSION)
-                        .put("backgroundRemoval", "edge-connected border-colour flood fill; conservative heuristic")
-                        .put("pixelization", "nearest-neighbour downscale and deterministic 24-colour palette reduction")
+                        .put("backgroundRemoval", "48-colour border model, locally anchored flood fill, source-resolution component cleanup, and 48px-grid speckle removal")
+                        .put("pixelization", "48px working grid, deterministic 16-colour median-cut palette, nearest-neighbour 2x upscale, subtle directional edge lighting and shadow")
                         .put("transparentBackground", true),
                 )
                 .put(
@@ -195,7 +195,9 @@ class FlowerSpriteWorker(
         return runCatching {
             val json = JSONObject(metadata.readText(StandardCharsets.UTF_8))
             val storedSpriteSha = json.optJSONObject("sprite")?.optString("sha256").orEmpty()
+            val storedPipeline = json.optJSONObject("transform")?.optString("pipelineVersion").orEmpty()
             json.optString("flowerSha256") == flowerSha &&
+                storedPipeline == FlowerPixelArtProcessor.PIPELINE_VERSION &&
                 storedSpriteSha.isNotBlank() && storedSpriteSha == sha256File(sprite)
         }.getOrDefault(false)
     }
@@ -204,8 +206,9 @@ class FlowerSpriteWorker(
         val status = File(directory, STATUS_FILE)
         if (!status.isFile) return false
         return runCatching {
-            JSONObject(status.readText(StandardCharsets.UTF_8))
-                .optLong("retryAfterEpochMillis", 0L) > System.currentTimeMillis()
+            val marker = JSONObject(status.readText(StandardCharsets.UTF_8))
+            marker.optString("pipelineVersion") == FlowerPixelArtProcessor.PIPELINE_VERSION &&
+                marker.optLong("retryAfterEpochMillis", 0L) > System.currentTimeMillis()
         }.getOrDefault(false)
     }
 
@@ -227,6 +230,7 @@ class FlowerSpriteWorker(
             .put("scientificName", scientificName)
             .put("status", status)
             .put("detail", detail)
+            .put("pipelineVersion", FlowerPixelArtProcessor.PIPELINE_VERSION)
             .put("updatedAtUtc", FlowerSpriteIdentity.utcNowIso8601())
             .put("retryAfterEpochMillis", System.currentTimeMillis() + retryAfterMillis)
         sourceSha256?.let { marker.put("sourceSha256", it) }

@@ -102,7 +102,10 @@ private fun readVerifiedSprite(directory: File, flowerSha256: String): android.g
     return runCatching {
         val record = JSONObject(metadata.readText(StandardCharsets.UTF_8))
         val spriteSha = record.optJSONObject("sprite")?.optString("sha256").orEmpty()
+        val pipelineVersion = record.optJSONObject("transform")
+            ?.optString("pipelineVersion").orEmpty()
         require(record.optString("flowerSha256") == flowerSha256)
+        require(pipelineVersion == FlowerPixelArtProcessor.PIPELINE_VERSION)
         require(spriteSha.isNotBlank())
         require(FlowerSpriteIdentity.sha256(image.readBytes()) == spriteSha)
         BitmapFactory.decodeFile(image.absolutePath)

@@ -1794,3 +1794,42 @@ Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/action
 - **Polish scope:** revisit onboarding title/input/preview spacing, input baseline inside the wooden name plate, line break/centering of “Vai aparecer como Jardim de …”, and any navbar/card spacing revealed by a final side-by-side screenshot pass. Preserve callbacks, state, validation, semantics and canonical artwork.
 - **Release caveat kept separate:** the Ihlimia archive has no embedded license/README. Record the original license or explicit app-embedding/redistribution permission before a public APK release. This does not revoke the owner's approval of P6-C/P6-E for the current iteration.
 - **P6-Final remains governed by its own release criteria.** This approval closes the current iteration's P6-C/P6-E acceptance gates but is not an automatic release approval.
+
+
+
+## 43. Flower pixel-art engine v3 - image quality and cache-version correction (2026-10-21)
+
+**Branch:** `feature/p6-garden-delight`
+**Processor version:** `flower-pixel-v3`
+**Local APK:** `app/build/outputs/apk/debug/app-debug.apk`
+**Local APK SHA-256:** `8444541d9934c2515112f9d9d7c268056cb1dc715ad5fe7d066c50f8e8f87182`
+**Design/validation record:** `docs/design/flower-pixel-art-pipeline-v3.md`
+**Visual evidence:** `docs/evidence/flower-pixel-art-v3-2026-10-21/`
+
+### Scope and implementation
+
+- The deterministic Android processor now samples a multi-colour border palette (up to 48 coarse RGB tones) rather than relying on one median border colour, then uses edge-seeded flood fill with locally anchored colour-gradient propagation.
+- Small disconnected foreground islands are cleaned before crop selection, including islands touching the photo border. This targets grass/background flecks that survived the prior cutout.
+- The subject is fitted onto a transparent 48 x 48 working grid, mapped to a median-cut palette capped at 16 base colours, cleaned of one/two-pixel islands away from protected central detail, given subtle directional edge highlights/shadows and enlarged to 96 x 96 with nearest-neighbour scaling.
+- Pipeline ID is `flower-pixel-v3`. Cache invalidation is enforced in `FlowerSpriteWorker`, `FlowerSpriteScheduler` and `FlowerSpriteImageOrPlaceholder`. A checksum-valid v2 sprite or recent v2 failure marker no longer prevents regeneration, and old-version sprite metadata is not accepted as a current on-screen result.
+- Provenance and SHA-256 checks for source photo, derivative sprite and attribution metadata remain in place. No Garden UI or quest fallback behavior was removed.
+
+### Regression coverage added/updated
+
+- `fullFrameCropAndIdentityScaleProduceTransparentPixelArtWithoutRecyclingAliases`: multicolour corner islands retain the full-frame/bitmap-alias regression, transparent canvas and flower silhouette coverage.
+- `texturedBorderBackgroundIsRemovedAndShadedSpriteKeepsACompactPalette`: deterministic textured input, visible flower/leaves, transparent exterior and compact output palette.
+- `schedulerRegeneratesAValidSpriteWhenThePipelineVersionChanges`: a checksum-valid v2 sprite and fresh v2 negative-cache marker must no longer suppress v3 work scheduling.
+- `persistedProcessedSpriteLoadsInsideTheRealGardenFlowerCard`: test metadata carries the current pipeline version and the actual Garden collection card renders the stored PNG.
+
+### Validation state
+
+- **Local build: PASS.** The latest Gradle run completed with `BUILD SUCCESSFUL`, including `:app:testDebugUnitTest`, `:app:lintDebug`, `:app:assembleDebug`, `:app:assembleDebugAndroidTest` and `:app:compileDebugAndroidTestKotlin`. Lint reported no errors; the existing `FileObserver` constructor deprecation warning remains.
+- **BlueStacks visual smoke: PASS.** Updated local APK was installed with the BlueStacks APK picker because both current ADB and bundled HD-Adb clients failed on shell/file-sync with `connection closed` / `protocol fault`. The existing test garden was retained (2 flowers, 50 XP); reopening the collection re-generated Grantham's Camellia under v3. The sprite checksum prefix changed from the previously stored value and the captured zoom shows fewer detached background speckles while retaining recognisable petals, yellow centre, crisp pixel boundaries and subtle shadows. The unrelated unknown flower continues to use the expected placeholder.
+- **Instrumented API 28 tests: PENDING CI.** The Android-test APK compiled, but this workstation's ADB transport would not run `am instrument` or install through ADB. Do not describe instrumented tests as executed locally. The repository workflow is configured to execute `connectedDebugAndroidTest` on an API 28 emulator after the source changes are pushed.
+- **Known limit:** This is deterministic colour-model background removal, not an ML segmentation model. When flower and background colours are nearly indistinguishable or the cutout is unreliable, retaining the placeholder remains the correct fallback.
+
+### Gate disposition
+
+- Image-processing implementation and its local build/lint gate: **CLOSED for this iteration**.
+- BlueStacks visual regression for the previously noisy Camellia asset and sprite cache invalidation: **CLOSED for this iteration**, with screenshot evidence linked above.
+- Automated Android instrumented test gate: **OPEN until API 28 CI result is checked against the exact commit SHA**. Update this section with the workflow URL/result after CI completes.
