@@ -1,9 +1,9 @@
 # Flower Pixel-Art Pipeline v3
 
-**Date:** 2026-10-21  
-**Branch:** `feature/p6-garden-delight`  
-**Pipeline ID:** `flower-pixel-v3`  
-**APK:** `app/build/outputs/apk/debug/app-debug.apk`  
+**Date:** 2026-10-21
+**Branch:** `feature/p6-garden-delight`
+**Pipeline ID:** `flower-pixel-v3`
+**APK:** `app/build/outputs/apk/debug/app-debug.apk`
 **Local APK SHA-256:** `8444541d9934c2515112f9d9d7c268056cb1dc715ad5fe7d066c50f8e8f87182`
 
 ## What changed
@@ -36,7 +36,7 @@ The UI does not falsely mark an image as “real” merely because a PNG exists:
 `FlowerPixelArtProcessorInstrumentedTest` covers:
 
 - `fullFrameCropAndIdentityScaleProduceTransparentPixelArtWithoutRecyclingAliases`: full-frame crop / identity-size bitmap ownership, alpha, output dimensions and visible silhouette.
-- `texturedBorderBackgroundIsRemovedAndShadedSpriteKeepsACompactPalette`: deterministic textured-background input, transparent exterior, visible flower/leaves and compact palette.
+- `texturedBorderBackgroundIsRemovedAndShadedSpriteKeepsACompactPalette`: deterministic textured-background input, transparent exterior, visible flower/leaves, compact palette, and at least two visibly distinct tones in an otherwise flat-colour petal region to prove edge shading is applied.
 - `schedulerRegeneratesAValidSpriteWhenThePipelineVersionChanges`: a checksum-valid v2 sprite plus a still-fresh v2 negative marker must schedule work under v3.
 - `persistedProcessedSpriteLoadsInsideTheRealGardenFlowerCard`: the saved PNG and versioned metadata display through the actual Garden collection card.
 
