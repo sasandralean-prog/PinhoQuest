@@ -38,12 +38,15 @@ internal object FlowerPixelArtProcessor {
         } ?: return false
 
         output.parentFile?.mkdirs()
-        val written = FileOutputStream(output).use { stream ->
-            val ok = pixelArt.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            stream.flush()
-            ok
+        val written = try {
+            FileOutputStream(output).use { stream ->
+                val ok = pixelArt.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                stream.flush()
+                ok
+            }
+        } finally {
+            if (!pixelArt.isRecycled) pixelArt.recycle()
         }
-        pixelArt.recycle()
         if (!written || output.length() <= 0L) {
             output.delete()
             return false
@@ -155,8 +158,15 @@ internal object FlowerPixelArtProcessor {
             height,
             Bitmap.Config.ARGB_8888,
         )
-        val result = Bitmap.createBitmap(cropped, left, top, cropWidth, cropHeight)
-        cropped.recycle()
+        // Android may return the source itself when the crop covers the full image.
+        // Recycle this temporary only when the returned bitmap is a distinct object.
+        val result = try {
+            Bitmap.createBitmap(cropped, left, top, cropWidth, cropHeight)
+        } catch (failure: Throwable) {
+            if (!cropped.isRecycled) cropped.recycle()
+            throw failure
+        }
+        if (result !== cropped && !cropped.isRecycled) cropped.recycle()
         return result
     }
 
@@ -184,41 +194,50 @@ internal object FlowerPixelArtProcessor {
         val targetWidth = max(1, (crop.width * scale).toInt())
         val targetHeight = max(1, (crop.height * scale).toInt())
         // Nearest-neighbour scaling is deliberate: it gives the sprite hard pixel edges.
+        // Android may return crop itself when the calculated size needs no scaling.
         val small = Bitmap.createScaledBitmap(crop, targetWidth, targetHeight, false)
-        val xOffset = (SPRITE_SIZE - targetWidth) / 2
-        val yOffset = (SPRITE_SIZE - targetHeight) / 2
-        val sprite = Bitmap.createBitmap(SPRITE_SIZE, SPRITE_SIZE, Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(sprite)
-        canvas.drawBitmap(small, xOffset.toFloat(), yOffset.toFloat(), null)
-        small.recycle()
+        var sprite: Bitmap? = null
+        var completed = false
+        try {
+            val xOffset = (SPRITE_SIZE - targetWidth) / 2
+            val yOffset = (SPRITE_SIZE - targetHeight) / 2
+            val output = Bitmap.createBitmap(SPRITE_SIZE, SPRITE_SIZE, Bitmap.Config.ARGB_8888)
+            sprite = output
+            val canvas = android.graphics.Canvas(output)
+            canvas.drawBitmap(small, xOffset.toFloat(), yOffset.toFloat(), null)
 
-        val pixels = IntArray(SPRITE_SIZE * SPRITE_SIZE)
-        sprite.getPixels(pixels, 0, SPRITE_SIZE, 0, 0, SPRITE_SIZE, SPRITE_SIZE)
-        val histogram = HashMap<Int, Int>()
-        for (i in pixels.indices) {
-            if (Color.alpha(pixels[i]) < 16) {
-                pixels[i] = Color.TRANSPARENT
-                continue
+            val pixels = IntArray(SPRITE_SIZE * SPRITE_SIZE)
+            output.getPixels(pixels, 0, SPRITE_SIZE, 0, 0, SPRITE_SIZE, SPRITE_SIZE)
+            val histogram = HashMap<Int, Int>()
+            for (i in pixels.indices) {
+                if (Color.alpha(pixels[i]) < 16) {
+                    pixels[i] = Color.TRANSPARENT
+                    continue
+                }
+                val reduced = reduceColour(pixels[i])
+                pixels[i] = reduced
+                histogram[reduced] = (histogram[reduced] ?: 0) + 1
             }
-            val reduced = reduceColour(pixels[i])
-            pixels[i] = reduced
-            histogram[reduced] = (histogram[reduced] ?: 0) + 1
-        }
-        if (histogram.isEmpty()) {
-            sprite.recycle()
-            return null
-        }
-        val palette = histogram.entries
-            .sortedWith(compareByDescending<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })
-            .take(PALETTE_SIZE)
-            .map { it.key }
+            if (histogram.isEmpty()) return null
 
-        for (i in pixels.indices) {
-            if (Color.alpha(pixels[i]) < 16) continue
-            pixels[i] = palette.minByOrNull { colourDistance(pixels[i], it) } ?: pixels[i]
+            val palette = histogram.entries
+                .sortedWith(compareByDescending<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })
+                .take(PALETTE_SIZE)
+                .map { it.key }
+
+            for (i in pixels.indices) {
+                if (Color.alpha(pixels[i]) < 16) continue
+                pixels[i] = palette.minByOrNull { colourDistance(pixels[i], it) } ?: pixels[i]
+            }
+            output.setPixels(pixels, 0, SPRITE_SIZE, 0, 0, SPRITE_SIZE, SPRITE_SIZE)
+            completed = true
+            return output
+        } finally {
+            // crop is owned by process(); this method only owns a distinct scaled bitmap.
+            if (small !== crop && !small.isRecycled) small.recycle()
+            // A returned output belongs to the caller; incomplete outputs must not leak.
+            if (!completed) sprite?.let { if (!it.isRecycled) it.recycle() }
         }
-        sprite.setPixels(pixels, 0, SPRITE_SIZE, 0, 0, SPRITE_SIZE, SPRITE_SIZE)
-        return sprite
     }
 
     private fun reduceColour(colour: Int): Int = Color.rgb(
