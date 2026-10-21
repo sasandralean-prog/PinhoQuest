@@ -6,13 +6,20 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.unit.dp
 import com.pinhoquest.domain.garden.FlowerDiscoveryState
 import com.pinhoquest.domain.garden.FlowerRarity
 import com.pinhoquest.ui.garden.GardenFlowerUi
@@ -113,7 +120,8 @@ class FlowerPixelArtProcessorInstrumentedTest {
             val flowerName = "Regression Flower"
             composeRule.setContent {
                 MaterialTheme {
-                    GardenScreen(
+                    Box(Modifier.width(360.dp).height(720.dp)) {
+                        GardenScreen(
                         state = GardenUiState(
                             ownerName = "Jardim de Teste",
                             lifetimeXp = 50,
@@ -133,11 +141,17 @@ class FlowerPixelArtProcessorInstrumentedTest {
                                 ),
                             ),
                         ),
-                        onFlowerSelected = {},
-                        onInvestigate = {},
-                    )
+                            onFlowerSelected = {},
+                            onInvestigate = {},
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
                 }
             }
+
+            // The garden's home pane is a collection invitation. Open the collection
+            // so the test exercises the actual flower-card image rather than a hidden list.
+            composeRule.onNodeWithText("Abrir cole\u00e7\u00e3o").performClick()
 
             composeRule.waitUntil(timeoutMillis = 10_000) {
                 composeRule.onAllNodesWithContentDescription(
