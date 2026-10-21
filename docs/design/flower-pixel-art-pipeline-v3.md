@@ -69,8 +69,12 @@ Evidence files:
 - `docs/evidence/flower-pixel-art-v3-2026-10-21/camellia-sprite-v3-zoom.png`
 - `docs/evidence/flower-pixel-art-v3-2026-10-21/bluestacks-camellia-provenance-v3.png`
 
-### Remaining validation boundary
+### Automated Android instrumentation result
 
-BlueStacks visual smoke is complete, and the new app rendered the refreshed sprite. The Android instrumentation APK was built, but executing `am instrument` on this workstation was blocked by the BlueStacks ADB transport repeatedly closing shell/file-sync connections. Do not describe the instrumented tests as executed on BlueStacks until the CI emulator run confirms them. The repository workflow is configured to run `connectedDebugAndroidTest` on API 28 after the change is pushed; record its result and exact source SHA in `CURRENT_STATE.md`.
+**PASS:** GitHub Actions run [#515](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/39686051540) completed successfully for source SHA `27c209eb41596b6207cd0d6f20e4b32dba10f8fc`. The `Test flower pixel-art pipeline on Android API 28` step ran `connectedDebugAndroidTest` and passed, including the four focused cases above. The textured-photo test additionally asserts that an otherwise flat-colour petal region produces at least two distinct shade tones, so shading is covered by an executable regression rather than only a visual review. APK and checksum artifact upload also passed. Earlier run [#514](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/39685663953) passed the same API 28 suite before that extra shade assertion was added.
+
+The direct local `am instrument` attempt remains unavailable because this workstation's BlueStacks ADB transport repeatedly closed shell/file-sync connections; CI API 28 now closes that automated test gate for the exact tested SHA.
+
+### Known limitation
 
 The processor is still a deterministic colour-based cutout, not an ML segmentation model. Photos where the subject and background share nearly identical colours can still require a placeholder. This is intentional: a visible, documented fallback is preferable to confidently storing a damaged sprite.

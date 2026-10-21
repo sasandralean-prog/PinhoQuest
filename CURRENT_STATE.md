@@ -1817,7 +1817,7 @@ Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/action
 ### Regression coverage added/updated
 
 - `fullFrameCropAndIdentityScaleProduceTransparentPixelArtWithoutRecyclingAliases`: multicolour corner islands retain the full-frame/bitmap-alias regression, transparent canvas and flower silhouette coverage.
-- `texturedBorderBackgroundIsRemovedAndShadedSpriteKeepsACompactPalette`: deterministic textured input, visible flower/leaves, transparent exterior and compact output palette.
+- `texturedBorderBackgroundIsRemovedAndShadedSpriteKeepsACompactPalette`: deterministic textured input, visible flower/leaves, transparent exterior, compact output palette, and at least two distinct tones in an otherwise flat-colour petal region.
 - `schedulerRegeneratesAValidSpriteWhenThePipelineVersionChanges`: a checksum-valid v2 sprite and fresh v2 negative-cache marker must no longer suppress v3 work scheduling.
 - `persistedProcessedSpriteLoadsInsideTheRealGardenFlowerCard`: test metadata carries the current pipeline version and the actual Garden collection card renders the stored PNG.
 
@@ -1825,11 +1825,11 @@ Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/action
 
 - **Local build: PASS.** The latest Gradle run completed with `BUILD SUCCESSFUL`, including `:app:testDebugUnitTest`, `:app:lintDebug`, `:app:assembleDebug`, `:app:assembleDebugAndroidTest` and `:app:compileDebugAndroidTestKotlin`. Lint reported no errors; the existing `FileObserver` constructor deprecation warning remains.
 - **BlueStacks visual smoke: PASS.** Updated local APK was installed with the BlueStacks APK picker because both current ADB and bundled HD-Adb clients failed on shell/file-sync with `connection closed` / `protocol fault`. The existing test garden was retained (2 flowers, 50 XP); reopening the collection re-generated Grantham's Camellia under v3. The sprite checksum prefix changed from the previously stored value and the captured zoom shows fewer detached background speckles while retaining recognisable petals, yellow centre, crisp pixel boundaries and subtle shadows. The unrelated unknown flower continues to use the expected placeholder.
-- **Instrumented API 28 tests: PENDING CI.** The Android-test APK compiled, but this workstation's ADB transport would not run `am instrument` or install through ADB. Do not describe instrumented tests as executed locally. The repository workflow is configured to execute `connectedDebugAndroidTest` on an API 28 emulator after the source changes are pushed.
+- **Instrumented API 28 tests: PASS.** GitHub Actions [run #515](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/39686051540) completed successfully on source SHA `27c209eb41596b6207cd0d6f20e4b32dba10f8fc`; the `Test flower pixel-art pipeline on Android API 28` step and APK/checksum artifact upload both passed. The run includes the explicit petal-shading assertion. Earlier run [#514](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/39685663953) also passed the API 28 suite on engine/cache SHA `c243d4cad33be6054bb751bd5d1f223744c0c897`. Direct local `am instrument` remains blocked by the workstation's BlueStacks ADB transport, so the verified instrumented runtime is the GitHub API 28 emulator, not the local BlueStacks instance.
 - **Known limit:** This is deterministic colour-model background removal, not an ML segmentation model. When flower and background colours are nearly indistinguishable or the cutout is unreliable, retaining the placeholder remains the correct fallback.
 
 ### Gate disposition
 
 - Image-processing implementation and its local build/lint gate: **CLOSED for this iteration**.
 - BlueStacks visual regression for the previously noisy Camellia asset and sprite cache invalidation: **CLOSED for this iteration**, with screenshot evidence linked above.
-- Automated Android instrumented test gate: **OPEN until API 28 CI result is checked against the exact commit SHA**. Update this section with the workflow URL/result after CI completes.
+- Automated Android instrumented test gate: **CLOSED for this iteration** on tested source SHA `27c209eb41596b6207cd0d6f20e4b32dba10f8fc`, with API 28 CI evidence in [run #515](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/39686051540).
