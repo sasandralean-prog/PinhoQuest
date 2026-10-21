@@ -128,7 +128,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
                             lifetimeXp = 50,
                             spendableXp = 50,
                             level = 1,
-                            collectedCount = 0,
+                            collectedCount = 1,
                             totalCount = 1,
                             flowers = listOf(
                                 GardenFlowerUi(
@@ -137,7 +137,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
                                     scientificName = scientificName,
                                     description = "Synthetic regression-test flower",
                                     rarity = FlowerRarity.COMMON,
-                                    discoveryState = FlowerDiscoveryState.REVEALED,
+                                    discoveryState = FlowerDiscoveryState.COLLECTED,
                                     flowerSha256 = flowerSha,
                                 ),
                             ),
