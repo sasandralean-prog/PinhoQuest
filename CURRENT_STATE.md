@@ -1833,3 +1833,43 @@ Android CI [#38690256884](https://github.com/sasandralean-prog/PinhoQuest/action
 - Image-processing implementation and its local build/lint gate: **CLOSED for this iteration**.
 - BlueStacks visual regression for the previously noisy Camellia asset and sprite cache invalidation: **CLOSED for this iteration**, with screenshot evidence linked above.
 - Automated Android instrumented test gate: **CLOSED for this iteration** on tested source SHA `27c209eb41596b6207cd0d6f20e4b32dba10f8fc`, with API 28 CI evidence in [run #515](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/39686051540).
+
+
+## 44. Global soundtrack integration (2026-10-22)
+
+**Branch:** `feature/p6-garden-delight`
+**Source tracks:** `docs/musicas/` (original MP3 names retained)
+**Packaged assets:** `app/src/main/assets/music/`
+**Runtime:** `PinhoQuestMusicHost.kt`, AndroidX Media3/ExoPlayer.
+
+### Implementation
+
+- Synced the owner's soundtrack upload from GitHub commit `05863db` and preserved the four source MP3s under `docs/musicas/`.
+- Copied each source byte-for-byte into a stable runtime filename:
+  - `PinhoQuest - jardim.mp3` → `jardim.mp3`
+  - `PinhoQuest - exploração .mp3` → `exploracao.mp3`
+  - `PinhoQuest - magia.mp3` → `segredo_folhas.mp3`
+  - `PinhoQuest - garden.mp3` → `jardim_descansa.mp3`
+- Added one global playlist host above the navigation tree so track playback does not restart when the user changes screens. It runs the four tracks in a fixed order and repeats the playlist, with shuffle disabled.
+- Reused the existing Media3 dependency. Playback requests audio focus, responds to Activity lifecycle changes, pauses on app backgrounding/headphone disconnection, and fades the master volume when starting/resuming, at each track boundary (1.5 s fade-out followed by 1.5 s fade-in), or when music is turned off/paused.
+- Added persistent `musicEnabled` and `musicVolume` preferences to DataStore, surfaced a switch and volume slider in Settings, and preserved current soundtrack preferences when importing a legacy backup that does not contain these fields. Default music volume is 18%, configurable up to 35%.
+- Added regression tests for default settings, persisted music preferences, independent music-setting updates and volume validation.
+- Added `docs/musicas/README.md` with source-to-asset mapping, format, behavior and a release caveat to verify Suno's commercial/redistribution terms for the specific account and generation dates.
+
+### Validation
+
+- `git diff --check`: PASS.
+- `:app:compileDebugKotlin`: PASS.
+- `:android-data:testDebugUnitTest`: PASS; all 6 settings/data unit tests passed.
+- `:app:lintDebug`: PASS.
+- `:app:assembleDebug`: PASS. Archive inspection confirms all four MP3 assets are present inside `app-debug.apk`.
+- `:app:testDebugUnitTest`: PASS.
+- Local APK path: `app/build/outputs/apk/debug/app-debug.apk` (approximately 122 MB, including existing bundled model/assets).
+
+### Behavior note
+
+The four source files play sequentially using ExoPlayer's playlist and their authored audio endings/openings. The app fades the shared volume on app/playback lifecycle changes and performs a 1.5 s fade-out/fade-in at each track boundary. It uses a single player, so adjacent MP3 files do not overlap as in a true two-player crossfade. The transitions should be reviewed by listening on-device before release.
+
+### Release caveat
+
+The tracks were generated and provided by the owner using Suno Pro. This record does not independently establish a license; confirm the applicable Suno terms for the exact account and generation dates before public distribution or monetization.

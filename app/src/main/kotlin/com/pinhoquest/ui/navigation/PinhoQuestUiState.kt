@@ -28,6 +28,8 @@ data class PinhoQuestUiState(
     val completionDialog: QuestCompletionUi? = null,
     val theme: ThemePreference = ThemePreference.SYSTEM,
     val fontScale: Float = 1.0f,
+    val musicEnabled: Boolean = true,
+    val musicVolume: Float = 0.18f,
     val message: String? = null,
     val loading: Boolean = false,
 ) {

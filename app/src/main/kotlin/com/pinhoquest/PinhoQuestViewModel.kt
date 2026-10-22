@@ -30,6 +30,8 @@ import com.pinhoquest.flora.FlowerSpriteRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -39,6 +41,7 @@ class PinhoQuestViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow(PinhoQuestUiState())
     val state: StateFlow<PinhoQuestUiState> = _state.asStateFlow()
+    private var musicVolumeSaveJob: Job? = null
 
     init {
         viewModelScope.launch { loadCanonicalState() }
@@ -400,6 +403,26 @@ class PinhoQuestViewModel(
         }
     }
 
+    fun setMusicEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            graph.preferencesStore.setMusicEnabled(enabled)
+            _state.update { it.copy(musicEnabled = enabled) }
+        }
+    }
+
+    fun setMusicVolume(volume: Float) {
+        val safeVolume = volume.coerceIn(0f, 0.35f)
+        _state.update { it.copy(musicVolume = safeVolume) }
+
+        // Slider callbacks can fire many times per second. Keep playback
+        // responsive, but persist only after the user pauses their adjustment.
+        musicVolumeSaveJob?.cancel()
+        musicVolumeSaveJob = viewModelScope.launch {
+            delay(250L)
+            graph.preferencesStore.setMusicVolume(safeVolume)
+        }
+    }
+
     private suspend fun loadCanonicalState() {
         val preferences = graph.preferencesStore.preferences.first()
         val profile = graph.profileRepository.current()
@@ -409,6 +432,8 @@ class PinhoQuestViewModel(
                 onboardingRequired = true,
                 theme = preferences.theme,
                 fontScale = preferences.fontScale,
+                musicEnabled = preferences.musicEnabled,
+                musicVolume = preferences.musicVolume,
             )
             return
         }
@@ -433,6 +458,8 @@ class PinhoQuestViewModel(
             garden = garden,
             theme = preferences.theme,
             fontScale = preferences.fontScale,
+            musicEnabled = preferences.musicEnabled,
+            musicVolume = preferences.musicVolume,
         )
     }
 

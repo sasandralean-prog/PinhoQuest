@@ -42,14 +42,39 @@ class AppPreferencesStoreTest {
         val preferences = store.preferences.first()
         assertEquals(ThemePreference.SYSTEM, preferences.theme)
         assertEquals(1.0f, preferences.fontScale)
+        assertEquals(true, preferences.musicEnabled)
+        assertEquals(0.18f, preferences.musicVolume)
     }
 
     @Test
-    fun themeAndFontScalePersistTogether() = runBlocking {
-        store.write(AppPreferences(ThemePreference.DARK, 1.15f))
+    fun themeFontAndMusicPreferencesPersistTogether() = runBlocking {
+        store.write(
+            AppPreferences(
+                theme = ThemePreference.DARK,
+                fontScale = 1.15f,
+                musicEnabled = false,
+                musicVolume = 0.27f,
+            ),
+        )
         val preferences = store.preferences.first()
         assertEquals(ThemePreference.DARK, preferences.theme)
         assertEquals(1.15f, preferences.fontScale)
+        assertEquals(false, preferences.musicEnabled)
+        assertEquals(0.27f, preferences.musicVolume)
+    }
+
+    @Test
+    fun musicSettingsCanBeUpdatedIndependently() = runBlocking {
+        store.setMusicEnabled(false)
+        store.setMusicVolume(0.12f)
+        val preferences = store.preferences.first()
+        assertEquals(false, preferences.musicEnabled)
+        assertEquals(0.12f, preferences.musicVolume)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun musicVolumeAboveAppLimitIsRejected() = runBlocking {
+        store.setMusicVolume(0.36f)
     }
 
     @Test(expected = IllegalArgumentException::class)

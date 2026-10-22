@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,9 +44,13 @@ fun SettingsScreen(
     ownerName: String,
     theme: ThemePreference,
     fontScale: Float,
+    musicEnabled: Boolean,
+    musicVolume: Float,
     effectiveDark: Boolean = theme == ThemePreference.DARK,
     onThemeSelected: (ThemePreference) -> Unit,
     onFontScaleSelected: (Float) -> Unit,
+    onMusicEnabledChanged: (Boolean) -> Unit,
+    onMusicVolumeChanged: (Float) -> Unit,
     onInstallCreativeBrain: (() -> Unit)? = null,
     onShowModelInstallStatus: (() -> Unit)? = null,
     onBackup: (() -> Unit)? = null,
@@ -202,6 +208,46 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(22.dp))
+            PinhoParchment(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Música de fundo",
+                                color = sectionTitleColor,
+                                fontSize = 20.sp,
+                            )
+                            Text(
+                                "Trilha instrumental contínua em todas as telas.",
+                                color = PinhoInk,
+                                fontSize = 13.sp,
+                            )
+                        }
+                        Switch(
+                            checked = musicEnabled,
+                            onCheckedChange = onMusicEnabledChanged,
+                        )
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "Volume: ${(musicVolume * 100).toInt()}%",
+                        color = PinhoInk,
+                        fontSize = 14.sp,
+                    )
+                    Slider(
+                        value = musicVolume,
+                        onValueChange = onMusicVolumeChanged,
+                        valueRange = 0f..0.35f,
+                        enabled = musicEnabled,
+                    )
+                }
+            }
+
             onBackup?.let {
                 PinhoGraphicButton(
                     resource = R.drawable.btn_garden_backup,

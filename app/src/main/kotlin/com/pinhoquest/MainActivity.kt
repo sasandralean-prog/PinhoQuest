@@ -45,6 +45,7 @@ import com.pinhoquest.ui.PinhoInk
 import com.pinhoquest.ui.PinhoShapes
 import com.pinhoquest.ui.navigation.PinhoQuestNav
 import com.pinhoquest.ui.onboarding.OnboardingScreen
+import com.pinhoquest.ui.music.PinhoQuestMusicHost
 import kotlinx.coroutines.launch
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -188,6 +189,13 @@ class MainActivity : ComponentActivity() {
                     ),
                     shapes = PinhoShapes,
                 ) {
+                    PinhoQuestMusicHost(
+                        // Wait until persisted preferences have loaded to avoid a brief
+                        // audio blip when the user previously disabled the soundtrack.
+                        enabled = !state.initializing && state.musicEnabled,
+                        volume = state.musicVolume,
+                    )
+
                     if (state.initializing) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -221,6 +229,8 @@ class MainActivity : ComponentActivity() {
                             onDeleteCustomTag = viewModel::deleteCustomTag,
                             onThemeSelected = viewModel::setTheme,
                             onFontScaleSelected = viewModel::setFontScale,
+                            onMusicEnabledChanged = viewModel::setMusicEnabled,
+                            onMusicVolumeChanged = viewModel::setMusicVolume,
                             onInstallCreativeBrain = { creativeBrainTermsVisible = true },
                             onShowModelInstallStatus = if (modelInstallWorkId != null) ({ modelInstallStatusVisible = true }) else null,
                             onBackup = {

@@ -54,9 +54,11 @@ class RoomRestoreService(
         val plan = planner.plan(snapshot)
         if (plan is RestorePlanResult.Invalid) return RoomRestoreResult.Invalid(plan.reason)
 
-        val targetPreferences = snapshot.preferences.toAppPreferences()
-            ?: return RoomRestoreResult.Invalid("Invalid preferences")
         val previousPreferences = preferencesStore.preferences.first()
+        val targetPreferences = snapshot.preferences.toAppPreferences(
+            musicEnabled = previousPreferences.musicEnabled,
+            musicVolume = previousPreferences.musicVolume,
+        ) ?: return RoomRestoreResult.Invalid("Invalid preferences")
 
         return try {
             preferencesStore.write(targetPreferences)
@@ -123,10 +125,18 @@ class RoomRestoreService(
         }
     }
 
-    private fun com.pinhoquest.domain.backup.BackupPreferences.toAppPreferences(): AppPreferences? {
+    private fun com.pinhoquest.domain.backup.BackupPreferences.toAppPreferences(
+        musicEnabled: Boolean,
+        musicVolume: Float,
+    ): AppPreferences? {
         val theme = runCatching { ThemePreference.valueOf(theme) }.getOrNull() ?: return null
         if (!fontScale.isFinite() || fontScale <= 0f) return null
-        return AppPreferences(theme = theme, fontScale = fontScale)
+        return AppPreferences(
+            theme = theme,
+            fontScale = fontScale,
+            musicEnabled = musicEnabled,
+            musicVolume = musicVolume,
+        )
     }
 
     private fun com.pinhoquest.domain.backup.BackupProfile.toEntity() =
