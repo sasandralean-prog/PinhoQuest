@@ -67,7 +67,19 @@ jobs:
           disable-animations: true
           script: |
             chmod +x ./gradlew
-            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest
+            test_exit=0
+            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest || test_exit=$?
+            mkdir -p app/build/outputs/flower-pixel-art-evidence
+            adb pull /sdcard/Android/data/com.pinhoquest/files/flower-pixel-art-evidence app/build/outputs/flower-pixel-art-evidence || true
+            exit "$test_exit"
+      - name: Upload flower original-versus-sprite screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinhoquest-flower-visual-evidence
+          path: app/build/outputs/flower-pixel-art-evidence
+          if-no-files-found: warn
+          retention-days: 7
       - name: Print complete Android Lint report
         if: always()
         shell: bash

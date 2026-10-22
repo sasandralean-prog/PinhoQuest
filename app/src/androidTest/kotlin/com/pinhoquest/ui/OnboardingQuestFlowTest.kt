@@ -93,6 +93,8 @@ class OnboardingQuestFlowTest {
                     onTagToggled = { _, _ -> },
                     onThemeSelected = {},
                     onFontScaleSelected = {},
+                    onMusicEnabledChanged = {},
+                    onMusicVolumeChanged = {},
                 )
             }
         }
@@ -125,6 +127,8 @@ class OnboardingQuestFlowTest {
                     onTagToggled = { _, _ -> },
                     onThemeSelected = {},
                     onFontScaleSelected = {},
+                    onMusicEnabledChanged = {},
+                    onMusicVolumeChanged = {},
                 )
             }
         }

@@ -46,6 +46,8 @@ class LargeFontLayoutTest {
                         onTagToggled = { _, _ -> },
                         onThemeSelected = {},
                         onFontScaleSelected = {},
+                        onMusicEnabledChanged = {},
+                        onMusicVolumeChanged = {},
                     )
                 }
             }
@@ -88,6 +90,8 @@ class LargeFontLayoutTest {
                         onTagToggled = { _, _ -> },
                         onThemeSelected = {},
                         onFontScaleSelected = {},
+                        onMusicEnabledChanged = {},
+                        onMusicVolumeChanged = {},
                         onInstallCreativeBrain = {},
                         onShowModelInstallStatus = {},
                         onBackup = {},

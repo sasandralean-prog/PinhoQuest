@@ -13,15 +13,16 @@ import kotlin.math.min
 /**
  * Deterministic photo-to-pixel-art conversion.
  *
- * V3 models common colours from a wide sample of the image border, allows only
- * locally anchored background gradients, removes small foreground islands, renders
- * onto a 48px working grid and adds restrained directional edge lighting.
+ * V4 learns background colours from corner patches, not the whole perimeter, so
+ * edge-touching leaves and stems are less likely to be misclassified as background.
+ * It uses locally anchored background gradients, removes small foreground islands,
+ * renders onto a 48px working grid and adds restrained directional edge lighting.
  * Difficult images are rejected rather than stored as visibly broken sprites.
  */
 internal object FlowerPixelArtProcessor {
     private data class ColourWeight(val colour: Int, val count: Int)
 
-    const val PIPELINE_VERSION = "flower-pixel-v3"
+    const val PIPELINE_VERSION = "flower-pixel-v4"
 
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
@@ -93,16 +94,12 @@ internal object FlowerPixelArtProcessor {
         val pixels = IntArray(width * height)
         source.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        val borderColours = ArrayList<Int>(2 * (width + height))
-        for (x in 0 until width) {
-            borderColours += pixels[x]
-            borderColours += pixels[(height - 1) * width + x]
-        }
-        for (y in 1 until height - 1) {
-            borderColours += pixels[y * width]
-            borderColours += pixels[y * width + width - 1]
-        }
-        val backgroundPalette = buildBorderPalette(borderColours)
+        // Learn the background from the four corner patches instead of the full
+        // perimeter. Leaves and stems often touch the sides; using every border
+        // pixel as a seed incorrectly teaches the remover that those plant colours
+        // are background.
+        val cornerColours = sampleCornerColours(pixels, width, height)
+        val backgroundPalette = buildBorderPalette(cornerColours)
         if (backgroundPalette.isEmpty()) return null
 
         val removed = BooleanArray(pixels.size)
@@ -117,13 +114,16 @@ internal object FlowerPixelArtProcessor {
             }
         }
 
-        for (x in 0 until width) {
-            seed(x)
-            seed((height - 1) * width + x)
-        }
-        for (y in 0 until height) {
-            seed(y * width)
-            seed(y * width + width - 1)
+        val cornerWidth = max(3, width / 9)
+        val cornerHeight = max(3, height / 9)
+        for (cornerTop in intArrayOf(0, height - cornerHeight)) {
+            for (cornerLeft in intArrayOf(0, width - cornerWidth)) {
+                for (y in cornerTop until cornerTop + cornerHeight) {
+                    for (x in cornerLeft until cornerLeft + cornerWidth) {
+                        seed(y * width + x)
+                    }
+                }
+            }
         }
 
         fun visitNeighbour(candidateIndex: Int, parentIndex: Int) {
@@ -192,6 +192,22 @@ internal object FlowerPixelArtProcessor {
         }
         if (result !== cropped && !cropped.isRecycled) cropped.recycle()
         return result
+    }
+
+    private fun sampleCornerColours(pixels: IntArray, width: Int, height: Int): List<Int> {
+        val cornerWidth = max(3, width / 9)
+        val cornerHeight = max(3, height / 9)
+        val samples = ArrayList<Int>(cornerWidth * cornerHeight * 4)
+        for (cornerTop in intArrayOf(0, height - cornerHeight)) {
+            for (cornerLeft in intArrayOf(0, width - cornerWidth)) {
+                for (y in cornerTop until cornerTop + cornerHeight) {
+                    for (x in cornerLeft until cornerLeft + cornerWidth) {
+                        samples += pixels[y * width + x]
+                    }
+                }
+            }
+        }
+        return samples
     }
 
     private fun buildBorderPalette(border: List<Int>): List<Int> {

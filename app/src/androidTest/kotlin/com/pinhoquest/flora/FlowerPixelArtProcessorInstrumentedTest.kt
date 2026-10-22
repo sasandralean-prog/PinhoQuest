@@ -12,14 +12,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -184,6 +189,222 @@ class FlowerPixelArtProcessorInstrumentedTest {
             }
         } finally {
             bitmap.recycle()
+        }
+    }
+
+    @Test
+    fun realCamelliaWithFoliageProducesSpriteAndVisualEvidence() {
+        val testDirectory = File(context.cacheDir, "pinhoquest-real-camellia-regression").apply { mkdirs() }
+        val source = File(testDirectory, "camellia-original.jpg")
+        val spritePart = File(testDirectory, "camellia-sprite.png.part")
+        val scientificName = "Camellia granthamiana"
+        val commonName = "Grantham's Camellia"
+        val flowerSha = FlowerSpriteIdentity.flowerSha256(scientificName)
+        val unresolvedScientificName = "Didymocarpus phuquocensis"
+        val unresolvedCommonName = "Didymocarpus phuquocensis"
+        val unresolvedFlowerSha = FlowerSpriteIdentity.flowerSha256(unresolvedScientificName)
+        val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
+        val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
+        val evidenceDirectory = File(context.getExternalFilesDir(null), "flower-pixel-art-evidence").apply { mkdirs() }
+
+        try {
+            val testAssets = InstrumentationRegistry.getInstrumentation().context.assets
+            testAssets.open("flower_fixtures/camellia_with_foliage_original.jpg").use { input ->
+                source.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            assertTrue(
+                "The real botanical photo with leaves must be processed by the production engine",
+                FlowerPixelArtProcessor.process(source, spritePart),
+            )
+
+            val sprite = BitmapFactory.decodeFile(spritePart.absolutePath)
+            val original = BitmapFactory.decodeFile(source.absolutePath)
+            assertNotNull("The original botanical photo must decode", original)
+            assertNotNull("The actual engine output must decode", sprite)
+            original!!
+            sprite!!
+            try {
+                assertEquals(96, sprite.width)
+                assertEquals(96, sprite.height)
+                val outputPixels = IntArray(sprite.width * sprite.height)
+                sprite.getPixels(outputPixels, 0, sprite.width, 0, 0, sprite.width, sprite.height)
+                val visible = outputPixels.filter { Color.alpha(it) >= 16 }
+                val greenPlantPixels = visible.count {
+                    Color.green(it) > Color.red(it) + 14 &&
+                        Color.green(it) > Color.blue(it) + 4 &&
+                        Color.green(it) > 45
+                }
+                assertTrue("The sprite should preserve the white flower rather than collapse to a placeholder", visible.size > 180)
+                assertTrue("The sprite should retain green leaf/stem detail from the real source", greenPlantPixels >= 8)
+                assertTrue("The generated pixel art must retain a transparent canvas", outputPixels.any { Color.alpha(it) == 0 })
+
+                // Keep reproducible originals and engine output outside the APK. CI pulls these
+                // files after instrumentation and publishes them as the visual evidence artifact.
+                File(evidenceDirectory, "camellia-original.jpg").writeBytes(source.readBytes())
+                File(evidenceDirectory, "camellia-sprite.png").writeBytes(spritePart.readBytes())
+                writeFlowerComparisonEvidence(original, sprite, File(evidenceDirectory, "camellia-original-vs-sprite.png"))
+            } finally {
+                original.recycle()
+                sprite.recycle()
+            }
+
+            flowerDirectory.mkdirs()
+            val publishedSprite = File(flowerDirectory, FlowerSpriteWorker.SPRITE_FILE)
+            spritePart.copyTo(publishedSprite, overwrite = true)
+            val spriteSha = FlowerSpriteIdentity.sha256(publishedSprite.readBytes())
+            File(flowerDirectory, FlowerSpriteWorker.METADATA_FILE).writeText(
+                JSONObject()
+                    .put("schemaVersion", 1)
+                    .put("flowerSha256", flowerSha)
+                    .put("scientificName", scientificName)
+                    .put(
+                        "transform",
+                        JSONObject().put("pipelineVersion", FlowerPixelArtProcessor.PIPELINE_VERSION),
+                    )
+                    .put("sprite", JSONObject().put("sha256", spriteSha))
+                    .toString(2),
+                Charsets.UTF_8,
+            )
+
+            composeRule.setContent {
+                MaterialTheme {
+                    Box(Modifier.width(360.dp).height(720.dp)) {
+                        GardenScreen(
+                            state = GardenUiState(
+                                ownerName = "Jardim de Teste",
+                                lifetimeXp = 50,
+                                spendableXp = 50,
+                                level = 1,
+                                collectedCount = 2,
+                                totalCount = 2,
+                                flowers = listOf(
+                                    GardenFlowerUi(
+                                        id = "real-camellia-visual-regression",
+                                        commonName = commonName,
+                                        scientificName = scientificName,
+                                        description = "Real botanical-photo regression fixture",
+                                        rarity = FlowerRarity.COMMON,
+                                        discoveryState = FlowerDiscoveryState.COLLECTED,
+                                        flowerSha256 = flowerSha,
+                                    ),
+                                    GardenFlowerUi(
+                                        id = "unresolved-didymocarpus-placeholder",
+                                        commonName = unresolvedCommonName,
+                                        scientificName = unresolvedScientificName,
+                                        description = "Fixture to verify the unresolved species does not silently masquerade as generated art",
+                                        rarity = FlowerRarity.COMMON,
+                                        discoveryState = FlowerDiscoveryState.COLLECTED,
+                                        flowerSha256 = unresolvedFlowerSha,
+                                    ),
+                                ),
+                            ),
+                            onFlowerSelected = {},
+                            onInvestigate = {},
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                }
+            }
+            composeRule.onNodeWithText("Abrir coleção").performClick()
+            composeRule.waitUntil(timeoutMillis = 10_000) {
+                composeRule.onAllNodesWithContentDescription(
+                    "Pixel art de $commonName",
+                    useUnmergedTree = true,
+                ).fetchSemanticsNodes().isNotEmpty()
+            }
+            composeRule.onNodeWithContentDescription(
+                "Pixel art de $commonName",
+                useUnmergedTree = true,
+            ).assertIsDisplayed()
+            // The second collected flower intentionally has no approved sprite. This
+            // screenshot proves the unresolved taxonomy remains a placeholder instead
+            // of using the Camellia or some unrelated photo as a false match.
+            composeRule.onNodeWithTag("flower-card-unresolved-didymocarpus-placeholder")
+                .assertIsDisplayed()
+            composeRule.onNodeWithText(unresolvedCommonName).assertIsDisplayed()
+            composeRule.onNodeWithText("🌷").assertIsDisplayed()
+            val screenshot = composeRule.onRoot().captureToImage().asAndroidBitmap()
+            try {
+                File(evidenceDirectory, "camellia-garden-collection-screen.png").outputStream().use { out ->
+                    assertTrue(
+                        "The collection screenshot should be written",
+                        screenshot.compress(Bitmap.CompressFormat.PNG, 100, out),
+                    )
+                }
+            } finally {
+                screenshot.recycle()
+            }
+        } finally {
+            runCatching { composeRule.runOnIdle { composeRule.setContent {} } }
+            testDirectory.deleteRecursively()
+            flowerDirectory.deleteRecursively()
+            unresolvedFlowerDirectory.deleteRecursively()
+        }
+    }
+
+    private fun writeFlowerComparisonEvidence(original: Bitmap, sprite: Bitmap, output: File) {
+        val width = 1024
+        val height = 600
+        val comparison = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        try {
+            val canvas = Canvas(comparison)
+            canvas.drawColor(Color.rgb(248, 246, 238))
+            val heading = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(50, 54, 48)
+                textSize = 30f
+                typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            }
+            val subheading = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.rgb(91, 96, 86)
+                textSize = 19f
+                typeface = android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL)
+            }
+            canvas.drawText("ORIGINAL PHOTO", 32f, 42f, heading)
+            canvas.drawText("GRANTHAM'S CAMELLIA · WIKIMEDIA COMMONS", 32f, 70f, subheading)
+            canvas.drawText("PINHOQUEST ENGINE · ${FlowerPixelArtProcessor.PIPELINE_VERSION}", 550f, 42f, heading)
+            canvas.drawText("96 × 96 RGBA · enlarged with nearest-neighbour", 550f, 70f, subheading)
+
+            val originalBounds = android.graphics.RectF(28f, 88f, 500f, 570f)
+            val originalScale = minOf(
+                originalBounds.width() / original.width,
+                originalBounds.height() / original.height,
+            )
+            val originalWidth = original.width * originalScale
+            val originalHeight = original.height * originalScale
+            val originalRect = android.graphics.RectF(
+                originalBounds.centerX() - originalWidth / 2f,
+                originalBounds.centerY() - originalHeight / 2f,
+                originalBounds.centerX() + originalWidth / 2f,
+                originalBounds.centerY() + originalHeight / 2f,
+            )
+            canvas.drawBitmap(original, null, originalRect, Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
+
+            val tileSize = 24
+            for (y in 92 until 572 step tileSize) {
+                for (x in 548 until 1012 step tileSize) {
+                    val shade = if (((x - 548) / tileSize + (y - 92) / tileSize) % 2 == 0) 238 else 221
+                    val tilePaint = Paint().apply { color = Color.rgb(shade, shade, shade) }
+                    canvas.drawRect(x.toFloat(), y.toFloat(), (x + tileSize).toFloat(), (y + tileSize).toFloat(), tilePaint)
+                }
+            }
+            val spriteScale = minOf(440f / sprite.width, 440f / sprite.height)
+            val spriteWidth = sprite.width * spriteScale
+            val spriteHeight = sprite.height * spriteScale
+            val spriteRect = android.graphics.RectF(
+                780f - spriteWidth / 2f,
+                332f - spriteHeight / 2f,
+                780f + spriteWidth / 2f,
+                332f + spriteHeight / 2f,
+            )
+            canvas.drawBitmap(sprite, null, spriteRect, Paint().apply { isFilterBitmap = false })
+            output.parentFile?.mkdirs()
+            FileOutputStream(output).use { stream ->
+                assertTrue("The visual comparison image should be encoded", comparison.compress(Bitmap.CompressFormat.PNG, 100, stream))
+            }
+        } finally {
+            comparison.recycle()
         }
     }
 

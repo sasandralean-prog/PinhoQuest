@@ -136,7 +136,7 @@ class FlowerSpriteWorker(
                     "transform",
                     JSONObject()
                         .put("pipelineVersion", FlowerPixelArtProcessor.PIPELINE_VERSION)
-                        .put("backgroundRemoval", "48-colour border model, locally anchored flood fill, source-resolution component cleanup, and 48px-grid speckle removal")
+                        .put("backgroundRemoval", "corner-seeded multi-colour palette, locally anchored flood fill, source-resolution component cleanup, and 48px-grid speckle removal")
                         .put("pixelization", "48px working grid, deterministic 16-colour median-cut palette, nearest-neighbour 2x upscale, subtle directional edge lighting and shadow")
                         .put("transparentBackground", true),
                 )

@@ -80,13 +80,13 @@ If introduced:
 - never let AI output replace botanical evidence
 
 
-## Implementation update: photo-to-pixel-art v3 (2026-10-21)
+## Implementation update: photo-to-pixel-art v3 (historical, 2026-10-21)
 
-The current Android implementation is `FlowerPixelArtProcessor`, pipeline ID `flower-pixel-v3`. The implementation and validation details are recorded in `docs/design/flower-pixel-art-pipeline-v3.md`.
+The v3 Android implementation was `FlowerPixelArtProcessor`, pipeline ID `flower-pixel-v3`. The current implementation and v4 validation plan are recorded in `docs/design/flower-pixel-art-pipeline-v4.md`; this section preserves the earlier version's decisions.
 
-The current deterministic pipeline uses a multi-colour border model and anchored flood fill, source-space cleanup of small disconnected foreground islands, a 48 x 48 work grid, a median-cut palette capped at 16 base colours, one/two-pixel grid-speckle removal, light directional edge shading and nearest-neighbour enlargement to a 96 x 96 transparent PNG. It remains independent of the Garden UI; the collection card only consumes a verified, versioned asset.
+The v3 deterministic pipeline used a multi-colour border model and anchored flood fill, source-space cleanup of small disconnected foreground islands, a 48 x 48 work grid, a median-cut palette capped at 16 base colours, one/two-pixel grid-speckle removal, light directional edge shading and nearest-neighbour enlargement to a 96 x 96 transparent PNG. The collection card consumes only a verified, versioned asset.
 
-Pipeline version participates in three gates: scheduler cache validity, worker cache validity (including negative-result markers), and on-screen sprite validation. Therefore a checksum-correct v2 image is no longer sufficient to suppress v3 regeneration or appear as a current sprite.
+Pipeline version participates in three gates: scheduler cache validity, worker cache validity (including negative-result markers), and on-screen sprite validation. Therefore a checksum-correct older image is no longer sufficient to suppress regeneration under the active pipeline version or appear as a current sprite.
 
 The BlueStacks screenshot evidence is stored under `docs/evidence/flower-pixel-art-v3-2026-10-21/`. The Camellia sprite was re-generated and visually reviewed after installation; detached speckles from the prior screenshot were removed while the flower silhouette and yellow centre stayed visible. The original source attribution and checksum metadata remain part of the detail view.
 

@@ -1873,3 +1873,33 @@ The four source files play sequentially using ExoPlayer's playlist and their aut
 ### Release caveat
 
 The tracks were generated and provided by the owner using Suno Pro. This record does not independently establish a license; confirm the applicable Suno terms for the exact account and generation dates before public distribution or monetization.
+
+
+## 45. Flower pixel-art engine v4 - foliage-preserving background cutout and real-photo evidence (2026-10-22)
+
+**Branch:** `feature/p6-garden-delight`
+**Processor version:** `flower-pixel-v4`
+**Design/validation record:** `docs/design/flower-pixel-art-pipeline-v4.md`
+
+### Scope and implementation
+
+- Changed the cutout background model from full-perimeter palette and seeds to samples from four corner patches. This reduces the chance that green leaves or stems touching the source image border are automatically classified as background.
+- Retained deterministic, corner-anchored flood fill, component cleanup, the transparent 48 × 48 working grid, compact colour palette, edge shading and 96 × 96 nearest-neighbour result.
+- Bumped the processor/cache version so v3 output cannot pass as a v4 sprite. Updated the metadata description to record the corner-seeded method.
+- Added an unmodified Wikimedia Commons CC BY-SA 2.0 photograph of *Camellia granthamiana* with substantial surrounding foliage to Android instrumentation assets, with source and photographer/license details in the fixture README.
+- Added an instrumentation test that runs the production processor on the real source, asserts transparent output plus retained green plant pixels, writes a labeled original-versus-sprite comparison and captures the real Garden collection-card UI after the v4 sprite passes its metadata/checksum validation.
+- Added CI steps to pull visual evidence from the emulator and upload it as `pinhoquest-flower-visual-evidence` for seven days.
+- Added the missing music callback no-ops to navigation UI tests and screenshot capture imports needed by the additional instrumented test.
+
+### Validation state
+
+- **Local validation: PASS** for `:app:compileDebugAndroidTestKotlin`, `:app:testDebugUnitTest`, `:app:lintDebug` and `:app:assembleDebug`. The instrumented test compiles locally but still requires execution on the API 28 CI emulator.
+- Required visual review: original photograph, the generated 96 × 96 output on transparency, and the collection screen showing both the generated Camellia and unresolved Didymocarpus entry. Inspect the uploaded CI artifact before accepting the new segmentation.
+- Exact-phrase Wikimedia Commons API query for `Didymocarpus phuquocensis` returned no candidate on 2026-10-22. This points to current source-discovery coverage as one cause of the placeholder, without proving a usable source does not exist under a synonym or another provider.
+- Known limit: the engine is still colour-based and cannot guarantee clean separation when foliage and background have similar colour/texture. This change does not substitute unrelated imagery for a missing taxon.
+
+### Gate disposition
+
+- Implementation: pending validation.
+- Real-photo foliage retention: pending API 28 instrumented result and screenshot review.
+- Placeholder coverage for the existing collection: pending individual source/rejection diagnostics; the rare *Didymocarpus phuquocensis* placeholder must be investigated separately rather than treated as an engine-only failure.
