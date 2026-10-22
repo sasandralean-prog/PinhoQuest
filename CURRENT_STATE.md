@@ -1919,9 +1919,9 @@ The tracks were generated and provided by the owner using Suno Pro. This record 
 
 ### Evidence/CI robustness
 
-- The instrumentation test now writes the original image even before calling the processor and writes the raw sprite plus original-versus-sprite comparison before assertions about visible pixels, leaves and transparency.
+- The instrumentation test now writes the original image even before calling the processor and writes the raw sprite plus original-versus-sprite comparison before assertions about visible pixels, leaves and transparency. These files now go to the target app's private cache.
 - The actual collection screenshot is also written before the final quality assertions. It intentionally shows both the generated Camellia and the unresolved `Didymocarpus phuquocensis` placeholder so those two causes stay distinguishable.
-- The API 28 emulator step's status-capture, artifact-directory creation, ADB pull and exit are consolidated onto one shell line. In run #520, variables did not persist between action-executed shell lines, and no image artifact survived the failed test.
+- The API 28 emulator step's status-capture, private-cache extraction via `adb exec-out run-as`, artifact-directory listing and exit are consolidated onto one shell line. Run #520 exposed shell-state persistence; run #521 then passed the test but showed the external-files alias was not available for ADB pull. The cache/run-as extraction is the follow-up fix.
 
 ### Gate status
 

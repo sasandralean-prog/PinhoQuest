@@ -67,7 +67,7 @@ jobs:
           disable-animations: true
           script: |
             chmod +x ./gradlew
-            test_exit=0; ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest || test_exit=$?; mkdir -p app/build/outputs/flower-pixel-art-evidence; adb pull /sdcard/Android/data/com.pinhoquest/files/flower-pixel-art-evidence app/build/outputs/flower-pixel-art-evidence || true; exit "$test_exit"
+            test_exit=0; ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest || test_exit=$?; out=app/build/outputs/flower-pixel-art-evidence; mkdir -p "$out"; for f in camellia-original.jpg camellia-sprite.png camellia-original-vs-sprite.png camellia-garden-collection-screen.png; do adb exec-out run-as com.pinhoquest cat "cache/flower-pixel-art-evidence/$f" > "$out/$f" 2>/dev/null || rm -f "$out/$f"; done; echo "Recovered flower evidence:"; ls -lah "$out"; exit "$test_exit"
       - name: Upload flower original-versus-sprite screenshots
         if: always()
         uses: actions/upload-artifact@v4

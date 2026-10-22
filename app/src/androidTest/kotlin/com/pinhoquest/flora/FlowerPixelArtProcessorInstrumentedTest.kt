@@ -205,7 +205,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val unresolvedFlowerSha = FlowerSpriteIdentity.flowerSha256(unresolvedScientificName)
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
-        val evidenceDirectory = File(context.getExternalFilesDir(null), "flower-pixel-art-evidence").apply { mkdirs() }
+        val evidenceDirectory = File(context.cacheDir, "flower-pixel-art-evidence").apply { mkdirs() }
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
