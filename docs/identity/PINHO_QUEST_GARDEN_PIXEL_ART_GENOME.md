@@ -82,7 +82,7 @@ If introduced:
 
 ## Implementation update: photo-to-pixel-art v3 (historical, 2026-10-21)
 
-The v3 Android implementation was `FlowerPixelArtProcessor`, pipeline ID `flower-pixel-v3`. The current implementation and v4 validation plan are recorded in `docs/design/flower-pixel-art-pipeline-v4.md`; this section preserves the earlier version's decisions.
+The v3 Android implementation was `FlowerPixelArtProcessor`, pipeline ID `flower-pixel-v3`. The current implementation and v5 validation plan are recorded in `docs/design/flower-pixel-art-pipeline-v5.md`; the v4 record documents the first corner-seeded attempt and its foliage regression.
 
 The v3 deterministic pipeline used a multi-colour border model and anchored flood fill, source-space cleanup of small disconnected foreground islands, a 48 x 48 work grid, a median-cut palette capped at 16 base colours, one/two-pixel grid-speckle removal, light directional edge shading and nearest-neighbour enlargement to a 96 x 96 transparent PNG. The collection card consumes only a verified, versioned asset.
 

@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-22
 **Branch:** `feature/p6-garden-delight`
-**Pipeline ID:** `flower-pixel-v4`
+**Pipeline ID:** `flower-pixel-v4` (failed experiment; superseded by v5)
 
 ## Motivation
 
@@ -32,4 +32,4 @@ The same regression screenshot includes the collected `Didymocarpus phuquocensis
 
 ## Validation record
 
-Validation status for this version is tracked by the branch's Android CI run and the uploaded visual-evidence artifact. Do not mark the v4 visual gate complete until the real-photo instrumentation test, API 28 emulator run and original-versus-output screenshot have all been inspected.
+The API 28 instrumentation run on commit `60588e1` failed its green-leaf retention assertion (`green leaf/stem detail from the real source`). The image output had enough visible pixels to be non-empty, but too few green pixels survived. The old CI script also split shell variable state between lines and failed to pull evidence after that assertion failed, so no screenshot artifact was produced. This is a confirmed v4 regression; v5 adds a bounded green-foliage halo around the surviving flower silhouette and writes the original/comparison/UI screenshots before the quality assertions. Do not treat v4 as accepted or the v5 gate as passed until its own API 28 run and screenshots have been reviewed.

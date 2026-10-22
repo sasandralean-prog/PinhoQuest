@@ -206,6 +206,11 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
         val evidenceDirectory = File(context.getExternalFilesDir(null), "flower-pixel-art-evidence").apply { mkdirs() }
+        var generatedWidth = -1
+        var generatedHeight = -1
+        var visiblePixelCount = 0
+        var greenPlantPixels = 0
+        var hasTransparentCanvas = false
 
         try {
             val testAssets = InstrumentationRegistry.getInstrumentation().context.assets
@@ -214,11 +219,15 @@ class FlowerPixelArtProcessorInstrumentedTest {
                     input.copyTo(output)
                 }
             }
+            // Always keep the original, even if the processor rejects the crop. This makes
+            // source-discovery/processor failures diagnosable in the CI artifact.
+            File(evidenceDirectory, "camellia-original.jpg").writeBytes(source.readBytes())
             assertTrue(
                 "The real botanical photo with leaves must be processed by the production engine",
                 FlowerPixelArtProcessor.process(source, spritePart),
             )
 
+            File(evidenceDirectory, "camellia-sprite.png").writeBytes(spritePart.readBytes())
             val sprite = BitmapFactory.decodeFile(spritePart.absolutePath)
             val original = BitmapFactory.decodeFile(source.absolutePath)
             assertNotNull("The original botanical photo must decode", original)
@@ -226,24 +235,21 @@ class FlowerPixelArtProcessorInstrumentedTest {
             original!!
             sprite!!
             try {
-                assertEquals(96, sprite.width)
-                assertEquals(96, sprite.height)
+                generatedWidth = sprite.width
+                generatedHeight = sprite.height
                 val outputPixels = IntArray(sprite.width * sprite.height)
                 sprite.getPixels(outputPixels, 0, sprite.width, 0, 0, sprite.width, sprite.height)
                 val visible = outputPixels.filter { Color.alpha(it) >= 16 }
-                val greenPlantPixels = visible.count {
+                visiblePixelCount = visible.size
+                greenPlantPixels = visible.count {
                     Color.green(it) > Color.red(it) + 14 &&
                         Color.green(it) > Color.blue(it) + 4 &&
                         Color.green(it) > 45
                 }
-                assertTrue("The sprite should preserve the white flower rather than collapse to a placeholder", visible.size > 180)
-                assertTrue("The sprite should retain green leaf/stem detail from the real source", greenPlantPixels >= 8)
-                assertTrue("The generated pixel art must retain a transparent canvas", outputPixels.any { Color.alpha(it) == 0 })
+                hasTransparentCanvas = outputPixels.any { Color.alpha(it) == 0 }
 
-                // Keep reproducible originals and engine output outside the APK. CI pulls these
-                // files after instrumentation and publishes them as the visual evidence artifact.
-                File(evidenceDirectory, "camellia-original.jpg").writeBytes(source.readBytes())
-                File(evidenceDirectory, "camellia-sprite.png").writeBytes(spritePart.readBytes())
+                // Save diagnostic evidence before assertions, so a failed foliage test still
+                // publishes the exact source, processor output and side-by-side comparison.
                 writeFlowerComparisonEvidence(original, sprite, File(evidenceDirectory, "camellia-original-vs-sprite.png"))
             } finally {
                 original.recycle()
@@ -336,6 +342,20 @@ class FlowerPixelArtProcessorInstrumentedTest {
             } finally {
                 screenshot.recycle()
             }
+
+            // Assert after all screenshots have been written, so CI artifacts remain
+            // inspectable even when the engine erases the foliage.
+            assertEquals("The generated sprite width", 96, generatedWidth)
+            assertEquals("The generated sprite height", 96, generatedHeight)
+            assertTrue(
+                "The sprite should preserve the white flower rather than collapse to a placeholder",
+                visiblePixelCount > 180,
+            )
+            assertTrue(
+                "The sprite should retain green leaf/stem detail from the real source; green pixels=$greenPlantPixels",
+                greenPlantPixels >= 8,
+            )
+            assertTrue("The generated pixel art must retain a transparent canvas", hasTransparentCanvas)
         } finally {
             runCatching { composeRule.runOnIdle { composeRule.setContent {} } }
             testDirectory.deleteRecursively()

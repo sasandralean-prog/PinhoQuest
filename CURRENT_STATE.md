@@ -1903,3 +1903,30 @@ The tracks were generated and provided by the owner using Suno Pro. This record 
 - Implementation: pending validation.
 - Real-photo foliage retention: pending API 28 instrumented result and screenshot review.
 - Placeholder coverage for the existing collection: pending individual source/rejection diagnostics; the rare *Didymocarpus phuquocensis* placeholder must be investigated separately rather than treated as an engine-only failure.
+
+
+## 46. Flower pixel-art engine v5 - restore near-flower foliage and retain failed-run evidence (2026-10-22)
+
+**Branch:** `feature/p6-garden-delight`
+**Processor version:** `flower-pixel-v5`
+**Design record:** `docs/design/flower-pixel-art-pipeline-v5.md`
+
+### Trigger and correction
+
+- CI run #520 (`60588e1`) compiled and passed lint/unit tests but failed the API 28 real-photo instrumented test: `The sprite should retain green leaf/stem detail from the real source`. The failure was genuine and the foliage threshold was not weakened.
+- v4's corner colour model still erased the green leaves because the garden background was also leafy and shared the same colour range.
+- v5 adds a bounded multi-source distance-map pass after background removal. Only green pixels in the local halo around the surviving flower silhouette are restored; distant background remains governed by the cutout mask. The cache version advances to `flower-pixel-v5`.
+
+### Evidence/CI robustness
+
+- The instrumentation test now writes the original image even before calling the processor and writes the raw sprite plus original-versus-sprite comparison before assertions about visible pixels, leaves and transparency.
+- The actual collection screenshot is also written before the final quality assertions. It intentionally shows both the generated Camellia and the unresolved `Didymocarpus phuquocensis` placeholder so those two causes stay distinguishable.
+- The API 28 emulator step's status-capture, artifact-directory creation, ADB pull and exit are consolidated onto one shell line. In run #520, variables did not persist between action-executed shell lines, and no image artifact survived the failed test.
+
+### Gate status
+
+- v4: **rejected**, based on the API 28 leaf-retention assertion failure.
+- v5 local compile/build/test/lint: **PASS** for `:app:compileDebugAndroidTestKotlin`, `:app:testDebugUnitTest`, `:app:lintDebug` and `:app:assembleDebug` on the amended working tree; API 28 runtime validation is still pending.
+- v5 device/visual gate: pending new API 28 run and direct inspection of `pinhoquest-flower-visual-evidence`.
+- The new foliage halo is a bounded heuristic, not semantic segmentation. Accept only if the collected-flower screenshot shows recognisable foliage without retaining an obvious patch of garden background.
+- The exact-phrase Commons search for `Didymocarpus phuquocensis` found no candidate on 2026-10-22; further taxonomy/synonym/provider search remains a separate source-coverage task.

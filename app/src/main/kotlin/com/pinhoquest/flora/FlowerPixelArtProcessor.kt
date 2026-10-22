@@ -13,8 +13,9 @@ import kotlin.math.min
 /**
  * Deterministic photo-to-pixel-art conversion.
  *
- * V4 learns background colours from corner patches, not the whole perimeter, so
- * edge-touching leaves and stems are less likely to be misclassified as background.
+ * V5 learns background colours from corner patches and restores a small halo of
+ * plant-green pixels adjacent to the flower silhouette. This preserves near-flower
+ * leaves against similarly green garden backgrounds without keeping the full frame.
  * It uses locally anchored background gradients, removes small foreground islands,
  * renders onto a 48px working grid and adds restrained directional edge lighting.
  * Difficult images are rejected rather than stored as visibly broken sprites.
@@ -22,7 +23,7 @@ import kotlin.math.min
 internal object FlowerPixelArtProcessor {
     private data class ColourWeight(val colour: Int, val count: Int)
 
-    const val PIPELINE_VERSION = "flower-pixel-v4"
+    const val PIPELINE_VERSION = "flower-pixel-v5"
 
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
@@ -151,9 +152,15 @@ internal object FlowerPixelArtProcessor {
             if (y + 1 < height) visitNeighbour(index + width, index)
         }
 
-        val remaining = pixels.size - write
-        val removedRatio = write.toFloat() / pixels.size.toFloat()
-        val foregroundRatio = remaining.toFloat() / pixels.size.toFloat()
+        // In photos of leafy plants, the leaves around a central flower can have
+        // exactly the same colours as the garden behind them. Colour flood-fill alone
+        // removes both. Restore only green plant pixels within a bounded halo of the
+        // surviving flower silhouette; distant foliage/background stays transparent.
+        restoreNearbyGreenFoliage(pixels, removed, width, height)
+
+        val removedCount = removed.count { it }
+        val removedRatio = removedCount.toFloat() / pixels.size.toFloat()
+        val foregroundRatio = 1f - removedRatio
         if (removedRatio < 0.015f || foregroundRatio < 0.025f) return null
 
         // Delete small foreground islands (camera noise / texture fragments),
@@ -192,6 +199,65 @@ internal object FlowerPixelArtProcessor {
         }
         if (result !== cropped && !cropped.isRecycled) cropped.recycle()
         return result
+    }
+
+    private fun restoreNearbyGreenFoliage(
+        pixels: IntArray,
+        removed: BooleanArray,
+        width: Int,
+        height: Int,
+    ) {
+        val distance = IntArray(pixels.size) { -1 }
+        val queue = IntArray(pixels.size)
+        var read = 0
+        var write = 0
+
+        // Seed from the real, non-background flower silhouette. A bounded breadth-first
+        // expansion avoids reclassifying green pixels across the entire image as foliage.
+        for (index in pixels.indices) {
+            if (!removed[index] && Color.alpha(pixels[index]) >= 16) {
+                distance[index] = 0
+                queue[write++] = index
+            }
+        }
+        if (write == 0) return
+        val maximumHaloDistance = max(6, min(width, height) / 16)
+
+        while (read < write) {
+            val index = queue[read++]
+            val nextDistance = distance[index] + 1
+            if (nextDistance > maximumHaloDistance) continue
+            val x = index % width
+            val y = index / width
+            for (dy in -1..1) {
+                for (dx in -1..1) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = x + dx
+                    val ny = y + dy
+                    if (nx !in 0 until width || ny !in 0 until height) continue
+                    val next = ny * width + nx
+                    if (distance[next] >= 0) continue
+                    distance[next] = nextDistance
+                    queue[write++] = next
+                }
+            }
+        }
+
+        for (index in pixels.indices) {
+            if (removed[index] && distance[index] in 1..maximumHaloDistance &&
+                isPlantGreen(pixels[index])
+            ) {
+                removed[index] = false
+            }
+        }
+    }
+
+    private fun isPlantGreen(pixel: Int): Boolean {
+        if (Color.alpha(pixel) < 16) return false
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        return green > 45 && green > red + 14 && green > blue + 4
     }
 
     private fun sampleCornerColours(pixels: IntArray, width: Int, height: Int): List<Int> {
