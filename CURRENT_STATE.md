@@ -1921,12 +1921,13 @@ The tracks were generated and provided by the owner using Suno Pro. This record 
 
 - The instrumentation test writes the original image even before calling the processor, then writes raw sprite and original-versus-sprite comparison before quality assertions. The attempt to put evidence in the instrumentation APK's private cache failed on API 28 with `Permission denied` (`/data/user/0/com.pinhoquest.test/cache/...`) in CI run #523 (`d325740`).
 - The actual collection screenshot is also written before the final quality assertions. It intentionally shows both the generated Camellia and the unresolved `Didymocarpus phuquocensis` placeholder so those two causes stay distinguishable.
-- The API 28 emulator step's test execution, evidence pull, artifact listing and exit-code handling remain on one shell line because the emulator action did not preserve multiline shell variables. The current approach grants `WRITE_EXTERNAL_STORAGE` only in the debug manifest with `maxSdkVersion=28`, writes images to `/sdcard/Download/pinhoquest-flower-visual-evidence/`, and uses `adb pull` so evidence survives orchestrator cleanup. CI run #524 must validate the runtime permission and real image export.
+- CI run #524 (`a58b71d`) proved shared Downloads is not writable in the API 28 instrumented environment even after a runtime permission grant. The storage permission/manifest approach has been removed. The revised path emits each file as indexed Base64 chunks under the `PqFlowerEvidence` logcat tag, then runs `tools/flower_evidence/extract_logcat.py` to reassemble and SHA-256-verify images before uploading. The new logcat export route awaits CI runtime validation.
 
 ### Gate status
 
 - v4: **rejected**, based on the API 28 leaf-retention assertion failure.
 - v5 local compile/build/test/lint: **PASS** for `:app:compileDebugAndroidTestKotlin`, `:app:testDebugUnitTest`, `:app:lintDebug` and `:app:assembleDebug` on the amended working tree; API 28 runtime validation is still pending.
-- v5 device/visual gate: pending new API 28 run and direct inspection of `pinhoquest-flower-visual-evidence`.
+- The logcat decoder's local unit tests: **PASS 2/2** (numbered chunks reconstruct correctly; missing chunks/bad checksums are rejected). The amended Android compile/build/tests/lint also pass locally after removing the debug storage permission.
+- v5 device/visual gate: pending a new API 28 run of the logcat export route and direct inspection of the checksum-verified `pinhoquest-flower-visual-evidence` artifact.
 - The new foliage halo is a bounded heuristic, not semantic segmentation. Accept only if the collected-flower screenshot shows recognisable foliage without retaining an obvious patch of garden background.
 - The exact-phrase Commons search for `Didymocarpus phuquocensis` found no candidate on 2026-10-22; further taxonomy/synonym/provider search remains a separate source-coverage task.

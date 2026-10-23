@@ -19,13 +19,13 @@ This is deliberately a local foliage-preservation heuristic, not a semantic segm
 
 The Android instrumentation test uses the unmodified, attributed CC BY-SA 2.0 photo documented in `app/src/androidTest/assets/flower_fixtures/README.md`. It exercises the actual production processor. It checks the 96 × 96 size, visible silhouette, transparency and at least eight visible pixels matching the green-leaf criterion.
 
-**Evidence is saved to the emulator's shared Downloads directory before the quality assertions.** The debug-only manifest grants `WRITE_EXTERNAL_STORAGE` through API 28, and the test uses `UiAutomation` to grant it before writing. The CI step uses `adb pull` from `/sdcard/Download/pinhoquest-flower-visual-evidence/`, so evidence survives the test orchestrator clearing or uninstalling both app packages. The instrumented test creates:
+**Evidence is emitted into tagged Android logcat chunks before the quality assertions.** Each file is Base64-encoded in small log messages carrying an index, total byte length and SHA-256. After the instrumentation task, CI captures only the `PqFlowerEvidence` tag and `tools/flower_evidence/extract_logcat.py` reconstructs the four files, validating chunk completeness, length, image signature and SHA-256. This avoids shared-storage permissions and survives the test orchestrator cleaning app data/uninstalling packages. The instrumented test creates:
 - `camellia-original.jpg` — exact source photograph,
 - `camellia-sprite.png` — raw engine output,
 - `camellia-original-vs-sprite.png` — labeled, side-by-side comparison,
 - `camellia-garden-collection-screen.png` — actual Compose collection UI with both the processed Camellia and an intentionally unresolved *Didymocarpus phuquocensis* entry.
 
-This ordering means failed green-retention assertions should still leave screenshots for diagnosis. The API 28 CI step performs test, evidence pull and exit-code return in one shell line because multiline state was not preserved by the emulator action's command handling. The `pinhoquest-flower-visual-evidence` artifact is retained for seven days.
+This ordering means a failed green-retention assertion should still leave screenshots for diagnosis. The API 28 CI step performs test execution, logcat capture, evidence decoding, listing and exit-code return on one shell line because multiline state was not preserved by the emulator action's command handling. The `pinhoquest-flower-visual-evidence` artifact is retained for seven days and contains only checksum-verified image files.
 
 ## Placeholder diagnosis
 

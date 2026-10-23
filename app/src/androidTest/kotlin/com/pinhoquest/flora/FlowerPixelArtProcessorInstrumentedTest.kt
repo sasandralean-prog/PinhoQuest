@@ -1,8 +1,8 @@
 package com.pinhoquest.flora
 
-import android.Manifest
 import android.content.Context
-import android.os.Environment
+import android.util.Base64
+import android.util.Log
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -208,10 +208,9 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
         val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-        val evidenceDirectory = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "pinhoquest-flower-visual-evidence",
-        )
+        // Keep evidence beside the test's already-writable temporary source. The test
+        // emits each file into logcat immediately, so it survives package cleanup.
+        val evidenceDirectory = File(testDirectory, "evidence").apply { mkdirs() }
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
@@ -219,18 +218,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
         var hasTransparentCanvas = false
 
         try {
-            // Public Downloads survives the test orchestrator uninstalling the app and
-            // instrumentation packages after connectedDebugAndroidTest completes.
-            InstrumentationRegistry.getInstrumentation().uiAutomation.grantRuntimePermission(
-                context.packageName,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            )
-            assertTrue(
-                "The shared screenshot directory must be writable for the API 28 evidence test",
-                evidenceDirectory.mkdirs() || evidenceDirectory.isDirectory,
-            )
-            evidenceDirectory.listFiles()?.forEach { it.delete() }
-
             val testAssets = instrumentationContext.assets
             testAssets.open("flower_fixtures/camellia_with_foliage_original.jpg").use { input ->
                 source.outputStream().use { output ->
@@ -239,13 +226,17 @@ class FlowerPixelArtProcessorInstrumentedTest {
             }
             // Always keep the original, even if the processor rejects the crop. This makes
             // source-discovery/processor failures diagnosable in the CI artifact.
-            File(evidenceDirectory, "camellia-original.jpg").writeBytes(source.readBytes())
+            val originalEvidence = File(evidenceDirectory, "camellia-original.jpg")
+            originalEvidence.writeBytes(source.readBytes())
+            emitFlowerEvidenceFile(originalEvidence, "camellia-original.jpg")
             assertTrue(
                 "The real botanical photo with leaves must be processed by the production engine",
                 FlowerPixelArtProcessor.process(source, spritePart),
             )
 
-            File(evidenceDirectory, "camellia-sprite.png").writeBytes(spritePart.readBytes())
+            val spriteEvidence = File(evidenceDirectory, "camellia-sprite.png")
+            spriteEvidence.writeBytes(spritePart.readBytes())
+            emitFlowerEvidenceFile(spriteEvidence, "camellia-sprite.png")
             val sprite = BitmapFactory.decodeFile(spritePart.absolutePath)
             val original = BitmapFactory.decodeFile(source.absolutePath)
             assertNotNull("The original botanical photo must decode", original)
@@ -268,7 +259,9 @@ class FlowerPixelArtProcessorInstrumentedTest {
 
                 // Save diagnostic evidence before assertions, so a failed foliage test still
                 // publishes the exact source, processor output and side-by-side comparison.
-                writeFlowerComparisonEvidence(original, sprite, File(evidenceDirectory, "camellia-original-vs-sprite.png"))
+                val comparisonEvidence = File(evidenceDirectory, "camellia-original-vs-sprite.png")
+                writeFlowerComparisonEvidence(original, sprite, comparisonEvidence)
+                emitFlowerEvidenceFile(comparisonEvidence, "camellia-original-vs-sprite.png")
             } finally {
                 original.recycle()
                 sprite.recycle()
@@ -357,6 +350,10 @@ class FlowerPixelArtProcessorInstrumentedTest {
                         screenshot.compress(Bitmap.CompressFormat.PNG, 100, out),
                     )
                 }
+                emitFlowerEvidenceFile(
+                    File(evidenceDirectory, "camellia-garden-collection-screen.png"),
+                    "camellia-garden-collection-screen.png",
+                )
             } finally {
                 screenshot.recycle()
             }
@@ -380,6 +377,24 @@ class FlowerPixelArtProcessorInstrumentedTest {
             flowerDirectory.deleteRecursively()
             unresolvedFlowerDirectory.deleteRecursively()
         }
+    }
+
+    private fun emitFlowerEvidenceFile(file: File, evidenceName: String) {
+        val bytes = file.readBytes()
+        val encoded = Base64.encodeToString(bytes, Base64.NO_WRAP)
+        val chunks = encoded.chunked(1_800)
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(bytes)
+            .joinToString("") { byte -> "%02x".format(byte) }
+        val tag = "PqFlowerEvidence"
+
+        // Keep each Android log entry below logcat message limits. CI validates the
+        // chunk count, decoded length, image signature and SHA-256 before publishing.
+        Log.i(tag, "PQFLOWER|BEGIN|$evidenceName|${chunks.size}|${bytes.size}|$digest")
+        chunks.forEachIndexed { index, chunk ->
+            Log.i(tag, "PQFLOWER|DATA|$evidenceName|$index|$chunk")
+        }
+        Log.i(tag, "PQFLOWER|END|$evidenceName")
     }
 
     private fun writeFlowerComparisonEvidence(original: Bitmap, sprite: Bitmap, output: File) {
