@@ -484,14 +484,21 @@ internal object FlowerPhotoDiscovery {
                 errors += providerName + ": " + message
             }
         }
-        val unique = LinkedHashMap<String, FlowerPhotoCandidate>()
-        for (batch in batches) {
-            for (candidate in batch.candidates) {
-                unique.putIfAbsent(candidate.downloadUrl, candidate)
+        // Round-robin providers so an early, prolific source cannot consume the
+        // entire candidate budget before iNaturalist or GBIF gets a chance.
+        val ordered = ArrayList<FlowerPhotoCandidate>()
+        val seenUrls = HashSet<String>()
+        val maxProviderResults = batches.maxOfOrNull { it.candidates.size } ?: 0
+        for (candidateIndex in 0 until maxProviderResults) {
+            for (batch in batches) {
+                val candidate = batch.candidates.getOrNull(candidateIndex) ?: continue
+                if (seenUrls.add(candidate.downloadUrl)) ordered += candidate
+                if (ordered.size >= MAX_CANDIDATE_ATTEMPTS) break
             }
+            if (ordered.size >= MAX_CANDIDATE_ATTEMPTS) break
         }
         FlowerPhotoSearchResult(
-            candidates = unique.values.take(MAX_CANDIDATE_ATTEMPTS),
+            candidates = ordered,
             mediaFound = batches.sumOf { it.mediaFound },
             rejectedByLicense = batches.sumOf { it.rejectedByLicense },
             providersSucceeded = batches.size,
