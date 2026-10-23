@@ -276,7 +276,7 @@ internal object FlowerPixelArtProcessor {
         val centreX = (width - 1) / 2f
         val centreY = (height - 1) / 2f
         val centreRadius = min(width, height) * 0.42f
-        val maximumHaloDistance = max(6, min(width, height) / 6)
+        val maximumHaloDistance = max(6, min(width, height) / 5)
         val distance = IntArray(pixels.size) { -1 }
         val queue = IntArray(pixels.size)
         var read = 0
