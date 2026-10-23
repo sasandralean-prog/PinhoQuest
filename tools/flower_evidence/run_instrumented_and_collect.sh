@@ -22,7 +22,7 @@ count=$(find "$out" -maxdepth 1 -type f \( -name "camellia-original.jpg" -o -nam
 if [ "$count" -eq 4 ]; then
   python tools/flower_evidence/verify_images.py "$out" || evidence_exit=$?
 else
-  echo "Evidence validation deferred: only $count of 4 expected images were exported; keep the partial evidence for debugging."
+  echo "Evidence validation deferred: only $count of 4 expected images were exported; keep partial evidence for debugging."
 fi
 echo "Floral evidence output:"
 ls -lah "$out"
