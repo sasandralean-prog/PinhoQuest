@@ -6,19 +6,29 @@ test_exit=0
 out=app/build/outputs/flower-pixel-art-evidence
 mkdir -p "$out"
 evidence_exit=0
-external_dir="/sdcard/Android/data/com.pinhoquest/files/pinhoquest-flower-evidence"
-private_dir="/data/user/0/com.pinhoquest/cache/pinhoquest-flower-evidence"
-echo "Checking app-specific external evidence at $external_dir"
-adb shell ls -la "$external_dir" 2>&1 || true
+echo "Inspecting app-specific evidence roots"
+for package_id in com.pinhoquest com.pinhoquest.test; do
+  echo "--- package $package_id external files ---"
+  adb shell ls -la "/sdcard/Android/data/$package_id/files" 2>&1 || true
+done
 for name in camellia-original.jpg camellia-sprite.png camellia-original-vs-sprite.jpg camellia-garden-collection-screen.jpg; do
   pulled=0
-  if adb pull "$external_dir/$name" "$out/$name" >/dev/null 2>&1; then
-    pulled=1
-  elif adb shell run-as com.pinhoquest test -f "$private_dir/$name"; then
-    adb exec-out run-as com.pinhoquest cat "$private_dir/$name" > "$out/$name" && pulled=1
-  fi
+  for package_id in com.pinhoquest com.pinhoquest.test; do
+    external_file="/sdcard/Android/data/$package_id/files/pinhoquest-flower-evidence/$name"
+    if adb pull "$external_file" "$out/$name"; then
+      pulled=1
+      break
+    fi
+    private_file="/data/user/0/$package_id/cache/pinhoquest-flower-evidence/$name"
+    if adb shell run-as "$package_id" test -f "$private_file"; then
+      if adb exec-out run-as "$package_id" cat "$private_file" > "$out/$name"; then
+        pulled=1
+        break
+      fi
+    fi
+  done
   if [ "$pulled" -ne 1 ]; then
-    echo "Missing floral evidence: $name"
+    echo "Missing floral evidence after checking app and test packages: $name"
     evidence_exit=1
   fi
 done
