@@ -28,7 +28,8 @@ internal object FlowerPixelArtProcessor {
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
     private const val PIXEL_GRID_SIZE = 48
-    private const val GRID_CONTENT_SIZE = 39
+    // Dense crops need a smaller lower bound to keep the opaque area below half the canvas.
+    private const val GRID_CONTENT_SIZE = 32
     private const val MAX_GRID_CONTENT_SIZE = 41
     // Leave a little safety margin below 50% opaque canvas even for dense foreground crops.
     private const val MAX_OUTPUT_OPAQUE_RATIO = 0.48f
@@ -232,10 +233,20 @@ internal object FlowerPixelArtProcessor {
         val radius = min(width, height) * 0.42f
         if (dx * dx + dy * dy > radius * radius) return false
 
-        // Neutral light pixels are deliberately not a bloom seed: a near-white
-        // background often occupies the centre of a photo too. Pale/cream petals are
-        // restored afterward only when connected to a surviving chromatic bloom core.
-        return isStrongBloomSignal(pixel)
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        val darkest = minOf(red, green, blue)
+        val brightest = maxOf(red, green, blue)
+        val spread = brightest - darkest
+
+        val palePetal = isPalePetalCandidate(pixel)
+        val redPetal = red >= 130 && red > green + 35 && red > blue + 30
+        val warmPollen = red >= 130 && green >= 75 && red > green + 18 && green > blue + 12
+        val magentaOrPurplePetal =
+            red >= 95 && blue >= 95 && red > green + 12 && blue > green + 12
+        val bluePetal = blue >= 130 && blue > red + 18 && blue > green + 18
+        return palePetal || redPetal || warmPollen || magentaOrPurplePetal || bluePetal
     }
 
     private fun isPalePetalCandidate(pixel: Int): Boolean {
