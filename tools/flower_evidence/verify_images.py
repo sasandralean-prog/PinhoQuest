@@ -46,8 +46,13 @@ def inspect_jpeg(data: bytes) -> tuple[int, int]:
             height = int.from_bytes(data[pos+3:pos+5], "big")
             width = int.from_bytes(data[pos+5:pos+7], "big")
             if width <= 0 or height <= 0: raise ValueError("invalid JPEG dimensions")
-            return width, height
-        if marker == 0xDA: break
+            dimensions = (width, height)
+            pos += length
+            continue
+        if marker == 0xDA:
+            if "dimensions" not in locals(): raise ValueError("JPEG scan precedes frame header")
+            if pos + length >= len(data) - 2: raise ValueError("JPEG has no scan data")
+            return dimensions
         pos += length
     raise ValueError("JPEG has no valid frame header")
 
