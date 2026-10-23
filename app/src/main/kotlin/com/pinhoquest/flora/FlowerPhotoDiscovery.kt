@@ -114,7 +114,7 @@ internal object FlowerPhotoLicensePolicy {
         }
         return when {
             isShareAlike(rawLicense) && version.isNotBlank() -> "CC BY-SA " + version
-            compact.contains("ccby") && version.isNotBlank() -> "CC BY " + version
+            (compact.contains("ccby") || compact.contains("creativecommonsorglicensesby")) && version.isNotBlank() -> "CC BY " + version
             else -> rawLicense.trim()
         }
     }
