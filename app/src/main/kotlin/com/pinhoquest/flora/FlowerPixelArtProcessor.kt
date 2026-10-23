@@ -530,7 +530,6 @@ internal object FlowerPixelArtProcessor {
     ) {
         val visited = BooleanArray(pixels.size)
         val queue = IntArray(pixels.size)
-        val minimumComponentSize = max(18, pixels.size / 2000)
         for (start in pixels.indices) {
             if (removed[start] || visited[start] || Color.alpha(pixels[start]) < 16) continue
             var read = 0
@@ -555,19 +554,21 @@ internal object FlowerPixelArtProcessor {
                     }
                 }
             }
-            // Tiny detached neutral islands inside the broad centre circle are often
-            // textured background, not petals. Preserve a small component only when it
-            // contains a strong bloom colour or a pale-petal colour close to that core.
-            // The near-core mask is a geometric check only; it never restores pixels.
-            if (write < minimumComponentSize) {
-                val containsBloomDetail = (0 until write).any { componentIndex ->
-                    val index = queue[componentIndex]
-                    nearBloomCore[index] &&
-                        (isStrongBloomSignal(pixels[index]) || isPalePetalCandidate(pixels[index]))
-                }
-                if (!containsBloomDetail) {
-                    for (i in 0 until write) removed[queue[i]] = true
-                }
+            // A disconnected island must have spatial evidence of belonging to the
+            // bloom or nearby foliage. Previously, every component above a size threshold
+            // survived even when it was a distant brown/green backdrop fragment; that
+            // fragment enlarged the crop and shrank the real flower on the 48px canvas.
+            // This only removes unsupported components; it never restores background pixels.
+            val containsCentralBloomDetail = (0 until write).any { componentIndex ->
+                val index = queue[componentIndex]
+                isLikelyCentralBloomDetail(pixels[index], index, width, height)
+            }
+            val containsNearbyFoliage = (0 until write).any { componentIndex ->
+                val index = queue[componentIndex]
+                nearBloomCore[index] && isPlantGreen(pixels[index])
+            }
+            if (!containsCentralBloomDetail && !containsNearbyFoliage) {
+                for (i in 0 until write) removed[queue[i]] = true
             }
         }
     }
