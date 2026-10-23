@@ -6,14 +6,19 @@ test_exit=0
 out=app/build/outputs/flower-pixel-art-evidence
 mkdir -p "$out"
 evidence_exit=0
-evidence_dir="/data/user/0/com.pinhoquest/cache/pinhoquest-flower-evidence"
-echo "Checking flower evidence at $evidence_dir"
-adb shell run-as com.pinhoquest sh -c 'pwd; ls -ld /data/user/0/com.pinhoquest/cache /data/user/0/com.pinhoquest/cache/pinhoquest-flower-evidence 2>&1'
+external_dir="/sdcard/Android/data/com.pinhoquest/files/pinhoquest-flower-evidence"
+private_dir="/data/user/0/com.pinhoquest/cache/pinhoquest-flower-evidence"
+echo "Checking app-specific external evidence at $external_dir"
+adb shell ls -la "$external_dir" 2>&1 || true
 for name in camellia-original.jpg camellia-sprite.png camellia-original-vs-sprite.jpg camellia-garden-collection-screen.jpg; do
-  if adb shell run-as com.pinhoquest test -f "$evidence_dir/$name"; then
-    adb exec-out run-as com.pinhoquest cat "$evidence_dir/$name" > "$out/$name" || { echo "Failed to pull $name from app cache"; evidence_exit=1; }
-  else
-    echo "Missing app-cache evidence: $name"
+  pulled=0
+  if adb pull "$external_dir/$name" "$out/$name" >/dev/null 2>&1; then
+    pulled=1
+  elif adb shell run-as com.pinhoquest test -f "$private_dir/$name"; then
+    adb exec-out run-as com.pinhoquest cat "$private_dir/$name" > "$out/$name" && pulled=1
+  fi
+  if [ "$pulled" -ne 1 ]; then
+    echo "Missing floral evidence: $name"
     evidence_exit=1
   fi
 done
