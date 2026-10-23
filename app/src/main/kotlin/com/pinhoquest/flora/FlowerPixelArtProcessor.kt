@@ -13,7 +13,7 @@ import kotlin.math.min
 /**
  * Deterministic photo-to-pixel-art conversion.
  *
- * V6 combines a corner-seeded background model with a protected central bloom signal
+ * V7 combines a corner-seeded background model with a protected central bloom signal
  * and a small halo of green foliage around the surviving flower. This keeps pale petals
  * from being flood-filled into a leafy background while avoiding preservation of the
  * entire frame. It cleans disconnected noise, renders onto a 48px grid and shades edges.
@@ -22,7 +22,7 @@ import kotlin.math.min
 internal object FlowerPixelArtProcessor {
     private data class ColourWeight(val colour: Int, val count: Int)
 
-    const val PIPELINE_VERSION = "flower-pixel-v6"
+    const val PIPELINE_VERSION = "flower-pixel-v7"
 
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
@@ -166,6 +166,9 @@ internal object FlowerPixelArtProcessor {
         // exactly the same colours as the garden behind them. Colour flood-fill alone
         // removes both. Restore only green plant pixels within a bounded halo of the
         // surviving flower silhouette; distant foliage/background stays transparent.
+        // Pale/cream petals can be similar to the corner palette; restore only a
+        // bounded region connected to a chromatically distinctive flower core.
+        restoreNearbyPalePetals(pixels, removed, width, height, backgroundPalette)
         restoreNearbyGreenFoliage(pixels, removed, width, height)
 
         val removedCount = removed.count { it }
@@ -238,6 +241,98 @@ internal object FlowerPixelArtProcessor {
             red >= 95 && blue >= 95 && red > green + 12 && blue > green + 12
         val bluePetal = blue >= 130 && blue > red + 18 && blue > green + 18
         return palePetal || redPetal || warmPollen || magentaOrPurplePetal || bluePetal
+    }
+
+    private fun isPalePetalCandidate(pixel: Int): Boolean {
+        if (Color.alpha(pixel) < 16) return false
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        val darkest = minOf(red, green, blue)
+        val spread = maxOf(red, green, blue) - darkest
+        return darkest >= 150 && spread <= 100
+    }
+
+    private fun isStrongBloomSignal(pixel: Int): Boolean {
+        if (Color.alpha(pixel) < 16) return false
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        val redPetal = red >= 130 && red > green + 35 && red > blue + 30
+        val warmPollen = red >= 130 && green >= 75 && red > green + 18 && green > blue + 12
+        val magentaOrPurplePetal =
+            red >= 95 && blue >= 95 && red > green + 12 && blue > green + 12
+        val bluePetal = blue >= 130 && blue > red + 18 && blue > green + 18
+        return redPetal || warmPollen || magentaOrPurplePetal || bluePetal
+    }
+
+    private fun restoreNearbyPalePetals(
+        pixels: IntArray,
+        removed: BooleanArray,
+        width: Int,
+        height: Int,
+        backgroundPalette: List<Int>,
+    ) {
+        val centreX = (width - 1) / 2f
+        val centreY = (height - 1) / 2f
+        val centreRadius = min(width, height) * 0.42f
+        val maximumHaloDistance = max(6, min(width, height) / 6)
+        val distance = IntArray(pixels.size) { -1 }
+        val queue = IntArray(pixels.size)
+        var read = 0
+        var write = 0
+
+        fun insideBloomRegion(index: Int): Boolean {
+            val dx = index % width - centreX
+            val dy = index / width - centreY
+            return dx * dx + dy * dy <= centreRadius * centreRadius
+        }
+
+        // Only surviving, chromatically distinct flower pixels can seed restoration.
+        // A neutral backdrop is never allowed to seed its own connected component.
+        for (index in pixels.indices) {
+            if (!removed[index] && insideBloomRegion(index) && isStrongBloomSignal(pixels[index])) {
+                distance[index] = 0
+                queue[write++] = index
+            }
+        }
+        if (write == 0) return
+
+        while (read < write) {
+            val index = queue[read++]
+            val nextDistance = distance[index] + 1
+            if (nextDistance > maximumHaloDistance) continue
+            val x = index % width
+            val y = index / width
+            for (dy in -1..1) {
+                for (dx in -1..1) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = x + dx
+                    val ny = y + dy
+                    if (nx !in 0 until width || ny !in 0 until height) continue
+                    val next = ny * width + nx
+                    if (distance[next] >= 0 || !insideBloomRegion(next)) continue
+
+                    if (removed[next]) {
+                        if (!isPalePetalCandidate(pixels[next])) continue
+                        if (minimumPaletteDistance(pixels[next], backgroundPalette) >
+                            BACKGROUND_DRIFT_DISTANCE_SQUARED
+                        ) continue
+                        removed[next] = false
+                        distance[next] = nextDistance
+                        queue[write++] = next
+                    } else if (
+                        Color.alpha(pixels[next]) >= 16 &&
+                        (isPalePetalCandidate(pixels[next]) || isStrongBloomSignal(pixels[next]))
+                    ) {
+                        // Walk across retained petal pixels, but never across green foliage
+                        // or arbitrary coloured pixels outside the bloom.
+                        distance[next] = nextDistance
+                        queue[write++] = next
+                    }
+                }
+            }
+        }
     }
 
     private fun restoreNearbyGreenFoliage(
