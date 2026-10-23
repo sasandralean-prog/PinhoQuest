@@ -14,7 +14,7 @@ import kotlin.math.sqrt
 /**
  * Deterministic photo-to-pixel-art conversion.
  *
- * V7 combines a corner-seeded background model with a protected central bloom signal
+ * V8 combines a corner-seeded background model with a protected central bloom signal
  * and a small halo of green foliage around the surviving flower. This keeps pale petals
  * from being flood-filled into a leafy background while avoiding preservation of the
  * entire frame. It cleans disconnected noise, renders onto a 48px grid and shades edges.
@@ -23,7 +23,7 @@ import kotlin.math.sqrt
 internal object FlowerPixelArtProcessor {
     private data class ColourWeight(val colour: Int, val count: Int)
 
-    const val PIPELINE_VERSION = "flower-pixel-v7"
+    const val PIPELINE_VERSION = "flower-pixel-v8"
 
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
