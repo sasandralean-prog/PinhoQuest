@@ -26,6 +26,8 @@ private data class FlowerArtworkCredit(
     val creator: String,
     val provider: String,
     val licenseName: String,
+    val licenseUrl: String,
+    val shareAlike: Boolean,
     val sourcePageUrl: String,
     val sourceSha256: String,
     val spriteSha256: String,
@@ -64,6 +66,8 @@ fun FlowerArtworkAttribution(
                     licenseName = copyright.optString("licenseName").ifBlank {
                         "Licença não identificada"
                     },
+                    licenseUrl = copyright.optString("licenseUrl"),
+                    shareAlike = copyright.optBoolean("shareAlike", false),
                     sourcePageUrl = original.optString("sourcePageUrl")
                         .ifBlank { copyright.optString("sourcePageUrl") },
                     sourceSha256 = original.optString("sha256"),
@@ -82,6 +86,14 @@ fun FlowerArtworkAttribution(
         Text("Crédito: " + sourceCredit.creator, fontSize = 12.sp)
         Text("Fonte: " + sourceCredit.provider, fontSize = 12.sp)
         Text("Licença declarada: " + sourceCredit.licenseName, fontSize = 12.sp)
+        if (sourceCredit.shareAlike) {
+            Text("O sprite derivado deve preservar os termos ShareAlike ao ser redistribuído.", fontSize = 11.sp)
+        }
+        if (sourceCredit.licenseUrl.startsWith("https://")) {
+            TextButton(
+                onClick = { runCatching { uriHandler.openUri(sourceCredit.licenseUrl) } },
+            ) { Text("Ler termos completos da licença") }
+        }
         if (sourceCredit.sourceSha256.isNotBlank()) {
             Text("SHA-256 da foto: " + sourceCredit.sourceSha256.take(16) + "…", fontSize = 10.sp)
         }
