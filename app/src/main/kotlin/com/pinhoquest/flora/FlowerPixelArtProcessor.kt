@@ -276,7 +276,7 @@ internal object FlowerPixelArtProcessor {
         val centreX = (width - 1) / 2f
         val centreY = (height - 1) / 2f
         val centreRadius = min(width, height) * 0.42f
-        val maximumHaloDistance = max(6, min(width, height) / 5)
+        val maximumHaloDistance = max(6, min(width, height) / 4)
         val distance = IntArray(pixels.size) { -1 }
         val queue = IntArray(pixels.size)
         var read = 0
@@ -681,7 +681,13 @@ internal object FlowerPixelArtProcessor {
                 }
                 val topLeftLight = transparent(x, y - 1) || transparent(x - 1, y)
                 val bottomRightShadow = transparent(x, y + 1) || transparent(x + 1, y)
+                // Resolve overlapping light/shadow edge signals by a consistent
+                // top-left-to-bottom-right diagonal. Tiny pixel-art shapes often have
+                // both signals at once; making that case neutral erases all shading.
+                val diagonalProjection = x + y
                 val factor = when {
+                    topLeftLight && diagonalProjection < PIXEL_GRID_SIZE -> 1.10f
+                    bottomRightShadow && diagonalProjection >= PIXEL_GRID_SIZE -> 0.88f
                     topLeftLight && !bottomRightShadow -> 1.10f
                     bottomRightShadow && !topLeftLight -> 0.88f
                     else -> 1.0f
