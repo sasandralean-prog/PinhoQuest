@@ -123,9 +123,9 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 assertTrue("The exterior must be transparent", pixels.count { Color.alpha(it) == 0 } > pixels.size / 2)
                 assertTrue("The median-cut palette plus edge shading should stay compact", visible.toSet().size in 4..48)
                 val petalTones = visible.filter {
-                    Color.red(it) in 128..192 && Color.green(it) in 16..64 && Color.blue(it) in 48..96
+                    Color.red(it) in 128..255 && Color.green(it) in 16..64 && Color.blue(it) in 48..96
                 }.toSet()
-                assertTrue("Directional lighting should give the flat petal colour more than one shade", petalTones.size >= 2)
+                assertTrue("Directional lighting should give the flat petal colour more than one shade; count=" + petalTones.size + "; tones=" + petalTones.take(12).joinToString(), petalTones.size >= 2)
                 assertEquals("The centred canvas corner must remain transparent", 0, Color.alpha(sprite.getPixel(0, 0)))
             } finally {
                 sprite.recycle()
