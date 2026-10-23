@@ -178,7 +178,8 @@ internal object FlowerPixelArtProcessor {
 
         // Delete small foreground islands (camera noise / texture fragments),
         // including border-touching speckles, while preserving larger connected foliage.
-        removeSmallForegroundComponents(pixels, removed, width, height)
+        val nearBloomCore = buildNearBloomCoreMask(pixels, removed, width, height)
+        removeSmallForegroundComponents(pixels, removed, width, height, nearBloomCore)
 
         var left = width
         var top = height
@@ -455,11 +456,66 @@ internal object FlowerPixelArtProcessor {
         return palette.distinct()
     }
 
+    /**
+     * Marks a small geometric halo around retained, chromatically distinct bloom pixels.
+     * This is used only to judge tiny detached components; it does not restore any
+     * background pixels. Detached neutral speckles far from the bloom must not enlarge
+     * the crop and make the actual flower appear smaller in the fixed output canvas.
+     */
+    private fun buildNearBloomCoreMask(
+        pixels: IntArray,
+        removed: BooleanArray,
+        width: Int,
+        height: Int,
+    ): BooleanArray {
+        val nearBloomCore = BooleanArray(pixels.size)
+        val distance = IntArray(pixels.size) { -1 }
+        val queue = IntArray(pixels.size)
+        val centreX = (width - 1) / 2f
+        val centreY = (height - 1) / 2f
+        val centreRadius = min(width, height) * 0.42f
+        val maximumDistance = max(5, min(width, height) / 10)
+        var read = 0
+        var write = 0
+
+        for (index in pixels.indices) {
+            if (removed[index] || !isStrongBloomSignal(pixels[index])) continue
+            val dx = index % width - centreX
+            val dy = index / width - centreY
+            if (dx * dx + dy * dy > centreRadius * centreRadius) continue
+            distance[index] = 0
+            nearBloomCore[index] = true
+            queue[write++] = index
+        }
+
+        while (read < write) {
+            val index = queue[read++]
+            val nextDistance = distance[index] + 1
+            if (nextDistance > maximumDistance) continue
+            val x = index % width
+            val y = index / width
+            for (dy in -1..1) {
+                for (dx in -1..1) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = x + dx
+                    val ny = y + dy
+                    if (nx !in 0 until width || ny !in 0 until height) continue
+                    val next = ny * width + nx
+                    if (distance[next] >= 0) continue
+                    distance[next] = nextDistance
+                    nearBloomCore[next] = true
+                    queue[write++] = next
+                }
+            }
+        }
+        return nearBloomCore
+    }
     private fun removeSmallForegroundComponents(
         pixels: IntArray,
         removed: BooleanArray,
         width: Int,
         height: Int,
+        nearBloomCore: BooleanArray,
     ) {
         val visited = BooleanArray(pixels.size)
         val queue = IntArray(pixels.size)
@@ -488,15 +544,19 @@ internal object FlowerPixelArtProcessor {
                     }
                 }
             }
-            // Preserve even a small detached component when its colours/location are
-            // consistent with actual bloom detail. Otherwise tiny petal fragments can be
-            // removed before the 48px downscale has a chance to reconstruct the silhouette.
-            val containsBloomDetail = (0 until write).any { componentIndex ->
-                val index = queue[componentIndex]
-                isLikelyCentralBloomDetail(pixels[index], index, width, height)
-            }
-            if (write < minimumComponentSize && !containsBloomDetail) {
-                for (i in 0 until write) removed[queue[i]] = true
+            // Tiny detached neutral islands inside the broad centre circle are often
+            // textured background, not petals. Preserve a small component only when it
+            // contains a strong bloom colour or a pale-petal colour close to that core.
+            // The near-core mask is a geometric check only; it never restores pixels.
+            if (write < minimumComponentSize) {
+                val containsBloomDetail = (0 until write).any { componentIndex ->
+                    val index = queue[componentIndex]
+                    nearBloomCore[index] &&
+                        (isStrongBloomSignal(pixels[index]) || isPalePetalCandidate(pixels[index]))
+                }
+                if (!containsBloomDetail) {
+                    for (i in 0 until write) removed[queue[i]] = true
+                }
             }
         }
     }
