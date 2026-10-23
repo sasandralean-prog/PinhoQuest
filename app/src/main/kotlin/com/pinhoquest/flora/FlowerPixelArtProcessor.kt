@@ -14,7 +14,7 @@ import kotlin.math.sqrt
 /**
  * Deterministic photo-to-pixel-art conversion.
  *
- * V8 combines a corner-seeded background model with a protected central bloom signal
+ * V9 combines a corner-seeded background model with a protected central bloom signal
  * and a small halo of green foliage around the surviving flower. This keeps pale petals
  * from being flood-filled into a leafy background while avoiding preservation of the
  * entire frame. It cleans disconnected noise, renders onto a 48px grid and shades edges.
@@ -23,7 +23,7 @@ import kotlin.math.sqrt
 internal object FlowerPixelArtProcessor {
     private data class ColourWeight(val colour: Int, val count: Int)
 
-    const val PIPELINE_VERSION = "flower-pixel-v8"
+    const val PIPELINE_VERSION = "flower-pixel-v9"
 
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
@@ -239,7 +239,7 @@ internal object FlowerPixelArtProcessor {
         val brightest = maxOf(red, green, blue)
         val spread = brightest - darkest
 
-        val palePetal = darkest >= 150 && spread <= 100
+        val palePetal = isPalePetalCandidate(pixel)
         val redPetal = red >= 130 && red > green + 35 && red > blue + 30
         val warmPollen = red >= 130 && green >= 75 && red > green + 18 && green > blue + 12
         val magentaOrPurplePetal =
@@ -254,8 +254,15 @@ internal object FlowerPixelArtProcessor {
         val green = Color.green(pixel)
         val blue = Color.blue(pixel)
         val darkest = minOf(red, green, blue)
-        val spread = maxOf(red, green, blue) - darkest
-        return darkest >= 150 && spread <= 100
+        val brightest = maxOf(red, green, blue)
+        val spread = brightest - darkest
+        val average = (red + green + blue) / 3
+        // Cream petals often have beige/grey shadows below pure-white thresholds.
+        // Keep this broad neutral class bounded by the same bloom-region and learned
+        // background-distance gates; it is not a global white-pixel preservation rule.
+        val brightPetal = darkest >= 150 && spread <= 100
+        val creamShadow = darkest >= 112 && average >= 158 && spread <= 108
+        return brightPetal || creamShadow
     }
 
     private fun isStrongBloomSignal(pixel: Int): Boolean {
