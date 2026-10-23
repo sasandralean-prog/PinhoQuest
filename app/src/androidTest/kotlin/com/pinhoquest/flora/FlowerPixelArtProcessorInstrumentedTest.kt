@@ -208,12 +208,13 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
         // Keep visual evidence in the target app cache. The CI runner pulls these
         // files with run-as after instrumentation exits, even if an assertion fails.
-        val evidenceDirectory = File(context.cacheDir, "pinhoquest-flower-evidence").apply {
+        val evidenceContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val evidenceDirectory = File(evidenceContext.cacheDir, "pinhoquest-flower-evidence").apply {
             deleteRecursively()
             mkdirs()
         }
         System.out.println(
-            "PQFLOWER_EVIDENCE_LOCATION|" + context.packageName + "|" + evidenceDirectory.absolutePath,
+            "PQFLOWER_EVIDENCE_LOCATION|" + evidenceContext.packageName + "|" + evidenceDirectory.absolutePath,
         )
         var generatedWidth = -1
         var generatedHeight = -1
