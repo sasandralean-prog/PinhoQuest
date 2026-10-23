@@ -11,7 +11,8 @@ internal object WikimediaFlowerPhotoProvider {
     fun search(scientificName: String): PhotoProviderBatch {
         val normalized = FlowerSpriteIdentity.normalizeScientificName(scientificName)
         if (normalized.isBlank()) return PhotoProviderBatch(emptyList(), 0, 0)
-        val genus = normalized.substringBefore(' ')
+        val taxonTokens = normalizeForMatch(normalized).split(' ').filter(String::isNotBlank)
+        val requiredTaxonTokens = taxonTokens.take(2)
         val queries = listOf("\"" + normalized + "\"", normalized)
         val candidates = ArrayList<Pair<Int, FlowerPhotoCandidate>>()
         val seenTitles = HashSet<String>()
@@ -45,10 +46,14 @@ internal object WikimediaFlowerPhotoProvider {
                 val description = plain(metadata.value("ImageDescription"))
                 val searchable = normalizeForMatch(title + " " + description)
 
-                // Search itself is taxon-specific, but still require the genus or the
-                // binomial to appear in file metadata. This avoids unrelated hits from
-                // broad-token queries while not requiring the full binomial literally.
-                if (!searchable.contains(normalizeForMatch(genus))) continue
+                // Broad search improves recall, but require both genus and species
+                // epithet as metadata tokens to avoid silently assigning a sibling species.
+                // Punctuation and word order are normalized, so the full phrase need not
+                // be contiguous or identically punctuated in the source description.
+                val searchableTokens = searchable.split(' ').toSet()
+                if (requiredTaxonTokens.size < 2 ||
+                    !requiredTaxonTokens.all(searchableTokens::contains)
+                ) continue
                 mediaFound++
 
                 val rawLicenseName = plain(metadata.value("LicenseShortName"))
