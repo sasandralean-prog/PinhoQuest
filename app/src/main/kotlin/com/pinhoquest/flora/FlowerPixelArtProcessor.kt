@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 
 /**
  * Deterministic photo-to-pixel-art conversion.
@@ -28,6 +29,9 @@ internal object FlowerPixelArtProcessor {
     private const val SPRITE_SIZE = 96
     private const val PIXEL_GRID_SIZE = 48
     private const val GRID_CONTENT_SIZE = 39
+    private const val MAX_GRID_CONTENT_SIZE = 41
+    // Leave a little safety margin below 50% opaque canvas even for dense foreground crops.
+    private const val MAX_OUTPUT_OPAQUE_RATIO = 0.48f
     private const val PALETTE_SIZE = 16
     private const val BORDER_PALETTE_SIZE = 48
     private const val BACKGROUND_DISTANCE_SQUARED = 54 * 54
@@ -576,9 +580,21 @@ internal object FlowerPixelArtProcessor {
         palette.minOfOrNull { colourDistance(pixel, it) } ?: Int.MAX_VALUE
 
     private fun composePixelArt(crop: Bitmap): Bitmap? {
+        // Scale sparse silhouettes up while keeping denser foreground crops safely below
+        // the 50% opaque-canvas threshold. This is geometry-driven for every species,
+        // rather than a special case for any named flower or source photo.
+        val cropPixels = IntArray(crop.width * crop.height)
+        crop.getPixels(cropPixels, 0, crop.width, 0, 0, crop.width, crop.height)
+        val foregroundRatio = cropPixels.count { Color.alpha(it) >= 16 }.toFloat() / cropPixels.size
+        val contentSize = if (foregroundRatio > 0f) {
+            (PIXEL_GRID_SIZE * sqrt(MAX_OUTPUT_OPAQUE_RATIO / foregroundRatio)).toInt()
+                .coerceIn(GRID_CONTENT_SIZE, MAX_GRID_CONTENT_SIZE)
+        } else {
+            GRID_CONTENT_SIZE
+        }
         val scale = min(
-            GRID_CONTENT_SIZE.toFloat() / crop.width.toFloat(),
-            GRID_CONTENT_SIZE.toFloat() / crop.height.toFloat(),
+            contentSize.toFloat() / crop.width.toFloat(),
+            contentSize.toFloat() / crop.height.toFloat(),
         )
         val targetWidth = max(1, (crop.width * scale).toInt())
         val targetHeight = max(1, (crop.height * scale).toInt())
