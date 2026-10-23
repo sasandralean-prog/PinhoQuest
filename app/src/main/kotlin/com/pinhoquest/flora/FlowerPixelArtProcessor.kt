@@ -232,20 +232,10 @@ internal object FlowerPixelArtProcessor {
         val radius = min(width, height) * 0.42f
         if (dx * dx + dy * dy > radius * radius) return false
 
-        val red = Color.red(pixel)
-        val green = Color.green(pixel)
-        val blue = Color.blue(pixel)
-        val darkest = minOf(red, green, blue)
-        val brightest = maxOf(red, green, blue)
-        val spread = brightest - darkest
-
-        val palePetal = isPalePetalCandidate(pixel)
-        val redPetal = red >= 130 && red > green + 35 && red > blue + 30
-        val warmPollen = red >= 130 && green >= 75 && red > green + 18 && green > blue + 12
-        val magentaOrPurplePetal =
-            red >= 95 && blue >= 95 && red > green + 12 && blue > green + 12
-        val bluePetal = blue >= 130 && blue > red + 18 && blue > green + 18
-        return palePetal || redPetal || warmPollen || magentaOrPurplePetal || bluePetal
+        // Neutral light pixels are deliberately not a bloom seed: a near-white
+        // background often occupies the centre of a photo too. Pale/cream petals are
+        // restored afterward only when connected to a surviving chromatic bloom core.
+        return isStrongBloomSignal(pixel)
     }
 
     private fun isPalePetalCandidate(pixel: Int): Boolean {
