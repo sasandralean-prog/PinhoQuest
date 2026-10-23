@@ -372,7 +372,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
             assertEquals("The generated sprite width", 96, generatedWidth)
             assertEquals("The generated sprite height", 96, generatedHeight)
             assertTrue(
-                "The sprite should preserve a substantial flower silhouette; visible pixels=$visiblePixelCount",
+                "The sprite should preserve a substantial flower silhouette; visible=$visiblePixelCount, pale=$palePetalPixels, largest=$largestOpaqueComponent, green=$greenPlantPixels, warmCentre=$warmCentrePixels",
                 visiblePixelCount > 900,
             )
             assertTrue(
