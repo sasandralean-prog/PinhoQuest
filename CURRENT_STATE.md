@@ -1926,8 +1926,40 @@ The tracks were generated and provided by the owner using Suno Pro. This record 
 ### Gate status
 
 - v4: **rejected**, based on the API 28 leaf-retention assertion failure.
-- v5 local compile/build/test/lint: **PASS** for `:app:compileDebugAndroidTestKotlin`, `:app:testDebugUnitTest`, `:app:lintDebug` and `:app:assembleDebug` on the amended working tree; API 28 runtime validation is still pending.
+- v5 compiled and its weak numeric assertions passed, but direct inspection of the recovered `camellia-sprite.png` from CI run #525 (`a39c852`) rejected the visual result: only 468 visible pixels, 112 pale pixels, 15 opaque components, and largest component 128 pixels. The previous thresholds were too permissive and must not be used as acceptance criteria.
 - The logcat decoder's local unit tests: **PASS 2/2** (numbered chunks reconstruct correctly; missing chunks/bad checksums are rejected). The amended Android compile/build/tests/lint also pass locally after removing the debug storage permission.
-- v5 device/visual gate: pending a new API 28 run of the logcat export route and direct inspection of the checksum-verified `pinhoquest-flower-visual-evidence` artifact.
+- v5 device/visual gate: **REJECTED** after direct inspection of the recovered sprite. The first logcat evidence attempt also lost chunks from the emulator's 2 MB buffer; v6 switches the comparison and collection screenshot to JPEG to reduce log volume.
 - The new foliage halo is a bounded heuristic, not semantic segmentation. Accept only if the collected-flower screenshot shows recognisable foliage without retaining an obvious patch of garden background.
 - The exact-phrase Commons search for `Didymocarpus phuquocensis` found no candidate on 2026-10-22; further taxonomy/synonym/provider search remains a separate source-coverage task.
+
+
+## 47. Flower pixel-art engine v6 - protect central bloom and reject fragmented cutouts (2026-10-23)
+
+**Branch:** `feature/p6-garden-delight`
+**Processor version:** `flower-pixel-v6`
+**Design record:** `docs/design/flower-pixel-art-pipeline-v6.md`
+
+### Why v6 is necessary
+
+- CI run #525 (`a39c852`) failed its evidence-decoding step because the emulator logcat buffer dropped chunks, but its recovered `camellia-sprite.png` was still a valid image and could be inspected directly.
+- The v5 sprite was visually unacceptable: only 468 visible pixels in its 96 × 96 canvas, 112 pale pixels, 15 disconnected opaque components and a largest component of 128 pixels. That is a fragmented residue, not a flower, despite the earlier weak thresholds passing.
+- The v5 quality checks are replaced with stronger criteria for silhouette area, pale petals, largest connected component, nearby green foliage, warm centre and transparent canvas. The checks still run after emitting the screenshots so a quality failure remains diagnostically useful.
+
+### v6 changes
+
+- The background flood-fill now protects central bloom-colour pixels even when their colours overlap the learned palette; the smooth colour-drift limits are tighter than in v5.
+- Nearby-green recovery seeds only from retained central bloom detail, not from every arbitrary surviving pixel. This prevents background speckles from expanding the foliage mask into a wide patch of garden.
+- Small source-resolution components that match plausible central bloom detail are protected from speckle cleanup.
+- Pipeline/cache ID changed to `flower-pixel-v6`, invalidating v5 output and negative cache entries.
+- Comparison and Garden-collection screenshots now use JPEG to reduce Base64/logcat volume; the alpha-bearing sprite remains PNG.
+- The logcat decoder's expected filenames and checksum tests were updated for the JPEG evidence files. All four outputs still require complete chunks, exact length, valid image signature and matching SHA-256.
+
+### Validation so far
+
+- **Local Android build/test/lint: PASS** for `:app:compileDebugAndroidTestKotlin`, `:app:testDebugUnitTest`, `:app:lintDebug` and `:app:assembleDebug` after the v6 processor and stronger test assertions were added.
+- **Still pending:** Python decoder tests after the JPEG filename update, plus a new API 28 CI run and direct visual inspection of all four reconstructed evidence files.
+- Do not mark v6 accepted merely because it compiles or the test passes numerically: inspect the actual comparison and Garden screenshot before closing the gate.
+
+### Separate placeholder investigation
+
+The unresolved `Didymocarpus phuquocensis` entry is shown in the same Garden screenshot so source-discovery failure stays distinct from segmentation quality. The existing exact-phrase Wikimedia Commons provider search returned no candidate; further synonym/article-source coverage is still a separate follow-up, and unrelated species must not be substituted.

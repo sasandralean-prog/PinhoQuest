@@ -1,4 +1,6 @@
-# Flower Pixel-Art Pipeline v5
+# Flower Pixel-Art Pipeline v5 (historical; rejected after visual inspection)
+
+> Disposition: v5 is not accepted. CI run #525 recovered a valid 96 × 96 sprite, but direct inspection showed fragmented white/orange pixels on a mostly transparent canvas. The old visible-pixel and foliage thresholds were too weak. See `docs/design/flower-pixel-art-pipeline-v6.md` for the current corrective iteration.
 
 **Date:** 2026-10-22
 **Branch:** `feature/p6-garden-delight`

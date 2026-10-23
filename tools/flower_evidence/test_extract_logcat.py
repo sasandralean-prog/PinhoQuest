@@ -20,8 +20,8 @@ class ExtractLogcatTest(unittest.TestCase):
         image_bytes = {
             "camellia-original.jpg": b"\xff\xd8\xffsynthetic-jpeg-fixture",
             "camellia-sprite.png": b"\x89PNG\r\n\x1a\nsynthetic-sprite-fixture",
-            "camellia-original-vs-sprite.png": b"\x89PNG\r\n\x1a\ncomparison-fixture",
-            "camellia-garden-collection-screen.png": b"\x89PNG\r\n\x1a\nscreenshot-fixture",
+            "camellia-original-vs-sprite.jpg": b"\xff\xd8\xffcomparison-fixture",
+            "camellia-garden-collection-screen.jpg": b"\xff\xd8\xffscreenshot-fixture",
         }
         lines: list[str] = []
         for name, data in image_bytes.items():

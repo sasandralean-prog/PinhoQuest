@@ -215,6 +215,9 @@ class FlowerPixelArtProcessorInstrumentedTest {
         var generatedHeight = -1
         var visiblePixelCount = 0
         var greenPlantPixels = 0
+        var palePetalPixels = 0
+        var warmCentrePixels = 0
+        var largestOpaqueComponent = 0
         var hasTransparentCanvas = false
 
         try {
@@ -255,13 +258,25 @@ class FlowerPixelArtProcessorInstrumentedTest {
                         Color.green(it) > Color.blue(it) + 4 &&
                         Color.green(it) > 45
                 }
+                palePetalPixels = visible.count {
+                    minOf(Color.red(it), Color.green(it), Color.blue(it)) >= 150 &&
+                        (maxOf(Color.red(it), Color.green(it), Color.blue(it)) -
+                            minOf(Color.red(it), Color.green(it), Color.blue(it))) <= 100
+                }
+                warmCentrePixels = visible.count {
+                    Color.red(it) >= 130 &&
+                        Color.green(it) >= 75 &&
+                        Color.red(it) > Color.green(it) + 18 &&
+                        Color.green(it) > Color.blue(it) + 12
+                }
+                largestOpaqueComponent = largestOpaqueComponent(outputPixels, sprite.width, sprite.height)
                 hasTransparentCanvas = outputPixels.any { Color.alpha(it) == 0 }
 
                 // Save diagnostic evidence before assertions, so a failed foliage test still
                 // publishes the exact source, processor output and side-by-side comparison.
-                val comparisonEvidence = File(evidenceDirectory, "camellia-original-vs-sprite.png")
+                val comparisonEvidence = File(evidenceDirectory, "camellia-original-vs-sprite.jpg")
                 writeFlowerComparisonEvidence(original, sprite, comparisonEvidence)
-                emitFlowerEvidenceFile(comparisonEvidence, "camellia-original-vs-sprite.png")
+                emitFlowerEvidenceFile(comparisonEvidence, "camellia-original-vs-sprite.jpg")
             } finally {
                 original.recycle()
                 sprite.recycle()
@@ -344,15 +359,15 @@ class FlowerPixelArtProcessorInstrumentedTest {
             composeRule.onNodeWithText("🌷").assertIsDisplayed()
             val screenshot = composeRule.onRoot().captureToImage().asAndroidBitmap()
             try {
-                File(evidenceDirectory, "camellia-garden-collection-screen.png").outputStream().use { out ->
+                File(evidenceDirectory, "camellia-garden-collection-screen.jpg").outputStream().use { out ->
                     assertTrue(
                         "The collection screenshot should be written",
-                        screenshot.compress(Bitmap.CompressFormat.PNG, 100, out),
+                        screenshot.compress(Bitmap.CompressFormat.JPEG, 86, out),
                     )
                 }
                 emitFlowerEvidenceFile(
-                    File(evidenceDirectory, "camellia-garden-collection-screen.png"),
-                    "camellia-garden-collection-screen.png",
+                    File(evidenceDirectory, "camellia-garden-collection-screen.jpg"),
+                    "camellia-garden-collection-screen.jpg",
                 )
             } finally {
                 screenshot.recycle()
@@ -363,12 +378,28 @@ class FlowerPixelArtProcessorInstrumentedTest {
             assertEquals("The generated sprite width", 96, generatedWidth)
             assertEquals("The generated sprite height", 96, generatedHeight)
             assertTrue(
-                "The sprite should preserve the white flower rather than collapse to a placeholder",
-                visiblePixelCount > 180,
+                "The sprite should preserve a substantial flower silhouette; visible pixels=$visiblePixelCount",
+                visiblePixelCount > 900,
             )
             assertTrue(
-                "The sprite should retain green leaf/stem detail from the real source; green pixels=$greenPlantPixels",
-                greenPlantPixels >= 8,
+                "The output should retain recognisable pale petals; pale pixels=$palePetalPixels",
+                palePetalPixels > 220,
+            )
+            assertTrue(
+                "The flower must form a meaningful connected silhouette; largest component=$largestOpaqueComponent",
+                largestOpaqueComponent > 400,
+            )
+            assertTrue(
+                "The sprite should retain nearby green leaf/stem detail; green pixels=$greenPlantPixels",
+                greenPlantPixels >= 40,
+            )
+            assertTrue(
+                "Green should remain part of a flower sprite, not overwhelm the bloom; visible=$visiblePixelCount green=$greenPlantPixels",
+                greenPlantPixels.toFloat() < visiblePixelCount * 0.70f,
+            )
+            assertTrue(
+                "The yellow/orange flower centre should survive; warm pixels=$warmCentrePixels",
+                warmCentrePixels >= 80,
             )
             assertTrue("The generated pixel art must retain a transparent canvas", hasTransparentCanvas)
         } finally {
@@ -377,6 +408,39 @@ class FlowerPixelArtProcessorInstrumentedTest {
             flowerDirectory.deleteRecursively()
             unresolvedFlowerDirectory.deleteRecursively()
         }
+    }
+
+    private fun largestOpaqueComponent(pixels: IntArray, width: Int, height: Int): Int {
+        val visited = BooleanArray(pixels.size)
+        val queue = IntArray(pixels.size)
+        var largest = 0
+        for (start in pixels.indices) {
+            if (visited[start] || Color.alpha(pixels[start]) < 16) continue
+            var read = 0
+            var write = 0
+            visited[start] = true
+            queue[write++] = start
+            while (read < write) {
+                val index = queue[read++]
+                val x = index % width
+                val y = index / width
+                for (dy in -1..1) {
+                    for (dx in -1..1) {
+                        if (dx == 0 && dy == 0) continue
+                        val nx = x + dx
+                        val ny = y + dy
+                        if (nx !in 0 until width || ny !in 0 until height) continue
+                        val next = ny * width + nx
+                        if (!visited[next] && Color.alpha(pixels[next]) >= 16) {
+                            visited[next] = true
+                            queue[write++] = next
+                        }
+                    }
+                }
+            }
+            largest = maxOf(largest, write)
+        }
+        return largest
     }
 
     private fun emitFlowerEvidenceFile(file: File, evidenceName: String) {
@@ -454,7 +518,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
             canvas.drawBitmap(sprite, null, spriteRect, Paint().apply { isFilterBitmap = false })
             output.parentFile?.mkdirs()
             FileOutputStream(output).use { stream ->
-                assertTrue("The visual comparison image should be encoded", comparison.compress(Bitmap.CompressFormat.PNG, 100, stream))
+                assertTrue("The visual comparison image should be encoded", comparison.compress(Bitmap.CompressFormat.JPEG, 88, stream))
             }
         } finally {
             comparison.recycle()

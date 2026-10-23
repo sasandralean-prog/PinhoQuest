@@ -11,8 +11,8 @@ from pathlib import Path
 EXPECTED = {
     "camellia-original.jpg",
     "camellia-sprite.png",
-    "camellia-original-vs-sprite.png",
-    "camellia-garden-collection-screen.png",
+    "camellia-original-vs-sprite.jpg",
+    "camellia-garden-collection-screen.jpg",
 }
 MARKER = "PQFLOWER|"
 
