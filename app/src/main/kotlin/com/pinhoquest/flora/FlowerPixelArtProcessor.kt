@@ -27,7 +27,9 @@ internal object FlowerPixelArtProcessor {
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
     private const val PIXEL_GRID_SIZE = 48
-    private const val GRID_CONTENT_SIZE = 39
+    // Fill a little more of the 48px canvas while preserving a transparent safety margin.
+    // This changes presentation scale, not segmentation: no extra background pixels are added.
+    private const val GRID_CONTENT_SIZE = 41
     private const val PALETTE_SIZE = 16
     private const val BORDER_PALETTE_SIZE = 48
     private const val BACKGROUND_DISTANCE_SQUARED = 54 * 54
