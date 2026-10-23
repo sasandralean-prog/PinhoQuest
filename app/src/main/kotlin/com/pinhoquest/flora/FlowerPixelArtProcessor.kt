@@ -667,10 +667,6 @@ internal object FlowerPixelArtProcessor {
 
     private fun applyDirectionalShading(pixels: IntArray): IntArray {
         val result = pixels.copyOf()
-        fun transparent(x: Int, y: Int): Boolean {
-            if (x !in 0 until PIXEL_GRID_SIZE || y !in 0 until PIXEL_GRID_SIZE) return true
-            return Color.alpha(pixels[y * PIXEL_GRID_SIZE + x]) < 16
-        }
         for (y in 0 until PIXEL_GRID_SIZE) {
             for (x in 0 until PIXEL_GRID_SIZE) {
                 val index = y * PIXEL_GRID_SIZE + x
@@ -679,19 +675,12 @@ internal object FlowerPixelArtProcessor {
                     result[index] = Color.TRANSPARENT
                     continue
                 }
-                val topLeftLight = transparent(x, y - 1) || transparent(x - 1, y)
-                val bottomRightShadow = transparent(x, y + 1) || transparent(x + 1, y)
-                // Resolve overlapping light/shadow edge signals by a consistent
-                // top-left-to-bottom-right diagonal. Tiny pixel-art shapes often have
-                // both signals at once; making that case neutral erases all shading.
-                val diagonalProjection = x + y
-                val factor = when {
-                    topLeftLight && diagonalProjection < PIXEL_GRID_SIZE -> 1.10f
-                    bottomRightShadow && diagonalProjection >= PIXEL_GRID_SIZE -> 0.88f
-                    topLeftLight && !bottomRightShadow -> 1.10f
-                    bottomRightShadow && !topLeftLight -> 0.88f
-                    else -> 1.0f
-                }
+                // Shade along a global top-left-to-bottom-right light plane rather
+                // than relying only on silhouette edges. Tiny petals often have
+                // overlapping edge signals, which otherwise leave every petal pixel
+                // at the base colour. Palette-step factors give visible pixel-art
+                // highlight and shadow tones without per-species rules.
+                val factor = if (x + y < PIXEL_GRID_SIZE) 1.10f else 0.88f
                 result[index] = shadeColour(colour, factor)
             }
         }
