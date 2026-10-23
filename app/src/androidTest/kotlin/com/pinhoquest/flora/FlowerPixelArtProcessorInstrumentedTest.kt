@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.os.ParcelFileDescriptor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,6 +25,8 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import android.util.Base64
+import java.security.MessageDigest
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -46,6 +47,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FlowerPixelArtProcessorInstrumentedTest {
+    companion object {
+        private const val EVIDENCE_LOG_CHUNK_SIZE = 512
+    }
+
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -207,17 +212,12 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
         val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-        // Store evidence in the target app's sandbox; the helper exports each file to
-        // shared storage through UiAutomation while the target package is still installed.
-        val evidenceContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val evidenceDirectory = File(evidenceContext.cacheDir, "pinhoquest-flower-evidence").apply {
+        // Keep evidence in the target app's writable cache and stream it to logcat in
+        // small numbered chunks. The CI runner reconstructs and verifies the exact bytes.
+        val evidenceDirectory = File(context.cacheDir, "pinhoquest-flower-evidence").apply {
             deleteRecursively()
             mkdirs()
         }
-        android.util.Log.i(
-            "PQFLOWER_EVIDENCE",
-            "package=" + evidenceContext.packageName + ";path=" + evidenceDirectory.absolutePath,
-        )
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
@@ -238,7 +238,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
             // source-discovery/processor failures diagnosable in the CI artifact.
             val originalEvidence = File(evidenceDirectory, "camellia-original.jpg")
             originalEvidence.writeBytes(source.readBytes())
-            exportFlowerEvidenceToSharedStorage(evidenceDirectory)
+            emitFlowerEvidenceFile(originalEvidence, originalEvidence.name)
             assertTrue(
                 "The real botanical photo with leaves must be processed by the production engine",
                 FlowerPixelArtProcessor.process(source, spritePart),
@@ -246,6 +246,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
 
             val spriteEvidence = File(evidenceDirectory, "camellia-sprite.png")
             spriteEvidence.writeBytes(spritePart.readBytes())
+            emitFlowerEvidenceFile(spriteEvidence, spriteEvidence.name)
             val sprite = BitmapFactory.decodeFile(spritePart.absolutePath)
             val original = BitmapFactory.decodeFile(source.absolutePath)
             assertNotNull("The original botanical photo must decode", original)
@@ -282,6 +283,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 // publishes the exact source, processor output and side-by-side comparison.
                 val comparisonEvidence = File(evidenceDirectory, "camellia-original-vs-sprite.jpg")
                 writeFlowerComparisonEvidence(original, sprite, comparisonEvidence)
+                emitFlowerEvidenceFile(comparisonEvidence, comparisonEvidence.name)
             } finally {
                 original.recycle()
                 sprite.recycle()
@@ -374,7 +376,10 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 screenshot.recycle()
             }
 
-            exportFlowerEvidenceToSharedStorage(evidenceDirectory)
+            emitFlowerEvidenceFile(
+                File(evidenceDirectory, "camellia-garden-collection-screen.jpg"),
+                "camellia-garden-collection-screen.jpg",
+            )
 
             // Assert after all screenshots have been written, so CI artifacts remain
             // inspectable even when the engine erases the foliage.
@@ -413,36 +418,29 @@ class FlowerPixelArtProcessorInstrumentedTest {
         }
     }
 
-    private fun exportFlowerEvidenceToSharedStorage(evidenceDirectory: File) {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val destination = "/sdcard/Download/pinhoquest-flower-evidence"
-
-        fun executeShell(command: String): String? = runCatching {
-            ParcelFileDescriptor.AutoCloseInputStream(
-                instrumentation.uiAutomation.executeShellCommand(command),
-            ).bufferedReader().use { it.readText() }
-        }.onFailure { failure ->
-            android.util.Log.e("PQFLOWER_EVIDENCE", "UiAutomation shell command failed", failure)
-        }.getOrNull()
-
-        val directoryOutput = executeShell("mkdir -p '$destination' && echo PQFLOWER_DIR_READY")
-        if (directoryOutput?.contains("PQFLOWER_DIR_READY") != true) {
-            android.util.Log.e("PQFLOWER_EVIDENCE", "Could not prepare shared evidence directory")
+    private fun emitFlowerEvidenceFile(file: File, evidenceName: String) {
+        if (!file.isFile) {
+            android.util.Log.e("PqFlowerEvidence", "Evidence file is missing: $evidenceName")
             return
         }
-        val packageName = instrumentation.targetContext.packageName
-        for (file in evidenceDirectory.listFiles().orEmpty().filter { it.isFile }) {
-            val target = "$destination/${file.name}"
-            val marker = "PQFLOWER_EXPORTED_${file.name}"
-            val output = executeShell(
-                "run-as '$packageName' cat '${file.absolutePath}' > '$target' && echo '$marker'",
+        val raw = file.readBytes()
+        val encoded = Base64.encodeToString(raw, Base64.NO_WRAP)
+        val chunkSize = EVIDENCE_LOG_CHUNK_SIZE
+        val chunks = encoded.chunked(chunkSize)
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(raw)
+            .joinToString("") { byte -> "%02x".format(byte) }
+        android.util.Log.i(
+            "PqFlowerEvidence",
+            "PQFLOWER|BEGIN|$evidenceName|${chunks.size}|${raw.size}|$digest",
+        )
+        chunks.forEachIndexed { index, chunk ->
+            android.util.Log.i(
+                "PqFlowerEvidence",
+                "PQFLOWER|DATA|$evidenceName|$index|$chunk",
             )
-            if (output?.contains(marker) == true) {
-                android.util.Log.i("PQFLOWER_EVIDENCE", "Exported ${file.name} to $target")
-            } else {
-                android.util.Log.e("PQFLOWER_EVIDENCE", "Export failed for ${file.name}: $output")
-            }
         }
+        android.util.Log.i("PqFlowerEvidence", "PQFLOWER|END|$evidenceName|$digest")
     }
     private fun largestOpaqueComponent(pixels: IntArray, width: Int, height: Int): Int {
         val visited = BooleanArray(pixels.size)
