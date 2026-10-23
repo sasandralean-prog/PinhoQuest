@@ -1,8 +1,6 @@
 package com.pinhoquest.flora
 
 import android.content.Context
-import android.util.Base64
-import android.util.Log
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -437,24 +435,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
             largest = maxOf(largest, write)
         }
         return largest
-    }
-
-    private fun emitFlowerEvidenceFile(file: File, evidenceName: String) {
-        val bytes = file.readBytes()
-        val encoded = Base64.encodeToString(bytes, Base64.NO_WRAP)
-        val chunks = encoded.chunked(1_800)
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(bytes)
-            .joinToString("") { byte -> "%02x".format(byte) }
-        val tag = "PqFlowerEvidence"
-
-        // Keep each Android log entry below logcat message limits. CI validates the
-        // chunk count, decoded length, image signature and SHA-256 before publishing.
-        Log.i(tag, "PQFLOWER|BEGIN|$evidenceName|${chunks.size}|${bytes.size}|$digest")
-        chunks.forEachIndexed { index, chunk ->
-            Log.i(tag, "PQFLOWER|DATA|$evidenceName|$index|$chunk")
-        }
-        Log.i(tag, "PQFLOWER|END|$evidenceName")
     }
 
     private fun writeFlowerComparisonEvidence(original: Bitmap, sprite: Bitmap, output: File) {
