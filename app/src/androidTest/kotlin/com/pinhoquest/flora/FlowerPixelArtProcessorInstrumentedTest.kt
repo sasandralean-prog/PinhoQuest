@@ -1,6 +1,8 @@
 package com.pinhoquest.flora
 
+import android.Manifest
 import android.content.Context
+import android.os.Environment
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -206,7 +208,10 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
         val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-        val evidenceDirectory = File(instrumentationContext.cacheDir, "flower-pixel-art-evidence").apply { mkdirs() }
+        val evidenceDirectory = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "pinhoquest-flower-visual-evidence",
+        )
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
@@ -214,6 +219,18 @@ class FlowerPixelArtProcessorInstrumentedTest {
         var hasTransparentCanvas = false
 
         try {
+            // Public Downloads survives the test orchestrator uninstalling the app and
+            // instrumentation packages after connectedDebugAndroidTest completes.
+            InstrumentationRegistry.getInstrumentation().uiAutomation.grantRuntimePermission(
+                context.packageName,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            )
+            assertTrue(
+                "The shared screenshot directory must be writable for the API 28 evidence test",
+                evidenceDirectory.mkdirs() || evidenceDirectory.isDirectory,
+            )
+            evidenceDirectory.listFiles()?.forEach { it.delete() }
+
             val testAssets = instrumentationContext.assets
             testAssets.open("flower_fixtures/camellia_with_foliage_original.jpg").use { input ->
                 source.outputStream().use { output ->
