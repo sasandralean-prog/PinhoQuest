@@ -14,7 +14,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -24,6 +23,7 @@ import org.json.JSONObject
 
 private data class FlowerArtworkCredit(
     val creator: String,
+    val provider: String,
     val licenseName: String,
     val sourcePageUrl: String,
     val sourceSha256: String,
@@ -43,7 +43,8 @@ fun FlowerArtworkAttribution(
         credit = withContext(Dispatchers.IO) {
             val metadata = File(
                 context.filesDir,
-                "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha256/${FlowerSpriteWorker.METADATA_FILE}",
+                FlowerSpriteWorker.ROOT_DIRECTORY + "/" + flowerSha256 + "/" +
+                    FlowerSpriteWorker.METADATA_FILE,
             )
             if (!metadata.isFile) return@withContext null
             runCatching {
@@ -53,9 +54,17 @@ fun FlowerArtworkAttribution(
                 val copyright = record.optJSONObject("copyright") ?: JSONObject()
                 val sprite = record.optJSONObject("sprite") ?: JSONObject()
                 FlowerArtworkCredit(
-                    creator = copyright.optString("creator").ifBlank { "Autor não informado pela fonte" },
-                    licenseName = copyright.optString("licenseName").ifBlank { "Licença não identificada" },
-                    sourcePageUrl = original.optString("sourcePageUrl"),
+                    creator = copyright.optString("creditLine")
+                        .ifBlank { copyright.optString("creator") }
+                        .ifBlank { "Autor não informado pela fonte" },
+                    provider = record.optString("provider")
+                        .ifBlank { original.optString("sourceProvider") }
+                        .ifBlank { "Fonte externa" },
+                    licenseName = copyright.optString("licenseName").ifBlank {
+                        "Licença não identificada"
+                    },
+                    sourcePageUrl = original.optString("sourcePageUrl")
+                        .ifBlank { copyright.optString("sourcePageUrl") },
                     sourceSha256 = original.optString("sha256"),
                     spriteSha256 = sprite.optString("sha256"),
                 )
@@ -69,18 +78,19 @@ fun FlowerArtworkAttribution(
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         Text("Arte floral gerada a partir de fotografia", fontSize = 13.sp)
-        Text("Autor: ${sourceCredit.creator}", fontSize = 12.sp)
-        Text("Licença declarada: ${sourceCredit.licenseName}", fontSize = 12.sp)
+        Text("Crédito: " + sourceCredit.creator, fontSize = 12.sp)
+        Text("Fonte: " + sourceCredit.provider, fontSize = 12.sp)
+        Text("Licença declarada: " + sourceCredit.licenseName, fontSize = 12.sp)
         if (sourceCredit.sourceSha256.isNotBlank()) {
-            Text("SHA-256 da foto: ${sourceCredit.sourceSha256.take(16)}…", fontSize = 10.sp)
+            Text("SHA-256 da foto: " + sourceCredit.sourceSha256.take(16) + "…", fontSize = 10.sp)
         }
         if (sourceCredit.spriteSha256.isNotBlank()) {
-            Text("SHA-256 do sprite: ${sourceCredit.spriteSha256.take(16)}…", fontSize = 10.sp)
+            Text("SHA-256 do sprite: " + sourceCredit.spriteSha256.take(16) + "…", fontSize = 10.sp)
         }
-        if (sourceCredit.sourcePageUrl.startsWith("https://commons.wikimedia.org/")) {
+        if (sourceCredit.sourcePageUrl.startsWith("https://")) {
             TextButton(
                 onClick = { runCatching { uriHandler.openUri(sourceCredit.sourcePageUrl) } },
-            ) { Text("Ver foto original e licença") }
+            ) { Text("Ver foto original, fonte e licença") }
         }
     }
 }
