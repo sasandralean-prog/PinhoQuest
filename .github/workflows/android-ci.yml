@@ -69,7 +69,24 @@ jobs:
           disable-animations: true
           script: |
             chmod +x ./gradlew
-            adb logcat -G 16M >/dev/null 2>&1 || true; test_exit=0; ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest || test_exit=$?; out=app/build/outputs/flower-pixel-art-evidence; mkdir -p "$out"; adb logcat -d -v brief -s PqFlowerEvidence:I '*:S' > /tmp/pinhoquest-flower-evidence.log; evidence_exit=0; python tools/flower_evidence/extract_logcat.py /tmp/pinhoquest-flower-evidence.log "$out" || evidence_exit=$?; echo "Recovered flower evidence:"; ls -lah "$out"; if [ "$test_exit" -ne 0 ]; then exit "$test_exit"; else exit "$evidence_exit"; fi
+            test_exit=0
+            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest || test_exit=$?
+            out=app/build/outputs/flower-pixel-art-evidence
+            mkdir -p "$out"
+            evidence_exit=0
+            evidence_dir="cache/pinhoquest-flower-evidence"
+            for name in camellia-original.jpg camellia-sprite.png camellia-original-vs-sprite.jpg camellia-garden-collection-screen.jpg; do
+              if adb shell run-as com.pinhoquest test -f "$evidence_dir/$name"; then
+                adb exec-out run-as com.pinhoquest cat "$evidence_dir/$name" > "$out/$name" || { echo "Failed to pull $name from app cache"; evidence_exit=1; }
+              else
+                echo "Missing app-cache evidence: $name"
+                evidence_exit=1
+              fi
+            done
+            python tools/flower_evidence/verify_images.py "$out" || evidence_exit=$?
+            echo "Verified floral evidence output:"
+            ls -lah "$out"
+            if [ "$test_exit" -ne 0 ]; then exit "$test_exit"; else exit "$evidence_exit"; fi
       - name: Upload flower original-versus-sprite screenshots
         if: always()
         uses: actions/upload-artifact@v4
