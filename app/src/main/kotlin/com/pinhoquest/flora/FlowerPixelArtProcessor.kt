@@ -135,7 +135,11 @@ internal object FlowerPixelArtProcessor {
             // colour gradient walk through a distinctive central bloom colour. Exact
             // palette matches are still treated as background, which keeps a genuinely
             // white backdrop removable when the image itself gives no separation signal.
-            if (isLikelyCentralBloomDetail(candidate, candidateIndex, width, height)) return
+            // Protect a bloom colour only when it is measurably distinct from the learned background.
+            // Otherwise a pale/textured backdrop can be misclassified as a petal and survive flood-fill.
+            if (nearPalette > BACKGROUND_DRIFT_DISTANCE_SQUARED &&
+                isLikelyCentralBloomDetail(candidate, candidateIndex, width, height)
+            ) return
 
             // Allow only tighter, locally anchored background gradients. v5's wider
             // tolerance could leak through pale leaves and erase most of the petals.
