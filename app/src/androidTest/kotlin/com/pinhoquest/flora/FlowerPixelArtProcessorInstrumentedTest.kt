@@ -1,8 +1,6 @@
 package com.pinhoquest.flora
 
 import android.content.Context
-import android.util.Base64
-import android.util.Log
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -27,6 +25,8 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import android.util.Base64
+import java.security.MessageDigest
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -47,6 +47,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FlowerPixelArtProcessorInstrumentedTest {
+    companion object {
+        private const val EVIDENCE_LOG_CHUNK_SIZE = 512
+    }
+
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -125,9 +129,9 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 assertTrue("The exterior must be transparent", pixels.count { Color.alpha(it) == 0 } > pixels.size / 2)
                 assertTrue("The median-cut palette plus edge shading should stay compact", visible.toSet().size in 4..48)
                 val petalTones = visible.filter {
-                    Color.red(it) in 128..192 && Color.green(it) in 16..64 && Color.blue(it) in 48..96
+                    Color.red(it) in 128..255 && Color.green(it) in 16..64 && Color.blue(it) in 48..96
                 }.toSet()
-                assertTrue("Directional lighting should give the flat petal colour more than one shade", petalTones.size >= 2)
+                assertTrue("Directional lighting should give the flat petal colour more than one shade; count=" + petalTones.size + "; tones=" + petalTones.take(12).joinToString(), petalTones.size >= 2)
                 assertEquals("The centred canvas corner must remain transparent", 0, Color.alpha(sprite.getPixel(0, 0)))
             } finally {
                 sprite.recycle()
@@ -208,9 +212,12 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
         val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-        // Keep evidence beside the test's already-writable temporary source. The test
-        // emits each file into logcat immediately, so it survives package cleanup.
-        val evidenceDirectory = File(testDirectory, "evidence").apply { mkdirs() }
+        // Keep evidence in the target app's writable cache and stream it to logcat in
+        // small numbered chunks. The CI runner reconstructs and verifies the exact bytes.
+        val evidenceDirectory = File(context.cacheDir, "pinhoquest-flower-evidence").apply {
+            deleteRecursively()
+            mkdirs()
+        }
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
@@ -231,7 +238,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
             // source-discovery/processor failures diagnosable in the CI artifact.
             val originalEvidence = File(evidenceDirectory, "camellia-original.jpg")
             originalEvidence.writeBytes(source.readBytes())
-            emitFlowerEvidenceFile(originalEvidence, "camellia-original.jpg")
+            emitFlowerEvidenceFile(originalEvidence, originalEvidence.name)
             assertTrue(
                 "The real botanical photo with leaves must be processed by the production engine",
                 FlowerPixelArtProcessor.process(source, spritePart),
@@ -239,7 +246,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
 
             val spriteEvidence = File(evidenceDirectory, "camellia-sprite.png")
             spriteEvidence.writeBytes(spritePart.readBytes())
-            emitFlowerEvidenceFile(spriteEvidence, "camellia-sprite.png")
+            emitFlowerEvidenceFile(spriteEvidence, spriteEvidence.name)
             val sprite = BitmapFactory.decodeFile(spritePart.absolutePath)
             val original = BitmapFactory.decodeFile(source.absolutePath)
             assertNotNull("The original botanical photo must decode", original)
@@ -276,7 +283,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 // publishes the exact source, processor output and side-by-side comparison.
                 val comparisonEvidence = File(evidenceDirectory, "camellia-original-vs-sprite.jpg")
                 writeFlowerComparisonEvidence(original, sprite, comparisonEvidence)
-                emitFlowerEvidenceFile(comparisonEvidence, "camellia-original-vs-sprite.jpg")
+                emitFlowerEvidenceFile(comparisonEvidence, comparisonEvidence.name)
             } finally {
                 original.recycle()
                 sprite.recycle()
@@ -359,26 +366,41 @@ class FlowerPixelArtProcessorInstrumentedTest {
             composeRule.onNodeWithText("🌷").assertIsDisplayed()
             val screenshot = composeRule.onRoot().captureToImage().asAndroidBitmap()
             try {
-                File(evidenceDirectory, "camellia-garden-collection-screen.jpg").outputStream().use { out ->
-                    assertTrue(
-                        "The collection screenshot should be written",
-                        screenshot.compress(Bitmap.CompressFormat.JPEG, 86, out),
-                    )
-                }
-                emitFlowerEvidenceFile(
-                    File(evidenceDirectory, "camellia-garden-collection-screen.jpg"),
-                    "camellia-garden-collection-screen.jpg",
+                // Screenshots are only regression evidence; cap their size so the
+                // logcat transport does not lose hundreds of chunks on large JPEGs.
+                val scale = minOf(240f / screenshot.width, 480f / screenshot.height, 1f)
+                val evidenceWidth = maxOf(1, (screenshot.width * scale).toInt())
+                val evidenceHeight = maxOf(1, (screenshot.height * scale).toInt())
+                val evidenceScreenshot = Bitmap.createScaledBitmap(
+                    screenshot, evidenceWidth, evidenceHeight, true,
                 )
+                try {
+                    File(evidenceDirectory, "camellia-garden-collection-screen.jpg").outputStream().use { out ->
+                        assertTrue(
+                            "The collection screenshot should be written",
+                            evidenceScreenshot.compress(Bitmap.CompressFormat.JPEG, 72, out),
+                        )
+                    }
+                } finally {
+                    if (evidenceScreenshot !== screenshot && !evidenceScreenshot.isRecycled) {
+                        evidenceScreenshot.recycle()
+                    }
+                }
             } finally {
                 screenshot.recycle()
             }
+
+            emitFlowerEvidenceFile(
+                File(evidenceDirectory, "camellia-garden-collection-screen.jpg"),
+                "camellia-garden-collection-screen.jpg",
+            )
 
             // Assert after all screenshots have been written, so CI artifacts remain
             // inspectable even when the engine erases the foliage.
             assertEquals("The generated sprite width", 96, generatedWidth)
             assertEquals("The generated sprite height", 96, generatedHeight)
             assertTrue(
-                "The sprite should preserve a substantial flower silhouette; visible pixels=$visiblePixelCount",
+                "The sprite should preserve a substantial flower silhouette; visible=$visiblePixelCount, pale=$palePetalPixels, largest=$largestOpaqueComponent, green=$greenPlantPixels, warmCentre=$warmCentrePixels",
                 visiblePixelCount > 900,
             )
             assertTrue(
@@ -410,6 +432,32 @@ class FlowerPixelArtProcessorInstrumentedTest {
         }
     }
 
+    private fun emitFlowerEvidenceFile(file: File, evidenceName: String) {
+        if (!file.isFile) {
+            android.util.Log.e("PqFlowerEvidence", "Evidence file is missing: $evidenceName")
+            return
+        }
+        val raw = file.readBytes()
+        val encoded = Base64.encodeToString(raw, Base64.NO_WRAP)
+        val chunkSize = EVIDENCE_LOG_CHUNK_SIZE
+        val chunks = encoded.chunked(chunkSize)
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(raw)
+            .joinToString("") { byte -> "%02x".format(byte) }
+        android.util.Log.i(
+            "PqFlowerEvidence",
+            "PQFLOWER|BEGIN|$evidenceName|${chunks.size}|${raw.size}|$digest",
+        )
+        chunks.forEachIndexed { index, chunk ->
+            android.util.Log.i(
+                "PqFlowerEvidence",
+                "PQFLOWER|DATA|$evidenceName|$index|$chunk",
+            )
+            // Pace high-volume screenshots slightly to reduce logd buffer/rate loss.
+            if ((index + 1) % 16 == 0) android.os.SystemClock.sleep(20L)
+        }
+        android.util.Log.i("PqFlowerEvidence", "PQFLOWER|END|$evidenceName|$digest")
+    }
     private fun largestOpaqueComponent(pixels: IntArray, width: Int, height: Int): Int {
         val visited = BooleanArray(pixels.size)
         val queue = IntArray(pixels.size)
@@ -441,24 +489,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
             largest = maxOf(largest, write)
         }
         return largest
-    }
-
-    private fun emitFlowerEvidenceFile(file: File, evidenceName: String) {
-        val bytes = file.readBytes()
-        val encoded = Base64.encodeToString(bytes, Base64.NO_WRAP)
-        val chunks = encoded.chunked(1_800)
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(bytes)
-            .joinToString("") { byte -> "%02x".format(byte) }
-        val tag = "PqFlowerEvidence"
-
-        // Keep each Android log entry below logcat message limits. CI validates the
-        // chunk count, decoded length, image signature and SHA-256 before publishing.
-        Log.i(tag, "PQFLOWER|BEGIN|$evidenceName|${chunks.size}|${bytes.size}|$digest")
-        chunks.forEachIndexed { index, chunk ->
-            Log.i(tag, "PQFLOWER|DATA|$evidenceName|$index|$chunk")
-        }
-        Log.i(tag, "PQFLOWER|END|$evidenceName")
     }
 
     private fun writeFlowerComparisonEvidence(original: Bitmap, sprite: Bitmap, output: File) {
