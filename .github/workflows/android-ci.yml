@@ -50,6 +50,7 @@ jobs:
             echo "::warning::Stable debug signing secrets are not configured. This CI artifact uses a runner-generated debug key and may not install as an update over a previous CI APK."
           fi
       - name: Verify foundation
+        id: foundation
         run: |
           chmod +x ./gradlew
           ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :litertlm-bridge:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:compileDebugAndroidTestKotlin
@@ -92,12 +93,12 @@ jobs:
             echo "Android Lint text report was not generated."
           fi
       - name: Write APK SHA-256 checksum
-        if: success()
+        if: always() && steps.foundation.outcome == 'success'
         shell: bash
         run: |
           sha256sum app/build/outputs/apk/debug/app-debug.apk | tee app/build/outputs/apk/debug/app-debug.apk.sha256
       - name: Upload debug APK and checksum
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor' || github.ref == 'refs/heads/feature/p6-garden-delight'
+        if: always() && steps.foundation.outcome == 'success' && (github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor' || github.ref == 'refs/heads/feature/p6-garden-delight')
         uses: actions/upload-artifact@v4
         with:
           name: pinhoquest-v05-debug-apk
