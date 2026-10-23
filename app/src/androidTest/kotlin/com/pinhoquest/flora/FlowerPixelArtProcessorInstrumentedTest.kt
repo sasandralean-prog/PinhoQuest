@@ -366,11 +366,25 @@ class FlowerPixelArtProcessorInstrumentedTest {
             composeRule.onNodeWithText("🌷").assertIsDisplayed()
             val screenshot = composeRule.onRoot().captureToImage().asAndroidBitmap()
             try {
-                File(evidenceDirectory, "camellia-garden-collection-screen.jpg").outputStream().use { out ->
-                    assertTrue(
-                        "The collection screenshot should be written",
-                        screenshot.compress(Bitmap.CompressFormat.JPEG, 86, out),
-                    )
+                // Screenshots are only regression evidence; cap their size so the
+                // logcat transport does not lose hundreds of chunks on large JPEGs.
+                val scale = minOf(240f / screenshot.width, 480f / screenshot.height, 1f)
+                val evidenceWidth = maxOf(1, (screenshot.width * scale).toInt())
+                val evidenceHeight = maxOf(1, (screenshot.height * scale).toInt())
+                val evidenceScreenshot = Bitmap.createScaledBitmap(
+                    screenshot, evidenceWidth, evidenceHeight, true,
+                )
+                try {
+                    File(evidenceDirectory, "camellia-garden-collection-screen.jpg").outputStream().use { out ->
+                        assertTrue(
+                            "The collection screenshot should be written",
+                            evidenceScreenshot.compress(Bitmap.CompressFormat.JPEG, 72, out),
+                        )
+                    }
+                } finally {
+                    if (evidenceScreenshot !== screenshot && !evidenceScreenshot.isRecycled) {
+                        evidenceScreenshot.recycle()
+                    }
                 }
             } finally {
                 screenshot.recycle()
@@ -439,6 +453,8 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 "PqFlowerEvidence",
                 "PQFLOWER|DATA|$evidenceName|$index|$chunk",
             )
+            // Pace high-volume screenshots slightly to reduce logd buffer/rate loss.
+            if ((index + 1) % 16 == 0) android.os.SystemClock.sleep(20L)
         }
         android.util.Log.i("PqFlowerEvidence", "PQFLOWER|END|$evidenceName|$digest")
     }
