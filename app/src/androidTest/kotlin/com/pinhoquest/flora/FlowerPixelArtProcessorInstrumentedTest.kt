@@ -205,7 +205,8 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val unresolvedFlowerSha = FlowerSpriteIdentity.flowerSha256(unresolvedScientificName)
         val flowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$flowerSha")
         val unresolvedFlowerDirectory = File(context.filesDir, "${FlowerSpriteWorker.ROOT_DIRECTORY}/$unresolvedFlowerSha")
-        val evidenceDirectory = File(context.cacheDir, "flower-pixel-art-evidence").apply { mkdirs() }
+        val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
+        val evidenceDirectory = File(instrumentationContext.cacheDir, "flower-pixel-art-evidence").apply { mkdirs() }
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
@@ -213,7 +214,7 @@ class FlowerPixelArtProcessorInstrumentedTest {
         var hasTransparentCanvas = false
 
         try {
-            val testAssets = InstrumentationRegistry.getInstrumentation().context.assets
+            val testAssets = instrumentationContext.assets
             testAssets.open("flower_fixtures/camellia_with_foliage_original.jpg").use { input ->
                 source.outputStream().use { output ->
                     input.copyTo(output)

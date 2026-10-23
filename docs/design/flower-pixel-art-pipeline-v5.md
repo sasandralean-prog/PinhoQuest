@@ -19,7 +19,7 @@ This is deliberately a local foliage-preservation heuristic, not a semantic segm
 
 The Android instrumentation test uses the unmodified, attributed CC BY-SA 2.0 photo documented in `app/src/androidTest/assets/flower_fixtures/README.md`. It exercises the actual production processor. It checks the 96 × 96 size, visible silhouette, transparency and at least eight visible pixels matching the green-leaf criterion.
 
-**Evidence is saved to the target app's private cache before the quality assertions.** The CI step extracts the known filenames with `adb exec-out run-as com.pinhoquest cat ...`, avoiding fragile external-storage aliases. The instrumented test creates:
+**Evidence is saved to the instrumentation APK's private cache before the quality assertions.** The CI step extracts the known filenames with `adb exec-out run-as com.pinhoquest.test cat ...`. The test package is the stable owner of this cache; the target app may be uninstalled by Gradle after the connected test task. The instrumented test creates:
 - `camellia-original.jpg` — exact source photograph,
 - `camellia-sprite.png` — raw engine output,
 - `camellia-original-vs-sprite.png` — labeled, side-by-side comparison,
