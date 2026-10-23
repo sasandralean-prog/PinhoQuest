@@ -210,7 +210,10 @@ class FlowerPixelArtProcessorInstrumentedTest {
         val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
         // Keep evidence beside the test's already-writable temporary source. The test
         // emits each file into logcat immediately, so it survives package cleanup.
-        val evidenceDirectory = File(testDirectory, "evidence").apply { mkdirs() }
+        val evidenceDirectory = File(context.cacheDir, "pinhoquest-flower-evidence").apply {
+            deleteRecursively()
+            mkdirs()
+        }
         var generatedWidth = -1
         var generatedHeight = -1
         var visiblePixelCount = 0
@@ -231,7 +234,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
             // source-discovery/processor failures diagnosable in the CI artifact.
             val originalEvidence = File(evidenceDirectory, "camellia-original.jpg")
             originalEvidence.writeBytes(source.readBytes())
-            emitFlowerEvidenceFile(originalEvidence, "camellia-original.jpg")
             assertTrue(
                 "The real botanical photo with leaves must be processed by the production engine",
                 FlowerPixelArtProcessor.process(source, spritePart),
@@ -239,7 +241,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
 
             val spriteEvidence = File(evidenceDirectory, "camellia-sprite.png")
             spriteEvidence.writeBytes(spritePart.readBytes())
-            emitFlowerEvidenceFile(spriteEvidence, "camellia-sprite.png")
             val sprite = BitmapFactory.decodeFile(spritePart.absolutePath)
             val original = BitmapFactory.decodeFile(source.absolutePath)
             assertNotNull("The original botanical photo must decode", original)
@@ -276,7 +277,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 // publishes the exact source, processor output and side-by-side comparison.
                 val comparisonEvidence = File(evidenceDirectory, "camellia-original-vs-sprite.jpg")
                 writeFlowerComparisonEvidence(original, sprite, comparisonEvidence)
-                emitFlowerEvidenceFile(comparisonEvidence, "camellia-original-vs-sprite.jpg")
             } finally {
                 original.recycle()
                 sprite.recycle()
@@ -365,10 +365,6 @@ class FlowerPixelArtProcessorInstrumentedTest {
                         screenshot.compress(Bitmap.CompressFormat.JPEG, 86, out),
                     )
                 }
-                emitFlowerEvidenceFile(
-                    File(evidenceDirectory, "camellia-garden-collection-screen.jpg"),
-                    "camellia-garden-collection-screen.jpg",
-                )
             } finally {
                 screenshot.recycle()
             }
