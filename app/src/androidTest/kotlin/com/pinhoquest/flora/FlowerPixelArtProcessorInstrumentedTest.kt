@@ -374,6 +374,26 @@ class FlowerPixelArtProcessorInstrumentedTest {
                 screenshot.recycle()
             }
 
+            // Also mirror evidence into the target app's private cache: Gradle may
+            // uninstall the instrumentation APK after the test, but the target app remains
+            // installed for ADB extraction.
+            val targetEvidenceDirectory = File(
+                InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
+                "pinhoquest-flower-evidence",
+            ).apply {
+                deleteRecursively()
+                mkdirs()
+            }
+            evidenceDirectory.listFiles()
+                ?.filter { it.isFile }
+                ?.forEach { it.copyTo(File(targetEvidenceDirectory, it.name), overwrite = true) }
+            android.util.Log.i(
+                "PQFLOWER_EVIDENCE",
+                "targetPackage=" + InstrumentationRegistry.getInstrumentation().targetContext.packageName +
+                    ";targetPath=" + targetEvidenceDirectory.absolutePath +
+                    ";fileCount=" + (targetEvidenceDirectory.listFiles()?.size ?: 0),
+            )
+
             // Assert after all screenshots have been written, so CI artifacts remain
             // inspectable even when the engine erases the foliage.
             assertEquals("The generated sprite width", 96, generatedWidth)
