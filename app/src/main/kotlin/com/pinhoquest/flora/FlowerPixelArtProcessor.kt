@@ -313,13 +313,23 @@ internal object FlowerPixelArtProcessor {
                     val ny = y + dy
                     if (nx !in 0 until width || ny !in 0 until height) continue
                     val next = ny * width + nx
-                    if (distance[next] >= 0 || !insideBloomRegion(next)) continue
+                    // -1 means unvisited, non-negative values are queued/reached
+                    // distances, and -2 marks a blocked pixel. Cache blocked decisions
+                    // too: otherwise textured background pixels are re-tested from each
+                    // adjacent pixel, making the restoration walk needlessly expensive.
+                    if (distance[next] != -1 || !insideBloomRegion(next)) continue
 
                     if (removed[next]) {
-                        if (!isPalePetalCandidate(pixels[next])) continue
+                        if (!isPalePetalCandidate(pixels[next])) {
+                            distance[next] = -2
+                            continue
+                        }
                         if (minimumPaletteDistance(pixels[next], backgroundPalette) >
                             BACKGROUND_DRIFT_DISTANCE_SQUARED
-                        ) continue
+                        ) {
+                            distance[next] = -2
+                            continue
+                        }
                         removed[next] = false
                         distance[next] = nextDistance
                         queue[write++] = next
@@ -331,6 +341,8 @@ internal object FlowerPixelArtProcessor {
                         // or arbitrary coloured pixels outside the bloom.
                         distance[next] = nextDistance
                         queue[write++] = next
+                    } else {
+                        distance[next] = -2
                     }
                 }
             }
