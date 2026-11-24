@@ -163,3 +163,17 @@ Os novos screenshots mostram texto dinâmico competindo com arte em Home, Jardim
 ## 14. Decisão do responsável — aprovação de P6-C/P6-E (2026-10-15)
 
 Rafa aprovou ambos os gates após a última captura real de tela. A aprovação é válida para o checkpoint visual atual, mesmo com pequenos ajustes de alocação ainda reconhecidos; não abrir uma sequência de microcorreções. Consolidar numa única etapa futura: alinhamento vertical do título/input/preview no onboarding, quebra e centralização de “Vai aparecer como Jardim de …”, e equilíbrio final de margens nos cartões e na navbar. Preservar callbacks, estado, validação, semântica, arte canônica e fluxo de teclado. A licença da Ihlimia fica no checklist de release, não reabre a aprovação visual de P6-E.
+
+## 15. Backlog de interação e som — próxima rodada (2026-11-24)
+
+**Futuro/planejado:** [plano de retomada](../plans/2026-11-24-next-updates-garden-audio-ai.md). Este adendo documenta a intenção do responsável; não modifica o gate P6-C/P6-E aprovado em 2026-10-15 nem configura evidência de implementação.
+
+- **Áudio existente:** `MainActivity` hospeda `PinhoQuestMusicHost`, quatro faixas Media3 e preferências `musicEnabled/musicVolume`; `SettingsScreen` já tem switch/slider de 0 a 35% do volume master. **Não criar um segundo sistema de música.** Analisar fades, interrupções e ciclo de vida na validação física.
+- **Sons de clique:** adicionar áudio discreto em ações selecionadas; controlar `effectsEnabled/effectsVolume` separadamente da trilha, em DataStore e com restore compatível. Evitar tocar duas vezes em recomposição, quebrar foco de áudio ou tornar feedback apenas sonoro.
+- **Acessibilidade:** controles rotulados e testáveis com TalkBack, sem som quando silenciado, compatibilidade com volume/mute do sistema, com recursos estáticos sem exigir som ou animação. Movimento opcional/reduzido para jardim e animação das flores. Respeitar escalas grandes, contraste e touch targets.
+- **Jardim:** já há animação de fundo à noite e vaga-lumes; ampliar movimento suave sobre o cenário ilustrado sem alterar coleção, XP/Room e sem obrigar a art direction inteira a virar pixel art.
+- **Doação:** o botão ilustrado já tem `onDonate` conectado a uma `Intent.ACTION_VIEW` para URI Stripe em `MainActivity`. Resta confirmar o link desejado e testar abertura/erro no dispositivo. Abertura de URL não é confirmação de pagamento. Não prometer recompensa.
+- **Polimento:** consolidar ajustes de textos/botões/nav/safe areas em uma única rodada de baseline e comparação, preservando fluxos aprovados.
+- **IA:** calibração de geração após benchmark; não substituir `QuestPlanner`, `QuestValidator`, offline ou fallback por decisão ad hoc da UI.
+
+**Gate futuro:** testes reais de áudio, interação, movimento reduzido, backup/preferências, documentação de licença e validação visual. Nada concluído nesta rodada documental.

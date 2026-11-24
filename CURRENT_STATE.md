@@ -1963,3 +1963,18 @@ The tracks were generated and provided by the owner using Suno Pro. This record 
 ### Separate placeholder investigation
 
 The unresolved `Didymocarpus phuquocensis` entry is shown in the same Garden screenshot so source-discovery failure stays distinct from segmentation quality. The existing exact-phrase Wikimedia Commons provider search returned no candidate; further synonym/article-source coverage is still a separate follow-up, and unrelated species must not be substituted.
+
+## 48. Backlog de retomada PinhoQuest — 2026-11-24
+
+**Status:** `planned / project_paused`. Esta entrada registra prioridades para futuras alterações; **nenhum runtime, asset, teste ou comportamento foi alterado por esta atualização documental**. Plano de referência: [NEXT-0..NEXT-6](docs/plans/2026-11-24-next-updates-garden-audio-ai.md).
+
+Solicitação do responsável: animar mais o Jardim, revisar/usar música de fundo, adicionar feedback sonoro de clique e controles acessíveis de som, refinar recorte/pixelização das flores, polir design, ajustar a IA de quests e associar/verificar o botão de donate com seu destino de apoio.
+
+**Reconciliação com código presente:**
+- `PinhoQuestMusicHost.kt` já hospeda playlist global Media3 com quatro faixas, fade e regras de áudio; `AppPreferencesStore` / `SettingsScreen` já fornecem toggle e slider da música (0–35%, padrão 18%). Planejar **SFX e controles próprios**, não outro player de música. Validação física e termos Suno permanecem necessários.
+- `GardenScreen` já utiliza `GardenVideoBackground` em modo noturno e `PinhoFireflies`; falta planejar/comprovar balanço de flores/vegetação e rota de animação reduzida respeitando tema e consumo. Preservar o fundo ilustrado do Gemini Pro.
+- `FlowerPixelArtProcessor` usa `flower-pixel-v6`; o checkpoint #47 continua **pendente** de evidência de CI API28/inspeção humana do sprite. Não confundir compilação com aceite visual; flor rara sem fonte válida permanece placeholder.
+- O botão de apoio em `SettingsScreen` já tem callback `onDonate` em `MainActivity` e abertura `ACTION_VIEW` de URL Stripe. Ainda falta confirmar o URL pretendido com o responsável e validar a experiência real; **não inventar novo link**.
+- A calibração da IA de geração exige bateria semântica antes de prompt/model tuning ou treinamento. Não mover autoridade do `QuestPlanner`/`QuestValidator` para o modelo; fallback procedural e execução offline permanecem obrigatórios.
+
+**Próximos gates:** NEXT-0 diagnóstico; NEXT-1 doação; NEXT-2 som/acessibilidade; NEXT-3 animação; NEXT-4 pixel art; NEXT-5 design; NEXT-6 IA. Sem fechamento automático, sem claims de testes atuais e sem introduzir dependências de servidor. P6/P7 históricos permanecem válidos como evidência limitada a cada SHA.

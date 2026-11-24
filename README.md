@@ -48,3 +48,11 @@ Para referência visual e de implementação, consulte também:
 - [Registry de referências visuais](docs/design/CANONICAL_GRAPHICS.md)
 - [Contrato visual de implementação](docs/design/UI_DESIGN_CONTRACT.md)
 - [Contrato de interação P6](docs/design/P6_UI_UX_INTERACTION_CONTRACT.md)
+
+## Próximas atualizações — backlog de retomada (2026-11-24)
+
+O projeto está **pausado** e a próxima rodada de melhorias está **planejada, não implementada**. O roteiro aprovado pelo responsável inclui movimento suave no jardim ilustrado, polimento do recorte/pixelização das flores, sons de clique e acessibilidade sonora, consistência visual, calibração da IA local de quests e validação do botão de apoio.
+
+**Atenção ao estado real:** a branch `feature/p6-garden-delight` já contém quatro faixas de música ambiente via Media3 com controle de volume/ativação em Configurações, animação parcial no Jardim (fundo noturno/vaga-lumes) e callback `onDonate` ligado a um URL Stripe. Os próximos passos **aprimoram e validam** esses recursos; não se deve anunciá-los como ausentes ou já validados em todos os aparelhos.
+
+Plano de retomada, decisões e gates: [Jardim Vivo, áudio, flores, IA e acabamento](docs/plans/2026-11-24-next-updates-garden-audio-ai.md). Os checkpoints P6/P7 e histórico do `CURRENT_STATE.md` continuam válidos nos limites das evidências publicadas.

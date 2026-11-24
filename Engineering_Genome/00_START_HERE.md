@@ -85,3 +85,9 @@ Before any P6 UI, asset, garden-state, quest-generation-diagnostic or navigation
 The three global bottom-navigation destinations in the current P6 visual contract are **Início, Jardim and Perfil**. Settings, onboarding, tag selection and flower details are internal destinations/flows unless the product authority is explicitly changed. The historical four-tab statement elsewhere in this file is legacy wording and must not be used to override the current P6 contracts; reconcile it during the documentation gate.
 
 A protocol or a green build does not close a P6 gate. Record the actual branch, HEAD SHA, test command, result and linked evidence in `CURRENT_STATE.md`.
+
+## Backlog de retomada aprovado em produto (2026-11-24)
+
+O PinhoQuest está **pausado** e tem um conjunto de futuras melhorias de produto, **ainda planejadas**: Jardim Vivo com movimentos suaves sobre o cenário ilustrado, refinamento de flores pixelizadas, música/som de clique com controles acessíveis, polimento de UI, qualidade da IA de quests e validação do apoio ao criador. Ler `docs/plans/2026-11-24-next-updates-garden-audio-ai.md` **depois** das fontes canônicas listadas acima e antes de implementar essas novas tarefas.
+
+Importante: `PinhoQuestMusicHost` e os controles da música já existem; o Jardim já possui vídeo noturno/vaga-lumes; `MainActivity` já conecta a doação a uma URL Stripe; o processamento das flores está em v6 com aceitação visual ainda em aberto. **Não recriar subsistemas nem tratar atualização de planejamento como comportamento testado.** O novo plano não substitui o contrato V1, P6, P7 ou as provas históricas de `CURRENT_STATE.md`.

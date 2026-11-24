@@ -1018,3 +1018,13 @@ E a sequência maior permanece:
 > **P5 termina o aplicativo.**  
 > **P6 faz ele ficar gostoso.**  
 > **P7 faz ele ficar memorável.**
+
+## Backlog de retomada — Jardim Vivo, áudio e acabamento (2026-11-24)
+
+**Decisão do produto:** PinhoQuest permanece pausado, com próximas atualizações aprovadas **para planejamento**: (1) aprofundar animações suaves do jardim ilustrado; (2) revisar trilha ambiente existente e acrescentar sons de clique; (3) oferecer acessibilidade e controles independentes de música/efeitos; (4) refinar recorte, transparência, sombra e pixelização de flores; (5) consolidar polimento de design; (6) calibrar/avaliar a IA geradora de quests; (7) validar botão e destino de doação já presentes.
+
+**Registro canônico complementar:** [NEXT-0..NEXT-6 — plano de retomada](../docs/plans/2026-11-24-next-updates-garden-audio-ai.md). Estes checkpoints detalham P6 (experiência/áudio/release), P7 (arte/jardim vivo) e contratos já existentes da geração local. **Não substituem P4–P7, não reabrem gates aceitos sem regressão concreta, nem afirmam implementação nova.**
+
+Estado confirmado por inspeção na `feature/p6-garden-delight`: música global de 4 faixas, toggle e volume persistidos; `GardenVideoBackground` noturno e `PinhoFireflies`; `FlowerPixelArtProcessor` v6 com gate de evidência pendente em `CURRENT_STATE.md`; botão `onDonate` já abre uma URI Stripe via `ACTION_VIEW`. Nenhum destes itens dispensa validação no aparelho. O cenário base é **ilustrado com animação suave**, não converter todo o jardim em pixel art; flores conservam pipeline de sprites próprios. IA só recebe fine-tuning/modelo novo após benchmark semântico e governança de artefato.
+
+**Regra de gate:** prioridade, sinais de “feito”, SHA, testes de som/áudio, imagem, acessibilidade, Room/backup e privacidade são os do plano NEXT-0..6. Respeitar reduced-motion, silêncio, lifecycle e a intenção anti-tédio sem pressão. Não substituir URL de doação sem confirmação do criador.

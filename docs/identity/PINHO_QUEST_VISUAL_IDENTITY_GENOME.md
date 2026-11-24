@@ -182,3 +182,15 @@ Visual polish must not:
 - hardcode state that belongs to Room/DataStore/domain authorities
 
 The visual layer renders governed state; it does not invent it.
+
+## 13. Próximas atualizações de atmosfera e acessibilidade (2026-11-24)
+
+**Estado: planejado, não entregue.** Especificação complementar: [NEXT-0..NEXT-6](../plans/2026-11-24-next-updates-garden-audio-ai.md).
+
+- Preservar como baseline o **jardim ilustrado e suave** (arte atual elaborada em Gemini Pro). A intenção antiga de um jardim inteiramente em pixel art não substitui o cenário atual. **Somente as flores colecionáveis** mantêm o pipeline de pixelização previsto no Garden Pixel-Art Genome.
+- O jardim já usa `GardenVideoBackground` no tema noturno e `PinhoFireflies`; a próxima etapa poderá introduzir balanço lento de folhas/flores, brisa e reação delicada ao toque, **sem gameplay de manutenção**. Efeitos devem fazer sentido também no tema diurno.
+- Ao desligar movimento/reduzir animação, o jardim permanece completo, estático, navegável e bonito. Suspender loops quando a tela/aplicativo não está visível; não gerar distrações, flashes, consumo alto de bateria ou elementos que interceptem toque.
+- Música ambiente já existe; sons curtos de clique devem ser discretos, configuráveis **separadamente** da música e nunca ser a única forma de comunicar sucesso/erro. Contraste, TalkBack, teclado, touch targets e escala de fonte são tão importantes quanto a estética.
+- Polimento visual da Home, Jardim, Perfil e Configurações deve partir dos assets e ajustes já aprovados em P6-C/P6-E. Novos recursos não autorizam reorganizar navegação ou transformar a experiência aconchegante em interface competitiva.
+
+**Aceite futuro:** evidências de movimento reduzido, temas claro/escuro, aparelhos compactos e lentos, sem regressão na identidade canônica, nos estados de jardim ou na legibilidade.

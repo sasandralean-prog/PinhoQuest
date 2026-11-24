@@ -570,3 +570,15 @@ The uploaded archive `docs/design/mv-boli-maisfontes.866a.zip` contains only `mv
 - **CI evidence:** code checkpoint `c2e8d05adaf0cff34e58ea81d88718ba74412440` passed [Android CI #38690256884](https://github.com/sasandralean-prog/PinhoQuest/actions/runs/38690256884), including APK assembly and compilation of AndroidTest sources (0 lint errors, 38 warnings).
 - **Separate release requirement:** the Ihlimia ZIP contains no license/readme. Record the original license or explicit permission to embed and redistribute the TTF before public APK release. This provenance item does not override the owner's P6-E visual acceptance.
 - **P6-Final remains separate** and requires its own release criteria; P6-C/P6-E acceptance is not blanket release approval.
+
+## 17. Handoff para próximas melhorias (2026-11-24) — backlog, não gate P6
+
+Rafa definiu a próxima rodada de trabalho enquanto o PinhoQuest permanece pausado. O contrato detalhado está em [`docs/plans/2026-11-24-next-updates-garden-audio-ai.md`](../docs/plans/2026-11-24-next-updates-garden-audio-ai.md) e foi acrescentado ao roadmap `Engineering_Genome/Planejamento.md`.
+
+**Escopo planejado:** animar jardim ilustrado com movimento suave (e alternativa estática), acrescentar SFX de clique e controles acessíveis independentes de música/efeitos, conferir a trilha ambiente existente, aperfeiçoar recorte e pixelização das flores, refinar UI, calibrar IA após benchmark e validar botão/link de doação.
+
+**Estado existente que não deve ser refeito:** `PinhoQuestMusicHost.kt` com quatro faixas, `musicEnabled/musicVolume` em DataStore, `GardenVideoBackground` noturno + `PinhoFireflies`, `onDonate` ligado a link Stripe, `FlowerPixelArtProcessor` v6. Inspeção de código não equivale a teste em aparelho; o gate v6 segue delimitado por `CURRENT_STATE.md`.
+
+**Trilhas semânticas:** som e acessibilidade/polimento pertencem à evolução de P6; movimento/corte/sprites pertencem ao P7 Living Garden; qualidade de geração depende dos owners do Quest core/LLM. Não registrar P6-Final/P7 como fechados por atualizar este documento. Executar checkpoints NEXT-0..6 com branch própria, testes direcionados, validação visual/audio e evidências por SHA; só depois promover estado.
+
+**Não negociável:** manter três abas globais, domínio/Room/progressão e fallback; não duplicar players, não usar efeitos como autoridade de estado, não alterar URL ou licenças sem validação e não regredir acessibilidade ou dados pessoais.
