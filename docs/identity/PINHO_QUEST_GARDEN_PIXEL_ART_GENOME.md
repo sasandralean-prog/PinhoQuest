@@ -91,3 +91,13 @@ Pipeline version participates in three gates: scheduler cache validity, worker c
 The BlueStacks screenshot evidence is stored under `docs/evidence/flower-pixel-art-v3-2026-10-21/`. The Camellia sprite was re-generated and visually reviewed after installation; detached speckles from the prior screenshot were removed while the flower silhouette and yellow centre stayed visible. The original source attribution and checksum metadata remain part of the detail view.
 
 Validation boundary: local unit tests, lint, APK assembly and Android-test compilation passed. The BlueStacks visual flow passed after installing via its APK picker. Running the instrumented test command directly through this workstation's ADB transport was blocked by repeated `connection closed` / `file_sync_client protocol fault` errors, so device-instrumented tests are not considered executed here. Record the API 28 CI emulator run and exact code SHA in `CURRENT_STATE.md` before closing the automated device-test gate.
+
+## Polimento de recorte e pixelização — backlog de retomada (2026-11-24)
+
+**Estado: planned.** Este backlog **não altera o pipeline ativo**. A implementação encontrada em `app/src/main/kotlin/com/pinhoquest/flora/FlowerPixelArtProcessor.kt` declara `flower-pixel-v6`; as validações de CI API28 e o aceite visual correspondentes permaneciam em aberto no último checkpoint do `CURRENT_STATE.md`.
+
+Próxima atualização: melhorar a fidelidade do recorte, preservando **pétalas, caule e folhas próximas** com exterior transparente limpo. A pixelização deve produzir silhueta reconhecível e paleta com profundidade em 96×96, sem fragmentos dispersos, halo de fundo ou falsas plantas. Testar fontes difíceis (flor branca/clara em folhagem, flores verdes, deslocadas do centro, fundos semelhantes) com fixtures licenciadas e comparação de imagem de origem, sprite e card real do jardim.
+
+**Antes de nova versão:** validar visualmente v6, proteger provenance/atribuição, versão/configuração e hash do renderer, invalidação segura de cache/negative markers e integridade de backup. Placeholders honestos permanecem para fontes indisponíveis ou cortes inválidos. Não trocar um algoritmo determinístico por inferência externa sem planejamento e aprovação.
+
+O cenário geral do jardim permanece **ilustrado**; a pixel art aqui se refere às **flores**. Referência: [plano NEXT-4](../plans/2026-11-24-next-updates-garden-audio-ai.md).
