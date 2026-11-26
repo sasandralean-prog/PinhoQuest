@@ -9,11 +9,12 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 
 /**
  * Deterministic photo-to-pixel-art conversion.
  *
- * V6 combines a corner-seeded background model with a protected central bloom signal
+ * V9 combines a corner-seeded background model with a protected central bloom signal
  * and a small halo of green foliage around the surviving flower. This keeps pale petals
  * from being flood-filled into a leafy background while avoiding preservation of the
  * entire frame. It cleans disconnected noise, renders onto a 48px grid and shades edges.
@@ -22,12 +23,16 @@ import kotlin.math.min
 internal object FlowerPixelArtProcessor {
     private data class ColourWeight(val colour: Int, val count: Int)
 
-    const val PIPELINE_VERSION = "flower-pixel-v6"
+    const val PIPELINE_VERSION = "flower-pixel-v9"
 
     private const val MAX_DECODE_SIDE = 480
     private const val SPRITE_SIZE = 96
     private const val PIXEL_GRID_SIZE = 48
-    private const val GRID_CONTENT_SIZE = 39
+    // Dense crops need a smaller lower bound to keep the opaque area below half the canvas.
+    private const val GRID_CONTENT_SIZE = 32
+    private const val MAX_GRID_CONTENT_SIZE = 41
+    // Leave a little safety margin below 50% opaque canvas even for dense foreground crops.
+    private const val MAX_OUTPUT_OPAQUE_RATIO = 0.48f
     private const val PALETTE_SIZE = 16
     private const val BORDER_PALETTE_SIZE = 48
     private const val BACKGROUND_DISTANCE_SQUARED = 54 * 54
@@ -135,7 +140,11 @@ internal object FlowerPixelArtProcessor {
             // colour gradient walk through a distinctive central bloom colour. Exact
             // palette matches are still treated as background, which keeps a genuinely
             // white backdrop removable when the image itself gives no separation signal.
-            if (isLikelyCentralBloomDetail(candidate, candidateIndex, width, height)) return
+            // Protect a bloom colour only when it is measurably distinct from the learned background.
+            // Otherwise a pale/textured backdrop can be misclassified as a petal and survive flood-fill.
+            if (nearPalette > BACKGROUND_DRIFT_DISTANCE_SQUARED &&
+                isLikelyCentralBloomDetail(candidate, candidateIndex, width, height)
+            ) return
 
             // Allow only tighter, locally anchored background gradients. v5's wider
             // tolerance could leak through pale leaves and erase most of the petals.
@@ -162,6 +171,9 @@ internal object FlowerPixelArtProcessor {
         // exactly the same colours as the garden behind them. Colour flood-fill alone
         // removes both. Restore only green plant pixels within a bounded halo of the
         // surviving flower silhouette; distant foliage/background stays transparent.
+        // Pale/cream petals can be similar to the corner palette; restore only a
+        // bounded region connected to a chromatically distinctive flower core.
+        restoreNearbyPalePetals(pixels, removed, width, height, backgroundPalette)
         restoreNearbyGreenFoliage(pixels, removed, width, height)
 
         val removedCount = removed.count { it }
@@ -171,7 +183,8 @@ internal object FlowerPixelArtProcessor {
 
         // Delete small foreground islands (camera noise / texture fragments),
         // including border-touching speckles, while preserving larger connected foliage.
-        removeSmallForegroundComponents(pixels, removed, width, height)
+        val nearBloomCore = buildNearBloomCoreMask(pixels, removed, width, height)
+        removeSmallForegroundComponents(pixels, removed, width, height, nearBloomCore)
 
         var left = width
         var top = height
@@ -227,13 +240,124 @@ internal object FlowerPixelArtProcessor {
         val brightest = maxOf(red, green, blue)
         val spread = brightest - darkest
 
-        val palePetal = darkest >= 150 && spread <= 100
+        val palePetal = isPalePetalCandidate(pixel)
         val redPetal = red >= 130 && red > green + 35 && red > blue + 30
         val warmPollen = red >= 130 && green >= 75 && red > green + 18 && green > blue + 12
         val magentaOrPurplePetal =
             red >= 95 && blue >= 95 && red > green + 12 && blue > green + 12
         val bluePetal = blue >= 130 && blue > red + 18 && blue > green + 18
         return palePetal || redPetal || warmPollen || magentaOrPurplePetal || bluePetal
+    }
+
+    private fun isPalePetalCandidate(pixel: Int): Boolean {
+        if (Color.alpha(pixel) < 16) return false
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        val darkest = minOf(red, green, blue)
+        val brightest = maxOf(red, green, blue)
+        val spread = brightest - darkest
+        val average = (red + green + blue) / 3
+        // Cream petals often have beige/grey shadows below pure-white thresholds.
+        // Keep this broad neutral class bounded by the same bloom-region and learned
+        // background-distance gates; it is not a global white-pixel preservation rule.
+        val brightPetal = darkest >= 150 && spread <= 100
+        val creamShadow = darkest >= 112 && average >= 158 && spread <= 108
+        return brightPetal || creamShadow
+    }
+
+    private fun isStrongBloomSignal(pixel: Int): Boolean {
+        if (Color.alpha(pixel) < 16) return false
+        val red = Color.red(pixel)
+        val green = Color.green(pixel)
+        val blue = Color.blue(pixel)
+        val redPetal = red >= 130 && red > green + 35 && red > blue + 30
+        val warmPollen = red >= 130 && green >= 75 && red > green + 18 && green > blue + 12
+        val magentaOrPurplePetal =
+            red >= 95 && blue >= 95 && red > green + 12 && blue > green + 12
+        val bluePetal = blue >= 130 && blue > red + 18 && blue > green + 18
+        return redPetal || warmPollen || magentaOrPurplePetal || bluePetal
+    }
+
+    private fun restoreNearbyPalePetals(
+        pixels: IntArray,
+        removed: BooleanArray,
+        width: Int,
+        height: Int,
+        backgroundPalette: List<Int>,
+    ) {
+        val centreX = (width - 1) / 2f
+        val centreY = (height - 1) / 2f
+        val centreRadius = min(width, height) * 0.42f
+        val maximumHaloDistance = max(6, min(width, height) / 4)
+        val distance = IntArray(pixels.size) { -1 }
+        val queue = IntArray(pixels.size)
+        var read = 0
+        var write = 0
+
+        fun insideBloomRegion(index: Int): Boolean {
+            val dx = index % width - centreX
+            val dy = index / width - centreY
+            return dx * dx + dy * dy <= centreRadius * centreRadius
+        }
+
+        // Only surviving, chromatically distinct flower pixels can seed restoration.
+        // A neutral backdrop is never allowed to seed its own connected component.
+        for (index in pixels.indices) {
+            if (!removed[index] && insideBloomRegion(index) && isStrongBloomSignal(pixels[index])) {
+                distance[index] = 0
+                queue[write++] = index
+            }
+        }
+        if (write == 0) return
+
+        while (read < write) {
+            val index = queue[read++]
+            val nextDistance = distance[index] + 1
+            if (nextDistance > maximumHaloDistance) continue
+            val x = index % width
+            val y = index / width
+            for (dy in -1..1) {
+                for (dx in -1..1) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = x + dx
+                    val ny = y + dy
+                    if (nx !in 0 until width || ny !in 0 until height) continue
+                    val next = ny * width + nx
+                    // -1 means unvisited, non-negative values are queued/reached
+                    // distances, and -2 marks a blocked pixel. Cache blocked decisions
+                    // too: otherwise textured background pixels are re-tested from each
+                    // adjacent pixel, making the restoration walk needlessly expensive.
+                    if (distance[next] != -1 || !insideBloomRegion(next)) continue
+
+                    if (removed[next]) {
+                        if (!isPalePetalCandidate(pixels[next])) {
+                            distance[next] = -2
+                            continue
+                        }
+                        if (minimumPaletteDistance(pixels[next], backgroundPalette) >
+                            BACKGROUND_DRIFT_DISTANCE_SQUARED
+                        ) {
+                            distance[next] = -2
+                            continue
+                        }
+                        removed[next] = false
+                        distance[next] = nextDistance
+                        queue[write++] = next
+                    } else if (
+                        Color.alpha(pixels[next]) >= 16 &&
+                        (isPalePetalCandidate(pixels[next]) || isStrongBloomSignal(pixels[next]))
+                    ) {
+                        // Walk across retained petal pixels, but never across green foliage
+                        // or arbitrary coloured pixels outside the bloom.
+                        distance[next] = nextDistance
+                        queue[write++] = next
+                    } else {
+                        distance[next] = -2
+                    }
+                }
+            }
+        }
     }
 
     private fun restoreNearbyGreenFoliage(
@@ -344,15 +468,69 @@ internal object FlowerPixelArtProcessor {
         return palette.distinct()
     }
 
+    /**
+     * Marks a small geometric halo around retained, chromatically distinct bloom pixels.
+     * This is used only to judge tiny detached components; it does not restore any
+     * background pixels. Detached neutral speckles far from the bloom must not enlarge
+     * the crop and make the actual flower appear smaller in the fixed output canvas.
+     */
+    private fun buildNearBloomCoreMask(
+        pixels: IntArray,
+        removed: BooleanArray,
+        width: Int,
+        height: Int,
+    ): BooleanArray {
+        val nearBloomCore = BooleanArray(pixels.size)
+        val distance = IntArray(pixels.size) { -1 }
+        val queue = IntArray(pixels.size)
+        val centreX = (width - 1) / 2f
+        val centreY = (height - 1) / 2f
+        val centreRadius = min(width, height) * 0.42f
+        val maximumDistance = max(5, min(width, height) / 10)
+        var read = 0
+        var write = 0
+
+        for (index in pixels.indices) {
+            if (removed[index] || !isStrongBloomSignal(pixels[index])) continue
+            val dx = index % width - centreX
+            val dy = index / width - centreY
+            if (dx * dx + dy * dy > centreRadius * centreRadius) continue
+            distance[index] = 0
+            nearBloomCore[index] = true
+            queue[write++] = index
+        }
+
+        while (read < write) {
+            val index = queue[read++]
+            val nextDistance = distance[index] + 1
+            if (nextDistance > maximumDistance) continue
+            val x = index % width
+            val y = index / width
+            for (dy in -1..1) {
+                for (dx in -1..1) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = x + dx
+                    val ny = y + dy
+                    if (nx !in 0 until width || ny !in 0 until height) continue
+                    val next = ny * width + nx
+                    if (distance[next] >= 0) continue
+                    distance[next] = nextDistance
+                    nearBloomCore[next] = true
+                    queue[write++] = next
+                }
+            }
+        }
+        return nearBloomCore
+    }
     private fun removeSmallForegroundComponents(
         pixels: IntArray,
         removed: BooleanArray,
         width: Int,
         height: Int,
+        nearBloomCore: BooleanArray,
     ) {
         val visited = BooleanArray(pixels.size)
         val queue = IntArray(pixels.size)
-        val minimumComponentSize = max(18, pixels.size / 2000)
         for (start in pixels.indices) {
             if (removed[start] || visited[start] || Color.alpha(pixels[start]) < 16) continue
             var read = 0
@@ -377,14 +555,20 @@ internal object FlowerPixelArtProcessor {
                     }
                 }
             }
-            // Preserve even a small detached component when its colours/location are
-            // consistent with actual bloom detail. Otherwise tiny petal fragments can be
-            // removed before the 48px downscale has a chance to reconstruct the silhouette.
-            val containsBloomDetail = (0 until write).any { componentIndex ->
+            // A disconnected island must have spatial evidence of belonging to the
+            // bloom or nearby foliage. Previously, every component above a size threshold
+            // survived even when it was a distant brown/green backdrop fragment; that
+            // fragment enlarged the crop and shrank the real flower on the 48px canvas.
+            // This only removes unsupported components; it never restores background pixels.
+            val containsCentralBloomDetail = (0 until write).any { componentIndex ->
                 val index = queue[componentIndex]
                 isLikelyCentralBloomDetail(pixels[index], index, width, height)
             }
-            if (write < minimumComponentSize && !containsBloomDetail) {
+            val containsNearbyFoliage = (0 until write).any { componentIndex ->
+                val index = queue[componentIndex]
+                nearBloomCore[index] && isPlantGreen(pixels[index])
+            }
+            if (!containsCentralBloomDetail && !containsNearbyFoliage) {
                 for (i in 0 until write) removed[queue[i]] = true
             }
         }
@@ -405,9 +589,21 @@ internal object FlowerPixelArtProcessor {
         palette.minOfOrNull { colourDistance(pixel, it) } ?: Int.MAX_VALUE
 
     private fun composePixelArt(crop: Bitmap): Bitmap? {
+        // Scale sparse silhouettes up while keeping denser foreground crops safely below
+        // the 50% opaque-canvas threshold. This is geometry-driven for every species,
+        // rather than a special case for any named flower or source photo.
+        val cropPixels = IntArray(crop.width * crop.height)
+        crop.getPixels(cropPixels, 0, crop.width, 0, 0, crop.width, crop.height)
+        val foregroundRatio = cropPixels.count { Color.alpha(it) >= 16 }.toFloat() / cropPixels.size
+        val contentSize = if (foregroundRatio > 0f) {
+            (PIXEL_GRID_SIZE * sqrt(MAX_OUTPUT_OPAQUE_RATIO / foregroundRatio)).toInt()
+                .coerceIn(GRID_CONTENT_SIZE, MAX_GRID_CONTENT_SIZE)
+        } else {
+            GRID_CONTENT_SIZE
+        }
         val scale = min(
-            GRID_CONTENT_SIZE.toFloat() / crop.width.toFloat(),
-            GRID_CONTENT_SIZE.toFloat() / crop.height.toFloat(),
+            contentSize.toFloat() / crop.width.toFloat(),
+            contentSize.toFloat() / crop.height.toFloat(),
         )
         val targetWidth = max(1, (crop.width * scale).toInt())
         val targetHeight = max(1, (crop.height * scale).toInt())
@@ -568,10 +764,6 @@ internal object FlowerPixelArtProcessor {
 
     private fun applyDirectionalShading(pixels: IntArray): IntArray {
         val result = pixels.copyOf()
-        fun transparent(x: Int, y: Int): Boolean {
-            if (x !in 0 until PIXEL_GRID_SIZE || y !in 0 until PIXEL_GRID_SIZE) return true
-            return Color.alpha(pixels[y * PIXEL_GRID_SIZE + x]) < 16
-        }
         for (y in 0 until PIXEL_GRID_SIZE) {
             for (x in 0 until PIXEL_GRID_SIZE) {
                 val index = y * PIXEL_GRID_SIZE + x
@@ -580,13 +772,12 @@ internal object FlowerPixelArtProcessor {
                     result[index] = Color.TRANSPARENT
                     continue
                 }
-                val topLeftLight = transparent(x, y - 1) || transparent(x - 1, y)
-                val bottomRightShadow = transparent(x, y + 1) || transparent(x + 1, y)
-                val factor = when {
-                    topLeftLight && !bottomRightShadow -> 1.10f
-                    bottomRightShadow && !topLeftLight -> 0.88f
-                    else -> 1.0f
-                }
+                // Shade along a global top-left-to-bottom-right light plane rather
+                // than relying only on silhouette edges. Tiny petals often have
+                // overlapping edge signals, which otherwise leave every petal pixel
+                // at the base colour. Palette-step factors give visible pixel-art
+                // highlight and shadow tones without per-species rules.
+                val factor = if (x + y < PIXEL_GRID_SIZE) 1.10f else 0.88f
                 result[index] = shadeColour(colour, factor)
             }
         }

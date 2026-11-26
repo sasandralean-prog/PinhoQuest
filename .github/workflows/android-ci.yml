@@ -50,6 +50,7 @@ jobs:
             echo "::warning::Stable debug signing secrets are not configured. This CI artifact uses a runner-generated debug key and may not install as an update over a previous CI APK."
           fi
       - name: Verify foundation
+        id: foundation
         run: |
           chmod +x ./gradlew
           ./gradlew :quest-domain:test :quest-core:test :android-data:testDebugUnitTest :litertlm-bridge:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:compileDebugAndroidTestKotlin
@@ -67,9 +68,7 @@ jobs:
           profile: pixel_2
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: |
-            chmod +x ./gradlew
-            adb logcat -G 16M >/dev/null 2>&1 || true; test_exit=0; ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.pinhoquest.flora.FlowerPixelArtProcessorInstrumentedTest || test_exit=$?; out=app/build/outputs/flower-pixel-art-evidence; mkdir -p "$out"; adb logcat -d -v brief -s PqFlowerEvidence:I '*:S' > /tmp/pinhoquest-flower-evidence.log; evidence_exit=0; python tools/flower_evidence/extract_logcat.py /tmp/pinhoquest-flower-evidence.log "$out" || evidence_exit=$?; echo "Recovered flower evidence:"; ls -lah "$out"; if [ "$test_exit" -ne 0 ]; then exit "$test_exit"; else exit "$evidence_exit"; fi
+          script: bash tools/flower_evidence/run_instrumented_and_collect.sh
       - name: Upload flower original-versus-sprite screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -94,12 +93,12 @@ jobs:
             echo "Android Lint text report was not generated."
           fi
       - name: Write APK SHA-256 checksum
-        if: success()
+        if: always() && steps.foundation.outcome == 'success'
         shell: bash
         run: |
           sha256sum app/build/outputs/apk/debug/app-debug.apk | tee app/build/outputs/apk/debug/app-debug.apk.sha256
       - name: Upload debug APK and checksum
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor' || github.ref == 'refs/heads/feature/p6-garden-delight'
+        if: always() && steps.foundation.outcome == 'success' && (github.event_name == 'pull_request' || github.ref == 'refs/heads/feature/cr-0-runtime-consolidation' || github.ref == 'refs/heads/feature/p6-total-ui-refactor' || github.ref == 'refs/heads/feature/p6-garden-delight')
         uses: actions/upload-artifact@v4
         with:
           name: pinhoquest-v05-debug-apk
